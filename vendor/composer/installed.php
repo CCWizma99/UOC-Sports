@@ -3,7 +3,7 @@
         'name' => 'ccwizma99/uoc-sports',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '127a4007c4431a29cfc02ea8c56e82fae247cc80',
+        'reference' => '781f9ba96b7f1bd3637a4ad4389e07f1a204b86c',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'ccwizma99/uoc-sports' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '127a4007c4431a29cfc02ea8c56e82fae247cc80',
+            'reference' => '781f9ba96b7f1bd3637a4ad4389e07f1a204b86c',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -24,4 +24,4 @@ jobs:
         run: mkdir -p ./tests/logs
 
       - name: Run PHPUnit tests
-        run: ./vendor/bin/phpunit -c ./tests/logs/phpunit.xml
+        run: ./vendor/bin/phpunit -c phpunit.xml

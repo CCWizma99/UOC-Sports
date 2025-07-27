@@ -1,0 +1,4 @@
+<logging>
+    <log type="junit" target="tests/logs/junit.xml"/>
+    <log type="coverage-html" target="tests/logs/coverage"/>
+</logging>
