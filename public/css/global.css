@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    font-family: "Public Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+/* The entire scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  /* The track (background) */
+  ::-webkit-scrollbar-track {
+    background: #000000;
+    border-radius: 2px;
+  }
+  
+  /* The draggable thumb */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 2px;
+  }
+  
+  /* On hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  
+.bg-theme{
+    background-color: rgba(119, 0, 155, 0.1);
+}
+.text-theme{
+    color: #f6d8f9;
+}
+.text-black{
+    color: #000;
+}
+.bg-black{
+    background-color: #000;
+}
+.no-dec{
+    text-decoration: none;
+}
+.flex{
+    display: flex;
+}
+.flex-y{
+    display: flex;
+    flex-direction: column;
+}
+.y-center{
+    align-items: center;
+}
+.bold-6{
+    font-weight: 600;
+}
+.scroll{
+    overflow-y: scroll;
+}
