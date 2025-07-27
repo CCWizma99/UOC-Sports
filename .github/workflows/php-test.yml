@@ -20,5 +20,8 @@ jobs:
       - name: Fix permissions for phpunit
         run: chmod +x ./vendor/bin/phpunit
 
+      - name: Prepare test log directory
+        run: mkdir -p ./tests/logs
+
       - name: Run PHPUnit tests
         run: ./vendor/bin/phpunit -c ./tests/logs/phpunit.xml
