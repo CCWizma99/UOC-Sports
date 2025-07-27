@@ -21,4 +21,4 @@ jobs:
         run: chmod +x ./vendor/bin/phpunit
 
       - name: Run PHPUnit tests
-        run: ./vendor/bin/phpunit
+        run: ./vendor/bin/phpunit -c ./tests/logs/phpunit.xml
