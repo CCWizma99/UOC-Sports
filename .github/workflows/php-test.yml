@@ -12,8 +12,8 @@ jobs:
         with:
           php-version: '8.1'
 
-      - name: Install Dependencies
-        run: composer install
-
-      - name: Run Tests
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+      
+      - name: Run PHPUnit tests
         run: vendor/bin/phpunit
