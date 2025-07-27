@@ -1,6 +1,6 @@
 <nav class="flex-y bg-theme">
     <div class="side-links">
-        <a href="#">Users</a>
+        <a class="bor-t" href="#">Users</a>
         <a href="#">Reservations</a>
         <a href="#">Player Records</a>
         <a href="#">Equipment Inventory</a>

@@ -1,0 +1,15 @@
+#link-bar{
+    width: calc(100vw - 502px);
+    position: fixed;
+    left: 240px;
+    background-color: rgb(235, 235, 235);
+    padding: 10px;
+    border: rgba(0, 0, 0, 0.3) solid 1px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+#link-bar a{
+    transition: 0.4s;
+}
+#link-bar a:hover{
+    text-decoration: underline;
+}
