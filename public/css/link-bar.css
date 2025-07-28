@@ -1,7 +1,8 @@
 #link-bar{
-    width: calc(100vw - 502px);
+    width: calc(100vw - 510px);
     position: fixed;
     left: 240px;
+    top: 70px;
     background-color: rgb(235, 235, 235);
     padding: 10px;
     border: rgba(0, 0, 0, 0.3) solid 1px;

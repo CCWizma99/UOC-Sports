@@ -1,0 +1,56 @@
+#budget-card{
+    width: 980px;
+    margin: auto;
+    border: rgba(0, 0, 0, 0.1) solid 1px;
+    border-radius: 12px;
+    margin-top: 40px;
+    padding: 10px;
+}
+#budget-card h3{
+    font-weight: 200;
+    text-align: center;
+}
+#budget-card table{
+    width: 500px;
+    font-size: 20px;
+}
+#budget-card table td{
+    padding: 10px;
+}
+.graph-content-container{
+    justify-content: center;
+    gap: 30px;
+}
+.graph-content-container div{
+    width: fit-content;
+}
+.graph-content-container div p{
+    width: fit-content;
+}
+.view-btn{
+    display: block;
+    margin: auto;
+    margin-top: 20px;
+    text-decoration: none;
+    width: fit-content;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 40px;
+    transition: 0.4s;
+}
+.view-btn:hover{
+    color: #f6d8f9;
+    background-color: #000;
+}
+.red-box span{
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+}
+.blue-box span{
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: Blue;
+}
