@@ -1,5 +1,5 @@
 <?php
-function view($path, $data = []) {
+function view($name, $data = []) {
     extract($data);
-    require "../app/views/{$path}.php";
+    require "../app/views/$name.php";
 }

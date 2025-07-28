@@ -79,8 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   
       if (valid) {
-        alert('Form submitted successfully!');
-        // document.querySelector('form').submit();
+        document.querySelector('form').submit();
       }
     });
   });

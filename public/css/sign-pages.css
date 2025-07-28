@@ -63,6 +63,7 @@ form .double-input-div label{
     background-color: rgba(0, 0, 0, 0.2);
     text-align: center;
     transition: 0.4s;
+    font-weight: 200;
 }
 #submit-btn:hover{
     color: #f6d8f9;
@@ -90,9 +91,11 @@ form .double-input-div label{
 #other-opt{
     margin-top: 20px;
     line-height: 32px;
+    font-weight: 200;
+    text-align: center;
 }
 #other-opt a{
-    color: rgba(0, 59, 222, 0.9);
+    color: rgba(0, 59, 222, 1);
 }
 #other-opt a:hover{
     text-decoration: underline;
