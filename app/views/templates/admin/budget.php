@@ -48,7 +48,7 @@ try {
                     <td>Rs. <?= number_format($result['total_remaining']) ?></td>
                 </tr>
             </table>
-            <a href="#" class="view-btn">
+            <a href="#" class="view-btn text-black">
                 View More
             </a>
         </div>

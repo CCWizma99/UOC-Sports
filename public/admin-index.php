@@ -11,6 +11,6 @@ require_once '../core/helpers.php';
 
 $router = new Router();
 
-$router->get('/admin-index', 'HomeController@index');
+$router->get('/admin-index', 'AdminHomeController@index');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
