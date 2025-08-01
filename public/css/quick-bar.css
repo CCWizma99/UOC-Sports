@@ -12,11 +12,13 @@
 }
 #quick-bar>div strong{
     display: block;
-    color: #f6d8f9;
-    background-color: #000;
+    color: #000;
+    background-color: rgb(255, 255, 255);
     padding: 10px;
-    border-top: 1px solid rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+#quick-bar>div:last-child{
+    border-top:  1px solid rgba(0, 0, 0, 0.3);
 }
 .side-card-container{
     height: calc(100% - 41px);
@@ -30,12 +32,13 @@
     margin-top: 5px;
     white-space: normal;
     word-wrap: break-word;
-    font-weight: 100;
+    font-weight: 300;
 }
 .side-card-btn{
     display: block;
     padding: 5px;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: #800080;
+    color: #fff;
     width: 80px;
     margin: auto;
     margin-top: 10px;
@@ -46,5 +49,5 @@
 }
 .side-card-btn:hover{
     background-color: #000;
-    color: #f6d8f9;
+    color: #fff;
 }

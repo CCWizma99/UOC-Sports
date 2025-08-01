@@ -60,8 +60,8 @@ try {
     const ctx = canvas.getContext('2d');
   
     const data = [
-      { label: "Spent", value: <?=$result['total_spent']?>, color: "#f00" },
-      { label: "Remaining", value: <?=$result['total_remaining']?>, color: "#00f" }
+      { label: "Spent", value: <?=$result['total_spent']?>, color: "#000" },
+      { label: "Remaining", value: <?=$result['total_remaining']?>, color: "#800080" }
     ];
   
     const total = data.reduce((sum, d) => sum + d.value, 0);

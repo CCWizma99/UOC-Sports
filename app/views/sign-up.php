@@ -9,7 +9,7 @@
 </head>
 
 <body class="flex xy-center">
-    <section id="sign-form" class="bg-theme">
+    <section id="sign-form" class="">
         <form action="/uoc-sports/public/sign-up" method="post">
             <h2>Sign Up<br>UOC Sports E-Portal</h2>
             <div class="double-input-div">

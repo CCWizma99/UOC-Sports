@@ -1,12 +1,17 @@
+body{
+    background-color: rgba(250, 247, 247, 0.3);
+}
 header{
     justify-content: space-between;
-    height: 70px;
+    height: 68px;
     width: 100%;
     /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); */
     z-index: 2;
     position: fixed;
     top: 0;
     left: 0;
+    background-color: purple;
+    border-bottom: rgb(169, 169, 169) solid 2px;
 }
 .filler{
     background-color: #fff;
@@ -20,14 +25,20 @@ header{
     display: block;
     padding: 10px;
     width: fit-content;
+    color: #fff;
 }
 #home-link h1{
     font-size: 20px;
 }
 #header-links{
-    padding-right: 10px;
     gap: 20px;
-    font-size: 20px;
+    justify-content: space-around;
+    font-size: 16px;
+    width: 240px;
+    height: 68px;
+    background-color: #fff;
+    border-top-left-radius: 60px;
+    border-bottom-left-radius: 60px;
 }
 #header-links a{
     color: #000;
@@ -35,9 +46,11 @@ header{
     padding: 10px;
     border-radius: 100px;
     transition: 0.4s;
-    background-color: rgba(0, 0, 0, 0.1);
+    /* background-color: rgb(255, 255, 255); */
+    background-color: purple;
+    color: #fff;
 }
 #header-links a:hover{
     background-color: #000;
-    color: #f6d8f9;
+    color: #fff;
 }

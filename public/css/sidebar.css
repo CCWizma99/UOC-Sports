@@ -4,6 +4,7 @@ nav{
     width: 240px;
     position: fixed;
     top: 70px;
+    border-right: rgba(0, 0, 0, 0.3) solid 1px;
 }
 .side-links a{
     display: block;
@@ -15,8 +16,8 @@ nav{
     transition: 0.4s;
 }
 .side-links a:hover{
-    background-color: #000;
-    color: #f6d8f9;
+    background-color: purple;
+    color: #fff;
 }
 #log-out-btn{
     border-bottom: none;

@@ -9,7 +9,7 @@
         padding: 10px;
         border-radius: 12px;
         box-shadow: rgba(0,0,0,0.1) 1px 2px 5px 1px;
-        border: rgba(0,0,0,0.1) solid 1px;
+        border: purple solid 1px;
     }
     #calendar-container h2{
         width: 100%;
@@ -17,7 +17,7 @@
         text-align: center;
     }
     .calendar-day.booked {
-        background-color: #f44336;
+        background-color: purple;
         color: white;
         font-weight: bold;
     }
