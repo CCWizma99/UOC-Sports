@@ -31,22 +31,21 @@ header{
     font-size: 20px;
 }
 #header-links{
-    gap: 20px;
-    justify-content: space-around;
+    justify-content: space-between;
     font-size: 16px;
-    width: 240px;
-    height: 68px;
+    width: 200px;
+    height: 40px;
     background-color: #fff;
-    border-top-left-radius: 60px;
-    border-bottom-left-radius: 60px;
+    border-radius: 60px;
+    margin-right: 10px;
+    padding: 0px 8px;
 }
 #header-links a{
     color: #000;
     display: block;
-    padding: 10px;
+    padding: 5px;
     border-radius: 100px;
     transition: 0.4s;
-    /* background-color: rgb(255, 255, 255); */
     background-color: purple;
     color: #fff;
 }
