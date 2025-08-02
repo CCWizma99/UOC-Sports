@@ -61,7 +61,7 @@ try {
   
     const data = [
       { label: "Spent", value: <?=$result['total_spent']?>, color: "#000" },
-      { label: "Remaining", value: <?=$result['total_remaining']?>, color: "#800080" }
+      { label: "Remaining", value: <?=$result['total_remaining']?>, color: "#5e2d91" }
     ];
   
     const total = data.reduce((sum, d) => sum + d.value, 0);

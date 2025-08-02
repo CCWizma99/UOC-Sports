@@ -21,23 +21,30 @@
     border-top:  1px solid rgba(0, 0, 0, 0.3);
 }
 .side-card-container{
-    height: calc(100% - 41px);
+    height: calc(100% - 60px);
     width: 240px;
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+    margin-top: 10px;
 }
 .side-card{
     padding: 5px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    width: 180px; 
+    border-radius: 8px; 
 }
 .side-card p{
     margin-top: 5px;
     white-space: normal;
     word-wrap: break-word;
     font-weight: 300;
+    font-size: 14px;
 }
 .side-card-btn{
     display: block;
     padding: 5px;
-    background-color: #800080;
+    background-color: #5e2d91;
     color: #fff;
     width: 80px;
     margin: auto;

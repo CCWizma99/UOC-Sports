@@ -10,7 +10,7 @@ header{
     position: fixed;
     top: 0;
     left: 0;
-    background-color: purple;
+    background: linear-gradient(90deg, #5e2d91, #9b59b6);
     border-bottom: rgb(169, 169, 169) solid 2px;
 }
 .filler{
@@ -29,25 +29,27 @@ header{
 }
 #home-link h1{
     font-size: 20px;
+    font-weight: 300;
 }
 #header-links{
-    justify-content: space-between;
+    justify-content: center;
+    gap: 20px;
     font-size: 16px;
-    width: 200px;
-    height: 40px;
-    background-color: #fff;
-    border-radius: 60px;
-    margin-right: 10px;
-    padding: 0px 8px;
+    margin-right: 20px;
 }
 #header-links a{
     color: #000;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    text-decoration: none;
     padding: 5px;
     border-radius: 100px;
     transition: 0.4s;
-    background-color: purple;
     color: #fff;
+    background-color: #5e2d91;
 }
 #header-links a:hover{
     background-color: #000;

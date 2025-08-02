@@ -1,7 +1,10 @@
+:root {
+    --primary-color: #5e2d91;
+}
 #budget-card{
     width: 960px;
     margin: auto;
-    border: purple solid 1px;
+    border: var(--primary-color) solid 1px;
     border-radius: 12px;
     margin-top: 40px;
     padding: 10px;
@@ -39,14 +42,14 @@
     transition: 0.4s;
 }
 .view-btn:hover{
-    color: #f6d8f9;
+    color: #fff;
     background-color: #000;
 }
 .red-box span{
     display: inline-block;
     width: 10px;
     height: 10px;
-    background-color: purple;
+    background-color: var(--primary-color);
 }
 .blue-box span{
     display: inline-block;

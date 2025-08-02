@@ -9,7 +9,7 @@
         padding: 10px;
         border-radius: 12px;
         box-shadow: rgba(0,0,0,0.1) 1px 2px 5px 1px;
-        border: purple solid 1px;
+        border: #5e2d91 solid 1px;
     }
     #calendar-container h2{
         width: 100%;
@@ -17,7 +17,7 @@
         text-align: center;
     }
     .calendar-day.booked {
-        background-color: purple;
+        background-color: #5e2d91;
         color: white;
         font-weight: bold;
     }
@@ -27,6 +27,7 @@
         border-radius: 6px;
         overflow: hidden;
         box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        border-radius: 8px;
     }
     .booking-calendar caption{
         margin-bottom: 10px;
@@ -51,7 +52,7 @@
         cursor: pointer;
     }
     .booking-calendar td.booked:hover {
-        background-color: #a30000;
+        background-color: #4c2575;
     }
     #booking-info{
         width: 600px;
@@ -76,5 +77,4 @@
         text-align: left;
         padding: 5px;
     }
-      
       

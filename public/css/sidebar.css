@@ -16,7 +16,7 @@ nav{
     transition: 0.4s;
 }
 .side-links a:hover{
-    background-color: purple;
+    background: linear-gradient(90deg, #5e2d91, #9b59b6);
     color: #fff;
 }
 #log-out-btn{
