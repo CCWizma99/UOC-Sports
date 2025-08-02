@@ -1,14 +1,14 @@
 <nav class="flex-y bg-theme">
     <div class="side-links">
-        <a class="" href="#">Users</a>
-        <a href="#">Reservations</a>
-        <a href="#">Player Records</a>
-        <a href="#">Equipment Inventory</a>
-        <a href="#">Sports Events</a>
-        <a href="#">UOC Teams</a>
-        <a href="#">Budget</a>
-        <a href="#">News Feed</a>
-        <a href="#">Inquiries</a>
+        <a href="#" id="sidebar-users">Users</a>
+        <a href="#" id="sidebar-reservations">Reservations</a>
+        <a href="#" id="sidebar-player">Player Records</a>
+        <a href="#" id="sidebar-equipment">Equipment Inventory</a>
+        <a href="#" id="sidebar-events">Sports Events</a>
+        <a href="#" id="sidebar-teams">UOC Teams</a>
+        <a href="#" id="sidebar-budget">Budget</a>
+        <a href="#" id="sidebar-news">News Feed</a>
+        <a href="#" id="sidebar-inquiry">Inquiries</a>
     </div>
     <div class="side-links">
         <a href="#" id="log-out-btn">Log Out</a>

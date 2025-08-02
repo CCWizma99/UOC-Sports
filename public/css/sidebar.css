@@ -16,10 +16,14 @@ nav{
     transition: 0.4s;
 }
 .side-links a:hover{
-    background: linear-gradient(90deg, #5e2d91, #9b59b6);
+    background-color: var(--primary-color);
     color: #fff;
 }
 #log-out-btn{
     border-bottom: none;
     border-top: #000 1px solid;
+}
+.side-links a.active{
+    background-color: var(--primary-color);
+    color: #fff; 
 }
