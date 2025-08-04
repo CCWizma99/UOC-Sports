@@ -1,0 +1,33 @@
+#search-user{
+    width: 960px;
+    margin: auto;
+    margin-top: 140px;
+    padding: 20px;
+    border: var(--primary-color) 1px solid;
+    border-radius: 12px;
+    box-shadow: rgba(0,0,0,0.1) 1px 2px 5px 1px;
+}
+#search-user input{
+    width: 80%;
+    display: block;
+    margin: auto;
+    margin-top: 20px;
+    line-height: 32px;
+    padding-left: 10px;
+    border-radius: 50px;
+    outline: none;
+    border: var(--primary-color) 1px solid;
+}
+#search-user h2{
+    width: 100%;
+    font-weight: 200;
+    text-align: center;
+}
+.search-output ul {
+    list-style: none;
+    padding: 0;
+}
+.search-output li {
+    padding: 6px;
+    border-bottom: 1px solid #ccc;
+}

@@ -6,6 +6,9 @@
     font-optical-sizing: auto;
     font-style: normal;
 }
+:root {
+    --primary-color: #5e2d91;
+}
 /* The entire scrollbar */
 ::-webkit-scrollbar {
     width: 8px;

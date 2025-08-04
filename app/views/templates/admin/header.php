@@ -1,6 +1,6 @@
     <div class="filler">
         <header class="flex y-center">
-            <a href="#" class="no-dec text-black" id="home-link">
+            <a href="/uoc-sports/public/admin-index" class="no-dec text-black" id="home-link">
                 <h1>
                     UOC Sports<br>E-Portal
                 </h1>

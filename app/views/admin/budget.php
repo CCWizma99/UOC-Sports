@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users | UOC Sports E-Portal</title>
+    <title>Budget | UOC Sports E-Portal</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/header.css);
+        @import url(/uoc-sports/public/css/admin-calendar.css);
+        @import url(/uoc-sports/public/css/budget.css);
         @import url(/uoc-sports/public/css/link-bar.css);
         @import url(/uoc-sports/public/css/sidebar.css);
         @import url(/uoc-sports/public/css/quick-bar.css);
-        @import url(/uoc-sports/public/css/search-user.css);
     </style>
 </head>
 <body>
@@ -22,13 +23,10 @@ require '../app/views/templates/admin/header.php';
 require '../app/views/templates/admin/link-bar.php';
 require '../app/views/templates/admin/sidebar.php';
 require '../app/views/templates/admin/quick-bar.php';
-require '../app/views/templates/admin/quick-bar.php';
-require '../app/views/templates/admin/search-user.php';
-
 ?>
 </body>
 <script>
-    var currentPage = document.getElementById("sidebar-users");
+    var currentPage = document.getElementById("sidebar-budget");
     currentPage.classList.add("active") 
 </script>
 </html>
