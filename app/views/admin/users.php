@@ -14,6 +14,7 @@
         @import url(/uoc-sports/public/css/sidebar.css);
         @import url(/uoc-sports/public/css/quick-bar.css);
         @import url(/uoc-sports/public/css/search-user.css);
+        @import url(/uoc-sports/public/css/add-user.css);
     </style>
 </head>
 <body>
@@ -24,6 +25,7 @@ require '../app/views/templates/admin/sidebar.php';
 require '../app/views/templates/admin/quick-bar.php';
 require '../app/views/templates/admin/quick-bar.php';
 require '../app/views/templates/admin/search-user.php';
+require '../app/views/templates/admin/add-user.php';
 
 ?>
 </body>

@@ -5,6 +5,7 @@
     font-family: "Public Sans", sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
+    box-sizing: border-box;
 }
 :root {
     --primary-color: #5e2d91;

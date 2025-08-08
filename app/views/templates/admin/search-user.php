@@ -17,11 +17,40 @@
         .then(data => {
             const outputDiv = document.querySelector('.search-output');
             if (data.length > 0) {
-                let html = '<ul>';
+                let html = '<table>';
+                html += `
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
                 data.forEach(user => {
-                    html += `<li><strong>${user.user_id}</strong> - ${user.fname} ${user.lname}</li>`;
+                    html += `
+                        <tr>
+                            <td>${user.user_id}</td>
+                            <td>${user.fname} ${user.lname}</td>
+                            <td>${user.type}</td>
+                            <td>
+                                <a href="./user.php?id=${user.user_id}" class="action-link" title="View User">
+                                    <i class="fa-solid fa-circle-arrow-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
                 });
-                html += '</ul>';
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
                 outputDiv.innerHTML = html;
             } else {
                 outputDiv.innerHTML = '<p>No users found.</p>';

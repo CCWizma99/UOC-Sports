@@ -23,11 +23,41 @@
     font-weight: 200;
     text-align: center;
 }
-.search-output ul {
-    list-style: none;
-    padding: 0;
+.user-table {
+    width: calc(80% + 14px);
+    border-collapse: collapse;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 0 10px 2px rgba(0,0,0,0.1);
+    margin: auto;
+    margin-top: 20px;
 }
-.search-output li {
-    padding: 6px;
-    border-bottom: 1px solid #ccc;
+
+.user-table thead {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.user-table th, .user-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.action-link {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.4s ease;
+    font-size: 20px;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.action-link:hover {
+    color: var(--primary-color);
 }
