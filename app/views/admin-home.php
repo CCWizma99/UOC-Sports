@@ -17,7 +17,7 @@
         @import url(/uoc-sports/public/css/quick-bar.css);
 
         #link-bar{
-            width: calc(100vw - 510px);
+            width: calc(100vw - 488px);
         }
     </style>
 

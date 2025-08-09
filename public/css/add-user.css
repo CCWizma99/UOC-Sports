@@ -63,5 +63,21 @@
     gap: 20px;
 }
 #add-user .name-div input{
-    width: 450px;
+    width: 448px;
+}
+.add-user-btn{
+    display: block;
+    height: 32px;
+    background-color: var(--primary-color);
+    color: #fff;
+    margin: auto;
+    margin-top: 20px;
+    width: fit-content;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 40px;
+    transition: 0.4s;
+}
+.add-user-btn:hover{
+    background-color: #000;
 }

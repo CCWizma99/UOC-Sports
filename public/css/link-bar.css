@@ -1,5 +1,5 @@
 #link-bar{
-    width: calc(100vw - 502px);
+    width: calc(100vw - 480px);
     position: fixed;
     left: 240px;
     top: 70px;
