@@ -9,12 +9,12 @@
 
     <style>
         @import url(/uoc-sports/public/css/global.css);
-        @import url(/uoc-sports/public/css/header.css);
-        @import url(/uoc-sports/public/css/admin-calendar.css);
-        @import url(/uoc-sports/public/css/budget.css);
-        @import url(/uoc-sports/public/css/link-bar.css);
-        @import url(/uoc-sports/public/css/sidebar.css);
-        @import url(/uoc-sports/public/css/quick-bar.css);
+        @import url(/uoc-sports/public/css/admin/header.css);
+        @import url(/uoc-sports/public/css/admin/admin-calendar.css);
+        @import url(/uoc-sports/public/css/admin/budget.css);
+        @import url(/uoc-sports/public/css/admin/link-bar.css);
+        @import url(/uoc-sports/public/css/admin/sidebar.css);
+        @import url(/uoc-sports/public/css/admin/quick-bar.css);
     </style>
 </head>
 <body>

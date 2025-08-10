@@ -9,13 +9,13 @@
 
     <style>
         @import url(/uoc-sports/public/css/global.css);
-        @import url(/uoc-sports/public/css/header.css);
-        @import url(/uoc-sports/public/css/link-bar.css);
-        @import url(/uoc-sports/public/css/sidebar.css);
-        @import url(/uoc-sports/public/css/quick-bar.css);
-        @import url(/uoc-sports/public/css/search-user.css);
-        @import url(/uoc-sports/public/css/add-user.css);
-        @import url(/uoc-sports/public/css/user-stat.css);
+        @import url(/uoc-sports/public/css/admin/header.css);
+        @import url(/uoc-sports/public/css/admin/link-bar.css);
+        @import url(/uoc-sports/public/css/admin/sidebar.css);
+        @import url(/uoc-sports/public/css/admin/quick-bar.css);
+        @import url(/uoc-sports/public/css/admin/search-user.css);
+        @import url(/uoc-sports/public/css/admin/add-user.css);
+        @import url(/uoc-sports/public/css/admin/user-stat.css);
 
         #link-bar{
             width: calc(100vw - 488px);
