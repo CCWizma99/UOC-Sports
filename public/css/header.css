@@ -6,7 +6,6 @@ header{
     height: 70px;
     width: 100%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 2;
     position: fixed;
     top: 0;
     left: 0;
@@ -20,6 +19,7 @@ header{
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 99;
 }
 #home-link{
     display: block;

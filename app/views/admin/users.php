@@ -15,6 +15,11 @@
         @import url(/uoc-sports/public/css/quick-bar.css);
         @import url(/uoc-sports/public/css/search-user.css);
         @import url(/uoc-sports/public/css/add-user.css);
+        @import url(/uoc-sports/public/css/user-stat.css);
+
+        #link-bar{
+            width: calc(100vw - 488px);
+        }
     </style>
 </head>
 <body>
@@ -24,6 +29,7 @@ require '../app/views/templates/admin/link-bar.php';
 require '../app/views/templates/admin/sidebar.php';
 require '../app/views/templates/admin/quick-bar.php';
 require '../app/views/templates/admin/quick-bar.php';
+require '../app/views/templates/admin/user-stat.php';
 require '../app/views/templates/admin/search-user.php';
 require '../app/views/templates/admin/add-user.php';
 
@@ -33,5 +39,6 @@ require '../app/views/templates/admin/add-user.php';
     var currentPage = document.getElementById("sidebar-users");
     currentPage.classList.add("active") 
 </script>
+<script src="/uoc-sports/public/js/user-stat.js"></script>
 </html>
 
