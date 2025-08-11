@@ -1,0 +1,143 @@
+.carousel-container {
+    max-width: 960px; /* Adjusted to match your image width */
+    margin: 30px auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel-wrapper {
+    position: relative;
+    overflow: hidden;
+    height: 382px;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    height: 100%;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    height: 100%;
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.carousel-nav:hover {
+    background: white;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-nav:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.carousel-prev {
+    left: 20px;
+}
+
+.carousel-next {
+    right: 20px;
+}
+
+.play-pause-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.play-pause-btn:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+.carousel-dots {
+    position: absolute;
+    bottom: 5px;
+    left: calc(50% - 70px);
+    width: 140px;
+    border-radius: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 5px;
+    background: #fff;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #ccc;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background: var(--primary-color);
+    transform: scale(1.2);
+}
+
+.dot:hover {
+    background: #666;
+}
+.carousel-track.no-transition {
+    transition: none;
+}
+.intro{
+    width: 960px;
+    margin: auto;
+    text-align: justify;
+    line-height: 28px;
+}
+.intro h1{
+    font-weight: 300;
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 12px;
+}
