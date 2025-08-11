@@ -105,7 +105,7 @@
     justify-content: center;
     gap: 8px;
     padding: 5px;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.7);
 }
 
 .dot {
@@ -128,16 +128,4 @@
 }
 .carousel-track.no-transition {
     transition: none;
-}
-.intro{
-    width: 960px;
-    margin: auto;
-    text-align: justify;
-    line-height: 28px;
-}
-.intro h1{
-    font-weight: 300;
-    font-size: 24px;
-    text-align: center;
-    margin-bottom: 12px;
 }
