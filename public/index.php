@@ -9,6 +9,7 @@ require_once '../core/Router.php';
 $router = new Router();
 
 $router->get('/', 'UserHomeController@index');
+$router->get('/captain/mark-attendance', 'CaptainController@MarkAttendance');
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->post('/sign-up', 'AuthController@handleSignup');
 
