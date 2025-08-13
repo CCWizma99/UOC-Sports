@@ -21,7 +21,6 @@ function updateAttendanceSummary() {
 }
 
 function submitAttendance() {
-    const date = document.getElementById('attendanceDate').value;
     const attendanceData = {};
     
     document.querySelectorAll('.attendance-toggle').forEach(button => {
@@ -31,7 +30,7 @@ function submitAttendance() {
     });
     
     // Simulate submission
-    alert(`Attendance submitted for ${date}!\n\nData: ${JSON.stringify(attendanceData, null, 2)}`);
+    alert(`Attendance submitted!\n\nData: ${JSON.stringify(attendanceData, null, 2)}`);
 }
 
 // Initialize the summary on page load

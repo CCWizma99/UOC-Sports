@@ -14,9 +14,9 @@
         </div>
     </div>
     <nav class="flex">
-        <a href="#" class="active">Home</a>
-        <a href="#">News</a>
-        <a href="#">Facility Reservation</a>
+        <a href="/uoc-sports/public/" class="active">Home</a>
+        <a href="/uoc-sports/public/news">News</a>
+        <a href="/uoc-sports/public/facility-reservation">Facility Reservation</a>
         <a href="#">Contact Us</a>
     </nav>
 </section>

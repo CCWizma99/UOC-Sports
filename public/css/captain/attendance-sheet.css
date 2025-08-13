@@ -32,7 +32,7 @@
 .info-title{
     font-size: 18px;
     text-align: center;
-    font-weight: 300;
+    font-weight: 600;
     margin-bottom: 8px;
 }
 
@@ -55,26 +55,26 @@
 
 .summary-count {
     font-size: 20px;
-    font-weight: 400;
+    font-weight: 600;
 }
 
 .attendance-table {
     background: white;
-    border-radius: 0.75rem;
+    border-radius: 6px;
     overflow: hidden;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+    margin-bottom: 20px;
+    border: 1px solid var(--primary-color);
 }
 
 .table-header {
-    background-color: var(--gray-100);
     padding: 1rem;
     display: grid;
     grid-template-columns: 2fr 1.5fr 1fr 1fr;
     gap: 1rem;
     font-weight: 600;
     color: var(--gray-700);
-    border-bottom: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--primary-color);
 }
 
 .table-row {
@@ -83,7 +83,7 @@
     grid-template-columns: 2fr 1.5fr 1fr 1fr;
     gap: 1rem;
     align-items: center;
-    border-bottom: 1px solid var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
     transition: background-color 0.2s;
 }
 
@@ -97,12 +97,6 @@
 
 .student-name {
     font-weight: 600;
-    color: var(--gray-900);
-}
-
-.student-id {
-    color: var(--gray-600);
-    font-family: monospace;
 }
 
 .attendance-toggle {
