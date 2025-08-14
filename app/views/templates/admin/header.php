@@ -2,7 +2,7 @@
         <header class="flex y-center">
             <a href="/uoc-sports/public/admin-index" class="no-dec text-black" id="home-link">
                 <h1>
-                    UOC Sports<br>E-Portal
+                    Colombo Sports<br>E-Portal
                 </h1>
             </a>
             <div id="header-links" class="flex y-center">

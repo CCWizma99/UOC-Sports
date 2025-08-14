@@ -2,7 +2,7 @@
 
 $pdo = Database::getConnection();
 
-function getUserRegistrationData($pdo, $period = 'monthly', $year = null) {
+function getReservationData($pdo, $period = 'monthly', $year = null) {
     if (!$year) {
         $year = date('Y');
     }
@@ -11,31 +11,31 @@ function getUserRegistrationData($pdo, $period = 'monthly', $year = null) {
         switch ($period) {
             case 'weekly':
                 $sql = "SELECT 
-                    WEEK(joined_date) as period_num,
-                    CONCAT('Week ', WEEK(joined_date)) as period_label,
-                    COUNT(*) as user_count 
-                    FROM user 
-                    WHERE YEAR(joined_date) = :year 
-                    GROUP BY WEEK(joined_date) 
+                    WEEK(date) as period_num,
+                    CONCAT('Week ', WEEK(date)) as period_label,
+                    COUNT(*) as res_count 
+                    FROM `facility-booking` 
+                    WHERE YEAR(date) = :year 
+                    GROUP BY WEEK(date) 
                     ORDER BY period_num";
                 break;
             case 'annually':
                 $sql = "SELECT 
-                    YEAR(joined_date) as period_num,
-                    YEAR(joined_date) as period_label,
-                    COUNT(*) as user_count 
-                    FROM user 
-                    GROUP BY YEAR(joined_date) 
+                    YEAR(date) as period_num,
+                    YEAR(date) as period_label,
+                    COUNT(*) as res_count 
+                    FROM `facility-booking` 
+                    GROUP BY YEAR(date) 
                     ORDER BY period_num";
                 break;
             default:
                 $sql = "SELECT 
-                    MONTH(joined_date) as period_num,
-                    MONTHNAME(joined_date) as period_label,
-                    COUNT(*) as user_count 
-                    FROM user 
-                    WHERE YEAR(joined_date) = :year 
-                    GROUP BY MONTH(joined_date), MONTHNAME(joined_date) 
+                    MONTH(date) as period_num,
+                    MONTHNAME(date) as period_label,
+                    COUNT(*) as res_count 
+                    FROM `facility-booking` 
+                    WHERE YEAR(date) = :year 
+                    GROUP BY MONTH(date), MONTHNAME(date) 
                     ORDER BY period_num";
         }
         $stmt = $pdo->prepare($sql);
@@ -53,53 +53,53 @@ $current_year = date('Y');
 $current_period = $_GET['period'] ?? 'monthly';
 $selected_year = $_GET['year'] ?? $current_year;
 
-$connection_error = 0;
+$connection_error = 1;
 
 if (isset($connection_error)) {
     // Sample data for demonstration
     $sample_data = [
         'monthly' => [
-            ['period_label' => 'January', 'user_count' => 45],
-            ['period_label' => 'February', 'user_count' => 52],
-            ['period_label' => 'March', 'user_count' => 38],
-            ['period_label' => 'April', 'user_count' => 67],
-            ['period_label' => 'May', 'user_count' => 71],
-            ['period_label' => 'June', 'user_count' => 58],
-            ['period_label' => 'July', 'user_count' => 82],
-            ['period_label' => 'August', 'user_count' => 76]
+            ['period_label' => 'January', 'res_count' => 45],
+            ['period_label' => 'February', 'res_count' => 52],
+            ['period_label' => 'March', 'res_count' => 38],
+            ['period_label' => 'April', 'res_count' => 67],
+            ['period_label' => 'May', 'res_count' => 71],
+            ['period_label' => 'June', 'res_count' => 58],
+            ['period_label' => 'July', 'res_count' => 82],
+            ['period_label' => 'August', 'res_count' => 76]
         ],
         'weekly' => [
-            ['period_label' => 'Week 1', 'user_count' => 12],
-            ['period_label' => 'Week 2', 'user_count' => 18],
-            ['period_label' => 'Week 3', 'user_count' => 15],
-            ['period_label' => 'Week 4', 'user_count' => 22],
-            ['period_label' => 'Week 5', 'user_count' => 19],
-            ['period_label' => 'Week 6', 'user_count' => 25],
-            ['period_label' => 'Week 7', 'user_count' => 16],
-            ['period_label' => 'Week 8', 'user_count' => 21]
+            ['period_label' => 'Week 1', 'res_count' => 12],
+            ['period_label' => 'Week 2', 'res_count' => 18],
+            ['period_label' => 'Week 3', 'res_count' => 15],
+            ['period_label' => 'Week 4', 'res_count' => 22],
+            ['period_label' => 'Week 5', 'res_count' => 19],
+            ['period_label' => 'Week 6', 'res_count' => 25],
+            ['period_label' => 'Week 7', 'res_count' => 16],
+            ['period_label' => 'Week 8', 'res_count' => 21]
         ],
         'annually' => [
-            ['period_label' => '2021', 'user_count' => 324],
-            ['period_label' => '2022', 'user_count' => 567],
-            ['period_label' => '2023', 'user_count' => 689],
-            ['period_label' => '2024', 'user_count' => 489]
+            ['period_label' => '2021', 'res_count' => 324],
+            ['period_label' => '2022', 'res_count' => 567],
+            ['period_label' => '2023', 'res_count' => 689],
+            ['period_label' => '2024', 'res_count' => 489]
         ]
     ];
     $chart_data = $sample_data[$current_period];
 } else {
-    $chart_data = getUserRegistrationData($pdo, $current_period, $selected_year) ?? [];
+    $chart_data = getReservationData($pdo, $current_period, $selected_year) ?? [];
 }
 
 // Calculate max value for chart scaling
-$max_value = !empty($chart_data) ? max(array_column($chart_data, 'user_count')) : 100;
-$total_users = !empty($chart_data) ? array_sum(array_column($chart_data, 'user_count')) : 0;
+$max_value = !empty($chart_data) ? max(array_column($chart_data, 'res_count')) : 100;
+$total_users = !empty($chart_data) ? array_sum(array_column($chart_data, 'res_count')) : 0;
 $avg_users = !empty($chart_data) ? round($total_users / count($chart_data), 1) : 0;
 ?>
 
     <div class="user-stat-container">
         <div class="chart-header">
-            <h2>User Registration Analytics</h2>
-            <p>Track user growth and registration patterns</p>
+            <h2>Facility Reservation Analytics</h2>
+            <p>Track facility reservation patterns</p>
         </div>
 
         <div class="controls">
@@ -134,7 +134,7 @@ $avg_users = !empty($chart_data) ? round($total_users / count($chart_data), 1) :
                 <div class="stats-grid">
                     <div class="stat-card">
                         <strong><?php echo $total_users; ?></strong>
-                        <p>Total Users</p>
+                        <p>Total Reservations</p>
                     </div>
                     <div class="stat-card">
                         <strong><?php echo count($chart_data); ?></strong>
@@ -147,7 +147,7 @@ $avg_users = !empty($chart_data) ? round($total_users / count($chart_data), 1) :
                 </div>
                 
                 <div class="chart-wrapper">
-                    <div class="chart-title">User Registrations - <?php echo ucfirst($current_period); ?> View</div>
+                    <div class="chart-title">Facility Reservation - <?php echo ucfirst($current_period); ?> View</div>
                     
                     <div class="chart-type-selector">
                         <button class="chart-type-btn active" onclick="showChart('bar')">Bar Chart</button>
@@ -158,8 +158,8 @@ $avg_users = !empty($chart_data) ? round($total_users / count($chart_data), 1) :
                         <div class="bar-chart">
                             <?php foreach ($chart_data as $data): ?>
                                 <div class="bar" 
-                                     style="height: <?php echo ($data['user_count'] / $max_value) * 100; ?>%; animation-delay: <?php echo array_search($data, $chart_data) * 0.1; ?>s;"
-                                     data-value="<?php echo $data['user_count']; ?> users"
+                                     style="height: <?php echo ($data['res_count'] / $max_value) * 100; ?>%; animation-delay: <?php echo array_search($data, $chart_data) * 0.1; ?>s;"
+                                     data-value="<?php echo $data['res_count']; ?> Reservarions"
                                      data-label="<?php echo $data['period_label']; ?>">
                                 </div>
                             <?php endforeach; ?>
@@ -194,7 +194,7 @@ $avg_users = !empty($chart_data) ? round($total_users / count($chart_data), 1) :
                                 
                                 foreach ($chart_data as $index => $data) {
                                     $x = $padding + ($index * ($chartWidth / ($dataCount - 1)));
-                                    $y = $padding + ($chartHeight - (($data['user_count'] / $max_value) * $chartHeight));
+                                    $y = $padding + ($chartHeight - (($data['res_count'] / $max_value) * $chartHeight));
                                     $points[] = "$x,$y";
                                     
                                     if ($index === 0) {
@@ -228,10 +228,10 @@ $avg_users = !empty($chart_data) ? round($total_users / count($chart_data), 1) :
                                 <!-- Data points -->
                                 <?php foreach ($chart_data as $index => $data): 
                                     $x = $padding + ($index * ($chartWidth / ($dataCount - 1)));
-                                    $y = $padding + ($chartHeight - (($data['user_count'] / $max_value) * $chartHeight));
+                                    $y = $padding + ($chartHeight - (($data['res_count'] / $max_value) * $chartHeight));
                                 ?>
                                     <circle cx="<?php echo $x; ?>" cy="<?php echo $y; ?>" r="6" class="data-point">
-                                        <title><?php echo $data['period_label'] . ': ' . $data['user_count']; ?> users</title>
+                                        <title><?php echo $data['period_label'] . ': ' . $data['res_count']; ?> Reservations</title>
                                     </circle>
                                 <?php endforeach; ?>
                                 

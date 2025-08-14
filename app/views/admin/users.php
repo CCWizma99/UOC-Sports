@@ -16,7 +16,7 @@
         @import url(/uoc-sports/public/css/admin/search-user.css);
         @import url(/uoc-sports/public/css/admin/add-user.css);
         @import url(/uoc-sports/public/css/admin/user-stat.css);
-
+        @import url(/uoc-sports/public/css/admin/footer.css);
         #link-bar{
             width: calc(100vw - 488px);
         }
@@ -32,6 +32,7 @@ require '../app/views/templates/admin/quick-bar.php';
 require '../app/views/templates/admin/user-stat.php';
 require '../app/views/templates/admin/search-user.php';
 require '../app/views/templates/admin/add-user.php';
+require '../app/views/templates/admin/footer.php';
 
 ?>
 </body>
