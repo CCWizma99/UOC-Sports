@@ -13,6 +13,7 @@ $router->get('/news', 'UserHomeController@news');
 $router->get('/facility-reservation', 'UserHomeController@facilityReservation');
 $router->get('/contact-us', 'UserHomeController@contactUs');
 $router->get('/captain/mark-attendance', 'CaptainController@MarkAttendance');
+$router->get('/equipment-manager//', 'EquipmentManagerController@index');
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->post('/sign-up', 'AuthController@handleSignup');
 

@@ -1,0 +1,93 @@
+body {
+  margin: 0;
+  padding:0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #fff;
+  color: #222;
+}
+
+header {
+  background-color: #ffffff;
+  color: #641F87;
+  margin-bottom: 70px;
+    font-family: "Font Name", 'Inter';
+}
+
+
+.logo-container{
+  
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 25px;
+  margin: 0 0px;
+}
+
+.header-container h1{
+  Font-size: 19px;
+  font-family: "Font Name", 'Roboto';
+  Font-weight: 100;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 0px;  
+}
+
+.logo {
+  height: 80px;
+  margin-right: 0px;
+  padding: 0px 2px;
+  line-height: 1.2px
+
+}
+.searchbar{
+  height:10px;
+}
+
+.logout-btn {
+  background-color: #641F87;
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0px;
+}
+
+
+.logout-btn:hover{
+  background-color: rgb(116, 76, 141);
+}
+
+.logout{
+  height: 10px;
+  padding: 0px 5px;
+}
+
+.sub-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #641F87;
+  padding: 10px 25px;
+}
+
+.back-link {
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  margin: 20px 20px;
+}
+
+.img{
+    height: 10px;
+}
+.report-title {
+  color: white;
+  cursor: pointer;
+}

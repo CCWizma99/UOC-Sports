@@ -1,0 +1,41 @@
+
+footer {
+  text-align: center;
+  padding: 30px 20px;
+  background: #FFFFFF;
+  font-size: 14px;
+  font-family: "Font Name", 'Inter';
+}
+
+.footer-content p {
+  margin: 5px 0;
+   font-family: "Font Name", 'Jersey 25';
+   color: #560756;
+}
+
+.footer-rights p{
+  margin: 5px 0;
+  font-family: "Font Name", 'Jersey 25';
+  color: #737373;
+}
+
+.footer-content a {
+  color: #5e2c82;
+  text-decoration: none;
+  display: block;
+  margin: 10px 0;
+  font-family: "Font Name", 'Inter';
+}
+
+.social-icons img {
+  height: 15px;
+  margin: 0 0px;
+}
+
+.footer-content line {
+  border: none;
+  height: 1px;
+  background-color: #737373;
+  margin: 20px 0;
+  text-align: center;
+}
