@@ -1,4 +1,4 @@
-<div id="calendar-container" class="bg-theme">
+<div id="calendar-container" class="">
   <h2>Facility Reservations</h2>
   <div id="calendar-current-month"></div>
   <div id="calendar-next-month"></div>

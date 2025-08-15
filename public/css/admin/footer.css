@@ -1,0 +1,9 @@
+footer{
+    width: calc(100vw - 490px);
+    margin: auto;
+    margin-top: 30px;
+    background: linear-gradient(90deg, var(--primary-color), #9b59b6);
+    padding: 11px;
+    text-align: center;
+    color: #fff;
+}

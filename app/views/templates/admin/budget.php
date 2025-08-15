@@ -36,11 +36,11 @@ try {
         <div class="content">
             <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
                 <tr>
-                    <td>Total Budget</td>
+                    <td>Total Allocated Budget</td>
                     <td>Rs. <?= number_format($result['total_spent'] + $result['total_remaining']) ?></td>
                 </tr>
                 <tr>
-                    <td>Total Spent</td>
+                    <td>Total Expediture</td>
                     <td>Rs. <?= number_format($result['total_spent']) ?></td>
                 </tr>
                 <tr>
@@ -60,8 +60,8 @@ try {
     const ctx = canvas.getContext('2d');
   
     const data = [
-      { label: "Spent", value: <?=$result['total_spent']?>, color: "#f00" },
-      { label: "Remaining", value: <?=$result['total_remaining']?>, color: "#00f" }
+      { label: "Spent", value: <?=$result['total_spent']?>, color: "#000" },
+      { label: "Remaining", value: <?=$result['total_remaining']?>, color: "#5e2d91" }
     ];
   
     const total = data.reduce((sum, d) => sum + d.value, 0);
