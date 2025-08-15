@@ -7,6 +7,71 @@
     border-radius: 12px;
     box-shadow: rgba(0,0,0,0.1) 1px 2px 5px 1px;
 }
+.filter-bar{
+    width: 80%;
+    margin: auto;
+    color: #333;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+    background-color: rgba(238, 238, 238, 0.5);
+    padding: 10px;
+    border-radius: 8px;
+}
+.filter-bar h3{
+    width: 100%;
+    font-size: 16px;
+    font-weight: 300;
+}
+.filter-bar .btn{
+    border: var(--primary-color) 1px solid;
+    color: var(--primary-color);
+    background-color: #fff;
+    padding: 8px;
+    width: 100px;
+    text-align: center;
+    border-radius: 30px;
+    transition: 0.4s;
+}
+.filter-bar .btn:hover{
+    background-color: #ddd;
+    cursor: pointer;
+}
+.filter-bar .btn.selected{
+    background-color: var(--primary-color);
+    color: #fff;
+}
+.dropdown {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    margin-top: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    width: 120px;
+    z-index: 10;
+}
+
+.dropdown div {
+    padding: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.dropdown div:hover {
+    background: #f0f0f0;
+}
+
+.dropdown.show {
+    display: block;
+}
+
+.filter-bar .btn {
+    position: relative;
+}
+
 #search-user input{
     width: 80%;
     display: block;
@@ -60,4 +125,9 @@
 
 .action-link:hover {
     color: var(--primary-color);
+}
+#search-user p{
+    width: 80%;
+    margin: auto;
+    margin-top: 20px;
 }

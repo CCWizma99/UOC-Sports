@@ -4,19 +4,51 @@ require_once '../../core/Database.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_GET['q']) || empty(trim($_GET['q']))) {
-    echo json_encode([]);
-    exit;
-}
-
-$query = trim($_GET['q']);
+$query = isset($_GET['q']) ? trim($_GET['q']) : '';
+$faculty = isset($_GET['faculty']) ? trim($_GET['faculty']) : '';
+$year = isset($_GET['year']) ? trim($_GET['year']) : '';
+$sport = isset($_GET['sport']) ? trim($_GET['sport']) : '';
+$type = isset($_GET['type']) ? trim($_GET['type']) : '';
 
 try {
     $db = Database::getConnection();
 
-    $stmt = $db->prepare("SELECT user_id, fname, lname FROM user WHERE user_id LIKE ? OR fname LIKE ? OR lname LIKE ?");
-    $like = "%$query%";
-    $stmt->execute([$like, $like, $like]);
+    $sql = "
+        SELECT u.user_id, u.fname, u.lname, u.type
+        FROM user u
+        LEFT JOIN faculty f ON u.faculty_id = f.faculty_id
+        LEFT JOIN `sports-team` st ON u.student_id = st.student_id
+        LEFT JOIN sport s ON st.sport_id = s.sport_id
+        WHERE 1
+    ";
+    $params = [];
+
+    if ($query !== '') {
+        $sql .= " AND (u.user_id LIKE ? OR u.fname LIKE ? OR u.lname LIKE ?)";
+        $like = "%$query%";
+        $params[] = $like;
+        $params[] = $like;
+        $params[] = $like;
+    }
+    if ($faculty !== '') {
+        $sql .= " AND f.faculty_name = ?";
+        $params[] = $faculty;
+    }
+    if ($year !== '') {
+        $sql .= " AND u.year = ?";
+        $params[] = $year;
+    }
+    if ($sport !== '') {
+        $sql .= " AND s.sport_name = ?";
+        $params[] = $sport;
+    }
+    if ($type !== '') {
+        $sql .= " AND u.type = ?";
+        $params[] = $type;
+    }
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode($results);
