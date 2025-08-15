@@ -33,10 +33,7 @@ class Router {
 
         // Normalize
         $requestedUri = trim($requestedUri, '/');
-
-        // Debug output (optional)
-        // echo "Final URI: [$requestedUri] - Method: [$method]<br>";
-
+      
         foreach ($this->routes as $route) {
             if ($route['method'] === $method && $route['uri'] === $requestedUri) {
                 return $this->runAction($route['action']);
