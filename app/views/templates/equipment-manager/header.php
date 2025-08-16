@@ -15,6 +15,6 @@
       <a href="#" class="back-link">
         <img src= "back.png" alt="back" class="img">
         Back</a>
-      <span class="report-title">Report</span>
+      <a href="/uoc-sports/public/equipment-manager/equipment-report" class="report-title">Report</a>
     </div>
   </header>
