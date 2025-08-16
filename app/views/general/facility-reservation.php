@@ -8,6 +8,7 @@
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
+        @import url(/uoc-sports/public/css/general/facility-rates.css);
         @import url(/uoc-sports/public/css/general/footer.css);
 
         .mesh-sporty {
@@ -22,9 +23,8 @@
 <body class="mesh-sporty">
     <?php
         require '../app/views/templates/general/header.php';
-
+        require '../app/views/templates/general/facility-rates.php';
         require '../app/views/templates/general/footer.php';
     ?>
 </body>
-<script src="/uoc-sports/public/js/carousel.js"></script>
 </html>
