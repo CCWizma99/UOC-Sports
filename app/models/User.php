@@ -1,0 +1,39 @@
+<?php
+
+class User {
+    private $db;
+
+    public function __construct() {
+        $this->db = Database::getConnection();
+    }
+
+    public function create($data) {
+        $stmt = $this->db->prepare("INSERT INTO user (user_id, fname, lname, email, password) VALUES (?, ?, ?, ?, ?)");
+        return $stmt->execute([
+            $this -> generateUniqueUserId(),
+            $data['fname'],
+            $data['lname'],
+            $data['email'],
+            password_hash($data['password'], PASSWORD_DEFAULT)
+        ]);
+    }
+
+    private function generateUniqueUserId() {
+        do {
+            $id = $this->generateUserId();
+            $stmt = $this->db->prepare("SELECT user_id FROM user WHERE user_id = ?");
+            $stmt->execute([$id]);
+        } while ($stmt->fetch());
+    
+        return $id;
+    }
+    
+    function generateUserId($length = 8) {
+        $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $id = '';
+        for ($i = 0; $i < $length; $i++) {
+            $id .= $chars[random_int(0, strlen($chars) - 1)];
+        }
+        return $id;
+    }    
+}
