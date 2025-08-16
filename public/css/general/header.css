@@ -1,0 +1,62 @@
+#header{
+    background-color: #fff;
+}
+.top-bar{
+    padding: 10px;
+    padding-bottom: 10px;
+    align-items: center;
+}
+.logo{
+    color: var(--primary-color);
+    text-decoration: none;
+    display: flex;
+    font-weight: bold;
+}
+.logo img{
+    height: 36px;
+    margin-right: 10px;
+}
+.mid-div{
+    flex-grow: 1;
+}
+.log-div{
+    padding-right: 15px;
+}
+.log-div a{
+    text-decoration: none;
+    color: #fff;
+    background-color: var(--primary-color);
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: 0.4s;
+}
+.log-div a:hover{
+    box-shadow: 0 0 10px 2px rgba(123, 0, 172, 0.4);
+}
+nav{
+    background-color: var(--primary-color);
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    gap: 10px;
+}
+nav a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    padding: 0px 12px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 300;
+    transition: 0.2s;
+    border-bottom: 5px solid var(--primary-color);
+    border-top: 5px solid var(--primary-color);
+}
+nav a.active{
+    font-weight: 600;
+    border-bottom: 5px solid #fff;
+}
+nav a:hover{
+    border-bottom: 5px solid #fff;
+}

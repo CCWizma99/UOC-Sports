@@ -1,5 +1,10 @@
 RewriteEngine On
 
+# Admin routes go to admin-index.php
+RewriteCond %{REQUEST_URI} ^/uoc-sports/public/admin-
+RewriteRule ^ admin-index.php [L]
+
+# Everything else goes to index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
+RewriteRule ^ index.php [L]

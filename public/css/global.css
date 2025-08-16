@@ -5,6 +5,10 @@
     font-family: "Public Sans", sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
+    box-sizing: border-box;
+}
+:root {
+    --primary-color: #5e2d91;
 }
 /* The entire scrollbar */
 ::-webkit-scrollbar {
@@ -29,7 +33,7 @@
   }
   
 .bg-theme{
-    background-color: rgba(119, 0, 155, 0.1);
+    background-color: #fff;
 }
 .text-theme{
     color: #f6d8f9;
