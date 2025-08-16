@@ -1,0 +1,108 @@
+.report-title {
+  color: white;
+  cursor: pointer;
+}
+
+main {
+  padding: 40px 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.form-title {
+  margin-bottom: 30px;
+  Font-size: 20px;
+  font-family: "Font Name", 'Roboto';
+  Font-weight: 700;  
+}
+
+.report-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.report-form input[type="text"],
+.report-form input[type="date"],
+.report-form input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #eee;
+  color: #737373;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.reset-btn,
+.submit-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #641F87;
+  margin: 0 0px;
+}
+
+.reset-btn {
+  background-color: #641F87;
+  color: white;
+}
+
+.submit-btn {
+  background-color: #641F87;
+  color: white;
+}
+
+.reset-btn.clicked,
+.submit-btn.clicked {
+  background-color: rgb(116, 76, 141); 
+  color: white;
+}
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 400px;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: var(--primary-color);
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    @media (max-width: 600px) {
+      th, td {
+        padding: 8px 10px;
+      }
+    }
