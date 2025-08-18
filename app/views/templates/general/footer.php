@@ -1,8 +1,8 @@
 <footer>
     <div class="footer-content">
-        <div>
+        <!-- <div>
             <img src="/uoc-sports/public/images/uoc-logo.png" alt="UOC Logo" id="footer-logo">
-        </div>
+        </div> -->
       <p><strong>Colombo Sports<br>E-Portal</strong></p>
       <a href="#">Privacy Policy</a>
       <div class="social-icons">

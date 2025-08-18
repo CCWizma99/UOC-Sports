@@ -15,6 +15,7 @@
         @import url(/uoc-sports/public/css/admin/quick-bar.css);
         @import url(/uoc-sports/public/css/admin/user-stat.css);
         @import url(/uoc-sports/public/css/admin/search-user.css);
+        @import url(/uoc-sports/public/css/admin/week-reservations.css);
         @import url(/uoc-sports/public/css/admin/footer.css);
         #link-bar{
             width: calc(100vw - 488px);
@@ -29,6 +30,7 @@ require '../app/views/templates/admin/sidebar.php';
 require '../app/views/templates/admin/quick-bar.php';
 require '../app/views/templates/admin/reservations-status.php';
 require '../app/views/templates/admin/search-reservation.php';
+require '../app/views/templates/admin/week-reservations.php';
 require '../app/views/templates/admin/footer.php';
 ?>
 </body>
