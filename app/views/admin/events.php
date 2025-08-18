@@ -31,5 +31,6 @@ require '../app/views/templates/admin/footer.php';
     var currentPage = document.getElementById("sidebar-events");
     currentPage.classList.add("active") 
 </script>
+<script src="/uoc-sports/public/js/add-event.js"></script>
 </html>
 
