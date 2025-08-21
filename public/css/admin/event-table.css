@@ -1,0 +1,35 @@
+.event-table {
+    width: 960px;
+    border-collapse: collapse;
+    margin: 20px auto;
+    font-size: 16px;
+    text-align: left;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .event-table th {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 12px;
+  }
+  
+  .event-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+  }
+  
+  .event-table tr:hover {
+    background: #f9f9f9;
+  }
+  .participants {
+    margin: 0;
+    padding-left: 18px;
+  }
+  
+  .participants li {
+    margin: 2px 0;
+  }

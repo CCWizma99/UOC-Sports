@@ -1,6 +1,7 @@
  #add-event {
     max-width: 960px;
     margin: 140px auto;
+    margin-bottom: 30px;
     background: #fff;
     padding: 20px;
     border-radius: 8px;
@@ -10,7 +11,7 @@
   
   #add-event h2 {
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     font-weight: 300;
   }
   
@@ -22,6 +23,16 @@
   }
   
   #add-event input{
+    padding: 8px;
+    font-size: 16px;
+    outline: none;
+    border-radius: 4px;
+    border: var(--primary-color) 1px solid;
+  }
+
+  #add-event textarea{
+    resize: none;
+    width: 100%;
     padding: 8px;
     font-size: 16px;
     outline: none;
@@ -38,21 +49,59 @@
     border-radius: 4px;
     width: 180px;
     margin: auto;
+    transition: 0.4s;
   }
   
   #add-event button:hover {
-    background: #2980b9;
+    background: #000;
   }
   
-  #add-event ul {
-    list-style: none;
-    padding: 0;
+  .recipient-row{
+    margin-top: 10px;
+    border: var(--primary-color) 1px solid;
+    overflow: hidden;
+    border-radius: 6px;
+    box-shadow: 0 0 10px 2px rgba(0,0,0,0.1);
   }
-  
-  #add-event li {
-    background: #e0e0e0;
-    margin: 5px 0;
+  .recipient-row span{
+    display: flex;
+  }
+  .recipient-row .number{
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-color);
+    color: #fff;
+  }
+  .recipient-row .recipient{
+    padding-left: 8px;
+    height: 40px;
+    flex-grow: 1;
+  }
+  .recipient .name{
+    padding: 1px;
+  }
+  .recipient .email{
+    color: rgb(85, 85, 85);
+    font-size: 14px;
+  }
+  .send-mail-btn{
+    height: 40px;
+    border-radius: 0px !important;
+  }
+  .custom-recipient{
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: var(--primary-color) 1px solid;
+  }
+  .custom-recipient input{
+    display: block;
+    width: 100%;
     padding: 8px;
-    border-radius: 4px;
+    font-size: 16px;
+    margin-top: 10px;
+    outline: none;
+    border: var(--primary-color) 1px solid;
   }
-  
+  .custom-recipient button{
+    margin-top: 15px !important;
+  }
