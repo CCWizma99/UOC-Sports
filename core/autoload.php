@@ -2,6 +2,7 @@
 spl_autoload_register(function ($className) {
     $paths = [
         '../app/controllers/',
+        '../app/controllers/api/',
         '../app/models/',
         '../core/'
     ];
