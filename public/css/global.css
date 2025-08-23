@@ -9,6 +9,7 @@
 }
 :root {
     --primary-color: #5e2d91;
+    --primary-color-5: rgba(93, 45, 145, 0.5);
 }
 /* The entire scrollbar */
 ::-webkit-scrollbar {

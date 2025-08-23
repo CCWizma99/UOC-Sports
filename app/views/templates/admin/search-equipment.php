@@ -1,5 +1,5 @@
 <div id="Search-equipment">
-    <h3>Search Equipment</h3>
+    <h2>Search Equipment</h2>
     <input type="text" id="equipment-search" placeholder="Type equipment name, ID, or category">
     <div id="search-results"></div>
 </div>

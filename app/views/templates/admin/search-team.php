@@ -1,4 +1,5 @@
 <div id="search-team">
+    <h2>Search for a Team</h2>
     <input type="text" id="team-search" placeholder="Search by Sport or Team name">
     <div id="search-results"></div>
 </div>

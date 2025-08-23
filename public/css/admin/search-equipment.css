@@ -1,11 +1,18 @@
 #Search-equipment {
-    max-width: 600px;
-    margin: 50px auto;
+    width: 960px;
+    margin: auto;
+    margin-top: 140px;
     background: #fff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
+
+#Search-equipment h2{
+    margin-bottom: 10px;
+    font-weight: 300;
+}
+
 
 #Search-equipment input#equipment-search {
     width: 100%;
@@ -18,8 +25,8 @@
 }
 
 #Search-equipment input#equipment-search:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 5px rgba(52,152,219,0.3);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px var(--primary-color-5);
 }
 
 #search-results {

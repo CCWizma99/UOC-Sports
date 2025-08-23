@@ -6,7 +6,11 @@
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    font-family: Arial, sans-serif;
+}
+
+#search-team h2{
+    margin-bottom: 10px;
+    font-weight: 300;
 }
 
 #search-team input#team-search {
@@ -20,8 +24,8 @@
 }
 
 #search-team input#team-search:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 5px rgba(52,152,219,0.3);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px var(--primary-color-5);
 }
 
 #search-team #search-results {
