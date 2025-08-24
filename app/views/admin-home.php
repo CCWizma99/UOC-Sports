@@ -29,7 +29,7 @@ $title = "Home";
 require '../app/views/templates/admin/header.php';
 require '../app/views/templates/admin/link-bar.php';
 require '../app/views/templates/admin/admin-calendar.php';
-require 'templates/admin/budget.php';
+require 'templates/admin/budget-summary.php';
 require '../app/views/templates/admin/sidebar.php';
 require '../app/views/templates/admin/quick-bar.php';
 require '../app/views/templates/admin/footer.php';

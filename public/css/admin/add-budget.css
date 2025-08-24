@@ -1,0 +1,50 @@
+#budgetForm {
+    width: 960px;
+    margin: 30px auto;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 15px 10px;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#budgetForm label {
+    text-align: left;
+    padding-right: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+
+#budgetForm input, 
+#budgetForm select, 
+#budgetForm textarea {
+    padding: 10px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    width: 100%;
+    font-size: 14px;
+}
+
+#budgetForm textarea {
+    resize: vertical;
+}
+
+#budgetForm button {
+    grid-column: 1 / 3;
+    padding: 12px;
+    background: var(--primary-color);
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#budgetForm button:hover {
+    background: #000;
+}

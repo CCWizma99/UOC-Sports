@@ -10,11 +10,20 @@
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/admin/header.css);
-        @import url(/uoc-sports/public/css/admin/admin-calendar.css);
-        @import url(/uoc-sports/public/css/admin/budget.css);
         @import url(/uoc-sports/public/css/admin/link-bar.css);
         @import url(/uoc-sports/public/css/admin/sidebar.css);
         @import url(/uoc-sports/public/css/admin/quick-bar.css);
+        @import url(/uoc-sports/public/css/admin/budget.css);
+        @import url(/uoc-sports/public/css/admin/search-budget.css);
+        @import url(/uoc-sports/public/css/admin/add-budget.css);
+        @import url(/uoc-sports/public/css/admin/footer.css);
+
+        #budget-card{
+            margin-top: 140px;
+        }
+        .view-btn{
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -23,6 +32,10 @@ require '../app/views/templates/admin/header.php';
 require '../app/views/templates/admin/link-bar.php';
 require '../app/views/templates/admin/sidebar.php';
 require '../app/views/templates/admin/quick-bar.php';
+require '../app/views/templates/admin/budget-summary.php';
+require '../app/views/templates/admin/search-budget.php';
+require '../app/views/templates/admin/add-budget.php';
+require '../app/views/templates/admin/footer.php';
 ?>
 </body>
 <script>

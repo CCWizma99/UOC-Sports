@@ -1,7 +1,7 @@
 <?php
-require_once '../core/Database.php'; // Assuming you already have a PDO setup class
+require_once '../core/Database.php';
 
-$year = '2025'; // You can make this dynamic using $_GET['year'] or $_POST
+$year = '2025';
 
 try {
     $db = Database::getConnection(); // or however you access the PDO instance
@@ -22,7 +22,7 @@ try {
 ?>
 
 <section id="budget-card" class="bg-theme">
-    <h3>Budget Overview</h3>
+    <h2>Budget Overview</h2>
     <div class="flex y-center graph-content-container">
         <div class="graph">
             <canvas id="pieChart" width="300" height="300"></canvas>

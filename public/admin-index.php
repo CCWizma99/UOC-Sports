@@ -24,5 +24,7 @@ $router->get('/admin-inquiry', 'AdminHomeController@inquiry');
 
 $router->get('/admin-teams/search-team', 'TeamApiController@search');
 $router->get('/admin-equipments/search-equipment', 'EquipmentApiController@search');
+$router->get('/admin-budget/search-budget', 'BudgetApiController@search');
+$router->post('/admin-budget/add-budget', 'BudgetApiController@addBudget');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

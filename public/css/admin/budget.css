@@ -6,8 +6,8 @@
     margin-top: 40px;
     padding: 10px;
 }
-#budget-card h3{
-    font-weight: 200;
+#budget-card h2{
+    font-weight: 300;
     text-align: center;
 }
 #budget-card table{
