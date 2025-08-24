@@ -54,6 +54,35 @@
             </div>
         </div>
     </div>
+    <!-- Team Members Table -->
+<h2 class="table-title">Current Team Members</h2>
+
+<div class="members-table">
+    <div class="table-header">
+        <div>Student Name</div>
+        <div>ID Number</div>
+        <div>Faculty</div>
+        <div>Action</div>
+    </div>
+
+    <div class="table-row">
+        <div class="student-name">J. Balakrishnan</div>
+        <div class="student-id">2023/IS/012</div>
+        <div class="faculty">Information Systems</div>
+        <div>
+            <button class="action-btn remove" onclick="removeRow(this)">Remove</button>
+        </div>
+    </div>
+
+    <div class="table-row">
+        <div class="student-name">Rajapaksha K. A. G. S. M.</div>
+        <div class="student-id">2023/IS/079</div>
+        <div class="faculty">Information Systems</div>
+        <div>
+            <button class="action-btn remove" onclick="removeRow(this)">Remove</button>
+        </div>
+    </div>
+</div>
 </div>
 
 <script>
@@ -86,35 +115,7 @@
     }
 </script>
 
-<!-- Team Members Table -->
-<h2 class="table-title">Current Team Members</h2>
 
-<div class="members-table">
-    <div class="table-header">
-        <div>Student Name</div>
-        <div>ID Number</div>
-        <div>Faculty</div>
-        <div>Action</div>
-    </div>
-
-    <div class="table-row">
-        <div class="student-name">J. Balakrishnan</div>
-        <div class="student-id">2023/IS/012</div>
-        <div class="faculty">Information Systems</div>
-        <div>
-            <button class="action-btn remove" onclick="removeRow(this)">Remove</button>
-        </div>
-    </div>
-
-    <div class="table-row">
-        <div class="student-name">Rajapaksha K. A. G. S. M.</div>
-        <div class="student-id">2023/IS/079</div>
-        <div class="faculty">Information Systems</div>
-        <div>
-            <button class="action-btn remove" onclick="removeRow(this)">Remove</button>
-        </div>
-    </div>
-</div>
 
 <script>
 function removeRow(button) {
