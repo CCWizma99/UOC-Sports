@@ -89,7 +89,7 @@
     grid-template-columns: 2fr 1.5fr 1.5fr 1fr;
     gap: 1rem;
     align-items: center;
-    border-bottom: 1px solid var(--gray-200);
+    border-bottom: 7px solid var(--gray-200);
     transition: background-color 0.2s;
 }
 
@@ -158,10 +158,12 @@
         display: flex;
         justify-content: space-between;
         margin-bottom: 6px;
+        padding: 20px;
     }
 
     .table-row div:last-child {
-        margin-bottom: 0;
+        margin-bottom: 100px;
+    
     }
 
     .mobile-label {

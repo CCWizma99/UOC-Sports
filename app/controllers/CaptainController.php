@@ -13,4 +13,7 @@ class CaptainController {
     public function SchedulePractice() {
         view('captain/schedule-practice');
     }
+    public function Communication() {
+        view('captain/communication');
+    }
 }
