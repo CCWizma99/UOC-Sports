@@ -1,16 +1,15 @@
 
   <div class="communication-container">
-    <h2>Communicate with Coach and Sports Manager</h2>
-    
+    <h2>Communicate with Captain and Sports Manager</h2>
+    <p class="subtitle">Send messages to your Captain and sports manager, and view previous communications.</p>
 
     <!-- Form Section -->
     <div class="form-section">
       <label for="recipient">Recipient</label>
       <select id="recipient">
         <option value="">-- Select Recipient --</option>
-        <option value="Coach Kasun">Coach Kasun</option>
-        <option value="Coach Ratnayaka">Coach Ratnayaka</option>
-        <option value="Sports Manager">Sports Manager</option>
+        <option value="Captain Kasun">Captain Kasun</option>
+        <option value="Sports Manager Ratnayaka">Sports Manager Ratnayaka</option>
       </select>
 
       <label for="title">Title</label>
@@ -31,13 +30,13 @@
       <h3>Previous Messages</h3>
       <ul id="messagesList">
         <li>
-          <span class="sender">Coach Kasun</span>
+          <span class="sender">Captain Kasun</span>
           <span class="text">Check the schedule..</span>
           <span class="date">27 Jul</span>
           <span class="delete" title="Delete">&times;</span>
         </li>
         <li>
-          <span class="sender">Coach Ratnayaka</span>
+          <span class="sender">Sports Manager Ratnayaka</span>
           <span class="text">Cancel the schedule..</span>
           <span class="date">27 Jul</span>
           <span class="delete" title="Delete">&times;</span>
@@ -46,5 +45,4 @@
     </div>
   </div>
 
-
-
+ 

@@ -8,8 +8,8 @@ body {
 }
 
 .container {
-  width: 90%;
-  margin: auto;
+  max-width: 720px;
+    margin: 30px auto;
 }
 
 /* Section Titles */
@@ -18,7 +18,7 @@ body {
   font-weight: bold;
   margin: 20px 0 15px 0;
   color: #222;
-  border-left: 5px solid #0077cc; /* primary accent */
+  border-left: 5px solid var(--primary-color); /* primary accent */
   padding-left: 10px;
 }
 
@@ -42,7 +42,7 @@ body {
   text-align: center;
   box-shadow: 0 3px 8px rgba(0,0,0,0.1);
   transition: transform 0.2s ease-in-out;
-  border-top: 5px solid #0077cc; /* primary color accent */
+  border-top: 5px solid var(--primary-color); /* primary color accent */
 }
 
 .card:hover {
@@ -59,7 +59,7 @@ body {
   margin-top: 10px;
   font-size: 22px;
   font-weight: bold;
-  color: #0077cc; /* primary */
+  color: var(--primary-color); /* primary */
 }
 
 /* Table Section */
@@ -83,7 +83,7 @@ body {
 }
 
 .search-bar:focus {
-  border-color: #0077cc;
+  border-color:var(--primary-color);
   box-shadow: 0 0 5px rgba(0, 119, 204, 0.4);
 }
 
@@ -96,7 +96,7 @@ table {
 }
 
 thead {
-  background: #0077cc; /* primary header */
+  background:var(--primary-color); /* primary header */
   color: #fff;
 }
 
@@ -119,7 +119,7 @@ tbody tr:hover {
 .remove-btn {
   padding: 6px 12px;
   border: none;
-  background: #e53935;
+  background: var(--primary-color);
   color: #fff;
   border-radius: 6px;
   cursor: pointer;
@@ -128,5 +128,5 @@ tbody tr:hover {
 }
 
 .remove-btn:hover {
-  background: #c62828;
+  background: var(--primary-color);
 }
