@@ -25,13 +25,14 @@
       border-radius:14px;
       box-shadow: 0 8px 20px rgba(2,6,23,0.08);
       padding:20px;
-
+      display:flex;
+      flex-direction:column;
       gap:16px;
     }
 
     .cal-head{
       display:flex;
-  
+      align-items:center;
       justify-content:space-between;
       gap:12px;
     }

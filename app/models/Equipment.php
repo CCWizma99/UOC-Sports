@@ -1,47 +1,74 @@
 <?php
 
+require_once '../app/core/Database.php';
+
 class Equipment {
-    private $db;
+    private $pdo;
 
     public function __construct() {
-        $this->db = Database::getConnection();
+        $this->pdo = Database::getConnection();
     }
 
-    // Create new equipment
-    public function create($data) {
-        $stmt = $this->db->prepare("
-            INSERT INTO equipments (
-                equipment_id, category, code, availability_status, 
-                reserved_person_name, reserved_person_id, reserved_date, reserved_time_slot, claimed_return
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ");
+    // Insert new equipment
+    public function insert($data) {
+        // Automatically add EQ prefix to code
+        $data['equipment_code'] = "EQ" . $data['equipment_code'];
 
-        return $stmt->execute([
-            $this->generateUniqueEquipmentId(),
-            $data['category'],
-            $data['code'],
-            $data['availability_status'] ?? 'Available',
-            $data['reserved_person_name'] ?? null,
-            $data['reserved_person_id'] ?? null,
-            $data['reserved_date'] ?? null,
-            $data['reserved_time_slot'] ?? null,
-            $data['claimed_return'] ?? null
-        ]);
+        $sql = "INSERT INTO equipment 
+                (equipment_category, equipment_code, availability_status, reserved_person_name, reserved_person_id, reserved_date, reserved_time, return_time) 
+                VALUES 
+                (:equipment_category, :equipment_code, :availability_status, :reserved_person_name, :reserved_person_id, :reserved_date, :reserved_time, :return_time)";
+        
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($data);
     }
 
+    // Fetch all equipment
     public function getAll() {
-        $stmt = $this->db->prepare("SELECT * FROM equipments");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } 
-    
-    // Generate unique equipment ID like EQ-1, EQ-2
-    private function generateUniqueEquipmentId() {
-        $stmt = $this->db->query("SELECT MAX(CAST(SUBSTRING(equipment_id, 4) AS UNSIGNED)) AS max_id FROM equipments");
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $nextId = $row['max_id'] ? $row['max_id'] + 1 : 1;
-        return "EQ-" . $nextId;
+        $stmt = $this->pdo->query("SELECT * FROM equipment ORDER BY equipment_id DESC");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Add action buttons (Update/Delete) for each row
+        foreach ($rows as &$row) {
+            $id = $row['equipment_id'];
+            $row['actions'] = '
+                <a href="update_equipment.php?id='.$id.'" class="btn btn-sm btn-primary">Update</a>
+                <a href="delete_equipment.php?id='.$id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Are you sure?\')">Delete</a>
+            ';
+        }
+        return $rows;
     }
 
+    // Delete equipment
+    public function delete($id) {
+        $sql = "DELETE FROM equipment WHERE equipment_id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute(['id' => $id]);
+    }
 
+    // Get single equipment (for update form)
+    public function getById($id) {
+        $sql = "SELECT * FROM equipment WHERE equipment_id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Update equipment
+    public function update($id, $data) {
+        $sql = "UPDATE equipment 
+                SET equipment_category = :equipment_category,
+                    availability_status = :availability_status,
+                    reserved_person_name = :reserved_person_name,
+                    reserved_person_id = :reserved_person_id,
+                    reserved_date = :reserved_date,
+                    reserved_time = :reserved_time,
+                    return_time = :return_time
+                WHERE equipment_id = :id";
+
+        $stmt = $this->pdo->prepare($sql);
+        $data['id'] = $id;
+        return $stmt->execute($data);
+    }
 }
+?>

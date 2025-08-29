@@ -18,6 +18,7 @@
     
 <?php
     require "../app/views/templates/equipment-manager/header.php";
+  
 ?>
 
   

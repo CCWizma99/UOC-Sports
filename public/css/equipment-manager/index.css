@@ -14,7 +14,8 @@
 
 
 .container {
- 
+  display:flex;
+  justify-content: center;
   margin-bottom: 40px;
   height:auto;
 
@@ -28,7 +29,8 @@
 
 
 .sidebar a{
-
+    display:flex;
+    align-items: center;
     text-decoration: none; 
     color: #737373;
     margin-left: 20px;
@@ -73,3 +75,4 @@
 .reservations{
   font-weight: bold;
 }
+
