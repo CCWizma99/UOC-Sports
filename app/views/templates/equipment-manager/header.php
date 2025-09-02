@@ -1,11 +1,6 @@
-    
-<?php
-    require "../app/views/templates/equipment-manager/header.php";
-  
-?>
-<header class="body-header>
+<header class="body>
 
-  <div class= "header-container">      
+  <div class= "header-container" >      
     <div class="logo-container">
        <img src="/uoc-sports/public/images/uoc-logo.png" alt="Logo" class="logo">
        <p>COLOMBO SPORTS<br>E-PORTAL</p>

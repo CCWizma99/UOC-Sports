@@ -1,4 +1,4 @@
-.body-header {
+.body {
   margin: 0;
   padding:0;
   font-family: 'Segoe UI';
@@ -62,7 +62,7 @@ header {
 .logout-container{
   display: flex;
   justify-content: flex-end;
-  flex-direction: row;       /* push logout button right */
+  flex-direction: row;    
   flex-shrink: 0; 
 }
 
@@ -74,8 +74,7 @@ header {
   border: none;
   padding: 8px 12px;
   border-radius: 5px;
-  cursor: pointer;
- 
+  cursor: pointer; 
   gap: 0.1vw;   
   
 }
