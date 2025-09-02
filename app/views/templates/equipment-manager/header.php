@@ -1,3 +1,8 @@
+    
+<?php
+    require "../app/views/templates/equipment-manager/header.php";
+  
+?>
 <header class="body-header>
 
   <div class= "header-container">      
