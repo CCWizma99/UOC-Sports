@@ -4,6 +4,7 @@
     <style>
         @import url("/uoc-sports/public/css/global.css");
         @import url("/uoc-sports/public/css/sign-pages.css");
+        @import url("/uoc-sports/public/css/general/floating-message.css");
     </style>
 
 </head>
@@ -47,12 +48,15 @@
             </div>
             <a href="#" id="submit-btn" class="no-dec text-black">Sign Up</a>
             <div id="other-opt">
-                <span>Already a member? </span><a href="#" class="no-dec">Sign In</a><br>
+                <span>Already a member? </span><a href="./sign-in" class="no-dec">Sign In</a><br>
                 Or <br>
                 <span>Are you a student of UOC? </span><a class="no-dec" href="#">Sign In as a Student</a>
             </div>
         </form>
     </section>
+    <?php
+        require '../app/views/templates/general/floating-message.php';
+    ?>
     <script src="/uoc-sports/public/js/sign-up-validator.js"></script>
     <script src="/uoc-sports/public/js/hide-password.js"></script>
 </body>

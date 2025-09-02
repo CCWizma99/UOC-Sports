@@ -8,9 +8,17 @@
 
         </div>
         <div class="log-div">
-            <a href="#">
-                Log in <i class="fa-solid fa-right-to-bracket"></i>
-            </a>
+            <?php
+                if (isset($_SESSION['user_id'])) {
+                    echo '<a href="/uoc-sports/public/profile">
+                            Profile <i class="fa-solid fa-circle-user"></i>
+                        </a>';
+                } else {
+                    echo '<a href="/uoc-sports/public/sign-in">
+                            Log in <i class="fa-solid fa-right-to-bracket"></i>
+                        </a>';
+                }
+            ?>
         </div>
     </div>
     <nav class="flex">

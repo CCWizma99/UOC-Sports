@@ -35,5 +35,16 @@ class User {
             $id .= $chars[random_int(0, strlen($chars) - 1)];
         }
         return $id;
-    }    
+    }
+    public function findByEmail($email) {
+        $stmt = $this->db->prepare("SELECT * FROM user WHERE email = ? LIMIT 1");
+        $stmt->execute([$email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC); // Returns associative array or false if not found
+    }
+        
+    public function storeRememberToken($user_id, $token, $expiry) {
+        $stmt = $this->db->prepare("INSERT INTO remember_tokens (user_id, token, expires_at) VALUES (?, ?, ?)");
+        return $stmt->execute([$user_id, hash('sha256', $token), $expiry]);
+    }
+    
 }

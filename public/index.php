@@ -23,7 +23,11 @@ $router->get('/captain/team-schedules', 'CoachController@TeamSchedules');
 
 
 $router->get('/equipment-manager//', 'EquipmentManagerController@index');
+
+
 $router->get('/sign-up', 'AuthController@showSignupForm');
+$router->get('/sign-in', 'AuthController@showSigninForm');
 $router->post('/sign-up', 'AuthController@handleSignup');
+$router->post('/sign-in', 'AuthController@handleSignin');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

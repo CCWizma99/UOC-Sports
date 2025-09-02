@@ -11,6 +11,18 @@
     --primary-color: #5e2d91;
     --primary-color-5: rgba(93, 45, 145, 0.5);
 }
+.red{
+    color: red;
+}
+.green{
+    color: rgb(0, 176, 0);
+}
+button.red{
+    background-color: red !important;
+}
+button.green{
+    background-color: rgb(0, 176, 0) !important;
+}
 /* The entire scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
