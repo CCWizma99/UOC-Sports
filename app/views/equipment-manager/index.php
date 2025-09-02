@@ -14,7 +14,7 @@
   </style>
 </head>
 
-<body class="body">
+<body class="body-index">
     
 <?php
     require "../app/views/templates/equipment-manager/header.php";

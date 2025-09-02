@@ -8,7 +8,7 @@
     }
 
     *{box-sizing:border-box}
-    body{
+    .body-calendar{
       margin:0;
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
       background: linear-gradient(180deg, var(--bg), #fff);
