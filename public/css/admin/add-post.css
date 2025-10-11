@@ -1,0 +1,95 @@
+#add-post {
+    width: 90%;
+    max-width: 960px;
+    margin: 150px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(94, 45, 145, 0.1);
+    border: 1px solid var(--primary-color);
+  }
+  
+  #add-post h2 {
+    margin-bottom: 15px;
+    font-weight: 400;
+    text-align: center;
+    color: var(--primary-color);
+  }
+  
+  #add-post form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .input-div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  #add-post input[type="text"],
+  #add-post textarea,
+  #add-post input[type="file"] {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid var(--primary-color);
+    outline: none;
+    transition: all 0.2s ease;
+  }
+  
+  #add-post input:focus,
+  #add-post textarea:focus {
+    border-color: #6a4caf;
+    box-shadow: 0 0 4px rgba(106, 76, 175, 0.4);
+  }
+  
+  .error {
+    color: red;
+    font-size: 14px;
+    text-align: left;
+    display: none;
+  }
+  
+  #file-preview {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  #file-preview img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+  
+  .settings {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+  }
+  
+  .radio-group label {
+    margin-right: 15px;
+    cursor: pointer;
+  }
+  
+  .btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .btn:hover {
+    background: #6a4caf;
+  }
+  
