@@ -1,6 +1,6 @@
-<header class="body>
-
-  <div class= "header-container" >      
+<header>
+    <link rel="stylesheet" type="text/css" href="/uoc-sports/public/css/equipment-manager/header.css">
+  <div class="header-container">      
     <div class="logo-container">
        <img src="/uoc-sports/public/images/uoc-logo.png" alt="Logo" class="logo">
        <p>COLOMBO SPORTS<br>E-PORTAL</p>
