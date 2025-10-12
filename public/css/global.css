@@ -8,8 +8,9 @@
     box-sizing: border-box;
 }
 :root {
-    --primary-color: #5e2d91;
+    --primary-color: rgb(94, 45, 145);
     --primary-color-5: rgba(93, 45, 145, 0.5);
+    --primary-color-8: rgba(93, 45, 145, 0.8);
 }
 .red{
     color: red;

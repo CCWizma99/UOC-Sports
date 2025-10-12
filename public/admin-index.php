@@ -24,7 +24,11 @@ $router->get('/admin-inquiry', 'AdminHomeController@inquiry');
 
 $router->get('/admin-teams/search-team', 'TeamApiController@search');
 $router->get('/admin-equipments/search-equipment', 'EquipmentApiController@search');
+$router->get('/admin-equipments/get-sports', 'EquipmentApiController@getSports');
+$router->post('/admin-equipments/add', 'EquipmentApiController@add');
 $router->get('/admin-budget/search-budget', 'BudgetApiController@search');
 $router->post('/admin-budget/add-budget', 'BudgetApiController@addBudget');
+$router->post('/admin-post/add-post', 'PostApiController@addPost');
+$router->get('/admin-post/search', 'PostApiController@search');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

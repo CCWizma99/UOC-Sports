@@ -14,6 +14,7 @@
         @import url(/uoc-sports/public/css/admin/sidebar.css);
         @import url(/uoc-sports/public/css/admin/quick-bar.css);
         @import url(/uoc-sports/public/css/admin/search-equipment.css);
+        @import url(/uoc-sports/public/css/admin/add-equipments.css);
         @import url(/uoc-sports/public/css/admin/footer.css);
     </style>
 </head>
@@ -25,6 +26,7 @@ require '../app/views/templates/admin/link-bar.php';
 require '../app/views/templates/admin/sidebar.php';
 require '../app/views/templates/admin/quick-bar.php';
 require '../app/views/templates/admin/search-equipment.php';
+require '../app/views/templates/admin/add-equipment.php';
 require '../app/views/templates/admin/footer.php';
 ?>
 </body>

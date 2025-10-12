@@ -13,17 +13,27 @@ class Post {
      */
     public function search($query) {
         $sql = "
-            SELECT 
-                post_id, title, description, commenting, date_posted, status
-            FROM newsfeed_post
-            WHERE (title LIKE :query OR description LIKE :query)
-              AND status = 'ACTIVE'
-            ORDER BY date_posted DESC
+            SELECT p.post_id, p.title, p.description, p.commenting, p.date_posted,
+                   GROUP_CONCAT(pi.image_path) AS images
+            FROM newsfeed_post p
+            LEFT JOIN newsfeed_post_image pi ON p.post_id = pi.post_id
+            WHERE p.title LIKE :query OR p.post_id LIKE :query
+            GROUP BY p.post_id
+            ORDER BY p.date_posted DESC
         ";
+    
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['query' => "%$query%"]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        // Convert images string to array
+        foreach ($results as &$post) {
+            $post['images'] = $post['images'] ? explode(',', $post['images']) : [];
+        }
+    
+        return $results;
     }
+    
 
     /**
      * Add a new post with optional image uploads
@@ -62,7 +72,7 @@ class Post {
      * @param array $files
      */
     private function uploadPostImages($post_id, $files) {
-        $uploadDir = __DIR__ . '/../uploads/posts/';
+        $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uoc-sports/public/images/posts/';
 
         if (!file_exists($uploadDir)) {
             mkdir($uploadDir, 0777, true);
@@ -76,7 +86,7 @@ class Post {
             $targetPath = $uploadDir . $fileName;
 
             if (move_uploaded_file($tmpName, $targetPath)) {
-                $this->savePostImage($post_id, 'uploads/posts/' . $fileName);
+                $this->savePostImage($post_id, 'images/posts/' . $fileName);
             }
         }
     }
@@ -189,5 +199,6 @@ class Post {
 
         return sprintf('P%04d', $num);
     }
+
+    
 }
-?>

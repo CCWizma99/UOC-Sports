@@ -48,3 +48,7 @@
 #budgetForm button:hover {
     background: #000;
 }
+
+#responseMsg{
+    grid-column: 1 / 3;
+}

@@ -13,6 +13,7 @@
         @import url(/uoc-sports/public/css/admin/link-bar.css);
         @import url(/uoc-sports/public/css/admin/sidebar.css);
         @import url(/uoc-sports/public/css/admin/quick-bar.css);
+        @import url(/uoc-sports/public/css/admin/search-post.css);
         @import url(/uoc-sports/public/css/admin/add-post.css);
         @import url(/uoc-sports/public/css/admin/footer.css);
     </style>
@@ -23,6 +24,7 @@ require '../app/views/templates/admin/header.php';
 require '../app/views/templates/admin/link-bar.php';
 require '../app/views/templates/admin/sidebar.php';
 require '../app/views/templates/admin/quick-bar.php';
+require '../app/views/templates/admin/search-post.php';
 require '../app/views/templates/admin/add-post.php';
 require '../app/views/templates/admin/footer.php';
 ?>

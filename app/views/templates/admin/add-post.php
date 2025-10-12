@@ -16,7 +16,7 @@
 
     <div class="input-div">
       <label for="post-files">Upload Images</label>
-      <input type="file" id="post-files" name="images[]" multiple accept="image/*">
+      <input type="file" id="post-files" name="files[]" multiple accept="image/*">
       <div id="file-preview"></div>
     </div>
 
@@ -70,19 +70,19 @@
     formData.append("commenting", commenting);
 
     try {
-      const response = await fetch("backend/add_post.php", {
+      const response = await fetch("admin-post/add-post", {
         method: "POST",
         body: formData
       });
       const result = await response.json();
 
-      if (result.success) {
-        msg.textContent = "✅ Post added successfully!";
+      if (result.status === "success") {
+        msg.textContent = "Post added successfully!";
         msg.style.color = "green";
         form.reset();
         previewDiv.innerHTML = "";
       } else {
-        msg.textContent = "❌ " + result.message;
+        msg.textContent = result.message;
         msg.style.color = "red";
       }
     } catch (err) {

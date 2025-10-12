@@ -14,7 +14,7 @@ document.getElementById('equipment-search').addEventListener('input', function()
         return;
     }
 
-    fetch('./admin-equipments/search-equipment?q=' + encodeURIComponent(query))
+    fetch('admin-equipments/search-equipment?q=' + encodeURIComponent(query))
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success' && data.data.length > 0) {
@@ -22,7 +22,7 @@ document.getElementById('equipment-search').addEventListener('input', function()
                 data.data.forEach(eq => {
                     html += `
                     <li>
-                        <img src="./uploads/${eq.image_name}" alt="${eq.equipment_name}">
+                        <img src="./images/equipment/${eq.image_name}" alt="${eq.equipment_name}">
                         <div class="equipment-info">
                             <strong>${eq.equipment_name} (${eq.category})</strong>
                             <span>Condition: ${eq.equipment_condition}</span>
