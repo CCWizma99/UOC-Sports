@@ -23,9 +23,8 @@ $router->get('/captain/schedule-practice', 'CaptainController@SchedulePractice')
 $router->get('/captain/communication', 'CaptainController@Communication');
 $router->get('/captain/team-schedules', 'CoachController@TeamSchedules');
 
-
 $router->get('/equipment-manager//', 'EquipmentManagerController@index');
-
+$router->get('/equipment-manager/equipment-report', 'EquipmentManagerController@equipmentReport');
 
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->get('/sign-in', 'AuthController@showSigninForm');

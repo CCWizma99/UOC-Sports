@@ -1,80 +1,112 @@
-body {
+.body {
   margin: 0;
   padding:0;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Segoe UI';
   background: #fff;
   color: #222;
 }
 
 header {
   background-color: #ffffff;
-  color: #641F87;
+  color: #560756;
   margin-bottom: 70px;
     font-family: "Font Name", 'Inter';
+  font-size: 1.5vw;
 }
 
 
 .logo-container{
-  
+  text-align: center;
   display: flex;
   flex-direction: row;
   gap: 10px;
+  font-size: clamp(10px, 2vw, 15px);
+  
 }
 
 .header-container {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
   padding: 5px 25px;
   margin: 0 0px;
+  text-align: center;
+  font-size: clamp(10px, 2vw, 32px);
 }
 
 .header-container h1{
-  Font-size: 19px;
   font-family: "Font Name", 'Roboto';
-  Font-weight: 100;
+  Font-weight: 400;
   justify-content: center;
   align-items: center;
-  padding: 15px 0px;  
+  padding: 15px 15px; 
+  
+  font-size: clamp(18px, 2vw, 32px);
 }
 
+
 .logo {
-  height: 80px;
+  height: clamp(55px, 2.5vw, 40px);
+  width: clamp(50px, 2.5vw, 40px);
   margin-right: 0px;
   padding: 0px 2px;
   line-height: 1.2px
 
 }
+
 .searchbar{
-  height:10px;
+  height:2px;
+}
+
+.logout-container{
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: row;    
+  flex-shrink: 0; 
 }
 
 .logout-btn {
-  background-color: #641F87;
+  display: flex;
+  justify-content: right;  
+  background-color: #560756;
   color: #FFFFFF;
   border: none;
   padding: 8px 12px;
   border-radius: 5px;
-  cursor: pointer;
-  margin: 0px;
+  cursor: pointer; 
+  gap: 0.1vw;   
+  
 }
-
 
 .logout-btn:hover{
   background-color: rgb(116, 76, 141);
 }
 
 .logout{
-  height: 10px;
-  padding: 0px 5px;
+  height: clamp(10px, 1vw, 30px);
+  width: clamp(15px, 1vw, 30px);
+  padding: 0px 0px;
+  text-decoration: none;
+  margin: 3px;
 }
 
 .sub-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #641F87;
+  background-color: #560756;
+  max-width: 100%;
   padding: 10px 25px;
+  text-decoration: none;
+  font-size: clamp(15px, 1vw, 32px);
+
+}
+
+.report-title{
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
 }
 
 .back-link {
@@ -86,8 +118,4 @@ header {
 
 .img{
     height: 10px;
-}
-.report-title {
-  color: white;
-  cursor: pointer;
 }

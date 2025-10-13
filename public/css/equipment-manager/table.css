@@ -1,0 +1,53 @@
+.equipment-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  
+  /* Table Header */
+  .equipment-table thead th {
+    background-color: #f9f9f9;
+    text-align: left;
+    padding: 12px 15px;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+  }
+  
+  /* Table Body */
+  .equipment-table tbody td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  /* Row Hover Effect */
+  .equipment-table tbody tr:hover {
+    background-color: #fafafa;
+  }
+  
+  /* Last Row Border Fix */
+  .equipment-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  /* Rounded Corners */
+  .equipment-table thead tr:first-child th:first-child {
+    border-top-left-radius: 10px;
+  }
+  .equipment-table thead tr:first-child th:last-child {
+    border-top-right-radius: 10px;
+  }
+  .equipment-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 10px;
+  }
+  .equipment-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 10px;
+  }

@@ -91,5 +91,53 @@ class Equipment {
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // Fetch all equipment
+    public function getAll() {
+        $stmt = $this->db->query("SELECT * FROM equipment ORDER BY equipment_id DESC");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Add action buttons (Update/Delete) for each row
+        foreach ($rows as &$row) {
+            $id = $row['equipment_id'];
+            $row['actions'] = '
+                <a href="update_equipment.php?id='.$id.'" class="btn btn-sm btn-primary">Update</a>
+                <a href="delete_equipment.php?id='.$id.'" class="btn btn-sm btn-danger" onclick="return confirm(\'Are you sure?\')">Delete</a>
+            ';
+        }
+        return $rows;
+    }
+
+    // Delete equipment
+    public function delete($id) {
+        $sql = "DELETE FROM equipment WHERE equipment_id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['id' => $id]);
+    }
+
+    // Get single equipment (for update form)
+    public function getById($id) {
+        $sql = "SELECT * FROM equipment WHERE equipment_id = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Update equipment
+    public function update($id, $data) {
+        $sql = "UPDATE equipment 
+                SET equipment_category = :equipment_category,
+                    availability_status = :availability_status,
+                    reserved_person_name = :reserved_person_name,
+                    reserved_person_id = :reserved_person_id,
+                    reserved_date = :reserved_date,
+                    reserved_time = :reserved_time,
+                    return_time = :return_time
+                WHERE equipment_id = :id";
+
+        $stmt = $this->db->prepare($sql);
+        $data['id'] = $id;
+        return $stmt->execute($data);
+    }
 }
 
