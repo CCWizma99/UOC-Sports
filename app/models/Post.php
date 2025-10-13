@@ -5,7 +5,12 @@ class Post {
     public function __construct() {
         $this->db = Database::getConnection(); // assumes PDO connection
     }
-
+    public function findById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM newsfeed_post WHERE post_id = :id");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
     /**
      * Search posts by title or description
      * @param string $query
@@ -167,6 +172,32 @@ class Post {
         return $post ?: null;
     }
 
+    public function getComments($postId) {
+        $stmt = $this->db->prepare("
+            SELECT c.*, u.fname, u.lname 
+            FROM comment c
+            JOIN user u ON c.comment_from = u.user_id
+            WHERE c.post_id = :post_id
+            ORDER BY c.comment_id ASC
+        ");
+        $stmt->execute(['post_id' => $postId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function addComments($postId, $userId, $content) {
+        $commentId = uniqid('cmt_', true);
+        $stmt = $this->db->prepare("
+            INSERT INTO comment (comment_id, post_id, comment_from, content)
+            VALUES (:comment_id, :post_id, :comment_from, :content)
+        ");
+        return $stmt->execute([
+            'comment_id' => $commentId,
+            'post_id' => $postId,
+            'comment_from' => $userId,
+            'content' => $content
+        ]);
+    }
+
     /**
      * Soft delete post (mark as INACTIVE)
      * @param string $post_id
@@ -200,5 +231,31 @@ class Post {
         return sprintf('P%04d', $num);
     }
 
-    
+    public function getRecentPosts($limit = 6) {
+        $sql = "SELECT p.*, i.image_path 
+                FROM newsfeed_post p 
+                LEFT JOIN newsfeed_post_image i ON p.post_id = i.post_id 
+                WHERE p.status = 'ACTIVE'
+                GROUP BY p.post_id 
+                ORDER BY p.date_posted DESC 
+                LIMIT :limit";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getRecentCases($limit = 6) {
+        $sql = "SELECT lf.*, img.image_name 
+                FROM lost_found lf
+                LEFT JOIN lost_found_images img ON lf.case_id = img.case_id
+                WHERE lf.status != 'RESOLVED'
+                GROUP BY lf.case_id
+                ORDER BY lf.reported_time DESC
+                LIMIT :limit";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

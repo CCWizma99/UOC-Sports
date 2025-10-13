@@ -12,7 +12,9 @@ $router->get('/', 'UserHomeController@index');
 $router->get('/news', 'UserHomeController@news');
 $router->get('/facility-reservation', 'UserHomeController@facilityReservation');
 $router->get('/contact-us', 'UserHomeController@contactUs');
-
+$router->get('/post/{id}', 'PostController@viewPost');
+$router->post('/post/add-comment', 'PostController@addComment');
+$router->get('/search-post', 'PostApiController@search');
 
 $router->get('/captain//', 'CaptainController@index');
 $router->get('/captain/mark-attendance', 'CaptainController@MarkAttendance');

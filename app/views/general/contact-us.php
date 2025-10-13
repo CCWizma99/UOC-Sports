@@ -26,5 +26,8 @@
         require '../app/views/templates/general/footer.php';
     ?>
 </body>
-<script src="/uoc-sports/public/js/carousel.js"></script>
+<script>
+    var currentPage = document.getElementById("nav-cont");
+    currentPage.classList.add("active") 
+</script>
 </html>

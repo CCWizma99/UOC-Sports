@@ -81,3 +81,7 @@
 .add-user-btn:hover{
     background-color: #000;
 }
+
+#extra-fields .input-field {
+    margin-top: 15px;
+}

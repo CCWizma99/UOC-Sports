@@ -1,0 +1,86 @@
+#search-posts {
+    width: 960px;
+    margin: 30px auto;
+    margin-top: 30px;
+    padding: 20px 30px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+    border: 1px solid #5e2d91;
+}
+
+#search-posts h2 {
+    font-weight: 400;
+    margin-bottom: 10px;
+    color: #5e2d91;
+}
+
+#search-posts input[type="text"] {
+    width: calc(100% - 110px);
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #5e2d91;
+    border-radius: 6px;
+    outline: none;
+}
+
+#search-posts button {
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #5e2d91;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.2s ease;
+}
+
+#search-posts button:hover {
+    background-color: #7c4fc0;
+}
+
+#search-results {
+    margin-top: 20px;
+}
+
+.post-card {
+    display: block;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.post-card h3 {
+    margin: 0 0 8px 0;
+    color: #5e2d91;
+}
+
+.post-card p {
+    margin: 0;
+    color: #555;
+    line-height: 1.4;
+}
+
+.post-images {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.post-images img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+/* Message */
+#search-message {
+    margin-top: 10px;
+    font-weight: 500;
+}

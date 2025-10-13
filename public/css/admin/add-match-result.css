@@ -1,0 +1,90 @@
+/* ===== Add Match Result Section ===== */
+#add-match-result {
+    width: 800px;
+    margin: 50px auto;
+    padding: 25px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    border: 1px solid #6a3dcf;
+    font-family: Arial, sans-serif;
+  }
+  
+  #add-match-result h2 {
+    margin-bottom: 20px;
+    font-weight: 400;
+    color: #333;
+  }
+  
+  #add-match-result form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .input-div {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input-div label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #444;
+  }
+  
+  .input-div input,
+  .input-div select,
+  .input-div textarea {
+    padding: 8px 10px;
+    font-size: 15px;
+    border-radius: 5px;
+    border: 1px solid #6a3dcf;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .input-div textarea {
+    resize: vertical;
+  }
+  
+  #dynamic-fields .input-div {
+    margin-top: 10px;
+  }
+  
+  #dynamic-fields input {
+    width: 50%;
+  }
+  
+  #add-match-result .btn {
+    padding: 10px 20px;
+    background-color: #6a3dcf;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: fit-content;
+  }
+  
+  #add-match-result .btn:hover {
+    background-color: #5729a1;
+  }
+  
+  #form-message {
+    margin-top: 10px;
+    font-weight: 500;
+  }
+  
+  #dynamic-fields p {
+    font-style: italic;
+    color: #666;
+  }
+  
+  select:disabled {
+    background: #f0f0f0;
+    color: #999;
+  }
+  

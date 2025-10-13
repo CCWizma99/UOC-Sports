@@ -22,41 +22,49 @@ class Router {
         // Get path without query string
         $requestedUri = parse_url($requestedUri, PHP_URL_PATH);
         $requestedUri = '/' . trim($requestedUri, '/');
-
+    
         // Adjust your project folder here
         $basePath = '/uoc-sports/public';
-
+    
         // Remove base path
         if (str_starts_with($requestedUri, $basePath)) {
             $requestedUri = substr($requestedUri, strlen($basePath));
         }
-
+    
         // Normalize
         $requestedUri = trim($requestedUri, '/');
-      
+    
         foreach ($this->routes as $route) {
-            if ($route['method'] === $method && $route['uri'] === $requestedUri) {
-                return $this->runAction($route['action']);
+            if ($route['method'] !== $method) continue;
+    
+            // Convert route patterns like /post/{id}
+            $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_-]+)', $route['uri']);
+            $pattern = '/^' . str_replace('/', '\/', $pattern) . '$/';
+    
+            if (preg_match($pattern, $requestedUri, $matches)) {
+                array_shift($matches); // Remove full match
+                return $this->runAction($route['action'], $matches);
             }
         }
-
+    
         http_response_code(404);
         echo "404 Not Found - No route matched.";
     }
 
-    private function runAction($action) {
+    private function runAction($action, $params = []) {
         list($controllerName, $methodName) = explode('@', $action);
-
-        if (!class_exists($controllerName)) {
-            die("Controller '$controllerName' not found.");
+        $controllerClass = $controllerName;
+    
+        if (!class_exists($controllerClass)) {
+            throw new Exception("Controller $controllerClass not found");
         }
-
-        $controller = new $controllerName();
-
+    
+        $controller = new $controllerClass();
+    
         if (!method_exists($controller, $methodName)) {
-            die("Method '$methodName' not found in controller '$controllerName'.");
+            throw new Exception("Method $methodName not found in controller $controllerClass");
         }
-
-        return call_user_func([$controller, $methodName]);
+    
+        return call_user_func_array([$controller, $methodName], $params);
     }
 }

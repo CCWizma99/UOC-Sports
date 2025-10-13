@@ -30,4 +30,8 @@
     ?>
 </body>
 <script src="/uoc-sports/public/js/carousel.js"></script>
+<script>
+    var currentPage = document.getElementById("nav-home");
+    currentPage.classList.add("active") 
+</script>
 </html>

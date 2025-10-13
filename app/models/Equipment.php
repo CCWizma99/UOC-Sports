@@ -62,22 +62,23 @@ class Equipment {
      */
     public function search($query) {
         $sql = "
-        SELECT 
-            e.equipment_id,
-            e.equipment_name,
-            e.sport_id,
-            s.sport_name,
-            e.equipment_condition,
-            e.quantity,
-            i.image_name
-        FROM equipment e
-        JOIN sport s ON e.sport_id = s.sport_id
-        JOIN equipment_image i ON e.equipment_id = i.equipment_id
-        WHERE e.equipment_id LIKE :query
-           OR e.equipment_name LIKE :query
-           OR e.sport_id LIKE :query
-           OR s.sport_name LIKE :query
-        LIMIT 5
+            SELECT 
+                e.equipment_id,
+                e.equipment_name,
+                e.sport_id,
+                s.sport_name,
+                e.equipment_condition,
+                e.quantity,
+                MIN(i.image_name) AS image_name
+            FROM equipment e
+            JOIN sport s ON e.sport_id = s.sport_id
+            JOIN equipment_image i ON e.equipment_id = i.equipment_id
+            WHERE e.equipment_id LIKE :query
+            OR e.equipment_name LIKE :query
+            OR e.sport_id LIKE :query
+            OR s.sport_name LIKE :query
+            GROUP BY e.equipment_id
+            LIMIT 5;
         ";
     
         $stmt = $this->db->prepare($sql);

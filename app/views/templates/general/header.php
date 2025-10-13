@@ -9,7 +9,9 @@
         </div>
         <div class="log-div">
             <?php
+
                 if (isset($_SESSION['user_id'])) {
+                    $user_id = $_SESSION['user_id'];
                     echo '<a href="/uoc-sports/public/profile">
                             Profile <i class="fa-solid fa-circle-user"></i>
                         </a>';
@@ -22,9 +24,9 @@
         </div>
     </div>
     <nav class="flex">
-        <a href="/uoc-sports/public/" class="active">Home</a>
-        <a href="/uoc-sports/public/news">News</a>
-        <a href="/uoc-sports/public/facility-reservation">Facility Reservation</a>
-        <a href="#">Contact Us</a>
+        <a href="/uoc-sports/public/" id="nav-home">Home</a>
+        <a href="/uoc-sports/public/news" id="nav-news">News</a>
+        <a href="/uoc-sports/public/facility-reservation" id="nav-res">Facility Reservation</a>
+        <a href="/uoc-sports/public/contact-us" id="nav-cont">Contact Us</a>
     </nav>
 </section>

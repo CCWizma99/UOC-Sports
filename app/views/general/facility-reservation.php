@@ -27,4 +27,8 @@
         require '../app/views/templates/general/footer.php';
     ?>
 </body>
+<script>
+    var currentPage = document.getElementById("nav-res");
+    currentPage.classList.add("active") 
+</script>
 </html>
