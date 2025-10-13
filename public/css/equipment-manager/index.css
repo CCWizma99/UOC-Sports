@@ -76,3 +76,20 @@
   font-weight: bold;
 }
 
+.btn {
+  display: flex;
+  justify-content: right;  
+  background-color: #560756;
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+ 
+  gap: 0.1vw;   
+  
+}
+
+.btn:hover{
+  background-color: rgb(116, 76, 141);
+}
