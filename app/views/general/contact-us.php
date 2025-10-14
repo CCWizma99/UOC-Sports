@@ -8,6 +8,7 @@
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
+        @import url(/uoc-sports/public/css/general/intro.css);
         @import url(/uoc-sports/public/css/general/footer.css);
 
         .mesh-sporty {
@@ -22,7 +23,7 @@
 <body class="mesh-sporty">
     <?php
         require '../app/views/templates/general/header.php';
-
+        require '../app/views/templates/general/contact-page.php';
         require '../app/views/templates/general/footer.php';
     ?>
 </body>
