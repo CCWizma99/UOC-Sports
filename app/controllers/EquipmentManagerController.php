@@ -10,11 +10,11 @@ class EquipmentManagerController {
         view('equipment-manager/equipment-report');
     }
 
-    public function equipmentReport() {
+    public function equipment() {
         view('equipment-manager/equipment');
     }
 
-    public function equipmentReport() {
+    public function addEquipment() {
         view('equipment-manager/addequipment');
     }
 
