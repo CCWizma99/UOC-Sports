@@ -16,6 +16,10 @@
   </style>
 </head>
 
+<?php
+    require "../app/views/templates/equipment-manager/header.php";
+  
+?>
 <body class="equipment-body">
     <div class="btn">
         <span class="report-btn"><a href="equipment-report.php">Report</a></span>
@@ -146,5 +150,9 @@
 
 </div>
 
+<?php
+    require "../app/views/templates/equipment-manager/footer.php";
+  
+?>
 </body>
 </html>
