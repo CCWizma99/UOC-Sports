@@ -8,7 +8,6 @@
   <title>Equipment</title>
 
   <style>
-    @import url("/uoc-sports/public/css/equipment-manager/index.css");
     @import url("/uoc-sports/public/css/equipment-manager/footer.css");
     @import url("/uoc-sports/public/css/equipment-manager/header.css");
     @import url("/uoc-sports/public/css/equipment-manager/equipment.css");

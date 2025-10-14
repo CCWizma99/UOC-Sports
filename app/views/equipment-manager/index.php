@@ -9,7 +9,7 @@
   <style>
     @import url("/uoc-sports/public/css/equipment-manager/index.css");
     @import url("/uoc-sports/public/css/equipment-manager/footer.css");
-    @import url("/upc-sports/public/css/equipment-manager/header.css");
+    @import url("/uoc-sports/public/css/equipment-manager/header.css");
     @import url("/uoc-sports/public/css/equipment-manager/calendar.css");
 
   </style>
