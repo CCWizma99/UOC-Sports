@@ -31,7 +31,7 @@
       <a href="#">Profile</a><hr class="hr2">
       <a href="#">News</a><hr class="hr3">
       <a href="#">Settings</a><hr class="hr4">
-      <a href="/uoc-sports/public/equipment-manager/equipment">Equipment</a><hr class="hr5">
+      <a href="equipment.php">Equipment</a><hr class="hr5">
       <a href="#">Lost and Found</a><hr class="hr6">
     </aside>
     
