@@ -30,40 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Report Item</title>
-  <link rel="stylesheet" href="report.item.css">
-</head>
-<body>
-  <form action="" method="post" enctype="multipart/form-data" class="report-form">
-    <h2>Report Item</h2>
-
-    <label>Reporter’s Name</label>
-    <input type="text" name="reporter_name" placeholder="Name" required>
-
-    <label>Item</label>
-    <textarea name="item" placeholder="Item Description" required></textarea>
-
-    <label>Found Location</label>
-    <input type="text" name="location" placeholder="Click on map" readonly required>
-
-    <label>Date</label>
-    <input type="date" name="date" required>
-
-    <label>Upload an Image</label>
-    <input type="file" name="image" accept="image/*">
-
-
-    <div class="buttons">
-      <button type="reset" class="reset-btn">Reset</button>
-      <button type="submit" class="submit-btn">Submit</button>
-    </div>
-  </form>
-</body>
-</html>
 
 <?php
 class Report {
