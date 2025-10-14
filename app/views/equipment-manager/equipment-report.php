@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,6 +11,7 @@
   <style>
     @import url("/uoc-sports/public/css/equipment-manager/footer.css");
     @import url("/uoc-sports/public/css/equipment-manager/header.css"); 
+    @import url("/uoc-sports/public/css/equipment-manager/report.css");
   </style>
 </head>
 
@@ -19,7 +22,8 @@
    require "../app/views/templates/equipment-manager/header.php";
 ?>
 
-<?php 
+<?php
+ 
 if(isset($_SESSION['success'])): ?>
     <div class="alert alert-success">
         <?php 
@@ -38,7 +42,7 @@ if(isset($_SESSION['success'])): ?>
     </div>
 <?php endif; ?>
 
-<table class="equipment-table">
+<table class="table-container">
     <thead>
         <tr>
             <th>Equipment ID</th>
@@ -49,7 +53,8 @@ if(isset($_SESSION['success'])): ?>
             <th>Person ID</th>
             <th>Reserved Date</th>
             <th>Time Slot</th>
-            <th>Claimed/Return</th>
+            <th>Claimed Status</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -65,6 +70,14 @@ if(isset($_SESSION['success'])): ?>
                 <td><?= htmlspecialchars($equipment['reserved_date'] ?? '-') ?></td>
                 <td><?= htmlspecialchars($equipment['reserved_time'] ?? '-') ?></td>
                 <td><?= htmlspecialchars($equipment['return_time'] ?? '-') ?></td>
+                <td>
+                <a href="edit_equipment.php?id=<?= urlencode($equipment['equipment_id']) ?>" class="btn-edit">Edit</a>
+                <a href="delete_equipment.php?id=<?= urlencode($equipment['equipment_id']) ?>" 
+                   class="btn-delete" 
+                   onclick="return confirm('Are you sure you want to delete this record?');">
+                   Delete
+                </a>
+            </td>
             </tr>
         <?php endforeach; ?>
     <?php else: ?>
@@ -74,6 +87,7 @@ if(isset($_SESSION['success'])): ?>
     <?php endif; ?>
     </tbody>
 </table>
+
 
 <!-- footer-->
 <?php

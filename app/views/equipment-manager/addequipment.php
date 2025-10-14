@@ -1,4 +1,5 @@
-<?php
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,12 +9,14 @@
     <style>
         @import url("/uoc-sports/public/css/equipment-manager/index.css");
         @import url("/uoc-sports/public/css/equipment-manager/footer.css");
-    @import url("/uoc-sports/public/css/equipment-manager/header.css");
+        @import url("/uoc-sports/public/css/equipment-manager/header.css");
         @import url("/uoc-sports/public/css/equipment-manager/form.css");
     </style>
 </head>
 <body>
     <?php require "../app/views/templates/equipment-manager/header.php"; ?>
+
+    
 
     <div class="container">
         <div class="form-container">

@@ -1,3 +1,4 @@
+/* add equipment form css */
 .form-container {
     max-width: 500px;
     margin: 20px auto;
@@ -18,12 +19,80 @@
     color: #333;
 }
 
+/* report a lost item form css */
+body {
+  font-family:  sans-serif;
+  background: #fff;
+  color: #000;
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.report-form {
+  width: 400px;
+  padding: 20px;
+  border-radius: 8px;
+  background: #fff;
+  font-family: sans-serif;
+}
+
+.report-form h2 {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.report-form label {
+  display: block;
+  margin: 12px 0 6px;
+  margin-bottom: 10px; 
+  
+}
+
+.report-form input,
+.report-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f2f2f2;
+  font-size: 14px;
+  margin-bottom: 5px;
+  
+  color: dimgray;
+}
+
+.report-form textarea {
+  resize: none;
+  height: 80px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
 .form-group input {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
     box-sizing: border-box;
+}
+
+.reset-btn, .submit-btn {
+  padding: 10px 20px;
+  
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.reset-btn {
+  margin-top: 20px;
+  background: #560756;
 }
 
 .submit-btn {
@@ -36,6 +105,8 @@
     width: 100%;
 }
 
-.submit-btn:hover {
-    background: #4a1764;
+.reset-btn:hover, .submit-btn:hover {
+  opacity: 0.85;
+  background-color: #000;
 }
+

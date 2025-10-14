@@ -17,8 +17,8 @@
 
 <body class="equipment-body">
     <div class="btn">
-        <span class="report-btn">Logout</span>
-        <span class="add-new">Add New Equipment +</span>
+        <span class="report-btn"><a href="equipment-report.php">Report</a></span>
+        <span class="add-new"><a href="addequipment.php">Add New Equipment +</a></span>
     </div>
 
     <div class ="content">
