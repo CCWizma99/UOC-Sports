@@ -34,6 +34,9 @@ form input{
     border-radius: 40px;
     padding-left: 10px;
 }
+form input:focus{
+    border-color: var(--primary-color);
+}
 form .double-input-div{
     display: flex;
     align-items: center;
@@ -111,3 +114,31 @@ form .double-input-div label{
     text-decoration: underline;
 }
   
+.input-div select {
+    width: 360px;
+    line-height: 28px;
+    border-radius: 60px;
+    padding-left: 10px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: #fff;
+    appearance: none; /* removes default arrow for cross-browser */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+}
+
+.input-div select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+
+/* Optional: add a custom arrow */
+.input-div select::-ms-expand {
+    display: none;
+}
+
+.input-div select option {
+    padding: 6px;
+}

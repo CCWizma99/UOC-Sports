@@ -22,4 +22,15 @@ class UserHomeController {
     public function contactUs() {
         view('general/contact-us');
     }
+    public function getFaculties() {
+        header('Content-Type: application/json');
+        try {
+            $user = new User();
+            $faculties = $user->getFaculties();
+
+            echo json_encode(['status' => 'success', 'faculties' => $faculties]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
 }

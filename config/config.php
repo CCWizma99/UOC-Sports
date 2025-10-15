@@ -4,4 +4,4 @@ define('DB_NAME', 'uoc-sports');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
-
+define('APP_ROOT', dirname(__DIR__));

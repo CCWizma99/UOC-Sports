@@ -7,6 +7,20 @@ class User {
         $this->db = Database::getConnection();
     }
 
+    public function createStudent($data) {
+        $stmt = $this->db->prepare("INSERT INTO user (user_id, fname, lname, type, student_id, faculty_id, email, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        return $stmt->execute([
+            $this -> generateUniqueUserId(),
+            $data['fname'],
+            $data['lname'],
+            "STUDENT",
+            $data['student_id'],
+            $data['faculty_id'],
+            $data['email'],
+            password_hash($data['password'], PASSWORD_DEFAULT)
+        ]);
+    }
+
     public function create($data) {
         $stmt = $this->db->prepare("INSERT INTO user (user_id, fname, lname, email, password) VALUES (?, ?, ?, ?, ?)");
         return $stmt->execute([
@@ -17,6 +31,7 @@ class User {
             password_hash($data['password'], PASSWORD_DEFAULT)
         ]);
     }
+
 
     private function generateUniqueUserId() {
         do {
@@ -80,5 +95,24 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
+    public function getFaculties() {
+        $stmt = $this->db->prepare("
+            SELECT faculty_id, faculty_name
+            FROM faculty
+        ");
+        $stmt->execute();
+        return$stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getStudentId($userId) {
+        $stmt = $this->db->prepare("
+            SELECT student_id
+            FROM user 
+            WHERE user_id = :user_id
+            LIMIT 1
+        ");
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
     
 }

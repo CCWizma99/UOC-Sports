@@ -9,6 +9,10 @@ class AuthController extends BaseController {
         view('sign-in', ['message' => $message]);
     }
 
+    public function showStudentSignupForm($message = null) {
+        view('student-sign-up', ['message' => $message]);
+    }
+
     public function handleSignup() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = new User();
@@ -21,6 +25,34 @@ class AuthController extends BaseController {
             ];
 
             if ($user->create($data)) {
+                $_SESSION['message'] = "Sign Up Successful! Please Sign In.";
+                $_SESSION['redirectURL'] = "/uoc-sports/public/sign-in";
+                $_SESSION['color'] = "green";
+            } else {
+                $_SESSION['message'] = 'Something went wrong. Try again.';
+            }
+        } else {
+            $_SESSION['message'] = 'Invalid request.';
+        }
+
+        header("Location: /uoc-sports/public/sign-up");
+        exit;
+    }
+
+    public function handleStudentSignup() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $user = new User();
+
+            $data = [
+                'fname' => $_POST['fname'] ?? '',
+                'lname' => $_POST['lname'] ?? '',
+                'email' => $_POST['email'] ?? '',
+                'password' => $_POST['password'] ?? '',
+                'student_id' => $POST['student_id'] ?? '',
+                'faculty_id' => $POST['faculty_id'] ?? ''
+            ];
+
+            if ($user->createStudent($data)) {
                 $_SESSION['message'] = "Sign Up Successful! Please Sign In.";
                 $_SESSION['redirectURL'] = "/uoc-sports/public/sign-in";
                 $_SESSION['color'] = "green";
@@ -64,7 +96,6 @@ class AuthController extends BaseController {
                         $_SESSION['redirectURL'] = "/uoc-sports/public/";
                 }
     
-                // ✅ Remember Me Feature
                 if ($remember) {
                     $token = bin2hex(random_bytes(32)); // Secure random token
                     $expiry = time() + (86400 * 30); // 30 days
@@ -225,7 +256,5 @@ class AuthController extends BaseController {
                 'message' => 'Error: ' . $e->getMessage()
             ]);
         }
-    }
-       
-    
+    }    
 }

@@ -8,19 +8,36 @@
 
         </div>
         <div class="log-div">
-            <?php
+        <?php
+            if (isset($_SESSION['user_id'])) {
+                $user_id = $_SESSION['user_id'];
 
-                if (isset($_SESSION['user_id'])) {
-                    $user_id = $_SESSION['user_id'];
-                    echo '<a href="/uoc-sports/public/profile">
-                            Profile <i class="fa-solid fa-circle-user"></i>
-                        </a>';
-                } else {
-                    echo '<a href="/uoc-sports/public/sign-in">
-                            Log in <i class="fa-solid fa-right-to-bracket"></i>
-                        </a>';
+                require_once APP_ROOT.'/core/Database.php';
+
+                $db = Database::getConnection();
+
+                // Prepare statement
+                $stmt = $db->prepare("SELECT type FROM user WHERE user_id = :user_id");
+
+                // Bind parameter (this part was missing)
+                $stmt->execute(['user_id' => $user_id]);
+
+                // Fetch the row properly
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($user && $user['type'] === 'STUDENT') {
+                    echo '<a href="/uoc-sports/public/student/" id="user_type">Student</a>';
                 }
-            ?>
+
+                echo '<a href="/uoc-sports/public/profile">
+                        Profile <i class="fa-solid fa-circle-user"></i>
+                    </a>';
+            } else {
+                echo '<a href="/uoc-sports/public/sign-in">
+                        Log in <i class="fa-solid fa-right-to-bracket"></i>
+                    </a>';
+            }
+        ?>
         </div>
     </div>
     <nav class="flex">

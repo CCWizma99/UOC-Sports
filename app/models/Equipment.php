@@ -86,6 +86,18 @@ class Equipment {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function minimalSearch($query){
+        $sql = "
+            SELECT equipment_id, equipment_name
+            FROM equipment
+            WHERE equipment_name LIKE :query
+            LIMIT 5;
+            ";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['query' => "%$query%"]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getSports() {
         $sql = "SELECT sport_id, sport_name FROM sport ORDER BY sport_name ASC";
         $stmt = $this->db->query($sql);
@@ -138,6 +150,85 @@ class Equipment {
         $stmt = $this->db->prepare($sql);
         $data['id'] = $id;
         return $stmt->execute($data);
+    }
+
+    public function getReservedTimes($equipment_id) {
+        $sql = "SELECT student_id, request_date, start_time, end_time 
+                FROM `equipment-requests` 
+                WHERE equipment_id = :equipment_id 
+                AND status = 'ACTIVE'
+                ORDER BY request_date DESC, start_time ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['equipment_id' => $equipment_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function isTimeOverlapping($equipment_id, $date, $start, $end) {
+        $sql = "SELECT COUNT(*) 
+                FROM `equipment-requests`
+                WHERE equipment_id = :equipment_id
+                AND request_date = :date
+                AND status = 'ACTIVE'
+                AND (
+                    (start_time < :end AND end_time > :start)
+                )";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            'equipment_id' => $equipment_id,
+            'date' => $date,
+            'start' => $start,
+            'end' => $end
+        ]);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    public function addReservation($equipment_id, $student_id, $date, $start, $end, $purpose, $notes) {
+        $id = uniqid('req_', true);
+        $sql = "INSERT INTO `equipment-requests`
+                (request_id, student_id, equipment_id, request_date, start_time, end_time, purpose, notes)
+                VALUES (:id, :student_id, :equipment_id, :date, :start, :end, :purpose, :notes)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            'id' => $id,
+            'student_id' => $student_id,
+            'equipment_id' => $equipment_id,
+            'date' => $date,
+            'start' => $start,
+            'end' => $end,
+            'purpose' => $purpose,
+            'notes' => $notes
+        ]);
+        return $id;
+    }
+
+    public function getReservedItems($studentId) {
+        $sql = "
+            SELECT 
+                r.request_id AS request_id,
+                e.equipment_name AS equipment_name,
+                MIN(i.image_name) AS image,
+                r.status,
+                r.request_date
+            FROM `equipment-requests` r
+            JOIN equipment e ON r.equipment_id = e.equipment_id
+            JOIN equipment_image i ON e.equipment_id = i.equipment_id
+            WHERE r.student_id = :student_id
+            GROUP BY r.request_id
+            ORDER BY r.request_date DESC
+        ";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['student_id' => $studentId['student_id']]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+
+    public function cancelReservation($reservationId, $studentId) {
+        $sql = "DELETE FROM `equipment-requests` WHERE request_id = :reservation_id AND student_id = :student_id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            'reservation_id' => $reservationId,
+            'student_id' => $studentId['student_id']
+        ]);
     }
 }
 

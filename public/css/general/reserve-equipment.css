@@ -1,0 +1,139 @@
+#reserve-equipment {
+    background: #fff;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-top: 30px;
+    width: 100%;
+    max-width: 700px;
+  }
+  
+  #reserve-equipment h2 {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  .input-div {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .input-div label {
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  
+  .input-div input,
+  .input-div select,
+  .input-div textarea {
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    transition: 0.2s;
+  }
+  
+  .input-div input:focus,
+  .input-div select:focus,
+  .input-div textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 4px rgba(0,123,255,0.2);
+  }
+  
+  .input-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .input-div.half {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .btn {
+    background: var(--primary-color-8);
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  
+  .btn:hover {
+    background: var(--primary-color);
+  }
+  
+  #reserve-message {
+    margin-top: 10px;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+  
+  #reserve-message.success {
+    color: green;
+  }
+  
+  #reserve-message.error {
+    color: red;
+  }
+  
+  /* 🔍 Suggestions dropdown */
+  #suggestions {
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #fff;
+    max-height: 150px;
+    overflow-y: auto;
+    /* position: absolute; */
+    width: calc(100%);
+    z-index: 1000;
+  }
+  
+  #suggestions li {
+    padding: 8px 10px;
+    cursor: pointer;
+  }
+  
+  #suggestions li:hover {
+    background: #f0f0f0;
+  }
+  
+  .reserved-times-box {
+    display: none;
+    background: #fafafa;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+  }
+  
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 5px;
+    font-size: 0.95em;
+  }
+  
+  .styled-table th, .styled-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .styled-table th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+  }
+  
+  .styled-table tr:hover {
+    background-color: #f2f2f2;
+  }
+  
