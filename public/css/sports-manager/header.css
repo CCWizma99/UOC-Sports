@@ -1,0 +1,154 @@
+body {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding:0;
+  font-family: "Font Name", 'Roboto';
+  background: #fff;
+  color: #222;
+  width: 100%;
+  
+}
+
+header {
+  background-color: #ffffff;
+  color: #560756;
+  margin-bottom: 70px;
+  font-family: "Font Name", 'Roboto';
+  font-size: 1.5vw;
+  
+}
+
+
+.logo-container{
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  font-size: clamp(10px, 2vw, 15px);
+  
+  
+}
+
+.header-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 25px;
+  margin: 0 0px;
+  text-align: center;
+  font-size: clamp(10px, 2vw, 32px);
+  width: 100%;
+  position: relative;
+  font-family: "Font Name", 'Roboto';
+}
+
+.header-container h1{
+  font-family: "Font Name", 'Roboto';
+  Font-weight: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 15px; 
+  color: #560756;
+  font-size: 20px;
+  
+}
+
+
+.logo {
+  height: clamp(55px, 2.5vw, 40px);
+  width: clamp(50px, 2.5vw, 40px);
+  margin-right: 0px;
+  padding: 0px 2px;
+  line-height: 1.2px
+
+}
+
+.searchbar{
+  height:2px;
+}
+
+.logout-container{
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: row;       /* push logout button right */
+  flex-shrink: 0; 
+ 
+}
+
+.logout-btn {
+  display: flex;
+  justify-content: right;  
+  background-color: #560756;
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+ text-decoration: none;
+  gap: 0.1vw;   
+  
+}
+
+.logout-btn:hover{
+  background-color: rgb(116, 76, 141);
+}
+
+.logout{
+  height: clamp(10px, 1vw, 30px);
+  width: clamp(15px, 1vw, 30px);
+  padding: 0px 0px;
+  text-decoration: none;
+  margin: 3px;
+}
+
+.sub-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #560756;
+  width:100%;
+  padding: 10px 25px;
+  text-decoration: none;
+  font-size: clamp(15px, 1vw, 32px);
+  position:relative;
+
+}
+
+.report-title{
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+}
+
+.back-link {
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  margin: 20px 20px;
+}
+
+.img{
+    height: 10px;
+}
+
+
+.search-form {
+  width: 100%;
+}
+
+.search-form input {
+  width: 400px;
+  padding: 12px 15px 12px 45px; /* padding-left for icon */
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 12px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-form input:focus {
+  border-color: #555;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+}
