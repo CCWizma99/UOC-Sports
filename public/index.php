@@ -20,6 +20,9 @@ $router->get('/captain/communication', 'CaptainController@Communication');
 $router->get('/coach/team-schedules', 'CoachController@TeamSchedules');
 $router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');
 $router->get('/coach/report-injury', 'CoachController@ReportInjury');
+$router->get('/registrar/registrar-dashboard', 'RegistrarController@RegistrarDashboard');
+$router->get('/registrar/verify-students', 'RegistrarController@VerifyStudents');
+
 $router->get('/equipment-manager//', 'EquipmentManagerController@index');
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->post('/sign-up', 'AuthController@handleSignup');

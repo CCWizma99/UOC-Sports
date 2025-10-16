@@ -1,0 +1,177 @@
+:root {
+  --primary-color: #5b2e91;
+  --secondary-color: #f4f3fa;
+  --success: #28a745;
+  --danger: #dc3545;
+  --text-color: #333;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff;
+  color: var(--text-color);
+  margin: 0;
+  padding: 30px;
+}
+
+/* Center the whole body content like your friend's layout */
+.container {
+  max-width: 900px;  /* You can adjust: 720px matches your friend's attendance page */
+  margin: 30px auto; /* Centers the body horizontally */
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+
+.verify-container {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Header with filters */
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.header-bar h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.filters select {
+  background-color: var(--secondary-color);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-left: 8px;
+  font-family: inherit;
+}
+
+/* Search bar */
+.search-bar {
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+}
+
+.search-bar input:focus {
+  border-color: var(--primary-color);
+}
+
+/* Table styling */
+.verify-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.verify-table th, .verify-table td {
+  padding: 12px 10px;
+  text-align: left;
+}
+
+.verify-table thead {
+  background-color: var(--secondary-color);
+  font-weight: 600;
+}
+
+.verify-table tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+.verify-table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+/* Status badges */
+.status {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status.approved {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status.rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.approve-btn,
+.reject-btn {
+  border: none;
+  outline: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+/* Align buttons horizontally inside each Actions cell */
+.verify-table td {
+  vertical-align: middle;
+}
+
+.verify-table td button {
+  margin-right: 8px; /* space between Approve & Reject */
+  display: inline-block; /* keep side by side */
+  vertical-align: middle;
+}
+
+/* Optional: ensure the last button has no extra gap */
+.verify-table td button:last-child {
+  margin-right: 0;
+}
+
+
+/* Action buttons */
+ .view-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #fff;
+  transition: opacity 0.2s ease;
+}
+
+.approve-btn {
+  background-color: var(--success);
+}
+
+.reject-btn {
+  background-color: var(--danger);
+}
+
+.view-btn {
+  background-color: var(--primary-color);
+}
+
+.approve-btn:hover,
+.reject-btn:hover,
+.view-btn:hover {
+  opacity: 0.9;
+}
