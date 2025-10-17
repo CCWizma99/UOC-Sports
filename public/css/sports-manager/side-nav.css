@@ -1,7 +1,7 @@
-/* Sidebar container */
+
 .menu-sidebar {
   position: fixed;
-  top: 80px; /* adjust if your top bar height is different */
+  top: 80px;
   left: 20px;
   width: 180px;
   background: #bd5959;

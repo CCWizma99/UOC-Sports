@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 
   <?php
-    require "../app/views/templates/equipment-manager/header.php";
+    require "../app/views/templates/sports-manager/header-nav.php";
   
 ?>
 
@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <input type="text" name="reserved_person_name" placeholder="Add the reserved person's name" required>
 
     <label>Sport</label>
-<select name="sport" required>
+<select name="sport" id="sport" required>
   <option value=""> Select a Sport </option>
   <option value="cricket">Cricket</option>
   <option value="football">Football</option>
@@ -55,9 +55,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <br><br>
 
-<!-- Added Equipment Label and Dropdown -->
+
 <label>Equipment</label>
-<select name="equipment" required>
+<select name="equipment" id="equipment" required>
   <option value=""> Select Equipment </option>
 </select>
 

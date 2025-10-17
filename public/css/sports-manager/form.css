@@ -4,6 +4,36 @@
     box-sizing: border-box;
 }
 
+.header-subnav {
+  display: flex;
+  justify-content: space-between;
+  background-color: #560756;
+  width:100%;
+  padding: 20px 25px;
+  text-decoration: none;
+  font-size: 14px;
+  position:relative;
+  align-items: center;
+
+}
+
+
+.header-subnav a.back, 
+.header-subnav a.new, 
+.header-subnav a.message {
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px 15px;
+}
+
+.nav-right{
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  margin-left: auto;
+} 
+
 body {
   font-family:  sans-serif;
   background: #fff;

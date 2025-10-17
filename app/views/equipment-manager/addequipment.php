@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-    <?php require "../app/views/templates/equipment-manager/header.php"; ?>
+    <?php require "../app/views/templates/sports-manager/header-nav.php"; ?>
 
     
 

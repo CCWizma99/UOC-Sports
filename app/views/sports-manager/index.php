@@ -38,10 +38,10 @@
     <?php require "../app/views/sports-manager/barchart.php"; ?>
     </div>
 
-    <div class="calendar">
+   <!-- <div class="calendar">
     <?php require "../app/views/sports-manager/calendar.php"; ?>
 
 </div>
-
+-->
 </body>
 </html>
