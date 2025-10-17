@@ -20,7 +20,8 @@
 
 .header-subnav a.back, 
 .header-subnav a.new, 
-.header-subnav a.message {
+.header-subnav a.message,
+.header-subnav a.member {
   text-decoration: none;
   color: white;
   cursor: pointer;
