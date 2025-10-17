@@ -1,0 +1,211 @@
+:root {
+  --primary-color: #5b2e91;
+  --primary-light: #8b5fbf;
+  --primary-dark: #4a2374;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --success: #28a745;
+  --danger: #dc3545;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 30px auto;
+  overflow-x: auto; /* ✅ allows horizontal scroll for full table */
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 22px;
+  text-align: center;
+  font-weight: 300;
+  margin-bottom: 6px;
+}
+
+.info-title {
+  font-size: 18px;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.search-filter {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.search-filter input {
+  padding: 8px 12px;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  font-size: 14px;
+  width: 250px;
+}
+
+.staff-table {
+  width: 100%;
+  border-radius: 8px;
+  overflow-x: auto; /* ✅ ensures both header and rows scroll together */
+  border: 1px solid var(--primary-color);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  background: white;
+}
+
+/* ✅ Same column structure for header and rows */
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns:
+    1.4fr   /* Name */
+    1.2fr   /* ID */
+    2fr     /* Department */
+    1fr     /* Contact */
+    1.2fr   /* Role */
+    1fr     /* Status */
+    1.5fr;  /* Actions */
+  gap: 0.8rem;
+  align-items: center;
+  min-width: 950px; /* ✅ prevents wrapping / hidden last column */
+}
+
+.table-header {
+  padding: 1rem;
+  font-weight: 600;
+  background: var(--primary-light);
+  color: white;
+  font-size: 15px;
+  text-align: left;
+  border-bottom: 2px solid var(--primary-dark);
+}
+
+.table-header div {
+  text-align: left;
+}
+
+.table-header div:last-child {
+  text-align: center;
+  color: white;
+}
+
+/* ✅ Data rows perfectly align under the header */
+.table-row {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--gray-200);
+  font-size: 15px;
+  transition: background-color 0.2s;
+}
+
+.table-row:hover {
+  background-color: var(--gray-50);
+}
+
+/* ✅ Ensure all text aligns properly */
+.table-row div {
+  text-align: left;
+}
+
+.table-row div:last-child {
+  text-align: center;
+}
+
+/* ✅ Fixed size status prevents shifting */
+.status {
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 6px;
+  text-align: center;
+  width: 100px;
+  min-width: 100px;
+  justify-self: center;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.status.pending {
+  background-color: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.status.approved {
+  background-color: var(--success);
+  color: white;
+}
+
+.status.rejected {
+  background-color: var(--danger);
+  color: white;
+}
+
+/* ✅ Buttons remain fully visible */
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.approve-btn,
+.reject-btn {
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.approve-btn {
+  background-color: var(--success);
+  color: white;
+}
+
+.reject-btn {
+  background-color: var(--danger);
+  color: white;
+}
+
+.approve-btn:hover {
+  background-color: #218838;
+}
+
+.reject-btn:hover {
+  background-color: #c82333;
+}
+
+/* ✅ Responsive fix */
+@media (max-width: 768px) {
+  .table-header {
+    display: none;
+  }
+
+  .table-row {
+    display: block;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+  }
+
+  .table-row div {
+    margin-bottom: 0.5rem;
+  }
+
+  .actions {
+    justify-content: flex-start;
+  }
+}

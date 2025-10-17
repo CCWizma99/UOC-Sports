@@ -9,4 +9,12 @@ class RegistrarController {
         view('registrar/verify-students');
     }
 
+     public function VerifyStaff() {
+        view('registrar/verify-staff');
+    }
+
+     public function VerifyBookings() {
+        view('registrar/verify-bookings');
+    }
+
 }
