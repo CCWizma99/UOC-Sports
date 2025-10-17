@@ -11,7 +11,14 @@
 <div class ="header">
    <?php require 'header-nav.php'; 
 
-  require 'header-subnav1.php'; ?>
+ ?>
+ <div class="header-subnav">
+     
+       <a href="inbox.php" class="back">Back</a>
+      <div class="nav-right">
+        <a href="sent.php" class="message">Message</a>
+      <a href="drafts.php" class="new">New Message</a>
+</div>
 </div>
 <body>
 
@@ -33,5 +40,7 @@
     </div>
 
 </form>
+
+ <?php require "../app/views/templates/equipment-manager/footer.php"; ?>
 </body>
 </html>
