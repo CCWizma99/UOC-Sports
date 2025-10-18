@@ -26,7 +26,7 @@
 </head>
 <body class="mesh-sporty">
     <?php
-        require '../app/views/templates/general/header.php';
+        require '../app/views/templates/captain/header.php';
         require '../app/views/templates/captain/attendance-sheet.php';
         require '../app/views/templates/general/footer.php';
     ?>

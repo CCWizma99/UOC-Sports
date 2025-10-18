@@ -59,7 +59,7 @@ select, input[type="date"], input[type="time"], textarea {
     flex: 1;
 }
 
-button {
+#createBtn {
     background-color: var(--primary-color); /* Your primary color */
     color: white;
     font-size: 16px;
@@ -69,6 +69,58 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+#createBtn:hover {
     background-color: #4a236d;
 }
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.schedule-table th {
+    background-color: #5b2e91;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+}
+
+.schedule-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.edit-btn ,.delete-btn{
+  border: none;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin: 0 4px;
+  transition: all 0.3s ease;
+
+}
+.edit-btn:hover, .delete-btn:hover {
+    color: #7b42b3; /* lighter purple on hover */
+    transform: scale(1.2);
+
+}
+
+.edit-btn {
+  color: green;
+}
+
+.delete-btn {
+    color: red;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.no-records {
+    text-align: center;
+    color: #777;
+}
+
+
+
+

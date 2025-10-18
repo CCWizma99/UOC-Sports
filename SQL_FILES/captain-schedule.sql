@@ -1,0 +1,11 @@
+CREATE TABLE practice_sessions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  facility VARCHAR(100) NOT NULL,
+  session_date DATE NOT NULL,
+  session_time TIME NOT NULL,
+  description TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
+);
+
+

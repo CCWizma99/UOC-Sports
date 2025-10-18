@@ -16,6 +16,7 @@ $router->get('/captain//', 'CaptainController@index');
 $router->get('/captain/mark-attendance', 'CaptainController@MarkAttendance');
 $router->get('/captain/add-members', 'CaptainController@AddMembers');
 $router->get('/captain/schedule-practice', 'CaptainController@SchedulePractice');
+$router->post('/captain/schedule-practice', 'CaptainController@SchedulePractice');
 $router->get('/captain/communication', 'CaptainController@Communication');
 $router->get('/coach/team-schedules', 'CoachController@TeamSchedules');
 $router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');
