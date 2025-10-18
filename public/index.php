@@ -18,6 +18,7 @@ $router->get('/search-post', 'PostApiController@search');
 $router->get('/get-faculties', 'UserHomeController@getFaculties');
 
 $router->get('/student', 'StudentController@index');
+$router->get('/student/profile', 'StudentController@profile');
 
 $router->get('/captain//', 'CaptainController@index');
 $router->get('/captain/mark-attendance', 'CaptainController@MarkAttendance');
