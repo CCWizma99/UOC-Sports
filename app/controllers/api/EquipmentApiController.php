@@ -130,7 +130,7 @@ class EquipmentApiController {
 
     public function getReservedItems() {
         header('Content-Type: application/json');
-
+    
         if (!isset($_SESSION['user_id'])) {
             echo json_encode([
                 'status' => 'error',
@@ -138,18 +138,28 @@ class EquipmentApiController {
             ]);
             return;
         }
-
+    
         $userModel = new User();
-        $studentId = $userModel->getStudentId($_SESSION['user_id']);
-
+        $studentData = $userModel->getStudentId($_SESSION['user_id']);
+    
+        if (!$studentData || !isset($studentData['student_id'])) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Student ID not found'
+            ]);
+            return;
+        }
+    
+        $studentId = $studentData['student_id'];
+    
         $reservationModel = new Equipment();
         $results = $reservationModel->getReservedItems($studentId);
-
+    
         echo json_encode([
             'status' => 'success',
             'data' => $results
         ]);
-    }
+    }    
 
     public function cancelReservation() {
         header('Content-Type: application/json');

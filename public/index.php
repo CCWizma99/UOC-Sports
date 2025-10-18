@@ -16,6 +16,7 @@ $router->get('/post/{id}', 'PostController@viewPost');
 $router->post('/post/add-comment', 'PostController@addComment');
 $router->get('/search-post', 'PostApiController@search');
 $router->get('/get-faculties', 'UserHomeController@getFaculties');
+$router->post('/create-facility-booking', 'FacilityApiController@createBooking');
 
 $router->get('/student', 'StudentController@index');
 
@@ -34,6 +35,9 @@ $router->get('/reserve-equipments/view', 'EquipmentApiController@getReservedItem
 
 $router->get('/equipment-manager//', 'EquipmentManagerController@index');
 $router->get('/equipment-manager/equipment-report', 'EquipmentManagerController@equipmentReport');
+$router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipments');
+
+$router->get('/sport-manager//', 'SportManagerController@index');
 
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->get('/sign-in', 'AuthController@showSigninForm');

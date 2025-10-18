@@ -9,6 +9,7 @@
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
         @import url(/uoc-sports/public/css/general/facility-rates.css);
+        @import url(/uoc-sports/public/css/general/reserve-facility.css);
         @import url(/uoc-sports/public/css/general/footer.css);
 
         .mesh-sporty {
@@ -24,6 +25,7 @@
     <?php
         require '../app/views/templates/general/header.php';
         require '../app/views/templates/general/facility-rates.php';
+        require '../app/views/templates/general/reserve-facility.php';
         require '../app/views/templates/general/footer.php';
     ?>
 </body>

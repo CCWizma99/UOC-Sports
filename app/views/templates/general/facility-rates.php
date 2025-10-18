@@ -1,130 +1,80 @@
-<div class="container">
-        <div class="form-section">
-            <h3>Search Facility Rates</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="search_facility_type">Facility Type</label>
-                    <select id="search_facility_type" name="search_facility_type">
-                        <option value="">All Types</option>
-                        <option value="INDOOR_GYM">Indoor Gym</option>
-                        <option value="GROUND">Ground</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="search_facility_name">Facility Name</label>
-                    <input type="text" id="search_facility_name" name="search_facility_name" placeholder="Search by name...">
-            </div>
-            <div style="text-align: center;">
-                <button onclick="searchRates()" class="btn btn-info">Search</button>
-                <button onclick="clearSearch()" class="btn btn-success">Clear</button>
-            </div>
-        </div>
+<div class="facility-search">
+  <h3>Search Facility Rates</h3>
+  <input 
+    type="text" 
+    id="search_facility_name" 
+    placeholder="Type a facility name..."
+    oninput="searchFacilities()"
+  />
 
-        <div id="searchResults"></div>
-    </div>
+  <div id="suggestions" class="suggestions"></div>
+  <div id="facilityDetails" class="facility-details hidden"></div>
 </div>
 
 <script>
-    const API_BASE = '/uoc-sports/public/api/get-facility-rates.php';
+const API_BASE = '/uoc-sports/public/api/get-facility-rates.php';
+let timeout = null;
 
-    // Search rates
-    async function searchRates() {
-        const facilityType = document.getElementById('search_facility_type').value;
-        const facilityName = document.getElementById('search_facility_name').value;
+async function searchFacilities() {
+  const name = document.getElementById('search_facility_name').value.trim();
+  const suggestionBox = document.getElementById('suggestions');
+  const detailsBox = document.getElementById('facilityDetails');
 
-        try {
-            showLoading('searchResults');
-            
-            // Build query parameters
-            const params = new URLSearchParams();
-            if (facilityType) params.append('facility_type', facilityType);
-            if (facilityName) params.append('facility_name', facilityName);
+  if (!name) {
+    suggestionBox.innerHTML = '';
+    detailsBox.innerHTML = '';
+    return;
+  }
 
-            const response = await fetch(`${API_BASE}?${params.toString()}`);
-            const result = await response.json();
+  clearTimeout(timeout);
+  timeout = setTimeout(async () => {
+    try {
+      const response = await fetch(`${API_BASE}?facility_name=${encodeURIComponent(name)}`);
+      const results = await response.json();
 
-            // Since backend returns raw array
-            if (Array.isArray(result)) {
-                displayResults('searchResults', result);
-            } else {
-                showMessage('searchResults', 'Error: ' + (result.message || 'Unknown error'), 'error');
-            }
+      if (!Array.isArray(results) || results.length === 0) {
+        suggestionBox.innerHTML = '<p class="no-results">No facilities found.</p>';
+        return;
+      }
 
-        } catch (error) {
-            showMessage('searchResults', 'Error: ' + error.message, 'error');
-        }
+      // Create suggestion cards
+      suggestionBox.innerHTML = results.map(r => `
+        <div class="facility-card" onclick='showDetails(${JSON.stringify(r)})'>
+          <h4>${r.facility_name}</h4>
+          <p class="type">${r.facility_type.replace('_', ' ')}</p>
+        </div>
+      `).join('');
+
+    } catch (error) {
+      suggestionBox.innerHTML = `<p class="error">Error fetching facilities.</p>`;
     }
+  }, 400); // debounce
+}
 
-    // Clear search
-    function clearSearch() {
-        document.getElementById('search_facility_type').value = '';
-        document.getElementById('search_facility_name').value = '';
-        document.getElementById('searchResults').innerHTML = '';
-    }
+function showDetails(data) {
+  const detailsBox = document.getElementById('facilityDetails');
+  detailsBox.classList.remove('hidden');
+  detailsBox.classList.add('show');
+  document.getElementById('suggestions').innerHTML = '';
 
-    // Display results in table format
-    function displayResults(containerId, data) {
-        const container = document.getElementById(containerId);
-        
-        if (!data || data.length === 0) {
-            container.innerHTML = '<div class="message">No results found.</div>';
-            return;
-        }
-        
-        let html = `
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th>Facility Type</th>
-                        <th>Facility Name</th>
-                        <th>Capacity</th>
-                        <th>Practice Working (Rs.)</th>
-                        <th>Practice Other (Rs.)</th>
-                        <th>Tournament Full Day Working (Rs.)</th>
-                        <th>Tournament Half Day Working (Rs.)</th>
-                        <th>Tournament Full Day Other (Rs.)</th>
-                        <th>Tournament Half Day Other (Rs.)</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-        
-        data.forEach(row => {
-            html += `
-                <tr>
-                    <td>${row.facility_type}</td>
-                    <td>${row.facility_name}</td>
-                    <td>${row.capacity || '-'}</td>
-                    <td>${row.practice_working_hours ? 'Rs. ' + parseFloat(row.practice_working_hours).toFixed(2) : '-'}</td>
-                    <td>${row.practice_other_hours ? 'Rs. ' + parseFloat(row.practice_other_hours).toFixed(2) : '-'}</td>
-                    <td>${row.tournament_full_day_working ? 'Rs. ' + parseFloat(row.tournament_full_day_working).toFixed(2) : '-'}</td>
-                    <td>${row.tournament_half_day_working ? 'Rs. ' + parseFloat(row.tournament_half_day_working).toFixed(2) : '-'}</td>
-                    <td>${row.tournament_full_day_other ? 'Rs. ' + parseFloat(row.tournament_full_day_other).toFixed(2) : '-'}</td>
-                    <td>${row.tournament_half_day_other ? 'Rs. ' + parseFloat(row.tournament_half_day_other).toFixed(2) : '-'}</td>
-                </tr>
-            `;
-        });
-        
-        html += `
-                </tbody>
-            </table>
-            <div style="padding: 15px; text-align: center; color: #6c757d;">
-                Found ${data.length} result(s)
-            </div>
-        `;
-        
-        container.innerHTML = html;
-    }
+  detailsBox.innerHTML = `
+    <div class="facility-info">
+      <h3>${data.facility_name}</h3>
+      <p><strong>Type:</strong> ${data.facility_type.replace('_', ' ')}</p>
+      ${data.capacity ? `<p><strong>Capacity:</strong> ${data.capacity}</p>` : ''}
+      <div class="rate-grid">
+        <div><strong>Practice (Working Days):</strong><span>${formatRate(data.practice_working_hours)}</span></div>
+        <div><strong>Practice (Other Days):</strong><span>${formatRate(data.practice_other_hours)}</span></div>
+        <div><strong>Tournament Full Day (Working Days):</strong><span>${formatRate(data.tournament_full_day_working)}</span></div>
+        <div><strong>Tournament Half Day (Working Days):</strong><span>${formatRate(data.tournament_half_day_working)}</span></div>
+        <div><strong>Tournament Full Day (Other Days):</strong><span>${formatRate(data.tournament_full_day_other)}</span></div>
+        <div><strong>Tournament Half Day (Other Days):</strong><span>${formatRate(data.tournament_half_day_other)}</span></div>
+      </div>
+    </div>
+  `;
+}
 
-    // Show message
-    function showMessage(containerId, message, type) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = `<div class="message ${type}">${message}</div>`;
-    }
-
-    // Show loading
-    function showLoading(containerId) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = '<div class="loading">Loading...</div>';
-    }
+function formatRate(val) {
+  return val ? `Rs. ${parseFloat(val).toFixed(2)}` : '-';
+}
 </script>

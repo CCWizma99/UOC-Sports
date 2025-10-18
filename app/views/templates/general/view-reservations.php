@@ -1,5 +1,5 @@
 <section id="reserved-section" class="reserved-section">
-  <h2>Reserved Items</h2>
+  <h2>Reserved Items of <?=htmlspecialchars($_SESSION['user_id'])?></h2>
   <div class="reserved-container" id="reserved-container">
     <p>Loading reserved items...</p>
   </div>

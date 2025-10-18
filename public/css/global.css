@@ -11,6 +11,7 @@
     --primary-color: rgb(94, 45, 145);
     --primary-color-5: rgba(93, 45, 145, 0.5);
     --primary-color-8: rgba(93, 45, 145, 0.8);
+    --primary-color-9: rgba(93, 45, 145, 0.9);
 }
 .red{
     color: red;
