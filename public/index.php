@@ -18,5 +18,6 @@ $router->get('/equipment-manager/equipment-report', 'EquipmentManagerController@
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->post('/sign-up', 'AuthController@handleSignup');
 $router->get('/sport-manager//', 'SportManagerController@index');
+$router->get('/sport-manager/events', 'SportManagerController@events');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
