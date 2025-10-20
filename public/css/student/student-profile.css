@@ -69,7 +69,7 @@
             position: absolute;
             bottom: 5px;
             right: 5px;
-            background: #667eea;
+            background: rgb(94, 45, 145);
             color: white;
             width: 36px;
             height: 36px;
@@ -84,7 +84,7 @@
         }
 
         .change-photo-btn:hover {
-            background: #5568d3;
+            background: rgb(94, 45, 145);
             transform: scale(1.05);
         }
 
@@ -96,7 +96,7 @@
         }
 
         .profile-role {
-            color: #667eea;
+            color: rgb(94, 45, 145);
             font-weight: 600;
             font-size: 13px;
             margin-bottom: 20px;
@@ -187,7 +187,7 @@
         }
 
         .edit-profile-btn:hover {
-            background: #5568d3;
+            background: rgb(137, 80, 199);
         }
 
         /* Main Content */
@@ -203,7 +203,7 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #667eea;
+            border-bottom: 2px solid rgb(94, 45, 145);
         }
 
         .section-header h2 {
@@ -265,7 +265,7 @@
         }
 
         .team-card:hover {
-            border-color: #667eea;
+            border-color: rgb(94, 45, 145);
             transform: translateY(-3px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
         }
@@ -284,7 +284,7 @@
 
         .team-role {
             font-size: 12px;
-            color: #667eea;
+            color: rgb(94, 45, 145);
             font-weight: 600;
             margin-bottom: 10px;
         }
@@ -383,12 +383,12 @@
         .schedule-item {
             display: flex;
             padding: 18px;
-            border-left: 3px solid #667eea;
+            border-left: 3px solid rgb(94, 45, 145);
             background: #fafbfc;
             border-radius: 8px;
             gap: 18px;
             border: 1px solid #e9ecef;
-            border-left: 3px solid #667eea;
+            border-left: 3px solid rgb(94, 45, 145);
         }
 
         .schedule-date {
@@ -399,7 +399,7 @@
         .schedule-day {
             font-size: 26px;
             font-weight: 700;
-            color: #667eea;
+            color:rgb(94, 45, 145) ;
             line-height: 1;
         }
 
@@ -428,7 +428,7 @@
 
         .schedule-time {
             display: inline-block;
-            background: #667eea;
+            background: rgb(94, 45, 145);
             color: white;
             padding: 4px 10px;
             border-radius: 5px;
@@ -593,7 +593,7 @@
         }
 
         .btn-save {
-            background: #667eea;
+            background: rgb(94, 45, 145);
             color: white;
             padding: 12px 25px;
             border: none;
@@ -606,7 +606,7 @@
         }
 
         .btn-save:hover {
-            background: #5568d3;
+            background: rgb(121, 66, 181);
         }
 
         @media (max-width: 968px) {
