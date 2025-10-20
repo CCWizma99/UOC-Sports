@@ -19,6 +19,9 @@ $router->get('/get-faculties', 'UserHomeController@getFaculties');
 $router->post('/create-facility-booking', 'FacilityApiController@createBooking');
 
 $router->get('/student', 'StudentController@index');
+$router->get('/student/profile', 'StudentController@profile');
+
+$router->get('/external/profile', 'ExternalController@profile');
 
 $router->get('/captain//', 'CaptainController@index');
 $router->get('/captain/mark-attendance', 'CaptainController@MarkAttendance');
