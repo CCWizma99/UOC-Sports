@@ -29,122 +29,117 @@
 
     <div class="card">
        <h3>Athletics - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/athletic.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Rugby- Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/rugby.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Tennis - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/tennis.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Weightlifting - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/weightlifting.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Basketball - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/basketball.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Carrom - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/carrom.jpg" class="image">     
     </div>
 
     <div class="card">
-       <h3>Scrable - Code</h3> 
-       <img src="#" class="image">     
+       <h3>Scrabble - Code</h3> 
+       <img src="equipment/scrabble.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Chess - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/chess.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Football - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/football.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Baseball - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/baseball.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Rowing - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/rowing.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Netball - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/netball.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Taekwondo - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/taekwondo.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Hockey - Code</h3> 
-       <img src="#" class="image">     
-    </div>
-
-    <div class="card">
-       <h3>Swimming - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/hockey.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Elle - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/elle.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Cricket - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/cricket.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Kabaddi - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/kabaddi.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Wrestling - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/wrestling.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Badminton - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/badminton.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Table Tennis - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/table tennis.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Volleyball - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/volleyball.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Boxing - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/boxing.jpg" class="image">     
     </div>
 
     <div class="card">
        <h3>Karate - Code</h3> 
-       <img src="#" class="image">     
+       <img src="equipment/karate.jpg" class="image">     
     </div>
 
 </div>
