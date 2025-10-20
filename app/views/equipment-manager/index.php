@@ -7,9 +7,9 @@
   <title>Colombo Sports E-Portal</title>
 
   <style>
-    @import url("/uoc-sports/public/css/equipment-manager/index.css");
-    @import url("/uoc-sports/public/css/equipment-manager/footer.css");
-    @import url("/upc-sports/public/css/equipment-manager/header.css");
+    @import url(/uoc-sports/public/css/global.css);
+    @import url("/uoc-sports/public/css/general/header.css");
+    @import url("/uoc-sports/public/css/general/footer.css");
     @import url("/uoc-sports/public/css/equipment-manager/calendar.css");
 
   </style>
@@ -18,24 +18,11 @@
 <body class="body-index">
     
 <?php
-    require "../app/views/templates/equipment-manager/header.php";
-  
+    require "../app/views/templates/general/header.php";
 ?>
 
   
   <div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <p class="Menu">Menu </p>
-      <a href="#">Home</a><hr class="hr1">
-      <a href="#">Profile</a><hr class="hr2">
-      <a href="#">News</a><hr class="hr3">
-      <a href="#">Settings</a><hr class="hr4">
-      <a href="#">Equipment</a><hr class="hr5">
-      <a href="#">Lost and Found</a><hr class="hr6">
-    </aside>
-    
-
     <!-- Calender view-->
   <main class="calendar" role="application" aria-label="Monthly calendar">
     <div class="cal-head">
@@ -77,7 +64,7 @@
 
 <!-- footer-->
 <?php
-    require "../app/views/templates/equipment-manager/footer.php";
+    require "../app/views/templates/general/footer.php";
 ?>
 
 </body>

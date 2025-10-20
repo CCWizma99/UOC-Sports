@@ -203,23 +203,18 @@ class Equipment {
 
     public function getReservedItems($studentId) {
         $sql = "
-            SELECT 
-                r.request_id AS request_id,
-                e.equipment_name AS equipment_name,
-                MIN(i.image_name) AS image,
-                r.status,
-                r.request_date
+            SELECT *
             FROM `equipment-requests` r
-            JOIN equipment e ON r.equipment_id = e.equipment_id
-            JOIN equipment_image i ON e.equipment_id = i.equipment_id
+            LEFT JOIN equipment e ON r.equipment_id = e.equipment_id
+            LEFT JOIN equipment_image i ON e.equipment_id = i.equipment_id
             WHERE r.student_id = :student_id
             GROUP BY r.request_id
-            ORDER BY r.request_date DESC
+            ORDER BY r.request_date DESC;
         ";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['student_id' => $studentId['student_id']]);
+        $stmt->execute(['student_id' => $studentId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    }    
     
 
     public function cancelReservation($reservationId, $studentId) {

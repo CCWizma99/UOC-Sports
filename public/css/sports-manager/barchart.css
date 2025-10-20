@@ -1,0 +1,137 @@
+  .container {
+    width: 90%;
+    align-items: right;;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin: 5px;
+  }
+
+  .balance-box {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  .balance-box h2 {
+      margin-top: 10px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    
+  }
+
+  .balance-amount {
+    font-size: 26px;
+    font-weight: bold;
+    color: #27ae60;
+    margin-bottom: 10px;
+  }
+
+  .progress-bar {
+    background: #e0e0e0;
+    border-radius: 10px;
+    height: 16px;
+    width: 80%;
+    margin: 0 auto 5px;
+    overflow: hidden;
+  }
+
+  .progress {
+    height: 100%;
+    background: rgba(100, 38, 113, 1);
+    transition: width 0.5s ease;
+  }
+
+  .percentage {
+    color: rgba(100, 38, 113, 1);
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  /* Chart container */
+  .chart-wrapper {
+    position: relative;
+    width: 85%;
+    height: 450px;
+    margin-top: 40px;
+    border-left: 2px solid #333;
+    border-bottom: 2px solid #333;
+    padding-left: 60px;
+    padding-bottom: 50px;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  /* Bars */
+  .bar {
+    width: 45px;
+    background-color: rgba(100, 38, 113, 1);
+    margin: 0 15px;
+    border-radius: 6px 6px 0 0;
+   
+    position: relative;
+  }
+
+  .bar:hover {
+    background-color: #560756;
+
+  }
+
+  /* Bar value label */
+  .value-label {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #2c3e50;
+    font-weight: 500;
+  }
+
+  /* Month label */
+  .month-label {
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    color: #333;
+    text-align: center;
+  }
+
+  /* Y-axis labels */
+  .y-axis {
+    position: absolute;
+    left: 15px;
+    bottom: 50px;
+    height: 350px;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    color: #555;
+    font-size: 12px;
+  
+  }
+
+  /* Axis titles */
+  .x-axis-title {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .y-axis-title {
+    position: absolute;
+    top: 50%;
+    left: -70px;
+    transform: translateY(-50%) rotate(-90deg);
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+    margin-left:6px;
+  }

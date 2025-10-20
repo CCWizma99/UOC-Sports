@@ -1,0 +1,138 @@
+.header-subnav {
+  display: flex;
+  justify-content: space-between;
+  background-color: #560756;
+  width:100%;
+  padding: 20px 25px;
+  text-decoration: none;
+  font-size: 14px;
+  position:relative;
+  align-items: center;
+
+}
+
+
+.header-subnav a.back, 
+.header-subnav a.new, 
+.header-subnav a.message,
+.header-subnav a.member {
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px 15px;
+}
+
+.nav-right{
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  margin-left: auto;
+} 
+.header {
+    
+    flex-direction: column; 
+    width: 100%;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.form {
+  justify-content: center;
+  width: 400px;
+  padding: 20px;
+  border-radius: 8px;
+  background: #fff;
+  font-family: sans-serif;
+  box-sizing: border-box;
+  align-items: center;
+  margin: auto;
+  width: 40%;
+}
+
+.form h2 {
+  text-align: center;
+  margin-bottom: 50px;
+  font-size: 20px;
+}
+
+.form label {
+  display: block;
+  margin: 12px 0 6px;
+  margin-bottom: 10px;
+  align-items: center;
+   
+}
+
+
+
+.form select:hover {
+  border-color: #aaa;
+}
+
+.form input,
+.form textarea,
+.form select{
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f2f2f2;
+  font-size: 12px;
+  margin-bottom: 5px;
+  font-family: sans-serif;
+  color: dimgray;
+}
+.form textarea {
+  resize: none;
+  height: 80px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.reset-btn, .submit-btn {
+  padding: 10px 20px;
+  
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.reset-btn {
+  margin-top: 20px;
+  background: #560756;
+}
+
+.submit-btn {
+  margin-top: 20px;
+  background: #560756;
+}
+
+.reset-btn:hover, .submit-btn:hover {
+  opacity: 0.85;
+  background-color: #000;
+}
+
+.form select:hover {
+  background-color: #560756;
+  color: #fff;
+}
+
+
+.form select:hover {
+
+  color: Black;
+}
+
+label .dropdown{
+  font-size: 14px;
+}
+
+.option{
+  font-size: 12px;
+  color: dimgray;
+}

@@ -1,0 +1,87 @@
+.content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 25px;
+  padding: 40px;
+  justify-items: center;
+}
+
+.btn {
+    margin: 20px;
+    display:flex;
+    justify-content: space-between;
+}
+
+.btn a{
+  text-decoration: none;
+  color: #FFFFFF;
+}
+
+.btn .report-btn, 
+.btn .add-new {
+  display: flex;
+  justify-content: center;  
+  background-color: var(--primary-color-9);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  gap: 0.1vw;   
+  transition: 0.4s;
+}
+
+.btn .report-btn:hover, 
+.btn .add-new:hover {
+  background-color: var(--primary-color);
+}
+
+
+.card{
+  width: 150px;
+  height: 180px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  text-align: center;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 10px;
+  position: relative;
+  transition: transform 0.2s ease;
+  margin: 10px; 
+  font-size: 15px;
+  display: flex;
+ 
+}
+
+.card:hover{
+   transform: translateY(-5px); 
+   cursor: pointer;
+}
+.card .image{
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+}
+
+.card h3 {
+  color: #444;
+  margin: 5px 0px;
+}
+
+@media (max-width: 1200px) {
+  .content {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .content {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}

@@ -4,15 +4,6 @@
   height: 100hv; 
 }
 
-.body-index{
-margin: 0;
-padding:0;
-font-family: 'Segoe UI', sans-serif;
-background: #fff;
-color: #222;
-}
-
-
 .container {
 display:flex;
 justify-content: center;
