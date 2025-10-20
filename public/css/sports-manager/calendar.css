@@ -7,7 +7,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+
   margin: 0;
 }
 
@@ -52,14 +52,14 @@ body {
   color: #560756;
   text-align: center;
   padding: 10px 20px;
-  width:90%;
+  width:100%;
 }
 
 .days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   text-align: center;
-  width:90%;
+  width:100%;
 }
 
 .day {

@@ -38,38 +38,14 @@
 
     <!-- Calender view-->
   <main class="calendar" role="application" aria-label="Monthly calendar">
-    <div class="cal-head">
-      <div class="month-info" aria-hidden="true">
-        <div class="month" id="monthLabel">Month</div>
-        <div class="year" id="yearLabel">Year</div>
-      </div>
+  <?php
+    require "../app/views/equipment-manager/calendar.php";
 
-      <div class="nav" role="toolbar" aria-label="Calendar navigation">
-        <button id="prevBtn" class="prevBtn" title="Previous month" aria-label="Previous month"> Previous </button>
-        <button id="nextBtn" class="nextBtn" title="Next month" aria-label="Next month"> Next</button>
-        <p id="todayBtn" class="today-btn" title="Go to today"></p> 
-      </div>
-    </div>
+?> 
 
-    <div class="weekdays" aria-hidden="true">
-      <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-    </div>
-
-    <section class="days" id="daysGrid" aria-live="polite">
-      <!-- JS will populate this -->
-    </section>
   </main>
 
-  <!-- reservations bar-->
-<div class="today-reservation">
-  <p class="reservations">Reservations </p>
-  <div>
-    <p>Reserved Person</p>
-    <p>Reserved Time Slot</p>
-    <p>Reserved Equipemnt Category</p>
-    <p>Reserved Equipment Code</p><hr class="hrx">
-  </div>
-</div>
+
 
 </div>
 

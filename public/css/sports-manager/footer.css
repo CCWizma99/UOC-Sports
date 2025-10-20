@@ -1,0 +1,55 @@
+
+footer {
+  text-align: center;
+  padding: 30px 20px;
+  background: #560756;
+  font-size: 14px;
+  font-family: "Font Name", 'Inter';
+}
+
+.footer-content p {
+  margin: 5px 0;
+   font-family: "Font Name", 'Jersey 25';
+   color: #FFFFFF;
+}
+
+.footer-rights p{
+  margin: 5px 0;
+  font-family: "Font Name", 'Jersey 25';
+  color: #b9b6bb;
+ 
+}
+
+.footer-content a {
+  color: #b9b6bb;
+  text-decoration: none;
+  display: block;
+  margin: 10px 0;
+  font-family: "Font Name", 'Inter';
+}
+
+.social-icons{
+  display: inline-block;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-top: 5px;
+  background: #FFFFFF;
+  border-radius: 10px 10px 10px 10px;
+}
+
+.social-icons img {
+    height: 15px;
+  margin-top: 5px;
+}
+
+.footer-content line {
+  border: none;
+  height: 1px;
+  background-color: #737373;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.line{
+margin-top: 15px;
+}
