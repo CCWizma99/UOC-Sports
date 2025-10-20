@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Equipment reservations</title>
-  <link rel="stylesheet" href="calendar.css" />
+    <style>
+        @import url("/uoc-sports/public/css/equipment-manager/calendar.css");
+    </style>
 </head>
 <body>
   <div class="calendar-container">

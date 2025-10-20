@@ -14,4 +14,8 @@ class EquipmentManagerController {
         view('equipment-manager/addequipment');
     }
 
+    public function calendar() {
+        view('equipment-manager/calendar');
+    }
+
 }

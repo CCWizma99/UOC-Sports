@@ -1,3 +1,8 @@
+.body-index{
+  display: flex;
+  flex-direction: column;
+}
+
 .vertical-line {
     width: 1px;    
     background-color: #a8a8a8; 
