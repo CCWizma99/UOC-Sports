@@ -28,6 +28,18 @@
                 if ($user && $user['type'] === 'STUDENT') {
                     echo '<a href="/uoc-sports/public/student/" id="user_type">Student</a>';
                 }
+                else if($user && $user['type'] === 'EQMGR') {
+                    echo '<a href="/uoc-sports/public/student/" id="user_type">Eq. Manager</a>';
+                }
+                else if($user && $user['type'] === 'SPMGR') {
+                    echo '<a href="/uoc-sports/public/student/" id="user_type">Sp. Manager</a>';
+                }
+                else if($user && $user['type'] === 'REGISTRAR') {
+                    echo '<a href="/uoc-sports/public/student/" id="user_type">Registrar</a>';
+                }
+                else if($user && $user['type'] === 'INSTAFF') {
+                    echo '<a href="/uoc-sports/public/student/" id="user_type">Staff</a>';
+                }
 
                 echo '<a href="/uoc-sports/public/profile">
                         Profile <i class="fa-solid fa-circle-user"></i>
