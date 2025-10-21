@@ -21,6 +21,7 @@ $router->get('/admin-teams', 'AdminHomeController@teams');
 $router->get('/admin-budget', 'AdminHomeController@budget');
 $router->get('/admin-news', 'AdminHomeController@news');
 $router->get('/admin-inquiry', 'AdminHomeController@inquiry');
+$router->get('/admin-inquiry/search', 'InquiryController@search');
 $router->get('/admin-teams/search-team', 'TeamApiController@search');
 $router->get('/admin-equipments/search-equipment', 'EquipmentApiController@search');
 $router->get('/admin-equipments/get-sports', 'EquipmentApiController@getSports');

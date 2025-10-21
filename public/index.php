@@ -38,6 +38,7 @@ $router->get('/equipment-manager/equipment-report', 'EquipmentManagerController@
 $router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipments');
 
 $router->get('/sport-manager//', 'SportManagerController@index');
+$router->get('/sport-manager/schedule', 'SportManagerController@schedule');
 
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->get('/sign-in', 'AuthController@showSigninForm');
