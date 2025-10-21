@@ -8,4 +8,8 @@ class sportManagerController {
     public function schedule() {
         view('sports-manager/schedule');
     }
+
+    public function events() {
+        view('sports-manager/events');
+    }
 }
