@@ -1,0 +1,42 @@
+    .search-container {
+        max-width: 700px;
+        margin: 40px auto;
+        margin-top: 150px;
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+    }
+    th {
+        background: #007BFF;
+        color: white;
+    }
+    tr:hover {
+        background: #f9f9f9;
+    }
+    .status {
+        font-weight: bold;
+    }
+    .resolved {
+        color: green;
+    }
+    .not-resolved {
+        color: red;
+    }
