@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Message Boxes</title>
-  <link rel="stylesheet" href="message-records.css">
-</head>
-<body>
 
-
-<div class="chat-list">
  <h2>Messages</h2>
 
  
@@ -41,6 +31,3 @@ function toggleMessages(box) {
   box.classList.toggle("active");
 }
 </script>
-
-</body>
-</html>

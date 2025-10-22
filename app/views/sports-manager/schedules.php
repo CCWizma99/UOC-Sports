@@ -5,28 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add a New Event</title>
   <style>
-    @import url("/uoc-sports/public/css/sports-manager/form.css");
-</style>
+		@import url("/uoc-sports/public/css/global.css");
+		@import url("/uoc-sports/public/css/general/header.css");
+		@import url("/uoc-sports/public/css/sports-manager/form.css");
+		@import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
+		@import url("/uoc-sports/public/css/general/footer.css");
+	</style>  
   
 </head> 
-<div class ="header">
-   <?php require 'header-nav.php'; 
-
-   ?>
-
-</div>
-   <div class="header-subnav">
-     
-       <a href="inbox.php" class="back">Back</a>
-      <div class="nav-right">
-        <a href="sent.php" class="message">Events/Competitions</a>
-      <a href="drafts.php" class="new">New Event +</a>
-</div>
-    
-   </div>
 <body>
-
-
+<?php
+    require "../app/views/templates/general/header.php";
+    require "../app/views/sports-manager/header-subnav.php";  
+?> 
 <form class="form" action="" method="post">
     <h2>Add a New Event</h2>
     
@@ -170,5 +161,12 @@ function updateSelectedList() {
     </div>
 
 </form>
+<?php 
+      require "../app/views/templates/general/footer.php";      
+?>
+<script>
+    var currentPage = document.getElementById("sub-schedules");
+    currentPage.classList.add("active") 
+</script>
 </body>
 </html>

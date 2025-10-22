@@ -1,24 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Equipment-Report</title>
-
-  <style>
-    @import url("/uoc-sports/public/css/equipment-manager/footer.css");
-    @import url("/uoc-sports/public/css/equipment-manager/header.css"); 
-  </style>
-</head>
-
-<body class="body">
-
-<!-- header-->
-<?php
-   require "../app/views/templates/equipment-manager/header.php";
-?>
-
 <?php 
 if(isset($_SESSION['success'])): ?>
     <div class="alert alert-success">
@@ -74,11 +53,3 @@ if(isset($_SESSION['success'])): ?>
     <?php endif; ?>
     </tbody>
 </table>
-
-<!-- footer-->
-<?php
-    require "../app/views/templates/equipment-manager/footer.php";
-?>
-
-    </body>
-</html>

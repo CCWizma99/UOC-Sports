@@ -1,0 +1,153 @@
+/* Form Styling */
+.form {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form h2 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 1.8rem;
+  }
+  
+  /* Label Styling */
+  .form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  
+  /* Input and Select Styling */
+  .form input[type="text"],
+  .form input[type="number"],
+  .form input[type="file"],
+  .form textarea,
+  .form select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background-color: #ffffff;
+  }
+  
+.form textarea{
+    resize: none;
+    height: 120px;
+}
+
+  .form input[type="text"]:focus,
+  .form input[type="number"]:focus,
+  .form textarea:focus,
+  .form select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  }
+  
+  .form input[type="file"] {
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    border: 2px dashed #e1e8ed;
+    cursor: pointer;
+  }
+  
+  .form input[type="file"]:hover {
+    border-color: #3498db;
+    background-color: #f0f7ff;
+  }
+  
+  /* Select Specific Styling */
+  .form select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 0.65rem;
+    cursor: pointer;
+  }
+  
+  /* Button Container */
+  .form .buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+  }
+  
+  /* Button Styling */
+  .form button {
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+  }
+  
+  .form .reset-btn {
+    background-color: #95a5a6;
+    color: white;
+  }
+  
+  .form .reset-btn:hover {
+    background-color: #7f8c8d;
+    transform: translateY(-1px);
+  }
+  
+  .form .submit-btn {
+    background-color: #27ae60;
+    color: white;
+  }
+  
+  .form .submit-btn:hover {
+    background-color: #219a52;
+    transform: translateY(-1px);
+  }
+  
+  .form button:active {
+    transform: translateY(0);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 600px) {
+    .form {
+      margin: 1rem;
+      padding: 1.5rem;
+    }
+    
+    .form .buttons {
+      flex-direction: column;
+    }
+    
+    .form button {
+      width: 100%;
+    }
+  }
+  
+  /* Focus states for accessibility */
+  .form input:focus,
+  .form select:focus,
+  .form button:focus {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+  }
+  
+  /* Placeholder styling */
+  .form input::placeholder {
+    color: #a0a0a0;
+    opacity: 1;
+  }

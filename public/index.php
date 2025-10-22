@@ -39,6 +39,9 @@ $router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipm
 
 $router->get('/sport-manager//', 'SportManagerController@index');
 $router->get('/sport-manager/schedule', 'SportManagerController@schedule');
+$router->get('/sport-manager/add-expenses', 'SportManagerController@addExpenses');
+$router->get('/sport-manager/messages', 'SportManagerController@messages');
+$router->get('/sport-manager/schedules', 'SportManagerController@schedules');
 
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->get('/sign-in', 'AuthController@showSigninForm');

@@ -4,25 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Send a Message</title>
-  <link rel="stylesheet" type="text/css" href="form.css">
- 
-  
+  	<style>
+		@import url("/uoc-sports/public/css/global.css");
+		@import url("/uoc-sports/public/css/general/header.css");
+		@import url("/uoc-sports/public/css/sports-manager/messages.css");
+		@import url("/uoc-sports/public/css/sports-manager/message-records.css");
+		@import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
+		@import url("/uoc-sports/public/css/general/footer.css");
+	</style>  
 </head> 
-<div class ="header">
-   <?php require 'header-nav.php'; 
-
- ?>
- <div class="header-subnav">
-     
-       <a href="inbox.php" class="back">Back</a>
-      <div class="nav-right">
-        <a href="sent.php" class="message">Message</a>
-      <a href="drafts.php" class="new">New Message</a>
-</div>
-</div>
 <body>
-
-
+<?php
+    require "../app/views/templates/general/header.php";
+    require "../app/views/sports-manager/header-subnav.php";  
+?> 
 <form class="form" action="" method="post">
     <h2>Send a Message</h2>
     <label>To</label>
@@ -40,7 +35,13 @@
     </div>
 
 </form>
-
- <?php require "../app/views/templates/equipment-manager/footer.php"; ?>
+<?php 
+      require "../app/views/sports-manager/message-records.php";      
+      require "../app/views/templates/general/footer.php";      
+      ?>
+<script>
+    var currentPage = document.getElementById("sub-messages");
+    currentPage.classList.add("active") 
+</script>
 </body>
 </html>

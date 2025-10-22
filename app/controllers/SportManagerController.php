@@ -9,7 +9,17 @@ class sportManagerController {
         view('sports-manager/schedule');
     }
 
-    public function events() {
-        view('sports-manager/events');
+    public function schedules() {
+        view('sports-manager/schedules');
     }
+
+    public function addExpenses() {
+        view('sports-manager/add-expenses');
+    }
+
+    public function messages() {
+        view('sports-manager/message');
+    }
+
+    
 }

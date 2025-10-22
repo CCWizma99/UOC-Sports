@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Equipment reservations</title>
-  <link rel="stylesheet" href="calendar.css" />
 </head>
 <body>
   <div class="calendar-container">
@@ -47,6 +46,7 @@ const scheduledPractices = {
 function renderCalendar() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+  const today = new Date();
 
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
@@ -70,9 +70,25 @@ function renderCalendar() {
 
     const dateString = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
+    // Check if today
+    if (year === today.getFullYear() && month === today.getMonth() && d === today.getDate()) {
+      dayElem.classList.add("today");
+    }
+
     if (scheduledPractices[dateString]) {
       dayElem.classList.add("scheduled");
-      dayElem.setAttribute("data-message", scheduledPractices[dateString]);
+      
+      // Create tooltip element
+      const tooltip = document.createElement("div");
+      tooltip.classList.add("tooltip");
+      tooltip.textContent = scheduledPractices[dateString];
+      
+      // Position tooltip at bottom if it's in the first two rows
+      if (d <= 14) {
+        tooltip.classList.add("bottom");
+      }
+      
+      dayElem.appendChild(tooltip);
     }
 
     dayElem.textContent = d;

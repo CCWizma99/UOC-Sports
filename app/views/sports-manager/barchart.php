@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yearly Expenses Chart</title>
+  <link rel="stylesheet" type="text/css" href="chart.css">
+</head> 
+
+<body>
   <div class="container">
     <div class="balance-box">
       <h2>Remaining Balance</h2>
@@ -73,3 +83,5 @@
       chartBox.appendChild(bar);
     });
   </script>
+</body>
+</html>
