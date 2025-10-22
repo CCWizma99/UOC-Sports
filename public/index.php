@@ -40,8 +40,13 @@ $router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipm
 $router->get('/sport-manager//', 'SportManagerController@index');
 $router->get('/sport-manager/schedule', 'SportManagerController@schedule');
 $router->get('/sport-manager/add-expenses', 'SportManagerController@addExpenses');
+$router->post('/sport-manager/add-expenses', 'BudgetController@addTransaction');
 $router->get('/sport-manager/messages', 'SportManagerController@messages');
 $router->get('/sport-manager/schedules', 'SportManagerController@schedules');
+$router->get('/sport-manager/budget/remaining', 'BudgetController@remaining');
+$router->get('/sport-manager/update-transaction', 'BudgetController@updateTransaction');
+$router->post('/sport-manager/update-transaction', 'BudgetController@handleUpdateTransaction');
+$router->get('/sport-manager/remaining-budget', 'BudgetController@remainingBudget');
 
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->get('/sign-in', 'AuthController@showSigninForm');

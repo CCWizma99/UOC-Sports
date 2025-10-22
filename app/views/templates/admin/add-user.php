@@ -37,24 +37,41 @@
     <a href="#" class="add-user-btn" id="submit-user">Add User</a>
 </section>
 
+<?php
+
+$sportModel = new Sport();
+$sports = $sportModel->getSports();
+
+?>
+
 <script>
 document.getElementById('user-type').addEventListener('change', function () {
     const extraFields = document.getElementById('extra-fields');
-    extraFields.innerHTML = ''; // clear previous
+    extraFields.innerHTML = '';
 
     if (this.value === 'SPT') {
+        // Encode PHP array into JS
+        const sports = <?php echo json_encode($sports ?? []); ?>;
+
+        let options = `<option value="">Select Sport</option>`;
+        sports.forEach(sport => {
+            options += `<option value="${sport.sport_id}">${sport.sport_name}</option>`;
+        });
+
         extraFields.innerHTML = `
             <div class="input-field">
-                <label for="sport-name">Enter Sport</label>
-                <input type="text" id="sport-name" name="sport_name" placeholder="e.g. Football">
+                <label for="user-sport">Select Sport</label>
+                <select id="user-sport" name="sport_name">
+                    ${options}
+                </select>
             </div>
         `;
     } 
     else if (this.value === 'REG') {
         extraFields.innerHTML = `
             <div class="input-field">
-                <label for="faculty-select">Select Faculty</label>
-                <select id="faculty-select" name="faculty">
+                <label for="user-faculty">Select Faculty</label>
+                <select id="user-faculty" name="faculty">
                     <option value="">Select Faculty</option>
                     <option value="Science">Science</option>
                     <option value="Arts">Arts</option>
@@ -64,27 +81,5 @@ document.getElementById('user-type').addEventListener('change', function () {
             </div>
         `;
     }
-});
-
-document.getElementById("submit-user").addEventListener("click", async (e) => {
-  e.preventDefault();
-
-  const data = {
-    fname: document.getElementById("user-fname").value.trim(),
-    lname: document.getElementById("user-lname").value.trim(),
-    email: document.getElementById("user-email").value.trim(),
-    type: document.getElementById("user-type").value.trim(),
-    phone: document.getElementById("user-phone")?.value.trim() || "",
-    sport: document.getElementById("user-sport")?.value.trim() || "",
-    faculty: document.getElementById("user-faculty")?.value.trim() || ""
-  };
-
-  const res = await fetch("admin-users/add-internal-user", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(data)
-  });
-  const result = await res.json();
-  alert(result.message);
 });
 </script>

@@ -20,6 +20,5 @@ class sportManagerController {
     public function messages() {
         view('sports-manager/message');
     }
-
     
 }

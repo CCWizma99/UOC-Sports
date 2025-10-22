@@ -5,7 +5,12 @@ class AdminHomeController {
         view('admin-home', ['title' => 'Home']);
     }
     public function users() {
-        view('admin/users', ['title' => 'Users']);
+        $sportModel = new Sport();
+        $sports = $sportModel->getSports();
+        view('admin/users', [
+            'title' => 'Users',
+            'sport_data' => $sports  // Pass the $data variable to the view
+        ]);
     }
     public function reservations() {
         view('admin/reservations', ['title' => 'Users']);
