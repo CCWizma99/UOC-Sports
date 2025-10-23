@@ -213,6 +213,13 @@ class Post {
         return $stmt->execute(['post_id' => $post_id]);
     }
 
+    public function deleteComment($comment_id) {
+        $sql = "DELETE FROM comment WHERE comment_id = :comment_id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['comment_id' => $comment_id]);
+    }
+    
+
     /**
      * Generate new post ID like P0001, P0002, etc.
      * @return string

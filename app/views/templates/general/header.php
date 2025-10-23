@@ -28,6 +28,9 @@
                 if ($user && $user['type'] === 'STUDENT') {
                     echo '<a href="/uoc-sports/public/student/" id="user_type">Student</a>';
                 }
+                else if ($user && $user['type'] === 'CAPTAIN') {
+                    echo '<a href="/uoc-sports/public/captain/" id="user_type">Captain</a>';
+                }
                 else if($user && $user['type'] === 'EQP') {
                     echo '<a href="/uoc-sports/public/equipment-manager/" id="user_type">Eq. Manager</a>';
                 }

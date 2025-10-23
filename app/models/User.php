@@ -86,7 +86,7 @@ class User {
 
     public function getUserById($userId) {
         $stmt = $this->db->prepare("
-            SELECT fname, lname 
+            SELECT fname, lname
             FROM user 
             WHERE user_id = :user_id
             LIMIT 1

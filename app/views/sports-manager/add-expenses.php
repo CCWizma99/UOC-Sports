@@ -51,7 +51,7 @@
     <label>Amount</label>
     <input type="number" min="50" name="Amount" placeholder="Add Amount" required>
 
-    <label>Title</label>
+    <label>Remarks</label>
     <textarea name="Remarks" placeholder="Any Remarks..." required></textarea>
     
     <label for="receipt">Upload Receipt</label>

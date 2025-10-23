@@ -24,7 +24,7 @@
 
     <div class="input-div">
       <label for="student-id">Student ID</label>
-      <input type="text" id="student-id" name="student_id" required>
+      <input type="text" id="student-id" name="student_id" value="<?= htmlspecialchars($student_id['student_id'])?>" readonly>
     </div>
 
     <div class="input-row">

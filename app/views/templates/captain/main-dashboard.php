@@ -1,5 +1,5 @@
-<main style="margin-left: 220px; padding: 20px;">
-        <h2>Welcome, Captain Name</h2>
+<main style="margin: auto; margin-bottom: 300px; padding: 20px;">
+        <h2>Welcome</h2>
 
         <!-- STAT CARDS -->
         <div style="display: flex; gap: 20px; margin-bottom: 20px;">

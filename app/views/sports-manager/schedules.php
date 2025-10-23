@@ -5,168 +5,278 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add a New Event</title>
   <style>
-		@import url("/uoc-sports/public/css/global.css");
-		@import url("/uoc-sports/public/css/general/header.css");
-		@import url("/uoc-sports/public/css/sports-manager/form.css");
-		@import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
-		@import url("/uoc-sports/public/css/general/footer.css");
-	</style>  
-  
-</head> 
+    @import url("/uoc-sports/public/css/global.css");
+    @import url("/uoc-sports/public/css/general/header.css");
+    @import url("/uoc-sports/public/css/sports-manager/form.css");
+    @import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
+    @import url("/uoc-sports/public/css/general/footer.css");
+
+    .form-container {
+      max-width: 650px;
+      margin: 30px auto;
+      padding: 20px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-container label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .form-container input,
+    .form-container textarea,
+    .form-container select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .submit-btn {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .reset-btn {
+      background-color: #f44336;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* Equipment styling */
+    .equipment-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .equipment-item {
+      background: #e0e0e0;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.2s;
+    }
+
+    .equipment-item.selected {
+      background-color: #4CAF50;
+      color: #fff;
+    }
+
+    /* Schedule Table */
+    .schedule-table {
+      width: 100%;
+      max-width: 800px;
+      margin: 30px auto;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .schedule-table th, .schedule-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .schedule-table th {
+      background-color: #f5f5f5;
+    }
+
+    .schedule-table tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .action-btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 5px;
+      font-size: 12px;
+    }
+
+    .update-btn {
+      background-color: #4CAF50;
+      color: #fff;
+    }
+
+    .delete-btn {
+      background-color: #f44336;
+      color: #fff;
+    }
+  </style>
+</head>
 <body>
+
 <?php
-    require "../app/views/templates/general/header.php";
-    require "../app/views/sports-manager/header-subnav.php";  
-?> 
-<form class="form" action="" method="post">
-    <h2>Add a New Event</h2>
-    
+require "../app/views/templates/general/header.php";
+require "../app/views/sports-manager/header-subnav.php";
+?>
+
+<div class="form-container">
+  <form class="form" action="" method="post">
+    <h2>Add a New Practice Session</h2>
+
     <label>Select Sport</label>
-    <select name="sport" required>
-  
-  <option value="cricket">Cricket</option>
-  <option value="football">Football</option>
-  <option value="badminton">Badminton</option>
-</select>
+    <select name="sport" id="sportSelect" required>
+      <option value="cricket">Cricket</option>
+      <option value="athletics">Athletics</option>
+    </select>
 
-
-    <label>Event/Competition Name</label>
+    <label>Session Name</label>
     <input type="text" name="event_name" placeholder="Add Event/Competition Name" required>
 
     <label>Location</label>
     <input type="text" name="location" placeholder="Add Location" required>
 
-    <label>Select Participants </label>
+    <label>Equipments</label>
+    <div id="equipmentList" class="equipment-list"></div>
+    <input type="hidden" name="equipments" id="selectedEquipments">
 
-      <div class="dropdown">
-        <input type="text" id="searchBox" class="search-box" placeholder="Search participants...">
-        <div id="optionsContainer" class="options"></div>
-      </div>
-
-      <p id="message"></p>
-
-    <script>
-    // Dummy data for participants
-    const participants = [
-      { id: "P001", name: "M Silva" },
-      { id: "P002", name: "S S P Jayaweera" },
-      { id: "P003", name: "P R Jayarathna" },
-      { id: "P004", name: "L K Perera" },
-      { id: "S005", name: "O Perera" },
-      { id: "S006", name: "R S Fernando" },
-      { id: "P007", name: "H K De Silva" },
-      { id: "D008", name: "A B Wickrama" },
-      { id: "P009", name: "K J Ranasinghe" },
-      { id: "A010", name: "D P Ekanayake" }
-    ];
-
-    const searchBox = document.getElementById("searchBox");
-    const optionsContainer = document.getElementById("optionsContainer");
-    const message = document.getElementById("message");
-    const form = document.getElementById("form");
-
-    let selected = [];
-
-    // Render participants (filtered or all)
-    function renderOptions(filter = "") {
-      optionsContainer.innerHTML = "";
-      const filtered = participants.filter(p =>
-        (p.id + " - " + p.name).toLowerCase().includes(filter.toLowerCase())
-      );
-
-      filtered.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "option" + (selected.includes(p.id) ? " selected" : "");
-        div.textContent = `${p.id} - ${p.name}`;
-        div.onclick = () => toggleSelect(p.id);
-        optionsContainer.appendChild(div);
-      });
-
-      if (filtered.length === 0) {
-        const noResult = document.createElement("div");
-        noResult.textContent = "No matches found.";
-        noResult.style.color = "#777";
-        noResult.style.textAlign = "center";
-        optionsContainer.appendChild(noResult);
-      }
-    }
-
-    // Toggle selection
-    function toggleSelect(id) {
-      if (selected.includes(id)) {
-        selected = selected.filter(s => s !== id);
-        message.textContent = "";
-      } else {
-        if (selected.length >= 2) {
-          message.textContent = "You can select only 2 participants.";
-          return;
-        }
-        selected.push(id);
-      }
-      renderOptions(searchBox.value);
-    }
-
-    // Filter as user types
-    searchBox.addEventListener("input", () => {
-      renderOptions(searchBox.value);
-    });
-
-    // Toggle dropdown open/close when clicking input
-dropdownInput.addEventListener("click", () => {
-  isOpen = !isOpen;
-  optionsList.style.display = isOpen ? "block" : "none";
-  if (isOpen) renderOptions();
-});
-
-// Close dropdown when clicking outside
-document.addEventListener("click", (e) => {
-  if (!e.target.closest(".dropdown-container")) {
-    optionsList.style.display = "none";
-    isOpen = false;
-  }
-});
-  
-function updateSelectedList() {
-  if (selected.length === 0) {
-    selectedList.textContent = "No participants selected.";
-  } else {
-    const names = selected.map(id => {
-      const p = participants.find(x => x.id === id);
-      return p ? `${p.id} (${p.name})` : id;
-    });
-    selectedList.textContent = "Selected: " + names.join(", ");
-  }
-
-  // — show selections inside the input field
-  dropdownInput.value = selected.length ? selected.join(", ") : "";
-}
-
-
-    // Initial load
-    renderOptions();
-  </script>
-
-
-
-
-    <label>Add Member Achievements</label>
-    <input type="text" name="achievements" placeholder="Add Achievements">
-
-    <label>Add Team Achievements</label>
-    <input type="text" name="team_achievements" placeholder="Add Team Achievements">
+    <label>Select Participants</label>
+    <div class="dropdown">
+      <input type="text" id="searchBox" class="search-box" placeholder="Search participants...">
+      <div id="optionsContainer" class="options"></div>
+    </div>
 
     <div class="buttons">
       <button type="reset" class="reset-btn">Reset</button>
       <button type="submit" class="submit-btn">Submit</button>
     </div>
+  </form>
+</div>
 
-</form>
-<?php 
-      require "../app/views/templates/general/footer.php";      
+<!-- SCHEDULES TABLE -->
+<div class="form-container">
+  <h2>Added Schedules</h2>
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th>Sport</th>
+        <th>Event Name</th>
+        <th>Location</th>
+        <th>Equipments</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="scheduleBody">
+      <!-- Dynamic content will be inserted here -->
+    </tbody>
+  </table>
+</div>
+
+<?php
+require "../app/views/templates/general/footer.php";
 ?>
+
 <script>
-    var currentPage = document.getElementById("sub-schedules");
-    currentPage.classList.add("active") 
+var currentPage = document.getElementById("sub-schedules");
+if(currentPage) currentPage.classList.add("active");
+
+// Simulated equipments for each sport
+const equipmentData = {
+  cricket: ['Bat', 'Ball', 'Helmet', 'Pads', 'Gloves', 'Stumps'],
+  athletics: ['Stopwatch', 'Relay Batons', 'Starting Blocks', 'High Jump Bar', 'Javelin']
+};
+
+const equipmentList = document.getElementById('equipmentList');
+const selectedEquipmentsInput = document.getElementById('selectedEquipments');
+const sportSelect = document.getElementById('sportSelect');
+
+function renderEquipments(sport) {
+  equipmentList.innerHTML = '';
+  selectedEquipmentsInput.value = '';
+  if(equipmentData[sport]) {
+    equipmentData[sport].forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'equipment-item';
+      div.textContent = item;
+
+      div.addEventListener('click', () => {
+        div.classList.toggle('selected');
+        const selected = Array.from(equipmentList.querySelectorAll('.equipment-item.selected'))
+                              .map(el => el.textContent);
+        selectedEquipmentsInput.value = selected.join(',');
+      });
+
+      equipmentList.appendChild(div);
+    });
+  }
+}
+
+// Initialize equipments on page load
+renderEquipments(sportSelect.value);
+sportSelect.addEventListener('change', () => {
+  renderEquipments(sportSelect.value);
+});
+
+// --- SIMULATED SCHEDULES DATA ---
+let schedules = [
+  {sport: 'Cricket', event_name: 'Intercollege Tournament', location: 'Main Ground', equipments: 'Bat,Ball,Helmet'},
+  {sport: 'Athletics', event_name: 'Annual Track Meet', location: 'Track Field', equipments: 'Stopwatch,Relay Batons'}
+];
+
+function renderSchedules() {
+  const tbody = document.getElementById('scheduleBody');
+  tbody.innerHTML = '';
+  schedules.forEach((s, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${s.sport}</td>
+      <td>${s.event_name}</td>
+      <td>${s.location}</td>
+      <td>${s.equipments}</td>
+      <td>
+        <button class="action-btn update-btn" onclick="updateSchedule(${idx})">Update</button>
+        <button class="action-btn delete-btn" onclick="deleteSchedule(${idx})">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateSchedule(idx) {
+  const s = schedules[idx];
+  alert(`Redirect to update page for: ${s.event_name}`);
+}
+
+function deleteSchedule(idx) {
+  if(confirm('Are you sure you want to delete this schedule?')) {
+    schedules.splice(idx,1);
+    renderSchedules();
+  }
+}
+
+renderSchedules();
 </script>
 </body>
 </html>

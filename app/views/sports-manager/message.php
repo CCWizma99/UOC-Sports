@@ -21,7 +21,13 @@
 <form class="form" action="" method="post">
     <h2>Send a Message</h2>
     <label>To</label>
-    <input type="text" name="To" placeholder="Add Receivers" required>
+<select name="To" required>
+    <option value="" disabled selected>Select Recipient</option>
+    <option value="captain_1">Nadith Nemal - Captain</option>
+    <option value="coach_1">N S Perera - Coach</option>
+    <option value="equipment_1">K S Silva - Equipment Manager</option>
+</select>
+
 
     <label>Title</label>
     <input type="text" name="Title" placeholder="Add Title" required>

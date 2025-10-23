@@ -23,6 +23,8 @@
 </head>
 <body class="mesh-sporty">
     <?php
+            $userModel = new User();
+            $student_id = $userModel->getStudentId($_SESSION['user_id']);
         require '../app/views/templates/general/header.php';
         require '../app/views/templates/general/view-reservations.php';
         require '../app/views/templates/general/reserve-equipment.php';

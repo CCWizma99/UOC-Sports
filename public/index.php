@@ -12,6 +12,7 @@ $router->get('/', 'UserHomeController@index');
 $router->get('/news', 'UserHomeController@news');
 $router->get('/facility-reservation', 'UserHomeController@facilityReservation');
 $router->get('/contact-us', 'UserHomeController@contactUs');
+$router->get('/profile', 'UserHomeController@profile');
 $router->get('/post/{id}', 'PostController@viewPost');
 $router->post('/post/add-comment', 'PostController@addComment');
 $router->get('/search-post', 'PostApiController@search');
@@ -24,8 +25,17 @@ $router->get('/captain//', 'CaptainController@index');
 $router->get('/captain/mark-attendance', 'CaptainController@MarkAttendance');
 $router->get('/captain/add-members', 'CaptainController@AddMembers');
 $router->get('/captain/schedule-practice', 'CaptainController@SchedulePractice');
+$router->post('/captain/schedule-practice', 'CaptainController@SchedulePractice');
 $router->get('/captain/communication', 'CaptainController@Communication');
 $router->get('/captain/team-schedules', 'CoachController@TeamSchedules');
+
+$router->get('/coach/team-schedules', 'CoachController@TeamSchedules');
+$router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');
+$router->get('/coach/report-injury', 'CoachController@ReportInjury');
+$router->get('/registrar/registrar-dashboard', 'RegistrarController@RegistrarDashboard');
+$router->get('/registrar/verify-students', 'RegistrarController@VerifyStudents');
+$router->get('/registrar/verify-staff', 'RegistrarController@VerifyStaff');
+$router->get('/registrar/verify-bookings', 'RegistrarController@VerifyBookings');
 
 $router->get('/reserve-equipments/search', 'EquipmentApiController@minimalSearch');
 $router->get('/reserve-equipments/get-times', 'EquipmentApiController@getTimes');
@@ -37,7 +47,10 @@ $router->get('/equipment-manager//', 'EquipmentManagerController@index');
 $router->get('/equipment-manager/equipment-report', 'EquipmentManagerController@equipmentReport');
 $router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipments');
 
-$router->get('/sport-manager//', 'SportManagerController@index');
+
+$router->post('/post/delete-comment', 'PostController@deleteComment');
+
+$router->get('/sport-manager//', 'SportManagerController@addExpenses');
 $router->get('/sport-manager/schedule', 'SportManagerController@schedule');
 $router->get('/sport-manager/add-expenses', 'SportManagerController@addExpenses');
 $router->post('/sport-manager/add-expenses', 'BudgetController@addTransaction');
