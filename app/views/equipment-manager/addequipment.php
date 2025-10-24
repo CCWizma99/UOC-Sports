@@ -23,7 +23,7 @@
             <h2>Add New Equipment</h2>
             <form action="/uoc-sports/public/equipment-manager/add-equipment" method="POST">
                 <div class="form-group">
-                    <label for="category">Category:</label>
+                    <label for="category">category:</label>
                     <input type="text" id="category" name="category" required>
                 </div>
 
