@@ -1,11 +1,12 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+    .threeD{
+        font-family: "Bebas Neue", sans-serif;    
+    }
+</style>
 <div class="carousel-container">
-        <div class="carousel-wrapper">
-            <div class="carousel-track" id="carouselTrack"></div>
-            
-            <button class="carousel-nav carousel-prev" id="prevBtn"><i class="fa-solid fa-angles-right fa-rotate-180"></i></button>
-            <button class="carousel-nav carousel-next" id="nextBtn"><i class="fa-solid fa-angles-right"></i></button>
-            <button class="play-pause-btn" id="playPauseBtn"><i class="fa-solid fa-pause"></i></button>
-        </div>
-        
-        <div class="carousel-dots" id="carouselDots"></div>
+    <div class="img-container">
+        <img src="/uoc-sports/public/images/carousel/7.png" alt="">
+    </div>
+    <h1 class="threeD">Welcome!<br>UOC Sports<br>E-Portal</h1>
 </div>
