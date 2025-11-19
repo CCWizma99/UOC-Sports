@@ -11,18 +11,17 @@
 <body class="flex xy-center">
     <section id="sign-form" class="">
         <form action="/uoc-sports/public/sign-in" method="post">
+            <img src="/uoc-sports/public/images/uoc-logo.png" alt="UOC Logo" class="logo">
             <h2>Sign In<br>UOC Sports E-Portal</h2>
             
             <div class="input-div">
-                <label for="email-inp">Enter Your Email</label>
-                <input type="email" name="email" id="email-inp" title="Enter your Email">
+                <input type="email" name="email" id="email-inp" placeholder="Email" title="Enter your Email">
                 <div class="error">The email is invalid!</div>
             </div>
             
             <div class="input-div password-wrapper">
-                <label for="password-inp">Enter Your Password</label>
                 <div class="password-field">
-                    <input type="password" name="password" id="password-inp" title="Enter your Password">
+                    <input type="password" name="password" id="password-inp" placeholder="Password" title="Enter your Password">
                     <div class="error">Password cannot be empty!</div>
                     <span class="toggle-password" data-target="password-inp"><i class="fa-solid fa-eye-slash"></i></span>
                 </div>

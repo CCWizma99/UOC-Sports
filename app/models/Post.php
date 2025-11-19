@@ -77,7 +77,7 @@ class Post {
      * @param array $files
      */
     private function uploadPostImages($post_id, $files) {
-        $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uoc-sports/public/images/posts/';
+        $uploadDir = '/uoc-sports/public/images/posts/';
 
         if (!file_exists($uploadDir)) {
             mkdir($uploadDir, 0777, true);

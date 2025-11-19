@@ -2,7 +2,7 @@
 
 class UserHomeController {
     public function index() {
-        view('user-home');
+        view('home');
     }
     public function news() {
         $postModel = new Post();

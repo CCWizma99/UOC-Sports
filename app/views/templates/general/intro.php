@@ -26,52 +26,50 @@
     <h2>Top Stories</h2>
 
     <div class="story-container">
-        
-        <div class="main-story">
-            <img src="/uoc-sports/public/images/placeholder-images/480_720.png" alt="Main Story">
+        <a href="https://cmb.ac.lk/category/sports/detail-/University-of-Colombo-students-won-medals-in-SAG-2019" class="main-story">
+            <img src="/uoc-sports/public/images/placeholder-images/480_720.png" alt="University of Colombo students won medals in SAG 2019">
             <div class="story-info">
-                <span class="tag">Cricket</span>
-                <h3>Two Eras, one spirit: A legacy moment in Sri Lankan sports</h3>
+                <span class="tag">Achievement</span>
+                <h3>University of Colombo students won medals in SAG 2019</h3>
             </div>
-        </div>
+        </a>
 
         <div class="sub-stories">
-
-            <div class="sub-story">
-                <img src="/uoc-sports/public/images/placeholder-images/350_350.png" alt="Sub Story">
+            <a href="https://cmb.ac.lk/category/sports/detail-/Opening-Ceremony-of-the-Refurbished-Pavilion" class="sub-story">
+                <img src="/uoc-sports/public/images/placeholder-images/350_350.png" alt="Opening Ceremony of the Refurbished Pavilion">
                 <div class="story-info">
-                    <span class="tag">Cricket</span>
-                    <h4>Women's cricket goes global</h4>
+                    <span class="tag">Facilities</span>
+                    <h4>Opening Ceremony of the Refurbished Pavilion</h4>
                 </div>
-            </div>
+            </a>
 
-            <div class="sub-story">
-                <img src="/uoc-sports/public/images/placeholder-images/350_350.png" alt="Sub Story">
+            <a href="https://cmb.ac.lk/category/sports/detail-/University-Karate-Kata-team-shines-at-the-National-Karate-Championship-2021" class="sub-story">
+                <img src="/uoc-sports/public/images/placeholder-images/350_350.png" alt="University Karate (Kata) team shines at the National Karate Championship – 2021">
                 <div class="story-info">
-                    <span class="tag">Archery</span>
-                    <h4>National squad shines in Asian qualifiers</h4>
+                    <span class="tag">Karate</span>
+                    <h4>University Karate (Kata) team shines at the National Karate Championship – 2021</h4>
                 </div>
-            </div>
+            </a>
 
-            <div class="sub-story">
-                <img src="/uoc-sports/public/images/placeholder-images/350_350.png" alt="Sub Story">
+            <a href="https://cmb.ac.lk/category/sports/detail-/Change-the-cycle-Break-a-sweat" class="sub-story">
+                <img src="/uoc-sports/public/images/placeholder-images/350_350.png" alt="Change the cycle, Break a sweat!">
                 <div class="story-info">
-                    <span class="tag">Archery</span>
-                    <h4>Rising star qualifies for international debut</h4>
+                    <span class="tag">Well-being</span>
+                    <h4>Change the cycle, Break a sweat!</h4>
                 </div>
-            </div>
+            </a>
 
-            <div class="sub-story">
-                <img src="/uoc-sports/public/images/placeholder-images/350_350.png" alt="Sub Story">
+            <a href="https://cmb.ac.lk/category/sports/detail-/SLUG-XIII-2019-Rugby" class="sub-story">
+                <img src="/uoc-sports/public/images/placeholder-images/350_350.png" alt="SLUG XIII 2019 | Rugby">
                 <div class="story-info">
-                    <span class="tag">Cricket</span>
-                    <h4>Retention 2026: List of players released</h4>
+                    <span class="tag">Rugby</span>
+                    <h4>SLUG XIII 2019 | Rugby</h4>
                 </div>
-            </div>
-
+            </a>
         </div>
     </div>
 </div>
+
 
 <section id="contact">
     <hr>
@@ -89,21 +87,23 @@
         <a href="#" class="send">Send</a>
     </form>
     <hr>
-    <div class="address">
-        <strong>Address:</strong><br>
-        Department of Physical Education,<br>
-        University of Colombo,<br>
-        94, Cumaratunga Munidasa Mw,<br>
-        Colombo 03.
-    </div>
-    <div class="left">
-        <div class="email">
-            <strong>Email:</strong><br>
-            <a href="mailto: info@ped.cmb.ac.lk">info@ped.cmb.ac.lk</a>
+    <div class="address-div">
+        <div class="address">
+            <strong>Address:</strong><br>
+            Department of Physical Education,<br>
+            University of Colombo,<br>
+            94, Cumaratunga Munidasa Mw,<br>
+            Colombo 03.
         </div>
-        <div class="phone">
-            <strong>Phone No:</strong><br>
-            +94 112 502 405
+        <div class="right">
+            <div class="email">
+                <strong>Email:</strong><br>
+                <a href="mailto: info@ped.cmb.ac.lk">info@ped.cmb.ac.lk</a>
+            </div>
+            <div class="phone">
+                <strong>Phone No:</strong><br>
+                +94 112 502 405
+            </div>
         </div>
     </div>
     <div class="location">
