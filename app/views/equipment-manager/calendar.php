@@ -1,11 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Equipment reservations</title>
-</head>
-<body>
   <div class="calendar-container">
     <div class="calendar-header">
       <button id="prevMonth">&#10094;</button>
@@ -109,5 +101,3 @@ nextMonth.addEventListener("click", () => {
 renderCalendar();
 
   </script>
-</body>
-</html>

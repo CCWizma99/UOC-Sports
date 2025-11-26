@@ -1,3 +1,8 @@
+<script
+  src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.5/dist/dotlottie-wc.js"
+  type="module"
+>
+</script>
 <section class="hero">
         <div class="speed-lines">
 
@@ -8,7 +13,7 @@
             
             <div class="input-container">
                 <input type="text" placeholder="Search for sports, facilities, or news...">
-                <button class="btn-primary">Explore Now</button>
+                <button class="btn-primary btn-hero">Explore Now</button>
             </div>
             
             <div class="trusted-by">
@@ -154,7 +159,12 @@
             </div>
             
             <div class="showcase-image">
-                
+            <dotlottie-wc
+                src="https://lottie.host/f417d473-313a-4ba5-82b1-cf48319b1a36/26wXZcJCT6.lottie"
+                style="width: 300px;height: 300px"
+                autoplay
+                loop
+                ></dotlottie-wc> 
             </div>
         </div>
     </section>

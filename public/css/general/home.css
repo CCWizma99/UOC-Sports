@@ -2,13 +2,6 @@
 .hero {
     margin-top: 80px;
     padding: 8rem 5% 6rem;
-    background: linear-gradient(135deg, 
-        #ff6b9d 0%, 
-        #c471ed 20%, 
-        #12c2e9 40%, 
-        #c471ed 60%, 
-        #f093fb 80%, 
-        #ffd89b 100%);
     background-size: 200% 200%;
     animation: gradient 15s ease infinite;
     text-align: center;
@@ -74,6 +67,7 @@
     padding: 0.5rem 1rem;
     font-size: 1rem;
     font-family: 'Inter', sans-serif;
+    border-radius: 0.5rem;
 }
 
 .input-container input::placeholder {
@@ -420,9 +414,8 @@
     color: #ccc;
 }
 
-/* Button more athletic */
-.btn-primary {
-    background: #8a2be2;
+.btn-hero {
+    background-color: #5e2d91;
     font-weight: 700;
     letter-spacing: 0.5px;
 }

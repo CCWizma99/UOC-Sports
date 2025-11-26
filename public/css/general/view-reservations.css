@@ -1,85 +1,251 @@
-/* Reserved Items Section */
+/* Reserved Section */
 .reserved-section {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    padding: 6rem 5%;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: #fff;
 }
 
 .reserved-section h2 {
     text-align: center;
-    color: #333;
-    margin-bottom: 25px;
-    font-size: 1.8rem;
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 3rem;
+    letter-spacing: -1px;
 }
 
+/* Container */
 .reserved-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
+/* Reserved Item Card */
 .reserved-item {
     display: flex;
     align-items: center;
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 16px;
+    gap: 1.5rem;
+    backdrop-filter: blur(6px);
+    transition: 0.3s;
 }
 
 .reserved-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    background: rgba(255,255,255,0.10);
+    transform: translateY(-4px);
 }
 
+/* Image */
 .reserved-item img {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 90px;
+    border-radius: 12px;
     object-fit: cover;
-    border-radius: 8px;
-    margin-right: 20px;
-    border: 1px solid #ddd;
 }
 
-.reserved-details {
-    flex: 1;
-}
-
+/* Details */
 .reserved-details h3 {
-    margin: 0 0 8px;
-    font-size: 1.2rem;
-    color: #222;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
 }
 
 .reserved-details p {
-    margin: 2px 0;
-    color: #555;
-    font-size: 0.95rem;
+    color: #bfbfbf;
+    margin: 0.2rem 0;
 }
 
+/* Cancel Button */
 .cancel-reservation {
-    background-color: #dc3545;
-    color: #fff;
+    margin-left: auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
+    padding: 0.7rem 1.2rem;
+    color: #fff;
+    border-radius: 10px;
+    font-weight: 600;
     cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s;
+    transition: 0.3s;
 }
 
 .cancel-reservation:hover {
-    background-color: #c82333;
+    filter: brightness(1.1);
 }
 
+/* Empty message */
 .no-reservations {
     text-align: center;
-    color: #777;
-    font-style: italic;
-    padding: 20px;
+    color: #ddd;
+    font-size: 1.1rem;
+}
+/* Reserve Equipment */
+#reserve-equipment {
+    padding: 6rem 5%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+#reserve-equipment h2 {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 3rem;
+    letter-spacing: -1px;
+}
+
+/* FORM */
+#reserve-equipment-form {
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 20px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+
+/* Inputs */
+.input-div {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.input-div label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: #4a4a4a;
+}
+
+.input-div input,
+.input-div textarea {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 10px;
     font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    background: #fafafa;
+}
+
+.input-div textarea {
+    resize: none;
+}
+
+/* Suggestions list */
+#suggestions {
+    margin-top: 5px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    position: absolute;
+    z-index: 10;
+    width: calc(100% - 2rem);
+}
+
+#suggestions li {
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+}
+
+#suggestions li:hover {
+    background: #f0f0f0;
+}
+
+/* Input row */
+.input-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.input-row .half {
+    flex: 1;
+}
+
+/* Reserved Times (table box) */
+.reserved-times-box {
+    background: #fafafa;
+    border: 1px solid #ddd;
+    padding: 1.5rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    display: none;
+}
+
+.reserved-times-box h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* Table styling */
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.styled-table th {
+    background: #f5f5f5;
+    font-weight: 700;
+    text-align: left;
+}
+
+.styled-table tbody tr:hover {
+    background: #f0f0f0;
+}
+
+/* Submit Button – matches hero button */
+#reserve-equipment-form .btn {
+    width: 100%;
+    padding: 1rem;
+    background: #5e2d91;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: 0.3s;
+}
+
+#reserve-equipment-form .btn:hover {
+    background: #6d35a8;
+}
+
+/* Form messages */
+#reserve-message {
+    margin-top: 1rem;
+    font-weight: 600;
+}
+
+#reserve-message.success {
+    color: #2e8b57;
+}
+
+#reserve-message.error {
+    color: #c0392b;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .reserved-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .cancel-reservation {
+        width: 100%;
+        margin: 1rem 0 0;
+    }
 }

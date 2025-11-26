@@ -27,7 +27,11 @@ function fetchReservedItems() {
             data.forEach(item => {
                 container.innerHTML += `
                     <div class="reserved-item">
-                        <img src="/uoc-sports/public/images/equipment/${item.image}" alt="${item.equipment_name}">
+                        <img 
+                            src="/uoc-sports/public/images/equipment/${item.image}" 
+                            alt="${item.equipment_name}"
+                            onerror="this.onerror=null; this.src='/uoc-sports/public/images/equipment/football.jpg';"
+                        >
                         <div class="reserved-details">
                             <h3>${item.equipment_name}</h3>
                             <p>Reserved on: ${item.request_date}</p>

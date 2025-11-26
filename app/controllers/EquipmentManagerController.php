@@ -13,4 +13,8 @@ class EquipmentManagerController {
     public function equipments() {
         view('equipment-manager/equipment');
     }
+
+    public function schedules() {
+        view('equipment-manager/schedules');
+    }
 }

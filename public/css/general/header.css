@@ -1,3 +1,6 @@
+body{
+    margin-top: 80px !important;
+}
 /* Header */
 header {
     position: fixed;
@@ -26,7 +29,7 @@ nav {
     gap: 12px;
     font-weight: 700;
     font-size: 1.3rem;
-    color: #1a1a1a;
+    color: #2b0c4d;
     text-decoration: none;
 }
 
@@ -69,8 +72,8 @@ nav {
 }
 
 .btn-primary {
-    background: #1a1a1a;
-    color: white;
+    background: #2b0c4d;
+    color: white !important;
     padding: 0.7rem 1.8rem;
     border-radius: 8px;
     text-decoration: none;
@@ -79,6 +82,10 @@ nav {
     transition: all 0.3s;
     border: none;
     cursor: pointer;
+}
+
+.btn-primary::after{
+    display: none;
 }
 
 .btn-primary:hover {
@@ -96,6 +103,10 @@ nav {
     font-size: 0.9rem;
     transition: all 0.3s;
     border: 1px solid #e0e0e0;
+}
+
+.btn-secondary::after{
+    display: none;
 }
 
 .btn-secondary:hover {

@@ -46,13 +46,13 @@ $router->get('/reserve-equipments/view', 'EquipmentApiController@getReservedItem
 $router->get('/equipment-manager//', 'EquipmentManagerController@index');
 $router->get('/equipment-manager/equipment-report', 'EquipmentManagerController@equipmentReport');
 $router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipments');
-
+$router->get('/equipment-manager/schedules', 'EquipmentManagerController@schedules');
 
 $router->post('/post/delete-comment', 'PostController@deleteComment');
 
-$router->get('/sport-manager//', 'SportManagerController@addExpenses');
+$router->get('/sport-manager//', 'SportManagerController@index');
 $router->get('/sport-manager/schedule', 'SportManagerController@schedule');
-$router->get('/sport-manager/add-expenses', 'SportManagerController@addExpenses');
+$router->get('/sport-manager/add-expenses', 'SportManagerController@expenses');
 $router->post('/sport-manager/add-expenses', 'BudgetController@addTransaction');
 $router->get('/sport-manager/messages', 'SportManagerController@messages');
 $router->get('/sport-manager/schedules', 'SportManagerController@schedules');

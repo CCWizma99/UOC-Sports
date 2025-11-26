@@ -66,11 +66,14 @@ footer {
     align-items: center;
     justify-content: center;
     transition: all 0.3s;
+    text-decoration: none;
+    color: #ccc;
 }
 
 .social-links a:hover {
     background: #5e2d91;
     transform: translateY(-3px);
+    color: #fff;
 }
 
 .footer-bottom {
