@@ -58,14 +58,10 @@ $allEquipments = [
     require "../app/views/templates/general/header.php";
     require "../app/views/equipment-manager/header-subnav.php";
 ?>
-<div class="btn">
-    <span class="report-btn"><a href="../equipment-report">Equipment Reservations</a></span>
-    <span class="add-new"><a href="../add-equipment">Update Equipments</a></span>
-</div>
 <div class="report-container">
 
     <div class="report-header">
-        <h2>Equipment Report</h2>
+        <h2>Equipment Reservations</h2>
     </div>
 
     <div class="search-container">
@@ -151,6 +147,8 @@ function sortTable(colIndex) {
     rows.forEach(r => tbody.appendChild(r));
 }
 </script>
-
+<?php
+    require "../app/views/templates/general/footer.php";
+?>
 </body>
 </html>

@@ -9,7 +9,7 @@
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
         @import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
-        @import url(/uoc-sports/public/css/coach/team-schedule.css);
+        @import url(/uoc-sports/public/css/coach/injuries.css);
         @import url(/uoc-sports/public/css/general/footer.css);
 
         .mesh-sporty {
@@ -29,7 +29,7 @@
     <?php
         require '../app/views/templates/general/header.php';
         require '../app/views/templates/coach/sub-nav.php';
-        require '../app/views/templates/coach/team-schedule.php';
+        require '../app/views/templates/coach/injuries.php';
         require '../app/views/templates/general/footer.php';
     ?>
 </body>

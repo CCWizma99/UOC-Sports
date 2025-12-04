@@ -1,125 +1,496 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #fafafa;
-    margin: 0;
-    padding: 0;
-}
-
 .container {
-    max-width: 600px;
-    margin: 40px auto;
-    background: #fff;
-    padding: 20px 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
 }
 
-h1 {
+/* Header Section */
+.page-header {
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 8px;
+}
+
+.page-header p {
+    font-size: 16px;
+    color: #718096;
+}
+
+/* Section Header */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.section-title {
     font-size: 24px;
-    margin-bottom: 5px;
-    color: #222;
+    font-weight: 700;
+    color: #1a202c;
 }
 
-.subheading {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 20px;
+/* Form Section */
+.form-section {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    margin-bottom: 40px;
 }
 
-h2 {
-    font-size: 18px;
-    margin-bottom: 15px;
-    color: #333;
+.form-section h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 16px;
 }
 
-form label {
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #444;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-select, input[type="date"], input[type="time"], textarea {
+.form-group input,
+.form-group select,
+.form-group textarea {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
     font-size: 14px;
-    box-sizing: border-box;
+    color: #2d3748;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #6b3fa0;
+    box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.1);
 }
 
 .datetime {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
-.datetime div {
-    flex: 1;
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
 }
 
-#createBtn {
-    background-color: var(--primary-color); /* Your primary color */
+.btn-primary {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
     color: white;
-    font-size: 16px;
-    padding: 12px 20px;
     border: none;
     border-radius: 8px;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-#createBtn:hover {
-    background-color: #4a236d;
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(107, 63, 160, 0.3);
 }
 
-.schedule-table {
+/* Facility Search Section */
+.facility-search {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    margin-bottom: 40px;
+}
+
+.facility-search h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.facility-search input {
     width: 100%;
-    border-collapse: collapse;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+}
+
+.facility-search input:focus {
+    outline: none;
+    border-color: #6b3fa0;
+    box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.1);
+}
+
+.suggestions {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.facility-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f7 100%);
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+.facility-card:hover {
+    border-color: #6b3fa0;
+    background: linear-gradient(135deg, #fafbff 0%, #f1f0f5 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(107, 63, 160, 0.15);
+}
+
+.facility-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 6px;
+}
+
+.facility-card .type {
+    font-size: 12px;
+    color: #718096;
+    text-transform: capitalize;
+}
+
+.facility-details {
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    border-radius: 8px;
+    padding: 24px;
+    color: white;
     margin-top: 20px;
 }
 
-.schedule-table th {
-    background-color: #5b2e91;
-    color: #fff;
-    padding: 10px;
+.facility-details.hidden {
+    display: none;
+}
+
+.facility-info h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.facility-info p {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #e2e8f0;
+}
+
+.facility-info strong {
+    color: white;
+    font-weight: 600;
+}
+
+.rate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.rate-grid div {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rate-grid div:last-child {
+    border-bottom: none;
+}
+
+.rate-grid span {
+    color: #4fa3f5;
+    font-weight: 600;
+}
+
+.no-results,
+.error {
+    text-align: center;
+    padding: 20px;
+    color: #718096;
+    font-size: 14px;
+}
+
+.error {
+    color: #e53e3e;
+}
+
+/* Table Section */
+.table-section {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.table-header {
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    padding: 25px 30px;
+    color: white;
+}
+
+.table-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+.practice-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.practice-table thead {
+    background-color: #f7fafc;
+    position: sticky;
+    top: 0;
+}
+
+.practice-table thead th {
+    padding: 18px 20px;
     text-align: left;
+    font-weight: 600;
+    color: #2d3748;
+    border-bottom: 2px solid #e2e8f0;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
-.schedule-table td {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+.practice-table tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
 }
 
-.edit-btn ,.delete-btn{
-  border: none;
-  background: none;
-  font-size: 20px;
-  cursor: pointer;
-  margin: 0 4px;
-  transition: all 0.3s ease;
-
+.practice-table tbody tr:hover {
+    background-color: #f7fafc;
 }
-.edit-btn:hover, .delete-btn:hover {
-    color: #7b42b3; /* lighter purple on hover */
-    transform: scale(1.2);
 
+.practice-table tbody td {
+    padding: 16px 20px;
+    vertical-align: middle;
+}
+
+.date-cell {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 14px;
+}
+
+.venue-cell {
+    color: #718096;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .edit-btn {
-  color: green;
+    background: linear-gradient(135deg, #2b7fd4 0%, #4fa3f5 100%);
+    color: white;
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(43, 127, 212, 0.3);
 }
 
 .delete-btn {
-    color: red;
-    font-weight: bold;
-    transition: transform 0.2s;
+    background: linear-gradient(135deg, #f57c00 0%, #ffb74d 100%);
+    color: white;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+}
+
+.delete-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(245, 124, 0, 0.3);
 }
 
 .no-records {
     text-align: center;
-    color: #777;
+    color: #a0aec0;
+    padding: 40px 20px;
+    font-style: italic;
 }
 
+/* Responsive */
+@media (max-width: 1024px) {
+    .datetime {
+        grid-template-columns: 1fr;
+    }
+}
 
+@media (max-width: 768px) {
+    .container {
+        padding: 25px 16px;
+    }
 
+    .page-header h1 {
+        font-size: 28px;
+    }
+
+    .form-section {
+        padding: 20px;
+    }
+
+    .table-header h2 {
+        font-size: 18px;
+    }
+
+    .practice-table {
+        font-size: 12px;
+    }
+
+    .practice-table thead th {
+        padding: 12px 14px;
+        font-size: 11px;
+    }
+
+    .practice-table tbody td {
+        padding: 12px 14px;
+    }
+
+    .rate-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .actions-cell {
+        flex-direction: column;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 16px 12px;
+    }
+
+    .page-header h1 {
+        font-size: 24px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px;
+    }
+
+    .datetime {
+        grid-template-columns: 1fr;
+    }
+
+    .suggestions {
+        grid-template-columns: 1fr;
+    }
+
+    .table-wrapper {
+        max-height: 300px;
+    }
+
+    .practice-table {
+        font-size: 11px;
+    }
+
+    .practice-table thead th {
+        padding: 10px 12px;
+        font-size: 10px;
+    }
+
+    .practice-table tbody td {
+        padding: 10px 12px;
+    }
+
+    .btn-primary {
+        width: 100%;
+    }
+}

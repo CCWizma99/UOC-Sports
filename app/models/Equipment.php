@@ -104,6 +104,16 @@ class Equipment {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getEquipments($sport_id){
+        $sql = "SELECT equipment_id, equipment_name, image_name
+                FROM equipment
+                WHERE sport_id = :sport_id
+                ORDER BY equipment_name";
+        $stmt = $this -> db -> prepare($sql);
+        $stmt -> execute([':id' => $sport_id]);
+        return $stmt -> fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Fetch all equipment
     public function getAll() {
         $stmt = $this->db->query("SELECT * FROM equipment ORDER BY equipment_id DESC");

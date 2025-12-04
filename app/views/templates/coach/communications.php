@@ -1,7 +1,7 @@
 <div class="container">
   <!-- Header -->
   <div class="page-header">
-    <h1>Communicate with Coach and Sports Manager</h1>
+    <h1>Communicate with Captain and Sports Manager</h1>
     <p>Send messages to your coach and sports manager, and view previous communications.</p>
   </div>
 

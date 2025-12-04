@@ -83,6 +83,22 @@ class EquipmentApiController {
         }
     }
 
+    public function getEquipments() {
+        header('Content-Type: application/json');
+        if (isset($_GET['sport_id'])){
+            try {
+                $model = new Equipment();
+                $equipments = $model->getEquipments($_GET['sport_id']);
+                echo json_encode(['status' => 'success', 'data' => $equipments]);
+            }  catch (Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => 'Error loading equipments.']);
+            }
+        }
+        else{
+            echo json_encode(['status' => 'error', 'message' => 'Please select a sport.']);
+        }
+    }
+
     public function addReservation() {
         header('Content-Type: application/json');
 

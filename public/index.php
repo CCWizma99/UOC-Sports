@@ -29,9 +29,10 @@ $router->post('/captain/schedule-practice', 'CaptainController@SchedulePractice'
 $router->get('/captain/communication', 'CaptainController@Communication');
 $router->get('/captain/team-schedules', 'CoachController@TeamSchedules');
 
-$router->get('/coach/team-schedules', 'CoachController@TeamSchedules');
+$router->get('/coach//', 'CoachController@TeamSchedules');
 $router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');
 $router->get('/coach/report-injury', 'CoachController@ReportInjury');
+
 $router->get('/registrar/registrar-dashboard', 'RegistrarController@RegistrarDashboard');
 $router->get('/registrar/verify-students', 'RegistrarController@VerifyStudents');
 $router->get('/registrar/verify-staff', 'RegistrarController@VerifyStaff');
@@ -44,7 +45,7 @@ $router->post('/reserve-equipments/cancel', 'EquipmentApiController@cancelReserv
 $router->get('/reserve-equipments/view', 'EquipmentApiController@getReservedItems');
 
 $router->get('/equipment-manager//', 'EquipmentManagerController@index');
-$router->get('/equipment-manager/equipment-report', 'EquipmentManagerController@equipmentReport');
+$router->get('/equipment-manager/equipment-reservations', 'EquipmentManagerController@equipmentReport');
 $router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipments');
 $router->get('/equipment-manager/schedules', 'EquipmentManagerController@schedules');
 

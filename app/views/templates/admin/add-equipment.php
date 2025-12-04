@@ -1,14 +1,17 @@
 <section id="add-equipment">
   <h2>Add Equipment</h2>
   <form id="add-equipment-form" enctype="multipart/form-data">
+    
     <div class="input-div">
-      <label for="equipment-name">Equipment Name</label>
-      <input type="text" id="equipment-name" name="equipment_name" required>
+      <label for="sport">Sport</label>
+      <select id="sport" name="sport_id" onchange="loadEquipmets()" required>
+        <option value="">Loading sports...</option>
+      </select>
     </div>
 
     <div class="input-div">
-      <label for="sport">Sport</label>
-      <select id="sport" name="sport_id" required>
+      <label for="equipment-name">Equipment Name</label>
+      <select id="equipment" name="equipment_id" required>
         <option value="">Loading sports...</option>
       </select>
     </div>
@@ -37,12 +40,6 @@
       <textarea id="remarks" name="remarks" rows="3"></textarea>
     </div>
 
-    <div class="input-div">
-      <label for="equipment-images">Upload Images</label>
-      <input type="file" id="equipment-images" name="images[]" multiple>
-      <div id="file-preview"></div>
-    </div>
-
     <button type="submit" class="btn">Add Equipment</button>
     <div id="form-message"></div>
   </form>
@@ -51,14 +48,12 @@
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
   const sportSelect = document.getElementById("sport");
-  const previewDiv = document.getElementById("file-preview");
-  const fileInput = document.getElementById("equipment-images");
-  const msg = document.getElementById("form-message");
+  const equipmentSelect = document.getElementById("equipment");
 
   // Load sports
   try {
-    const res = await fetch("admin-equipments/get-sports");
-    const data = await res.json();
+    const resSpo = await fetch("admin-equipments/get-sports");
+    const data = await resSpo.json();
     sportSelect.innerHTML = '<option value="">Select a sport</option>';
     if (data.status === "success") {
       data.data.forEach(s => {
@@ -66,27 +61,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
   } catch {
-    sportSelect.innerHTML = '<option value="">Error loading sports</option>';
+    sportSelect.innerHTML = '<option value="">Error Loading Sports</option>';
   }
 
-  // Image preview
-  fileInput.addEventListener("change", () => {
-    previewDiv.innerHTML = "";
-    [...fileInput.files].forEach(file => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = document.createElement("img");
-        img.src = e.target.result;
-        img.style.width = "100px";
-        img.style.height = "100px";
-        img.style.objectFit = "cover";
-        img.style.marginRight = "5px";
-        img.style.borderRadius = "8px";
-        previewDiv.appendChild(img);
-      };
-      reader.readAsDataURL(file);
-    });
-  });
+  //Load equipments
+  function loadEquipmets() {
+    try {
+      const resEqu = fetch(`admin-equipments/get-equipments?sport_id=${variable}`);
+      const dataEqu = resEqu.json();
+      equipmentSelect.innerHTML = '<option>Select an equipment</option>';
+      if (dataEqu.status === "success") {
+        if (dataEqu.data.length === 0){
+          equipmentSelect.innerHTML = '<option value="">Sorry, Failed to Find Equipments</option>';
+        }
+        else{
+          dataEqu.data.forEach(e=>{
+            equipmentSelect.innerHTML += `<option value="${e.equipment_id}">${e.equipment_name}</option>`;
+          })
+        }
+      }
+    } catch {
+      equipmentSelect.innerHTML = '<option value="">Error Loading equipments</option>';
+    }
+  }
 
   // Submit form
   document.getElementById("add-equipment-form").addEventListener("submit", async e => {

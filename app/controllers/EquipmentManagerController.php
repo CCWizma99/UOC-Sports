@@ -7,7 +7,7 @@ class EquipmentManagerController {
     }
 
     public function equipmentReport() {
-        view('equipment-manager/equipment-report');
+        view('equipment-manager/equipment-reservations');
     }
     
     public function equipments() {

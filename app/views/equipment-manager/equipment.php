@@ -23,12 +23,7 @@
     require "../app/views/equipment-manager/header-subnav.php";
 ?>
 <body>
-    <div class="btn">
-        <span class="report-btn"><a href="../equipment-report">Equipment Reservations</a></span>
-        <span class="add-new"><a href="../add-equipment">Update Equipments</a></span>
-    </div>
-
-    <div class ="content">
+<div class ="content">
 
     <div class="card">
        <h3>Athletics</h3> 
