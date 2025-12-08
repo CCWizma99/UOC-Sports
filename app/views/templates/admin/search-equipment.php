@@ -20,9 +20,13 @@ document.getElementById('equipment-search').addEventListener('input', function()
             if (data.status === 'success' && data.data.length > 0) {
                 let html = '<ul>';
                 data.data.forEach(eq => {
+                    const imgSrc = eq.image_name 
+                        ? `./images/equipment-types/${eq.image_name}` 
+                        : `./images/equipment-types/default.png`;
+
                     html += `
                     <li>
-                        <img src="./images/equipment/${eq.image_name}" alt="${eq.equipment_name}">
+                        <img src="${imgSrc}" alt="${eq.equipment_name}">
                         <div class="equipment-info">
                             <strong>${eq.equipment_name} (${eq.category})</strong>
                             <span>Condition: ${eq.equipment_condition}</span>

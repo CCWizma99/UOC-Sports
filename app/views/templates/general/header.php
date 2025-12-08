@@ -23,9 +23,9 @@
         <div class="nav-links" id="nav-links">
 
             <a href="/uoc-sports/public/news">News</a>
-            <a href="/uoc-sports/public/contact">Contact Us</a>
+            <a href="/uoc-sports/public/#contact">Contact Us</a>
 
-            <a href="/uoc-sports/public/facility-reservation" class="btn-secondary">
+            <a href="/uoc-sports/public/facility-reservation" id="nav-res" class="btn-secondary">
                 Facility Reservation
             </a>
 

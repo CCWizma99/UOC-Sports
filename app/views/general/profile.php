@@ -1,13 +1,3 @@
-<?php
-$user = $user ?? [];
-$isAdminViewingStudent = $isAdminViewingStudent ?? false;
-
-// Safe helper function
-function safe($arr, $key, $default = '') {
-    return isset($arr[$key]) ? htmlspecialchars($arr[$key]) : $default;
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,10 +30,10 @@ function safe($arr, $key, $default = '') {
 <div class="profile-container">
     <h2>Personal Details</h2>
     <div class="profile-details">
-        <p><strong>User ID:</strong> <?= safe($user, 'user_id') ?></p>
-        <p><strong>Name:</strong> <?= safe($user, 'name') ?></p>
-        <p><strong>Email:</strong> <?= safe($user, 'email') ?></p>
-        <p><strong>Role:</strong> <?= safe($user, 'type') ?></p>
+        <p><strong>User ID:</strong></p>
+        <p><strong>Name:</strong></p>
+        <p><strong>Email:</strong></p>
+        <p><strong>Role:</strong></p>
     </div>
 
     <div style="margin-top:20px; text-align:center;">
@@ -51,23 +41,6 @@ function safe($arr, $key, $default = '') {
         <?php if ($isAdminViewingStudent): ?>
             <button class="btn" id="promoteBtn">Promote to Captain</button>
         <?php endif; ?>
-    </div>
-</div>
-
-<!-- Popup -->
-<div class="popup-overlay" id="popupOverlay">
-    <div class="popup">
-        <h3>Select Sport</h3>
-        <select id="sportSelect">
-            <option value="">-- Choose a sport --</option>
-            <option value="Cricket">Cricket</option>
-            <option value="Football">Football</option>
-            <option value="Rowing">Rowing</option>
-            <option value="Karate">Karate</option>
-            <option value="Taekwondo">Taekwondo</option>
-        </select>
-        <button class="btn" id="confirmBtn">Confirm</button>
-        <button class="btn logout-btn" id="closePopup">Cancel</button>
     </div>
 </div>
 

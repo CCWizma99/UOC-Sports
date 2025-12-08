@@ -30,7 +30,7 @@ function fetchReservedItems() {
                         <img 
                             src="/uoc-sports/public/images/equipment/${item.image}" 
                             alt="${item.equipment_name}"
-                            onerror="this.onerror=null; this.src='/uoc-sports/public/images/equipment/football.jpg';"
+                            onerror="this.onerror=null; this.src='/uoc-sports/public/images/equipment/default.jpg';"
                         >
                         <div class="reserved-details">
                             <h3>${item.equipment_name}</h3>

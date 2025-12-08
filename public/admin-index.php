@@ -23,8 +23,8 @@ $router->get('/admin-news', 'AdminHomeController@news');
 $router->get('/admin-inquiry', 'AdminHomeController@inquiry');
 $router->get('/admin-inquiry/search', 'InquiryController@search');
 $router->get('/admin-teams/search-team', 'TeamApiController@search');
-$router->get('/admin-equipments/search-equipment', 'EquipmentApiController@search');
-$router->get('/admin-equipments/get-equipment', 'EquipmentApiController@getEquipments');
+$router->get('/admin-equipments/search-equipment', 'EquipmentApiController@searchEquipment');
+$router->get('/admin-equipments/get-equipments', 'EquipmentApiController@getEquipments');
 $router->get('/admin-equipments/get-sports', 'EquipmentApiController@getSports');
 $router->get('/admin-budget/search-budget', 'BudgetApiController@search');
 $router->get('/admin-post/search', 'PostApiController@search');
@@ -36,7 +36,10 @@ $router->get('/admin-sport/get-tournaments', 'SportApiController@getTournaments'
 
 $router->post('/admin-users/add-internal-user', 'AuthController@addUser');
 $router->post('/admin-equipments/add', 'EquipmentApiController@add');
+$router->post('/admin-equipments/add-equipment-type', 'EquipmentApiController@addEquipmentType');
+$router->post('/admin-equipments/add-stock', 'EquipmentApiController@addStock');
 $router->post('/admin-budget/add-budget', 'BudgetApiController@addBudget');
 $router->post('/admin-post/add-post', 'PostApiController@addPost');
+
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

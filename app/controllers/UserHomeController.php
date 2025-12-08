@@ -17,18 +17,7 @@ class UserHomeController {
         ]);
     }
     public function facilityReservation() {
-        $reservationModel = new Facility();
-        $reservations = [];
-
-        // Load reservations only if logged in
-        if (isset($_SESSION['user_id'])) {
-            $userId = $_SESSION['user_id'];
-            $reservations = $reservationModel->getReservationsByUser($userId);
-        }
-
-        view('general/facility-reservation', [
-            'reservations' => $reservations
-        ]);
+        view('general/facility-reservation');
     }
     public function contactUs() {
         view('general/contact-us');

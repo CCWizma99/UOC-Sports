@@ -1,18 +1,33 @@
 <?php
 
 class EquipmentApiController {
-    public function search() {
+    public function searchEquipment() {
         header('Content-Type: application/json');
-        $query = $_GET['q'] ?? '';
-
-        $equipmentModel = new Equipment();
-        $results = $equipmentModel->search($query);
-
-        echo json_encode([
-            'status' => 'success',
-            'data' => $results
-        ]);
+    
+        try {
+            $q = trim($_GET['q'] ?? "");
+    
+            if (!$q) {
+                echo json_encode(['status' => 'error', 'message' => 'Empty search']);
+                return;
+            }
+    
+            $model = new Equipment();
+            $results = $model->searchEquipment($q);
+    
+            echo json_encode([
+                'status' => 'success',
+                'data' => $results
+            ]);
+    
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Search failed'
+            ]);
+        }
     }
+    
 
     public function minimalSearch() {
         header('Content-Type: application/json');
@@ -83,6 +98,80 @@ class EquipmentApiController {
         }
     }
 
+    public function addEquipmentType() {
+        header('Content-Type: application/json');
+    
+        try {
+            $sport_id = $_POST['sport_id'] ?? null;
+            $equipment_name = trim($_POST['equipment_name'] ?? "");
+    
+            if (!$sport_id || !$equipment_name) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing required fields']);
+                return;
+            }
+    
+            $image_name = "";
+    
+            if (!empty($_FILES['image']['name'])) {
+    
+                $allowedTypes = ['jpg', 'jpeg', 'png', 'webp'];
+                $maxSize = 2 * 1024 * 1024; // 2MB
+    
+                $originalName = $_FILES['image']['name'];
+                $fileSize = $_FILES['image']['size'];
+                $tmpPath = $_FILES['image']['tmp_name'];
+                $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    
+                // ❌ Invalid file type
+                if (!in_array($extension, $allowedTypes)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Only JPG, PNG, JPEG, WEBP allowed']);
+                    return;
+                }
+    
+                // ❌ File too large
+                if ($fileSize > $maxSize) {
+                    echo json_encode(['status' => 'error', 'message' => 'Image must be less than 2MB']);
+                    return;
+                }
+    
+                // ✅ Clean equipment name
+                $safeName = preg_replace('/[^A-Za-z0-9\-]/', '_', strtolower($equipment_name));
+                $random = rand(1000, 9999);
+    
+                $image_name = $safeName . "_" . $random . "." . $extension;
+                $uploadDir = __DIR__ . '/../../../public/images/equipment-types/';
+                $finalPath = $uploadDir . $image_name;
+    
+                if (!move_uploaded_file($tmpPath, $finalPath)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Failed to upload image']);
+                    return;
+                }
+            }
+    
+            $model = new Equipment();
+            $result = $model->addEquipmentType($sport_id, $equipment_name, $image_name);
+    
+            if ($result !== true) {
+                if ($image_name && file_exists($finalPath)) {
+                    unlink($finalPath);
+                }
+    
+                if ($result === "DUPLICATE") {
+                    echo json_encode(['status' => 'error', 'message' => 'Equipment already exists for this sport']);
+                    return;
+                }
+    
+                echo json_encode(['status' => 'error', 'message' => 'Database insert failed']);
+                return;
+            }
+    
+            echo json_encode(['status' => 'success', 'message' => 'Equipment type added successfully']);
+    
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Server error']);
+        }
+    }
+    
     public function getEquipments() {
         header('Content-Type: application/json');
         if (isset($_GET['sport_id'])){
@@ -98,6 +187,36 @@ class EquipmentApiController {
             echo json_encode(['status' => 'error', 'message' => 'Please select a sport.']);
         }
     }
+
+    public function addStock() {
+        header('Content-Type: application/json');
+    
+        try {
+            $sport_id = $_POST['sport_id'] ?? null;
+            $quantity = $_POST['quantity'] ?? null;
+            $date = $_POST['date'] ?? null;
+            $status = $_POST['equipment_condition'] ?? null;
+            $remarks = $_POST['remarks'] ?? "";
+    
+            if (!$sport_id || !$quantity || !$date || !$status) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing required fields']);
+                return;
+            }
+    
+            $model = new Equipment();
+            $result = $model->addStock($sport_id, $quantity, $date, $status, $remarks);
+    
+            if ($result) {
+                echo json_encode(['status' => 'success', 'message' => 'Stock added successfully']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to add stock']);
+            }
+    
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Server error']);
+        }
+    }
+    
 
     public function addReservation() {
         header('Content-Type: application/json');

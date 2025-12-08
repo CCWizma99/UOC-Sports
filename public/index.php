@@ -17,6 +17,9 @@ $router->get('/post/{id}', 'PostController@viewPost');
 $router->post('/post/add-comment', 'PostController@addComment');
 $router->get('/search-post', 'PostApiController@search');
 $router->get('/get-faculties', 'UserHomeController@getFaculties');
+$router->get('/reserve-facilities/view-reservations', 'FacilityApiController@viewMyReservations');
+$router->get('/get-reserved-slots', 'FacilityApiController@getReservedSlots');
+$router->get('/reserve-facilities/chart', 'FacilityApiController@getReservationChart');
 $router->post('/create-facility-booking', 'FacilityApiController@createBooking');
 
 $router->get('/student', 'StudentController@index');

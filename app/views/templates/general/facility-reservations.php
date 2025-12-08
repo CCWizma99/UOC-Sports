@@ -29,149 +29,255 @@
         <div id="facilityDetails" class="facility-details hidden"></div>
     </section>
 
-    <!-- Facility Reservation Form -->
-    <section class="section facility-reservation-container">
-        <h3><i class="fas fa-calendar-plus"></i> Reserve a Facility</h3>
+<!-- Facility Reservation Form -->
+<section class="section facility-reservation-container">
+    <h3><i class="fas fa-calendar-plus"></i> Reserve a Facility</h3>
 
-        <form id="facilityReservationForm" onsubmit="submitReservation(event)">
-            <div class="form-row">
-                <label for="facility_id"><i class="fas fa-building"></i> Select Facility</label>
-                <select id="facility_id" name="facility_id" required onchange="handleFacilityChange()"></select>
-            </div>
+    <form id="facilityReservationForm" onsubmit="submitReservation(event)">
+        <!-- Step 1: Pick Date -->
+        <div class="form-row full-width">
+            <label for="date"><i class="fas fa-calendar"></i> Date</label>
+            <input type="date" id="date" name="date" required>
+        </div>
 
-            <div class="form-row price-row">
-                <label><i class="fas fa-tag"></i> Base Price</label>
-                <div class="price-display" id="priceDisplay">Rs. 0.00</div>
-            </div>
+        <div class="form-row">
+            <label for="facility_id"><i class="fas fa-building"></i> Select Facility</label>
+            <select id="facility_id" name="facility_id" required disabled>
+                <option value="">-- Choose a facility --</option>
+            </select>
+        </div>
 
-            <div id="reservationChartContainer" class="reservation-chart-container hidden">
-                <div class="chart-header">
-                    <h4>Current Reservations</h4>
-                    <div class="chart-legend">
-                        <span class="legend-item"><span class="legend-box available"></span>Available</span>
-                        <span class="legend-item"><span class="legend-box taken"></span>Taken</span>
-                    </div>
+        <!-- Price Display -->
+        <div class="form-row price-row">
+            <label><i class="fas fa-tag"></i> Base Price</label>
+            <div class="price-display" id="priceDisplay">Rs. 0.00</div>
+        </div>
+
+        <!-- Reservation Chart -->
+        <div id="reservationChartContainer" class="reservation-chart-container hidden">
+            <div class="chart-header">
+                <h4>Current Reservations</h4>
+                <div class="chart-legend">
+                    <span class="legend-item"><span class="legend-box available"></span>Available</span>
+                    <span class="legend-item"><span class="legend-box taken"></span>Taken</span>
                 </div>
-                <div class="reservation-chart" id="reservationChart"></div>
             </div>
+            <div class="reservation-chart" id="reservationChart"></div>
+        </div>
 
-            <div class="form-row full-width">
-                <label for="date"><i class="fas fa-calendar"></i> Date</label>
-                <input type="date" id="date" name="date" required onchange="loadSlots()">
-            </div>
+        <!-- Slot Selection -->
+        <div class="form-row full-width">
+            <label for="slot_id"><i class="fas fa-clock"></i> Select Time Slot</label>
+            <select id="slot_id" name="slot_id" required></select>
+        </div>
 
-            <div class="form-row full-width">
-                <label for="slot_id"><i class="fas fa-clock"></i> Select Time Slot</label>
-                <select id="slot_id" name="slot_id" required></select>
-            </div>
+        <div class="form-row">
+            <label for="purpose"><i class="fas fa-pen"></i> Purpose</label>
+            <textarea id="purpose" name="purpose" maxlength="300" required></textarea>
+        </div>
 
-            <div class="form-row">
-                <label for="purpose"><i class="fas fa-pen"></i> Purpose</label>
-                <textarea id="purpose" name="purpose" maxlength="300" required></textarea>
-            </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-check-circle"></i> Submit Reservation
+        </button>
+    </form>
 
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-check-circle"></i> Submit Reservation
-            </button>
-        </form>
+    <div id="reservationMessage"></div>
+</section>
 
-        <div id="reservationMessage"></div>
-    </section>
 </div>
 
 <script>
+
+const dateInput = document.getElementById("date");
+
+const today = new Date();
+const maxDate = new Date();
+maxDate.setDate(today.getDate() + 10);
+
+const toISO = d => d.toISOString().split('T')[0];
+
+dateInput.min = toISO(today);
+dateInput.max = toISO(maxDate);
+
+dateInput.addEventListener("change", () => {
+  const min = dateInput.min;
+  const max = dateInput.max;
+  const value = dateInput.value;
+
+  if (value < min || value > max) {
+    alert("Date out of allowed range! Date should be between " + min + " to " + max + ".");
+    dateInput.value = ""; // force reset
+  }
+});
+
 /* -------------------- BASIC CONFIG ----------------------- */
+let timeout = null;
+let currentPrice = 0;
+let facilityPrices = [];
+
+const API_BASE = "/uoc-sports/public/api/get-facility-rates.php";
+const BOOKING_API = "/uoc-sports/public/create-facility-booking";
+const SLOTS_API = "/uoc-sports/public/get-reserved-slots";
+const RESERVATIONS_API = "/uoc-sports/public/reserve-facilities/view-reservations";
+
 document.getElementById("date").min = new Date().toISOString().split("T")[0];
 
 document.addEventListener("DOMContentLoaded", () => {
     loadMyReservations();
     loadFacilities();
-});
+    
+    // Facility dropdown disabled until date is picked
+    document.getElementById("facility_id").disabled = true;
 
-const API_BASE = "/uoc-sports/public/api/get-facility-rates.php";
-const BOOKING_API = "/uoc-sports/public/create-facility-booking";
-const SLOTS_API = "/uoc-sports/public/api/get-facility-slots.php";
-const RESERVATIONS_API = "/uoc-sports/public/reserve-facilities/view";
-let currentPrice = 0;
-let facilityPrices = {};
+    // Enable facility dropdown after picking date
+    document.getElementById("date").addEventListener("change", async () => {
+        const date = document.getElementById("date").value;
+        const facilitySelect = document.getElementById("facility_id");
+        const chartContainer = document.getElementById("reservationChartContainer");
+
+        if (!date) {
+            facilitySelect.disabled = true;
+            chartContainer.classList.add("hidden");
+            return;
+        }
+
+        facilitySelect.disabled = false;
+        // Reset selection when date changes
+        facilitySelect.value = "";
+        document.getElementById("priceDisplay").textContent = "Rs. 0.00";
+        document.getElementById("slot_id").innerHTML = '<option value="">Select facility first</option>';
+    });
+
+    // Add event listener for facility change
+    document.getElementById("facility_id").addEventListener("change", handleFacilityChange);
+});
 
 /* -------------------- HANDLE FACILITY CHANGE ----------------------- */
 async function handleFacilityChange() {
     const facilityId = document.getElementById("facility_id").value;
+    const date = document.getElementById("date").value;
     const chartContainer = document.getElementById("reservationChartContainer");
-    
-    if (!facilityId) {
+    const slotSelect = document.getElementById("slot_id");
+
+    // Reset if no facility selected
+    if (!facilityId || !date) {
         chartContainer.classList.add("hidden");
         document.getElementById("priceDisplay").textContent = "Rs. 0.00";
+        slotSelect.innerHTML = '<option value="">Select facility and date first</option>';
         return;
     }
 
-    // Get facility price from loaded data
+    const facility = facilityPrices.find(f => f.id == facilityId);
+    if (!facility) return;
+
+    // Determine if date is working day
+    const dayOfWeek = new Date(date).getDay(); // 0=Sun, 6=Sat
+    const isWorkingDay = dayOfWeek >= 1 && dayOfWeek <= 5;
+
+    // Calculate base price for practice slot (this will be updated when slot is selected)
+    currentPrice = parseFloat(facility.practice_working_hours || 0);
+    if (!isWorkingDay) {
+        currentPrice = parseFloat(facility.practice_other_hours || 0);
+    }
+
+    // Display base price
+    document.getElementById("priceDisplay").textContent = `Rs. ${currentPrice.toFixed(2)}`;
+
+    // Load reservation chart and slots
+    await generateReservationChart(facilityId);
+    await loadSlots();
+    chartContainer.classList.remove("hidden");
+}
+
+/* -------------------- LOAD SLOTS ----------------------- */
+async function loadSlots() {
+    const facilityId = document.getElementById("facility_id").value;
+    const date = document.getElementById("date").value;
+    const slotSelect = document.getElementById("slot_id");
+
+    if (!facilityId || !date) {
+        slotSelect.innerHTML = '<option value="">Select facility and date first</option>';
+        return;
+    }
+
     try {
-        const res = await fetch(API_BASE);
-        const facilities = await res.json();
-        const facility = facilities.find(f => f.id == facilityId);
-        
-        if (facility) {
-            // Display practice working hours as base price
-            currentPrice = parseFloat(facility.practice_working_hours) || 0;
-            document.getElementById("priceDisplay").textContent = `Rs. ${currentPrice.toFixed(2)}`;
-            facilityPrices = facility;
-            
-            // Generate and show reservation chart
-            generateReservationChart(facilityId);
-            chartContainer.classList.remove("hidden");
+        const res = await fetch(`${SLOTS_API}?facility_id=${facilityId}&date=${date}`);
+        const slots = await res.json();
+
+        slotSelect.innerHTML = '<option value="">-- Choose a slot --</option>';
+
+        if (!slots || slots.length === 0) {
+            slotSelect.innerHTML += '<option disabled>No available slots</option>';
+            return;
         }
+
+        slots.forEach(slot => {
+            slotSelect.innerHTML += `
+                <option value="${slot.id}" data-price="${slot.price}">
+                    ${slot.type} - Rs. ${parseFloat(slot.price).toFixed(2)}
+                </option>
+            `;
+        });
+
     } catch (e) {
-        console.error("Error fetching facility:", e);
+        console.error("Error loading slots:", e);
+        slotSelect.innerHTML = '<option disabled>Error loading slots</option>';
     }
 }
 
-/* -------------------- GENERATE RESERVATION CHART ----------------------- */
-function generateReservationChart(facilityId) {
-    // MOCKUP DATA - Replace with actual backend data later
-    const mockReservations = {
-        "1": [
-            { date: "2025-11-21", slots: [false, false, true, true, false, true, false, true] },
-            { date: "2025-11-22", slots: [false, true, true, false, false, false, true, false] },
-            { date: "2025-11-23", slots: [true, false, false, true, true, false, false, true] },
-            { date: "2025-11-24", slots: [false, false, false, false, true, false, false, false] },
-            { date: "2025-11-25", slots: [true, true, false, false, false, false, true, false] },
-            { date: "2025-11-26", slots: [false, false, true, true, true, false, false, false] },
-            { date: "2025-11-27", slots: [false, true, false, false, false, true, true, false] }
-        ]
-    };
+/* -------------------- UPDATE PRICE WHEN SLOT CHANGES ----------------------- */
+document.addEventListener("change", (e) => {
+    if (e.target.id === "slot_id") {
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const price = selectedOption.getAttribute("data-price") || "0";
+        currentPrice = parseFloat(price);
+        document.getElementById("priceDisplay").textContent = `Rs. ${currentPrice.toFixed(2)}`;
+    }
+});
 
-    const slotTimes = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00"];
-    const reservations = mockReservations[facilityId] || [];
+/* -------------------- GENERATE RESERVATION CHART ----------------------- */
+async function generateReservationChart(facilityId) {
     const chart = document.getElementById("reservationChart");
-    
-    let html = '<div class="chart-grid">';
-    
-    // Add time labels on the left
-    html += '<div class="time-labels">';
-    slotTimes.forEach(time => {
-        html += `<div class="time-label">${time}</div>`;
-    });
-    html += '</div>';
-    
-    // Add date columns
-    html += '<div class="date-columns">';
-    
-    reservations.forEach(day => {
-        html += `<div class="date-column">
-            <div class="date-label">${formatDateShort(day.date)}</div>`;
-        
-        day.slots.forEach((isTaken, index) => {
-            html += `<div class="slot ${isTaken ? 'taken' : 'available'}" title="${isTaken ? 'Taken' : 'Available'} - ${slotTimes[index]}"></div>`;
-        });
-        
+
+    try {
+        const res = await fetch(`/uoc-sports/public/reserve-facilities/chart?facility_id=${facilityId}`);
+        const reservations = await res.json();
+
+        if (!reservations || reservations.length === 0) {
+            chart.innerHTML = "<p>No reservations data available.</p>";
+            return;
+        }
+
+        const slotTypes = ["MORNING", "AFTERNOON", "FULL"];
+        let html = '<div class="chart-grid">';
+
+        // Slot labels
+        html += '<div class="time-labels">';
+        slotTypes.forEach(slot => html += `<div class="time-label">${slot}</div>`);
         html += '</div>';
-    });
-    
-    html += '</div></div>';
-    
-    chart.innerHTML = html;
+
+        // Date columns
+        html += '<div class="date-columns">';
+
+        reservations.forEach(day => {
+            html += `<div class="date-column">
+                <div class="date-label">${formatDateShort(day.date)}</div>`;
+
+            slotTypes.forEach(slotType => {
+                const isTaken = day.slots[slotType] || false;
+                html += `<div class="slot ${isTaken ? 'taken' : 'available'}" title="${isTaken ? 'Taken' : 'Available'}"></div>`;
+            });
+
+            html += '</div>';
+        });
+
+        html += '</div></div>';
+        chart.innerHTML = html;
+
+    } catch (e) {
+        console.error("Error loading chart:", e);
+        chart.innerHTML = "<p>Error loading chart.</p>";
+    }
 }
 
 function formatDateShort(dateString) {
@@ -214,7 +320,7 @@ function loadMyReservations() {
             }
 
             items.forEach(item => {
-                const status = item.payment_status === "paid" ? "paid" : "pending";
+                const status = item.payment_status === "INCOMPLETE" ? "pending" : "paid";
 
                 list.innerHTML += `
                     <div class="reservation-item ${status === "pending" ? "unpaid" : ""}">
@@ -268,6 +374,11 @@ function cancelFacilityReservation(id) {
     .then(msg => {
         showFloatingMessage(msg, "success");
         loadMyReservations();
+        // Refresh chart if visible
+        const facilityId = document.getElementById("facility_id").value;
+        if (facilityId) {
+            generateReservationChart(facilityId);
+        }
     })
     .catch(() => showFloatingMessage("Error cancelling booking.", "error"));
 }
@@ -303,7 +414,7 @@ async function searchFacilities() {
             suggestionBox.innerHTML = results
                 .map(r => `
                     <div class="facility-card"
-                        onclick='showDetails(JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(r))}")))'>
+                        onclick='showDetails(${JSON.stringify(r).replace(/'/g, "&#39;")})'>
                         <h4>${r.facility_name}</h4>
                         <p class="type">${r.facility_type.replace("_", " ")}</p>
                     </div>
@@ -349,6 +460,8 @@ async function loadFacilities() {
         const res = await fetch(API_BASE);
         const data = await res.json();
 
+        facilityPrices = data;
+
         const select = document.getElementById("facility_id");
         select.innerHTML = '<option value="">-- Choose a facility --</option>';
 
@@ -361,64 +474,6 @@ async function loadFacilities() {
         console.error("Error loading facilities:", e);
     }
 }
-
-/* -------------------- LOAD AVAILABLE SLOTS ----------------------- */
-async function loadSlots() {
-    const facilityId = document.getElementById("facility_id").value;
-    const date = document.getElementById("date").value;
-    const slotSelect = document.getElementById("slot_id");
-    
-    if (!facilityId || !date) {
-        slotSelect.innerHTML = '<option value="">Select facility and date first</option>';
-        return;
-    }
-
-    // MOCKUP SLOTS DATA - Replace with actual backend later
-    const mockSlots = [
-        { id: 1, start_time: "08:00", end_time: "09:00", price: 500 },
-        { id: 2, start_time: "09:00", end_time: "10:00", price: 500 },
-        { id: 3, start_time: "10:00", end_time: "11:00", price: 500 },
-        { id: 4, start_time: "11:00", end_time: "12:00", price: 600 },
-        { id: 5, start_time: "12:00", end_time: "13:00", price: 500 },
-        { id: 6, start_time: "13:00", end_time: "14:00", price: 500 },
-        { id: 7, start_time: "14:00", end_time: "15:00", price: 600 },
-        { id: 8, start_time: "15:00", end_time: "16:00", price: 500 }
-    ];
-
-    try {
-        // Uncomment when backend is ready
-        // const res = await fetch(`${SLOTS_API}?facility_id=${facilityId}&date=${date}`);
-        // const slots = await res.json();
-        
-        const slots = mockSlots;
-
-        slotSelect.innerHTML = '<option value="">-- Choose a slot --</option>';
-
-        if (!slots || slots.length === 0) {
-            slotSelect.innerHTML += '<option disabled>No available slots</option>';
-            return;
-        }
-
-        slots.forEach(slot => {
-            slotSelect.innerHTML += `<option value="${slot.id}" data-price="${slot.price}">
-                ${slot.start_time} - ${slot.end_time} (Rs. ${parseFloat(slot.price).toFixed(2)})
-            </option>`;
-        });
-    } catch (e) {
-        console.error("Error loading slots:", e);
-        slotSelect.innerHTML += '<option disabled>Error loading slots</option>';
-    }
-}
-
-/* -------------------- UPDATE PRICE WHEN SLOT CHANGES ----------------------- */
-document.addEventListener("change", (e) => {
-    if (e.target.id === "slot_id") {
-        const selectedOption = e.target.options[e.target.selectedIndex];
-        const price = selectedOption.getAttribute("data-price") || "0";
-        currentPrice = parseFloat(price);
-        document.getElementById("priceDisplay").textContent = `Rs. ${currentPrice.toFixed(2)}`;
-    }
-});
 
 /* -------------------- SUBMIT RESERVATION ----------------------- */
 async function submitReservation(e) {
@@ -454,8 +509,14 @@ async function submitReservation(e) {
             msg.innerHTML = `<div class="success">✔ ${result.message}</div>`;
             msg.style.display = "block";
             showFloatingMessage("Reservation successful!", "success");
+            
+            // Reset form
             form.reset();
             document.getElementById("priceDisplay").textContent = "Rs. 0.00";
+            document.getElementById("facility_id").disabled = true;
+            document.getElementById("reservationChartContainer").classList.add("hidden");
+            
+            // Reload reservations
             loadMyReservations();
             
             // Scroll to reservations
@@ -478,5 +539,6 @@ async function submitReservation(e) {
         showFloatingMessage("Booking error. Please try again.", "error");
     }
 }
+
 </script>
 

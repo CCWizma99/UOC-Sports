@@ -60,31 +60,33 @@ class Equipment {
      * @param string $query
      * @return array
      */
-    public function search($query) {
-        $sql = "
-            SELECT 
-                e.equipment_id,
-                e.equipment_name,
-                e.sport_id,
-                s.sport_name,
-                e.equipment_condition,
-                e.quantity,
-                MIN(i.image_name) AS image_name
-            FROM equipment e
-            JOIN sport s ON e.sport_id = s.sport_id
-            JOIN equipment_image i ON e.equipment_id = i.equipment_id
-            WHERE e.equipment_id LIKE :query
-            OR e.equipment_name LIKE :query
-            OR e.sport_id LIKE :query
-            OR s.sport_name LIKE :query
-            GROUP BY e.equipment_id
-            LIMIT 5;
-        ";
+    public function searchEquipment($query) {
+
+        $sql = "SELECT 
+                    e.equipment_id,
+                    e.equipment_name,
+                    e.image_name,
+                    s.sport_name AS category,
+                    ei.status AS equipment_condition,
+                    SUM(ei.quantity) AS quantity
+                FROM equipment e
+                INNER JOIN sport s ON e.sport_id = s.sport_id
+                LEFT JOIN equipment_inventory ei ON e.sport_id = ei.sport_id
+                WHERE 
+                    e.equipment_name LIKE :q 
+                    OR e.equipment_id LIKE :q
+                    OR s.sport_name LIKE :q
+                GROUP BY e.equipment_id, e.equipment_name, e.image_name, s.sport_name, ei.status
+                ORDER BY e.equipment_name";
     
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['query' => "%$query%"]);
+        $stmt->execute([
+            ':q' => '%' . $query . '%'
+        ]);
+    
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
 
     public function minimalSearch($query){
         $sql = "
@@ -104,15 +106,70 @@ class Equipment {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function addEquipmentType($sport_id, $equipment_name, $image_name) {
+        // Prevent duplicates for same sport
+        $checkSql = "SELECT equipment_id FROM equipment 
+                     WHERE sport_id = :sport_id AND equipment_name = :equipment_name";
+        $checkStmt = $this->db->prepare($checkSql);
+        $checkStmt->execute([
+            ':sport_id' => $sport_id,
+            ':equipment_name' => $equipment_name
+        ]);
+    
+        if ($checkStmt->rowCount() > 0) {
+            return "DUPLICATE";
+        }
+    
+        // Generate equipment ID
+        $equipment_id = uniqid("EQ");
+    
+        $sql = "INSERT INTO equipment 
+                (equipment_id, sport_id, equipment_name, image_name)
+                VALUES (:equipment_id, :sport_id, :equipment_name, :image_name)";
+    
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':equipment_id' => $equipment_id,
+            ':sport_id' => $sport_id,
+            ':equipment_name' => $equipment_name,
+            ':image_name' => $image_name
+        ]);
+    
+        return true;
+    }
+    
+
     public function getEquipments($sport_id){
         $sql = "SELECT equipment_id, equipment_name, image_name
                 FROM equipment
                 WHERE sport_id = :sport_id
                 ORDER BY equipment_name";
         $stmt = $this -> db -> prepare($sql);
-        $stmt -> execute([':id' => $sport_id]);
+        $stmt -> execute([':sport_id' => $sport_id]);
         return $stmt -> fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function addStock($sport_id, $quantity, $date, $status, $remarks) {
+
+        // Generate stock ID (8 chars)
+        $stock_id = substr(uniqid("STK"), 0, 8);
+    
+        $sql = "INSERT INTO equipment_inventory
+                (stock_id, sport_id, quantity, added_date, status, remarks)
+                VALUES (:stock_id, :sport_id, :quantity, :added_date, :status, :remarks)";
+    
+        $stmt = $this->db->prepare($sql);
+    
+        return $stmt->execute([
+            ':stock_id' => $stock_id,
+            ':sport_id' => $sport_id,
+            ':quantity' => $quantity,
+            ':added_date' => $date,
+            ':status' => $status,
+            ':remarks' => $remarks
+        ]);
+    }
+    
 
     // Fetch all equipment
     public function getAll() {
