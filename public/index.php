@@ -65,6 +65,8 @@ $router->get('/sport-manager/update-transaction', 'BudgetController@updateTransa
 $router->post('/sport-manager/update-transaction', 'BudgetController@handleUpdateTransaction');
 $router->get('/sport-manager/remaining-budget', 'BudgetController@remainingBudget');
 
+$router->post('/profile/upload-image', 'ProfileController@uploadProfileImage');
+
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->get('/sign-in', 'AuthController@showSigninForm');
 $router->get('/student-sign-up', 'AuthController@showStudentSignupForm');

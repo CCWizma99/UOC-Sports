@@ -288,11 +288,11 @@ class EquipmentApiController {
         $studentId = $studentData['student_id'];
     
         $reservationModel = new Equipment();
-        $results = $reservationModel->getReservedItems($studentId);
+        $equipmentResults = $reservationModel->getReservedItems($studentId);
     
         echo json_encode([
             'status' => 'success',
-            'data' => $results
+            'data' => $equipmentResults
         ]);
     }    
 

@@ -1,139 +1,400 @@
+.container {
+  max-width: 1400px;
+  margin: 30px auto;
+  padding: 0 5%;
+}
+
 #reserve-equipment {
-    background: #fff;
-    border-radius: 8px;
-    padding: 25px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    margin: 30px auto;
-    width: 100%;
-    max-width: 900px;
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 3rem;
+}
+
+#reserve-equipment h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+#reserve-equipment h2 i {
+  color: #4b0082;
+  font-size: 1.6rem;
+}
+
+.input-div {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.input-div label {
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input-div label i {
+  color: #4b0082;
+  font-size: 0.9rem;
+}
+
+.input-div input,
+.input-div select,
+.input-div textarea {
+  padding: 0.9rem 1.2rem;
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  background: white;
+  color: #1a1a1a;
+}
+
+.input-div input:focus,
+.input-div select:focus,
+.input-div textarea:focus {
+  border-color: #4b0082;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.1);
+}
+
+.input-div textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.input-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.input-div.half {
+  flex: 1;
+  min-width: 250px;
+}
+
+/* Suggestions Dropdown */
+#suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  background: white;
+  max-height: 400px;
+  overflow-y: auto;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  display: none;
+}
+
+#suggestions li {
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s ease;
+}
+
+#suggestions li:last-child {
+  border-bottom: none;
+}
+
+#suggestions li:hover {
+  background: linear-gradient(135deg, rgba(75, 0, 130, 0.05) 0%, rgba(106, 13, 173, 0.05) 100%);
+}
+
+.suggestion-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+}
+
+.suggestion-details {
+  flex: 1;
+}
+
+.suggestion-name {
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.3rem;
+  font-size: 1rem;
+}
+
+.suggestion-sport {
+  font-size: 0.85rem;
+  color: #4b0082;
+  font-weight: 500;
+}
+
+.suggestion-availability {
+  text-align: right;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.availability-high {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+  color: #2e7d32;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.availability-low {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 152, 0, 0.05) 100%);
+  color: #f57c00;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.availability-none {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(244, 67, 54, 0.05) 100%);
+  color: #c62828;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+/* Buttons */
+.btn {
+  padding: 0.9rem 1.8rem;
+  border: none;
+  border-radius: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #111 0%, #4b0082 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(75, 0, 130, 0.4);
+}
+
+#reserve-message {
+  margin-top: 1.5rem;
+  padding: 1.2rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 500;
+  display: none;
+}
+
+#reserve-message.success {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+  color: #2e7d32;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  display: block;
+}
+
+#reserve-message.error {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(244, 67, 54, 0.05) 100%);
+  color: #c62828;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  display: block;
+}
+
+/* Reserved Times Box */
+.reserved-times-box {
+  display: none;
+  background: linear-gradient(135deg, #f9f7ff 0%, #f3f0ff 100%);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  border: 2px solid rgba(75, 0, 130, 0.2);
+}
+
+.reserved-times-box h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.reserved-times-box h3 i {
+  color: #4b0082;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 0.9rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(75, 0, 130, 0.1);
+}
+
+.styled-table th {
+  background: linear-gradient(135deg, #111 0%, #4b0082 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.styled-table tr:hover {
+  background-color: rgba(75, 0, 130, 0.05);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 4%;
   }
-  
+
+  #reserve-equipment {
+    padding: 2rem;
+  }
+
   #reserve-equipment h2 {
-    font-size: 1.5em;
-    color: #333;
-    margin-bottom: 15px;
+    font-size: 1.5rem;
   }
-  
-  .input-div {
-    margin-bottom: 15px;
-    display: flex;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 3%;
+  }
+
+  #reserve-equipment {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+
+  #reserve-equipment h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .input-row {
     flex-direction: column;
+    gap: 1rem;
   }
-  
-  .input-div label {
-    font-weight: 600;
-    margin-bottom: 6px;
+
+  .input-div.half {
+    min-width: 100%;
   }
-  
+
   .input-div input,
   .input-div select,
   .input-div textarea {
-    padding: 8px 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    transition: 0.2s;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
   }
-  
-  .input-div input:focus,
-  .input-div select:focus,
-  .input-div textarea:focus {
-    border-color: var(--primary-color);
-    outline: none;
-    box-shadow: 0 0 4px rgba(0,123,255,0.2);
-  }
-  
-  .input-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .input-div.half {
-    flex: 1;
-    min-width: 200px;
-  }
-  
+
   .btn {
-    background: var(--primary-color-8);
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.2s;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
   }
-  
-  .btn:hover {
-    background: var(--primary-color);
-  }
-  
-  #reserve-message {
-    margin-top: 10px;
-    font-weight: 600;
-    transition: 0.3s;
-  }
-  
-  #reserve-message.success {
-    color: green;
-  }
-  
-  #reserve-message.error {
-    color: red;
-  }
-  
-  /* 🔍 Suggestions dropdown */
-  #suggestions {
-    list-style: none;
-    padding: 0;
-    margin: 5px 0 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background: #fff;
-    max-height: 150px;
-    overflow-y: auto;
-    /* position: absolute; */
-    width: calc(100%);
-    z-index: 1000;
-  }
-  
-  #suggestions li {
-    padding: 8px 10px;
-    cursor: pointer;
-  }
-  
-  #suggestions li:hover {
-    background: #f0f0f0;
-  }
-  
+
   .reserved-times-box {
-    display: none;
-    background: #fafafa;
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
+    padding: 1.2rem;
   }
-  
+
+  .reserved-times-box h3 {
+    font-size: 0.95rem;
+  }
+
   .styled-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 5px;
-    font-size: 0.95em;
+    font-size: 0.85rem;
   }
-  
-  .styled-table th, .styled-table td {
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+
+  .styled-table th,
+  .styled-table td {
+    padding: 0.7rem 0.8rem;
   }
-  
-  .styled-table th {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: 600;
+
+  #reserve-message {
+    padding: 1rem;
+    font-size: 0.9rem;
   }
-  
-  .styled-table tr:hover {
-    background-color: #f2f2f2;
+
+  .suggestion-image {
+    width: 50px;
+    height: 50px;
   }
-  
+
+  #suggestions li {
+    padding: 0.8rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 4%;
+  }
+
+  #reserve-equipment {
+    padding: 1.2rem;
+  }
+
+  #reserve-equipment h2 {
+    font-size: 1.1rem;
+  }
+
+  .input-div label {
+    font-size: 0.9rem;
+  }
+
+  .styled-table {
+    font-size: 0.8rem;
+  }
+
+  .styled-table th,
+  .styled-table td {
+    padding: 0.6rem 0.5rem;
+  }
+
+  .suggestion-image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .suggestion-name {
+    font-size: 0.9rem;
+  }
+
+  .suggestion-sport {
+    font-size: 0.75rem;
+  }
+
+  .suggestion-availability {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
+}

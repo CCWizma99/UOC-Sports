@@ -34,11 +34,12 @@
         <div class="profile-card">
             <div class="profile-content">
                 <div class="profile-picture-container">
-                    <img id="profilePicture" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400" alt="Profile" class="profile-picture">
+                    <img id="profilePicture" src="<?php echo htmlspecialchars($userDetails['profile_image_url'] ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400'); ?>" alt="Profile" class="profile-picture">
                     <label for="profile-upload" class="change-picture-btn">
                         <i class="fas fa-camera"></i>
                     </label>
-                    <input type="file" id="profile-upload" accept="image/*">
+                    <input type="file" id="profile-upload" accept="image/jpeg,image/jpg,image/png,image/gif">
+                    <div id="upload-status" style="display: none; margin-top: 10px; text-align: center; font-size: 14px;"></div>
                 </div>
                 <div class="profile-details">
                     <h2 id="userName">John Doe</h2>
@@ -91,34 +92,47 @@
         </div>
     </div>
 
+    <?php
+        require '../app/views/templates/general/footer.php';
+    ?>
+
     <script>
+        // Backend data from PHP
         const userData = {
-            id: 'STU2024001',
-            name: 'John Doe',
-            email: 'john.doe@uoc.lk',
-            accountType: 'STUDENT',
-            profilePicture: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400',
-            joinedDate: '2024-01-15'
+            id: <?php echo json_encode($userDetails['user_id'] ?? ''); ?>,
+            name: <?php echo json_encode($userDetails['full_name'] ?? ''); ?>,
+            email: <?php echo json_encode($userDetails['email'] ?? ''); ?>,
+            accountType: <?php echo json_encode($userDetails['type'] ?? 'PUBLIC'); ?>,
+            profilePicture: <?php echo json_encode($userDetails['profile_image_url'] ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400'); ?>,
+            joinedDate: <?php echo json_encode($userDetails['joined_date'] ?? ''); ?>
         };
 
-        const enrolledSports = [
-            { id: 1, name: 'Cricket', coach: 'Mr. Silva', schedule: 'Mon, Wed, Fri - 4:00 PM', image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=400' },
-            { id: 2, name: 'Basketball', coach: 'Ms. Fernando', schedule: 'Tue, Thu - 5:00 PM', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400' },
-            { id: 3, name: 'Swimming', coach: 'Mr. Perera', schedule: 'Sat - 8:00 AM', image: 'https://images.unsplash.com/photo-1519315901367-f34ff9154487?w=400' }
-        ];
+        const enrolledSports = <?php echo json_encode($enrolledSports ?? []); ?>;
 
-        let bookings = [
-            { id: 1, facility: 'Tennis Court A', date: '2024-12-10', time: '2:00 PM - 4:00 PM', status: 'PENDING', purpose: 'Practice session', price: 1500 },
-            { id: 2, facility: 'Cricket Oval', date: '2024-12-08', time: '10:00 AM - 12:00 PM', status: 'PAID', purpose: 'Team practice', price: 3000 },
-            { id: 3, facility: 'Basketball Court', date: '2024-12-05', time: '4:00 PM - 6:00 PM', status: 'PAST', purpose: 'Tournament practice', price: 2000 },
-            { id: 4, facility: 'Swimming Pool', date: '2024-12-12', time: '8:00 AM - 10:00 AM', status: 'PAID', purpose: 'Training session', price: 2500 }
-        ];
+        let bookings = <?php 
+            // Transform bookings data for frontend
+            $frontendBookings = [];
+            if (isset($bookings) && is_array($bookings)) {
+                foreach ($bookings as $booking) {
+                    $frontendBookings[] = [
+                        'id' => $booking['booking_id'],
+                        'facility' => $booking['facility_name'],
+                        'date' => $booking['date'],
+                        'time' => $booking['start_time'] . ' - ' . $booking['end_time'],
+                        'status' => $booking['display_status'],
+                        'purpose' => $booking['purpose'],
+                        'price' => $booking['price']
+                    ];
+                }
+            }
+            echo json_encode($frontendBookings);
+        ?>;
 
         function init() {
             loadUserData();
             loadSports();
             loadBookings();
-            document.getElementById('profile-upload').addEventListener('change', handleProfilePictureChange);
+            document.getElementById('profile-upload').addEventListener('change', uploadProfileImage);
         }
 
         function loadUserData() {
@@ -127,29 +141,64 @@
             document.getElementById('accountType').textContent = userData.accountType;
             document.getElementById('userId').textContent = userData.id;
             document.getElementById('profilePicture').src = userData.profilePicture;
-            document.getElementById('joinedDate').textContent = new Date(userData.joinedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            if (userData.accountType !== 'STUDENT') document.getElementById('sportsSection').style.display = 'none';
+            
+            if (userData.joinedDate) {
+                const joinedDate = new Date(userData.joinedDate);
+                document.getElementById('joinedDate').textContent = joinedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+            
+            if (userData.accountType !== 'STUDENT') {
+                document.getElementById('sportsSection').style.display = 'none';
+            }
         }
 
         function loadSports() {
-            if (userData.accountType !== 'STUDENT') return;
+            if (userData.accountType !== 'STUDENT' || enrolledSports.length === 0) {
+                if (userData.accountType === 'STUDENT') {
+                    const grid = document.getElementById('sportsGrid');
+                    grid.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">You are not enrolled in any sports yet.</p>';
+                }
+                return;
+            }
+            
             const grid = document.getElementById('sportsGrid');
-            grid.innerHTML = enrolledSports.map(s => `
-                <div class="sport-card">
-                    <div class="sport-image">
-                        <img src="${s.image}" alt="${s.name}">
-                        <div class="sport-name">${s.name}</div>
+            grid.innerHTML = enrolledSports.map(s => {
+                // Generate sport images based on sport name
+                const sportImages = {
+                    'Cricket': 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=400',
+                    'Basketball': 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400',
+                    'Swimming': 'https://images.unsplash.com/photo-1519315901367-f34ff9154487?w=400',
+                    'Football': 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400',
+                    'Badminton': 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400',
+                    'Tennis': 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400',
+                    'Volleyball': 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=400'
+                };
+                const image = sportImages[s.sport_name] || 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400';
+                const coachName = s.coach_name || 'TBA';
+                
+                return `
+                    <div class="sport-card">
+                        <div class="sport-image">
+                            <img src="${image}" alt="${s.sport_name}">
+                            <div class="sport-name">${s.sport_name}</div>
+                        </div>
+                        <div class="sport-details">
+                            <p><i class="fas fa-user"></i><span><strong>Coach:</strong> ${coachName}</span></p>
+                            <p><i class="fas fa-calendar"></i><span><strong>Joined:</strong> ${s.joined_date ? new Date(s.joined_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A'}</span></p>
+                        </div>
                     </div>
-                    <div class="sport-details">
-                        <p><i class="fas fa-user"></i><span><strong>Coach:</strong> ${s.coach}</span></p>
-                        <p><i class="fas fa-clock"></i><span><strong>Schedule:</strong> ${s.schedule}</span></p>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function loadBookings() {
             const list = document.getElementById('bookingList');
+            
+            if (bookings.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">You have no facility bookings yet.</p>';
+                return;
+            }
+            
             list.innerHTML = bookings.map(b => {
                 const statusClass = b.status.toLowerCase();
                 const dateStr = new Date(b.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -169,7 +218,7 @@
                         <div class="booking-right">
                             <span class="booking-status ${statusClass}">${b.status}</span>
                             <span class="booking-price">Rs. ${b.price.toFixed(2)}</span>
-                            ${b.status === 'PENDING' ? '<button class="btn-pay" onclick="payNow(' + b.id + ')">Pay Now</button>' : ''}
+                            ${b.status === 'PENDING' ? '<button class="btn-pay" onclick="payNow(\'' + b.id + '\')">Pay Now</button>' : ''}
                         </div>
                     </div>
                 `;
@@ -189,27 +238,110 @@
             loadBookings();
         }
 
-        function handleProfilePictureChange(e) {
+        function uploadProfileImage(e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = ev => document.getElementById('profilePicture').src = ev.target.result;
-                reader.readAsDataURL(file);
+            if (!file) return;
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                showUploadStatus('Invalid file type. Only JPG, PNG, and GIF images are allowed.', 'error');
+                e.target.value = '';
+                return;
+            }
+
+            // Validate file size (5MB max)
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                showUploadStatus('File size exceeds 5MB limit.', 'error');
+                e.target.value = '';
+                return;
+            }
+
+            // Show preview immediately
+            const reader = new FileReader();
+            reader.onload = ev => document.getElementById('profilePicture').src = ev.target.result;
+            reader.readAsDataURL(file);
+
+            // Upload to server
+            const formData = new FormData();
+            formData.append('profile_image', file);
+
+            showUploadStatus('Uploading...', 'loading');
+
+            fetch('/uoc-sports/public/profile/upload-image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showUploadStatus('Profile image updated successfully!', 'success');
+                    // Update image with new URL to ensure it's the server version
+                    setTimeout(() => {
+                        document.getElementById('profilePicture').src = data.imageUrl;
+                        hideUploadStatus();
+                    }, 2000);
+                } else {
+                    showUploadStatus(data.message || 'Upload failed', 'error');
+                    // Revert to original image
+                    document.getElementById('profilePicture').src = userData.profilePicture;
+                }
+            })
+            .catch(error => {
+                showUploadStatus('Upload failed: ' + error.message, 'error');
+                // Revert to original image
+                document.getElementById('profilePicture').src = userData.profilePicture;
+            });
+
+            // Clear file input
+            e.target.value = '';
+        }
+
+        function showUploadStatus(message, type) {
+            const statusDiv = document.getElementById('upload-status');
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                statusDiv.style.color = '#28a745';
+            } else if (type === 'error') {
+                statusDiv.style.color = '#dc3545';
+            } else {
+                statusDiv.style.color = '#007bff';
             }
         }
 
-        function handleLogout() { alert('Logging out...'); }
-        function showDeleteModal() { document.getElementById('deleteModal').classList.add('show'); }
-        function hideDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); }
-        function confirmDelete() { alert('Account deletion requested...'); hideDeleteModal(); }
-        function payNow(id) { alert('Redirecting to payment for booking #' + id); }
+        function hideUploadStatus() {
+            const statusDiv = document.getElementById('upload-status');
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 1000);
+        }
+
+        function handleLogout() { 
+            window.location.href = '/uoc-sports/public/sign-in';
+        }
+        
+        function showDeleteModal() { 
+            document.getElementById('deleteModal').classList.add('show'); 
+        }
+        
+        function hideDeleteModal() { 
+            document.getElementById('deleteModal').classList.remove('show'); 
+        }
+        
+        function confirmDelete() { 
+            alert('Account deletion requested...'); 
+            hideDeleteModal(); 
+        }
+        
+        function payNow(id) { 
+            alert('Redirecting to payment for booking #' + id); 
+        }
 
         init();
     </script>
-
-<?php
-        require '../app/views/templates/general/footer.php';
-    ?>
 </body>
 <script>
     var currentPage = document.getElementById("nav-pro");

@@ -88,13 +88,58 @@ class Equipment {
     }
     
 
-    public function minimalSearch($query){
+    public function minimalSearch($query) {
         $sql = "
-            SELECT equipment_id, equipment_name
-            FROM equipment
-            WHERE equipment_name LIKE :query
-            LIMIT 5;
-            ";
+            SELECT 
+                e.equipment_id,
+                e.equipment_name,
+                e.max_allow,
+                e.image_name,
+                s.sport_name,
+                COALESCE(
+                    (
+                        SELECT SUM(ei.quantity)
+                        FROM equipment_inventory ei
+                        WHERE ei.equipment_id = e.equipment_id
+                        AND ei.status = 'USABLE'
+                    ), 0
+                ) AS total_stock,
+                COALESCE(
+                    (
+                        SELECT COUNT(*)
+                        FROM `equipment-requests` er
+                        WHERE er.equipment_id = e.equipment_id
+                        AND er.status = 'ACTIVE'
+                    ), 0
+                ) AS active_bookings,
+                GREATEST(
+                    0,
+                    COALESCE(
+                        (
+                            SELECT SUM(ei.quantity)
+                            FROM equipment_inventory ei
+                            WHERE ei.equipment_id = e.equipment_id
+                            AND ei.status = 'USABLE'
+                        ), 0
+                    ) - (
+                        COALESCE(
+                            (
+                                SELECT COUNT(*)
+                                FROM `equipment-requests` er
+                                WHERE er.equipment_id = e.equipment_id
+                                AND er.status = 'ACTIVE'
+                            ), 0
+                        ) * e.max_allow
+                    )
+                ) AS available_quantity
+            FROM equipment e
+            INNER JOIN sport s ON e.sport_id = s.sport_id
+            WHERE e.equipment_name LIKE :query
+            HAVING available_quantity > 0
+            ORDER BY e.equipment_name
+            LIMIT 10
+        ";
+        
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['query' => "%$query%"]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -273,7 +318,6 @@ class Equipment {
             SELECT *
             FROM `equipment-requests` r
             LEFT JOIN equipment e ON r.equipment_id = e.equipment_id
-            LEFT JOIN equipment_image i ON e.equipment_id = i.equipment_id
             WHERE r.student_id = :student_id
             GROUP BY r.request_id
             ORDER BY r.request_date DESC;

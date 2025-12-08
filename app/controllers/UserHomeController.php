@@ -29,47 +29,62 @@ class UserHomeController {
             exit();
         }
     
-        $db = Database::getConnection();
         $user_id = $_SESSION['user_id'];
+        $userModel = new User();
+        $facilityModel = new Facility();
     
-        // Default: load the logged-in user's details
-        $stmt = $db->prepare("
-            SELECT user_id, CONCAT(fname, ' ', lname) AS `name`, email, type 
-            FROM user 
-            WHERE user_id = :user_id
-        ");
-        $stmt->execute(['user_id' => $user_id]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-    
-        $isAdminViewingStudent = false;
-    
-        // If admin is viewing another user's profile
-        if (isset($_GET['view'])) {
-            $view_id = $_GET['view'];
-    
-            $stmt2 = $db->prepare("
-                SELECT user_id, CONCAT(fname, ' ', lname) AS `name`, email, type 
-                FROM user 
-                WHERE user_id = :view_id
-            ");
-            $stmt2->execute(['view_id' => $view_id]);
-            $viewUser = $stmt2->fetch(PDO::FETCH_ASSOC);
-    
-            if ($viewUser) {
-                $user = $viewUser;
-                $isAdminViewingStudent = 
-                    (($_SESSION['role'] ?? '') === 'ADMIN') && 
-                    ($user['type'] === 'STUDENT');
+        // Get complete user profile
+        $user = $userModel->getUserProfile($user_id);
+        
+        if (!$user) {
+            // User not found, redirect to login
+            header("Location: /uoc-sports/public/sign-in");
+            exit();
+        }
+
+        // Get profile image URL
+        $profileImage = $userModel->getProfileImage($user_id);
+        if ($profileImage) {
+            $user['profile_image_url'] = '/uoc-sports/app/internal/profile_img/' . $profileImage . '?t=' . time();
+        } else {
+            // Default avatar
+            $user['profile_image_url'] = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400';
+        }
+
+        // Get enrolled sports (only for students)
+        $enrolledSports = [];
+        if ($user['type'] === 'STUDENT') {
+            $enrolledSports = $userModel->getEnrolledSports($user_id);
+        }
+
+        // Get facility bookings
+        $bookings = $facilityModel->getMyReservations($user_id);
+
+        // Calculate prices for bookings (simplified - you may need to enhance this)
+        foreach ($bookings as &$booking) {
+            // Add a default price - in a real scenario, you'd calculate this based on facility rates
+            $booking['price'] = 2000; // Default price
+            
+            // Determine booking status for display
+            $bookingDate = strtotime($booking['date']);
+            $today = strtotime(date('Y-m-d'));
+            
+            if ($bookingDate < $today) {
+                $booking['display_status'] = 'PAST';
+            } else if ($booking['payment_status'] === 'INCOMPLETE') {
+                $booking['display_status'] = 'PENDING';
+            } else {
+                $booking['display_status'] = 'PAID';
             }
         }
     
-        // Pass data safely to the view
+        // Pass data to the view
         view('general/profile', [
-            'user' => $user,
-            'isAdminViewingStudent' => $isAdminViewingStudent
+            'userDetails' => $user,
+            'enrolledSports' => $enrolledSports,
+            'bookings' => $bookings
         ]);
     }
-    
     
     public function getFaculties() {
         header('Content-Type: application/json');

@@ -114,5 +114,112 @@ class User {
         $stmt->execute(['user_id' => $userId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Get complete user profile information
+     */
+    public function getUserProfile($userId) {
+        $stmt = $this->db->prepare("
+            SELECT 
+                u.user_id,
+                u.fname,
+                u.lname,
+                CONCAT(u.fname, ' ', u.lname) AS full_name,
+                u.email,
+                u.type,
+                u.joined_date,
+                u.contact_no,
+                u.sport_id,
+                u.student_id,
+                u.faculty_id,
+                u.status,
+                f.faculty_name,
+                s.sport_name
+            FROM user u
+            LEFT JOIN faculty f ON u.faculty_id = f.faculty_id
+            LEFT JOIN sport s ON u.sport_id = s.sport_id
+            WHERE u.user_id = :user_id
+            LIMIT 1
+        ");
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get enrolled sports for a student
+     * Returns sports with coach and schedule information
+     */
+    public function getEnrolledSports($userId) {
+        // First check if user is a student
+        $userCheck = $this->db->prepare("SELECT type FROM user WHERE user_id = :user_id");
+        $userCheck->execute(['user_id' => $userId]);
+        $user = $userCheck->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$user || $user['type'] !== 'STUDENT') {
+            return [];
+        }
+
+        // Get sports the student is enrolled in via sports-team table
+        $stmt = $this->db->prepare("
+            SELECT 
+                s.sport_id,
+                s.sport_name,
+                CONCAT(coach.fname, ' ', coach.lname) AS coach_name,
+                st.joined_date
+            FROM `sports-team` st
+            INNER JOIN sport s ON st.sport_id = s.sport_id
+            LEFT JOIN user coach ON s.coach_id = coach.user_id
+            WHERE st.student_id = :user_id
+            ORDER BY s.sport_name
+        ");
+        $stmt->execute(['user_id' => $userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Update user's profile image in database
+     */
+    public function updateProfileImage($userId, $imageName) {
+        $stmt = $this->db->prepare("
+            UPDATE user 
+            SET profile_img = :profile_img 
+            WHERE user_id = :user_id
+        ");
+        return $stmt->execute([
+            'profile_img' => $imageName,
+            'user_id' => $userId
+        ]);
+    }
+
+    /**
+     * Get user's profile image filename from database
+     */
+    public function getProfileImage($userId) {
+        $stmt = $this->db->prepare("
+            SELECT profile_img 
+            FROM user 
+            WHERE user_id = :user_id
+            LIMIT 1
+        ");
+        $stmt->execute(['user_id' => $userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['profile_img'] : null;
+    }
+
+    /**
+     * Delete old profile image file from filesystem
+     */
+    public function deleteOldProfileImage($userId) {
+        $oldImage = $this->getProfileImage($userId);
+        
+        if ($oldImage) {
+            $imagePath = __DIR__ . '/../internal/profile_img/' . $oldImage;
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+                return true;
+            }
+        }
+        return false;
+    }
     
 }
