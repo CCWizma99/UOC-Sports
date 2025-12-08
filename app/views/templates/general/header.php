@@ -61,7 +61,7 @@
 
                     // Profile button
                     echo '
-                        <a href="/uoc-sports/public/profile" class="btn-primary">
+                        <a href="/uoc-sports/public/profile" class="btn-primary" id="nav-pro">
                             Profile <i class="fa-solid fa-circle-user"></i>
                         </a>
                     ';
