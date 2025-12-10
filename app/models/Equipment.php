@@ -67,16 +67,16 @@ class Equipment {
                     e.equipment_name,
                     e.image_name,
                     s.sport_name AS category,
-                    ei.status AS equipment_condition,
-                    SUM(ei.quantity) AS quantity
+                    COALESCE(SUM(ei.quantity), 0) AS total_quantity,
+                    COALESCE(SUM(ei.usable), 0) AS quantity
                 FROM equipment e
                 INNER JOIN sport s ON e.sport_id = s.sport_id
-                LEFT JOIN equipment_inventory ei ON e.sport_id = ei.sport_id
+                LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
                 WHERE 
                     e.equipment_name LIKE :q 
                     OR e.equipment_id LIKE :q
                     OR s.sport_name LIKE :q
-                GROUP BY e.equipment_id, e.equipment_name, e.image_name, s.sport_name, ei.status
+                GROUP BY e.equipment_id, e.equipment_name, e.image_name, s.sport_name
                 ORDER BY e.equipment_name";
     
         $stmt = $this->db->prepare($sql);
@@ -98,10 +98,9 @@ class Equipment {
                 s.sport_name,
                 COALESCE(
                     (
-                        SELECT SUM(ei.quantity)
+                        SELECT SUM(ei.usable)
                         FROM equipment_inventory ei
                         WHERE ei.equipment_id = e.equipment_id
-                        AND ei.status = 'USABLE'
                     ), 0
                 ) AS total_stock,
                 COALESCE(
@@ -116,10 +115,9 @@ class Equipment {
                     0,
                     COALESCE(
                         (
-                            SELECT SUM(ei.quantity)
+                            SELECT SUM(ei.usable)
                             FROM equipment_inventory ei
                             WHERE ei.equipment_id = e.equipment_id
-                            AND ei.status = 'USABLE'
                         ), 0
                     ) - (
                         COALESCE(
@@ -194,23 +192,36 @@ class Equipment {
         return $stmt -> fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function addStock($sport_id, $quantity, $date, $status, $remarks) {
-
+    public function addStock($equipment_id, $quantity, $date, $remarks) {
         // Generate stock ID (8 chars)
         $stock_id = substr(uniqid("STK"), 0, 8);
     
+        // Get sport_id from equipment_id
+        $sportSql = "SELECT sport_id FROM equipment WHERE equipment_id = :equipment_id";
+        $sportStmt = $this->db->prepare($sportSql);
+        $sportStmt->execute([':equipment_id' => $equipment_id]);
+        $sport = $sportStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$sport) {
+            throw new Exception("Equipment not found");
+        }
+        
+        $sport_id = $sport['sport_id'];
+    
+        // Insert into equipment_inventory with usable = quantity (all items are usable initially)
         $sql = "INSERT INTO equipment_inventory
-                (stock_id, sport_id, quantity, added_date, status, remarks)
-                VALUES (:stock_id, :sport_id, :quantity, :added_date, :status, :remarks)";
+                (stock_id, equipment_id, sport_id, quantity, usable, added_date, remarks)
+                VALUES (:stock_id, :equipment_id, :sport_id, :quantity, :usable, :added_date, :remarks)";
     
         $stmt = $this->db->prepare($sql);
     
         return $stmt->execute([
             ':stock_id' => $stock_id,
+            ':equipment_id' => $equipment_id,
             ':sport_id' => $sport_id,
             ':quantity' => $quantity,
+            ':usable' => $quantity, // All items are usable initially
             ':added_date' => $date,
-            ':status' => $status,
             ':remarks' => $remarks
         ]);
     }

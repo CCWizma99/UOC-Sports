@@ -1,0 +1,202 @@
+<?php
+// app/controllers/api/AttendanceApiController.php
+require_once __DIR__ . '/../../models/Attendance.php';
+require_once __DIR__ . '/../../models/SportTeam.php';
+require_once __DIR__ . '/../../models/Schedule.php';
+
+class AttendanceApiController {
+    private $attendanceModel;
+    private $teamModel;
+    private $scheduleModel;
+
+    public function __construct() {
+        $this->attendanceModel = new Attendance();
+        $this->teamModel = new SportTeam();
+        $this->scheduleModel = new Schedule();
+    }
+
+    /**
+     * Save attendance for a practice session
+     * POST /api/attendance/save
+     * Body: { practice_id, attendance: { user_id: status, ... } }
+     */
+    public function saveAttendance() {
+        header('Content-Type: application/json');
+        
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (!isset($input['practice_id']) || !isset($input['attendance'])) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Missing required fields: practice_id and attendance'
+                ]);
+                return;
+            }
+
+            $practiceId = $input['practice_id'];
+            $attendanceData = $input['attendance'];
+
+            $result = $this->attendanceModel->saveAttendance($practiceId, $attendanceData);
+            echo json_encode($result);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Server error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Get attendance for a specific session
+     * GET /api/attendance/session/{id}
+     */
+    public function getAttendanceBySession($sessionId) {
+        header('Content-Type: application/json');
+        
+        try {
+            $attendance = $this->attendanceModel->getAttendanceBySession($sessionId);
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $attendance
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Server error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Get team members with attendance percentages
+     * GET /api/attendance/team-members/{sport_id}
+     */
+    public function getTeamMembersWithPercentages($sportId) {
+        header('Content-Type: application/json');
+        
+        try {
+            $members = $this->teamModel->getTeamMembers($sportId);
+            $percentages = $this->attendanceModel->getTeamAttendancePercentages($sportId);
+            
+            // Merge percentages into members array
+            foreach ($members as &$member) {
+                $member['attendance_percentage'] = $percentages[$member['user_id']] ?? 0;
+            }
+            
+            echo json_encode([
+                'status' => 'success',
+                'members' => $members
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Server error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Get attendance history for a sport
+     * GET /api/attendance/history/{sport_id}?limit=10
+     */
+    public function getAttendanceHistory($sportId) {
+        header('Content-Type: application/json');
+        
+        try {
+            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+            $history = $this->attendanceModel->getAttendanceHistory($sportId, $limit);
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $history
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Server error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Get last session attendance
+     * GET /api/attendance/last-session/{sport_id}
+     */
+    public function getLastSessionAttendance($sportId) {
+        header('Content-Type: application/json');
+        
+        try {
+            $lastSession = $this->attendanceModel->getLastSessionAttendance($sportId);
+            
+            if ($lastSession) {
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => $lastSession
+                ]);
+            } else {
+                echo json_encode([
+                    'status' => 'empty',
+                    'message' => 'No previous attendance records found'
+                ]);
+            }
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Server error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Get upcoming practice sessions for a sport
+     * GET /api/attendance/upcoming-sessions/{sport_id}
+     */
+    public function getUpcomingSessions($sportId) {
+        header('Content-Type: application/json');
+        
+        try {
+            $sessions = $this->scheduleModel->getUpcomingSessions($sportId, 20);
+            
+            echo json_encode([
+                'status' => 'success',
+                'sessions' => $sessions
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Server error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Check if attendance exists for a session
+     * GET /api/attendance/exists/{practice_id}
+     */
+    public function checkAttendanceExists($practiceId) {
+        header('Content-Type: application/json');
+        
+        try {
+            $exists = $this->attendanceModel->attendanceExists($practiceId);
+            
+            echo json_encode([
+                'status' => 'success',
+                'exists' => $exists
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Server error: ' . $e->getMessage()
+            ]);
+        }
+    }
+}

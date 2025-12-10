@@ -181,7 +181,7 @@
 </head>
 <body>
 
-<section id="post-view">
+<section id="post-view" style="margin-top: 120px;">
   <h1><?= htmlspecialchars($post['title']) ?></h1>
   <p><?= nl2br(htmlspecialchars($post['description'])) ?></p>
   <p><small>Posted on: <?= htmlspecialchars($post['date_posted']) ?></small></p>
@@ -196,6 +196,7 @@
     </div>
   <?php endif; ?>
 
+  <?php if (isset($post['commenting']) && strtoupper($post['commenting']) === 'YES'): ?>
   <hr>
 
   <h3>Comments</h3>
@@ -225,6 +226,7 @@
       </form>
   <?php else: ?>
       <p><a href="/uoc-sports/public/sign-in">Log in to comment</a></p>
+  <?php endif; ?>
   <?php endif; ?>
 </section>
 

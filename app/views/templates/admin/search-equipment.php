@@ -29,7 +29,6 @@ document.getElementById('equipment-search').addEventListener('input', function()
                         <img src="${imgSrc}" alt="${eq.equipment_name}">
                         <div class="equipment-info">
                             <strong>${eq.equipment_name} (${eq.category})</strong>
-                            <span>Condition: ${eq.equipment_condition}</span>
                             <span>Quantity: ${eq.quantity}</span>
                         </div>
                     </li>

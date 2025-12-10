@@ -30,14 +30,7 @@
     </div>
 
 
-    <div class="input-div">
-      <label for="condition">Condition</label>
-      <select id="condition" name="equipment_condition" required>
-        <option value="USABLE">Usable</option>
-        <option value="DAMAGED">Damaged</option>
-        <option value="REPAIR">Needs Repair</option>
-      </select>
-    </div>
+
 
     <div class="input-div">
       <label for="remarks">Special Remarks</label>

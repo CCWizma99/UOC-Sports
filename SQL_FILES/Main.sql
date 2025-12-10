@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 08, 2025 at 06:52 PM
+-- Generation Time: Dec 09, 2025 at 08:01 AM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -186,7 +186,7 @@ INSERT INTO `equipment` (`equipment_id`, `sport_id`, `equipment_name`, `max_allo
 ('EQ060', 'CRM', 'Carrom Board', 1, ''),
 ('EQ061', 'CRM', 'Carrom Coins', 1, ''),
 ('EQ062', 'CRM', 'Striker', 1, ''),
-('EQ69354316b1', 'TKD', 'Taekwondo Tatami', 0, 'taekwondo_tatami_2938.jpg');
+('EQ69354316b1', 'TKD', 'Taekwondo Tatami', 9, 'taekwondo_tatami_2938.jpg');
 
 -- --------------------------------------------------------
 
@@ -224,11 +224,11 @@ INSERT INTO `equipment-requests` (`request_id`, `student_id`, `equipment_id`, `r
 DROP TABLE IF EXISTS `equipment_inventory`;
 CREATE TABLE IF NOT EXISTS `equipment_inventory` (
   `stock_id` varchar(8) NOT NULL,
-  `equipment_id` varchar(8) NOT NULL,
+  `equipment_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `sport_id` varchar(4) NOT NULL,
   `quantity` int NOT NULL,
+  `usable` int NOT NULL,
   `added_date` date NOT NULL,
-  `status` varchar(12) NOT NULL,
   `remarks` varchar(256) NOT NULL,
   PRIMARY KEY (`stock_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -237,71 +237,71 @@ CREATE TABLE IF NOT EXISTS `equipment_inventory` (
 -- Dumping data for table `equipment_inventory`
 --
 
-INSERT INTO `equipment_inventory` (`stock_id`, `equipment_id`, `sport_id`, `quantity`, `added_date`, `status`, `remarks`) VALUES
-('STK69354', 'EQ020', 'NET', 4, '2025-12-07', 'USABLE', '-'),
-('STK00001', 'EQ001', 'BAD', 20, '2025-12-08', 'USABLE', '-'),
-('STK00002', 'EQ002', 'BAD', 200, '2025-12-08', 'USABLE', '-'),
-('STK00003', 'EQ003', 'BAD', 5, '2025-12-08', 'USABLE', '-'),
-('STK00004', 'EQ004', 'VOL', 15, '2025-12-08', 'USABLE', '-'),
-('STK00005', 'EQ005', 'VOL', 6, '2025-12-08', 'USABLE', '-'),
-('STK00006', 'EQ006', 'VOL', 30, '2025-12-08', 'USABLE', '-'),
-('STK00007', 'EQ007', 'FOO', 18, '2025-12-08', 'USABLE', '-'),
-('STK00008', 'EQ008', 'FOO', 4, '2025-12-08', 'USABLE', '-'),
-('STK00009', 'EQ009', 'FOO', 25, '2025-12-08', 'USABLE', '-'),
-('STK00010', 'EQ010', 'FOO', 10, '2025-12-08', 'USABLE', '-'),
-('STK00011', 'EQ011', 'TEN', 12, '2025-12-08', 'USABLE', '-'),
-('STK00012', 'EQ012', 'TEN', 150, '2025-12-08', 'USABLE', '-'),
-('STK00013', 'EQ013', 'TEN', 4, '2025-12-08', 'USABLE', '-'),
-('STK00014', 'EQ014', 'BAS', 10, '2025-12-08', 'USABLE', '-'),
-('STK00015', 'EQ015', 'BAS', 6, '2025-12-08', 'USABLE', '-'),
-('STK00016', 'EQ016', 'BAS', 2, '2025-12-08', 'USABLE', '-'),
-('STK00017', 'EQ017', 'HOC', 20, '2025-12-08', 'USABLE', '-'),
-('STK00018', 'EQ018', 'HOC', 30, '2025-12-08', 'USABLE', '-'),
-('STK00019', 'EQ019', 'HOC', 6, '2025-12-08', 'USABLE', '-'),
-('STK00020', 'EQ020', 'NET', 10, '2025-12-08', 'USABLE', '-'),
-('STK00021', 'EQ021', 'NET', 4, '2025-12-08', 'USABLE', '-'),
-('STK00022', 'EQ022', 'CRI', 12, '2025-12-08', 'USABLE', '-'),
-('STK00023', 'EQ023', 'CRI', 60, '2025-12-08', 'USABLE', '-'),
-('STK00024', 'EQ024', 'CRI', 10, '2025-12-08', 'USABLE', '-'),
-('STK00025', 'EQ025', 'CRI', 8, '2025-12-08', 'USABLE', '-'),
-('STK00026', 'EQ026', 'RUG', 10, '2025-12-08', 'USABLE', '-'),
-('STK00027', 'EQ027', 'RUG', 12, '2025-12-08', 'USABLE', '-'),
-('STK00028', 'EQ028', 'SWI', 25, '2025-12-08', 'USABLE', '-'),
-('STK00029', 'EQ029', 'SWI', 30, '2025-12-08', 'USABLE', '-'),
-('STK00030', 'EQ030', 'SWI', 10, '2025-12-08', 'USABLE', '-'),
-('STK00031', 'EQ031', 'TT', 20, '2025-12-08', 'USABLE', '-'),
-('STK00032', 'EQ032', 'TT', 150, '2025-12-08', 'USABLE', '-'),
-('STK00033', 'EQ033', 'TT', 4, '2025-12-08', 'USABLE', '-'),
-('STK00034', 'EQ034', 'WL', 10, '2025-12-08', 'USABLE', '-'),
-('STK00035', 'EQ035', 'WL', 20, '2025-12-08', 'USABLE', '-'),
-('STK00036', 'EQ036', 'WL', 80, '2025-12-08', 'USABLE', '-'),
-('STK00037', 'EQ037', 'ROW', 6, '2025-12-08', 'USABLE', '-'),
-('STK00038', 'EQ038', 'ROW', 20, '2025-12-08', 'USABLE', '-'),
-('STK00039', 'EQ039', 'WRE', 4, '2025-12-08', 'USABLE', '-'),
-('STK00040', 'EQ040', 'CHE', 15, '2025-12-08', 'USABLE', '-'),
-('STK00041', 'EQ041', 'CHE', 10, '2025-12-08', 'USABLE', '-'),
-('STK00042', 'EQ042', 'ATH', 8, '2025-12-08', 'USABLE', '-'),
-('STK00043', 'EQ043', 'ATH', 12, '2025-12-08', 'USABLE', '-'),
-('STK00044', 'EQ044', 'ATH', 10, '2025-12-08', 'USABLE', '-'),
-('STK00045', 'EQ045', 'ATH', 14, '2025-12-08', 'USABLE', '-'),
-('STK00046', 'EQ046', 'BOX', 16, '2025-12-08', 'USABLE', '-'),
-('STK00047', 'EQ047', 'BOX', 4, '2025-12-08', 'USABLE', '-'),
-('STK00048', 'EQ048', 'TKD', 20, '2025-12-08', 'USABLE', '-'),
-('STK00049', 'EQ049', 'TKD', 20, '2025-12-08', 'USABLE', '-'),
-('STK00050', 'EQ050', 'KRT', 20, '2025-12-08', 'USABLE', '-'),
-('STK00051', 'EQ051', 'KRT', 20, '2025-12-08', 'USABLE', '-'),
-('STK00052', 'EQ052', 'RR', 30, '2025-12-08', 'USABLE', '-'),
-('STK00053', 'EQ053', 'RR', 200, '2025-12-08', 'USABLE', '-'),
-('STK00054', 'EQ054', 'SCR', 10, '2025-12-08', 'USABLE', '-'),
-('STK00055', 'EQ055', 'ELL', 8, '2025-12-08', 'USABLE', '-'),
-('STK00056', 'EQ056', 'BB', 12, '2025-12-08', 'USABLE', '-'),
-('STK00057', 'EQ057', 'BB', 40, '2025-12-08', 'USABLE', '-'),
-('STK00058', 'EQ058', 'BB', 20, '2025-12-08', 'USABLE', '-'),
-('STK00059', 'EQ059', 'KBD', 4, '2025-12-08', 'USABLE', '-'),
-('STK00060', 'EQ060', 'CRM', 10, '2025-12-08', 'USABLE', '-'),
-('STK00061', 'EQ061', 'CRM', 40, '2025-12-08', 'USABLE', '-'),
-('STK00062', 'EQ062', 'CRM', 15, '2025-12-08', 'USABLE', '-'),
-('STK00063', 'EQ693543', 'TKD', 4, '2025-12-08', 'USABLE', '-');
+INSERT INTO `equipment_inventory` (`stock_id`, `equipment_id`, `sport_id`, `quantity`, `usable`, `added_date`, `remarks`) VALUES
+('STK69354', 'EQ020', 'NET', 4, 4, '2025-12-07', '-'),
+('STK00001', 'EQ001', 'BAD', 20, 20, '2025-12-08', '-'),
+('STK00002', 'EQ002', 'BAD', 200, 200, '2025-12-08', '-'),
+('STK00003', 'EQ003', 'BAD', 5, 5, '2025-12-08', '-'),
+('STK00004', 'EQ004', 'VOL', 15, 15, '2025-12-08', '-'),
+('STK00005', 'EQ005', 'VOL', 6, 6, '2025-12-08', '-'),
+('STK00006', 'EQ006', 'VOL', 30, 30, '2025-12-08', '-'),
+('STK00007', 'EQ007', 'FOO', 18, 18, '2025-12-08', '-'),
+('STK00008', 'EQ008', 'FOO', 4, 4, '2025-12-08', '-'),
+('STK00009', 'EQ009', 'FOO', 25, 25, '2025-12-08', '-'),
+('STK00010', 'EQ010', 'FOO', 10, 10, '2025-12-08', '-'),
+('STK00011', 'EQ011', 'TEN', 12, 12, '2025-12-08', '-'),
+('STK00012', 'EQ012', 'TEN', 150, 150, '2025-12-08', '-'),
+('STK00013', 'EQ013', 'TEN', 4, 4, '2025-12-08', '-'),
+('STK00014', 'EQ014', 'BAS', 10, 10, '2025-12-08', '-'),
+('STK00015', 'EQ015', 'BAS', 6, 6, '2025-12-08', '-'),
+('STK00016', 'EQ016', 'BAS', 2, 2, '2025-12-08', '-'),
+('STK00017', 'EQ017', 'HOC', 20, 20, '2025-12-08', '-'),
+('STK00018', 'EQ018', 'HOC', 30, 30, '2025-12-08', '-'),
+('STK00019', 'EQ019', 'HOC', 6, 6, '2025-12-08', '-'),
+('STK00020', 'EQ020', 'NET', 10, 10, '2025-12-08', '-'),
+('STK00021', 'EQ021', 'NET', 4, 4, '2025-12-08', '-'),
+('STK00022', 'EQ022', 'CRI', 12, 12, '2025-12-08', '-'),
+('STK00023', 'EQ023', 'CRI', 60, 60, '2025-12-08', '-'),
+('STK00024', 'EQ024', 'CRI', 10, 10, '2025-12-08', '-'),
+('STK00025', 'EQ025', 'CRI', 8, 8, '2025-12-08', '-'),
+('STK00026', 'EQ026', 'RUG', 10, 10, '2025-12-08', '-'),
+('STK00027', 'EQ027', 'RUG', 12, 12, '2025-12-08', '-'),
+('STK00028', 'EQ028', 'SWI', 25, 25, '2025-12-08', '-'),
+('STK00029', 'EQ029', 'SWI', 30, 30, '2025-12-08', '-'),
+('STK00030', 'EQ030', 'SWI', 10, 10, '2025-12-08', '-'),
+('STK00031', 'EQ031', 'TT', 20, 20, '2025-12-08', '-'),
+('STK00032', 'EQ032', 'TT', 150, 150, '2025-12-08', '-'),
+('STK00033', 'EQ033', 'TT', 4, 4, '2025-12-08', '-'),
+('STK00034', 'EQ034', 'WL', 10, 10, '2025-12-08', '-'),
+('STK00035', 'EQ035', 'WL', 20, 20, '2025-12-08', '-'),
+('STK00036', 'EQ036', 'WL', 80, 80, '2025-12-08', '-'),
+('STK00037', 'EQ037', 'ROW', 6, 6, '2025-12-08', '-'),
+('STK00038', 'EQ038', 'ROW', 20, 20, '2025-12-08', '-'),
+('STK00039', 'EQ039', 'WRE', 4, 4, '2025-12-08', '-'),
+('STK00040', 'EQ040', 'CHE', 15, 15, '2025-12-08', '-'),
+('STK00041', 'EQ041', 'CHE', 10, 10, '2025-12-08', '-'),
+('STK00042', 'EQ042', 'ATH', 8, 8, '2025-12-08', '-'),
+('STK00043', 'EQ043', 'ATH', 12, 12, '2025-12-08', '-'),
+('STK00044', 'EQ044', 'ATH', 10, 10, '2025-12-08', '-'),
+('STK00045', 'EQ045', 'ATH', 14, 14, '2025-12-08', '-'),
+('STK00046', 'EQ046', 'BOX', 16, 16, '2025-12-08', '-'),
+('STK00047', 'EQ047', 'BOX', 4, 4, '2025-12-08', '-'),
+('STK00048', 'EQ048', 'TKD', 20, 20, '2025-12-08', '-'),
+('STK00049', 'EQ049', 'TKD', 20, 20, '2025-12-08', '-'),
+('STK00050', 'EQ050', 'KRT', 20, 20, '2025-12-08', '-'),
+('STK00051', 'EQ051', 'KRT', 20, 20, '2025-12-08', '-'),
+('STK00052', 'EQ052', 'RR', 30, 30, '2025-12-08', '-'),
+('STK00053', 'EQ053', 'RR', 200, 200, '2025-12-08', '-'),
+('STK00054', 'EQ054', 'SCR', 10, 10, '2025-12-08', '-'),
+('STK00055', 'EQ055', 'ELL', 8, 8, '2025-12-08', '-'),
+('STK00056', 'EQ056', 'BB', 12, 12, '2025-12-08', '-'),
+('STK00057', 'EQ057', 'BB', 40, 40, '2025-12-08', '-'),
+('STK00058', 'EQ058', 'BB', 20, 20, '2025-12-08', '-'),
+('STK00059', 'EQ059', 'KBD', 4, 4, '2025-12-08', '-'),
+('STK00060', 'EQ060', 'CRM', 10, 10, '2025-12-08', '-'),
+('STK00061', 'EQ061', 'CRM', 40, 40, '2025-12-08', '-'),
+('STK00062', 'EQ062', 'CRM', 15, 15, '2025-12-08', '-'),
+('STK00063', 'EQ69354316b1', 'TKD', 200, 200, '2025-12-08', '-');
 
 -- --------------------------------------------------------
 
@@ -514,17 +514,6 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post` (
   PRIMARY KEY (`post_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Dumping data for table `newsfeed_post`
---
-
-INSERT INTO `newsfeed_post` (`post_id`, `title`, `description`, `commenting`, `date_posted`, `status`) VALUES
-('P0001', 'UOC', 'The University of Colombo (informally Colombo University or UoC) is a public research university located primarily in Colombo, Sri Lanka. It is the oldest institution of modern higher education in Sri Lanka. It specializes in the fields of Natural, Social, Applied, Formal, and Computer Sciences as well as Fine Arts, Law and Technology. It is ranked among the top 10 universities in South Asia.[2]\r\nThe University of Colombo was founded in 1921 as University College Colombo, affiliated with the University of London. Degrees were issued to its students from 1923 onwards. The university traces its roots to 1870 when the Ceylon Medical School was established.[3] UoC has produced notable alumni in the fields of science, law, economics, business, literature, and politics.', 'YES', '2025-10-11', 'ACTIVE'),
-('P0002', 'UOC', 'The University of Colombo (informally Colombo University or UoC) is a public research university located primarily in Colombo, Sri Lanka. It is the oldest institution of modern higher education in Sri Lanka. It specializes in the fields of Natural, Social, Applied, Formal, and Computer Sciences as well as Fine Arts, Law and Technology. It is ranked among the top 10 universities in South Asia.[2]\r\n\r\nThe University of Colombo was founded in 1921 as University College Colombo, affiliated with the University of London. Degrees were issued to its students from 1923 onwards. The university traces its roots to 1870 when the Ceylon Medical School was established.[3] UoC has produced notable alumni in the fields of science, law, economics, business, literature, and politics.', 'YES', '2025-10-11', 'ACTIVE'),
-('P0003', 'UOC UOC', 'The University of Colombo (informally Colombo University or UoC) is a public research university located primarily in Colombo, Sri Lanka. It is the oldest institution of modern higher education in Sri Lanka. It specializes in the fields of Natural, Social, Applied, Formal, and Computer Sciences as well as Fine Arts, Law and Technology. It is ranked among the top 10 universities in South Asia.[2]\r\n\r\nThe University of Colombo was founded in 1921 as University College Colombo, affiliated with the University of London. Degrees were issued to its students from 1923 onwards. The university traces its roots to 1870 when the Ceylon Medical School was established.[3] UoC has produced notable alumni in the fields of science, law, economics, business, literature, and politics.', 'YES', '2025-10-11', 'ACTIVE'),
-('P0004', 'Chess', 'some dat', 'YES', '2025-10-23', 'ACTIVE'),
-('P0005', 'Weight Lifting Winners', 'The description goes here, but I don\'t want it', 'YES', '2025-11-18', 'ACTIVE');
-
 -- --------------------------------------------------------
 
 --
@@ -711,7 +700,8 @@ CREATE TABLE IF NOT EXISTS `sports-team` (
 --
 
 INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`) VALUES
-('TKD', 'L3NCL2J4', '2025-12-03');
+('TKD', 'L3NCL2J4', '2025-12-03'),
+('ATH', 'L3NCL2J4', '2025-12-09');
 
 -- --------------------------------------------------------
 

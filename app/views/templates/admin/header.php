@@ -53,9 +53,8 @@ if (!isset($_SESSION['user_id'])) {
                 </h1>
             </a>
             <div id="header-links" class="flex y-center">
-                <a href="#"><i class="fa-solid fa-bullhorn"></i></a>
-                <a href="#"><i class="fa-solid fa-bell"></i></a>
-                <a href="#"><i class="fa-solid fa-user"></i></a>         
+                <a href="/uoc-sports/public/"><i class="fa-solid fa-home"></i></a>
+                <a href="/uoc-sports/public/profile"><i class="fa-solid fa-user"></i></a>         
             </div>
         </header>
     </div>

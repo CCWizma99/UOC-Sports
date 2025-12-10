@@ -23,6 +23,10 @@ $router->get('/reserve-facilities/chart', 'FacilityApiController@getReservationC
 $router->post('/create-facility-booking', 'FacilityApiController@createBooking');
 
 $router->get('/student', 'StudentController@index');
+$router->get('/student/available-sports', 'StudentController@getAvailableSports');
+$router->get('/student/enrolled-sports', 'StudentController@getEnrolledSports');
+$router->post('/student/enroll-sport', 'StudentController@enrollSport');
+$router->post('/student/unenroll-sport', 'StudentController@unenrollSport');
 
 $router->get('/captain//', 'CaptainController@index');
 $router->get('/captain/mark-attendance', 'CaptainController@MarkAttendance');
@@ -31,6 +35,15 @@ $router->get('/captain/schedule-practice', 'CaptainController@SchedulePractice')
 $router->post('/captain/schedule-practice', 'CaptainController@SchedulePractice');
 $router->get('/captain/communication', 'CaptainController@Communication');
 $router->get('/captain/team-schedules', 'CoachController@TeamSchedules');
+
+// Attendance API routes
+$router->post('/api/attendance/save', 'AttendanceApiController@saveAttendance');
+$router->get('/api/attendance/session/{id}', 'AttendanceApiController@getAttendanceBySession');
+$router->get('/api/attendance/team-members/{sport_id}', 'AttendanceApiController@getTeamMembersWithPercentages');
+$router->get('/api/attendance/history/{sport_id}', 'AttendanceApiController@getAttendanceHistory');
+$router->get('/api/attendance/last-session/{sport_id}', 'AttendanceApiController@getLastSessionAttendance');
+$router->get('/api/attendance/upcoming-sessions/{sport_id}', 'AttendanceApiController@getUpcomingSessions');
+$router->get('/api/attendance/exists/{practice_id}', 'AttendanceApiController@checkAttendanceExists');
 
 $router->get('/coach//', 'CoachController@TeamSchedules');
 $router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');

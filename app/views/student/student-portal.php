@@ -8,6 +8,7 @@
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
+        @import url(/uoc-sports/public/css/student/enroll-sport.css);
         @import url(/uoc-sports/public/css/general/view-reservations.css);
         @import url(/uoc-sports/public/css/general/reserve-equipment.css);
         @import url(/uoc-sports/public/css/general/footer.css);
@@ -26,6 +27,7 @@
             $userModel = new User();
             $student_id = $userModel->getStudentId($_SESSION['user_id']);
         require '../app/views/templates/general/header.php';
+        require '../app/views/templates/student/enroll-sport.php';
         require '../app/views/templates/general/view-reservations.php';
         require '../app/views/templates/general/reserve-equipment.php';
         require '../app/views/templates/general/footer.php';

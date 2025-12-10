@@ -1,3 +1,8 @@
+<style>
+  .btn-view{
+    margin-left: 0 !important;
+  }
+</style>
 <section id="search-posts">
   <h2>Search Posts</h2>
   <input type="text" id="search-query" placeholder="Search posts..." />
@@ -39,8 +44,8 @@
       <div class="form-group">
         <label for="status">Status</label>
         <select id="status" name="status" required>
-          <option value="active">Active</option>
-          <option value="removed">Removed</option>
+          <option value="ACTIVE">Active</option>
+          <option value="INACTIVE">Inactive</option>
         </select>
       </div>
 
@@ -141,8 +146,9 @@ function openUpdateModal(post) {
   postIdField.value = post.post_id;
   titleField.value = post.title;
   descField.value = post.description;
-  commentingField.checked = post.commenting === "allowed";
-  statusField.value = post.status;
+  // Set commenting checkbox: checked if YES, unchecked if NO
+  commentingField.checked = (post.commenting && post.commenting.toUpperCase() === "YES");
+  statusField.value = post.status ? post.status.toUpperCase() : "ACTIVE";
   dateField.value = post.date_posted;
 
   modal.style.display = "flex";
@@ -164,18 +170,30 @@ document.getElementById("update-post-form").addEventListener("submit", async (e)
     post_id: postIdField.value,
     title: titleField.value,
     description: descField.value,
-    commenting: commentingField.checked ? "allowed" : "not_allowed",
+    commenting: commentingField.checked ? "YES" : "NO",
     status: statusField.value
   };
 
-  const response = await fetch("admin-post/update", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(formData)
-  });
+  try {
+    const response = await fetch("admin-post/update", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(formData)
+    });
 
-  const result = await response.json();
-  alert(result.message || "Post updated!");
-  modal.style.display = "none";
+    const result = await response.json();
+    
+    if (result.status === "success") {
+      alert(result.message || "Post updated successfully!");
+      modal.style.display = "none";
+      document.body.style.overflow = "auto";
+      // Optionally refresh search results
+      searchBtn.click();
+    } else {
+      alert(result.message || "Failed to update post.");
+    }
+  } catch (err) {
+    alert("Error updating post: " + err.message);
+  }
 });
 </script>

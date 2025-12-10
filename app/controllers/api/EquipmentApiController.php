@@ -192,19 +192,18 @@ class EquipmentApiController {
         header('Content-Type: application/json');
     
         try {
-            $sport_id = $_POST['sport_id'] ?? null;
+            $equipment_id = $_POST['equipment_id'] ?? null;
             $quantity = $_POST['quantity'] ?? null;
             $date = $_POST['date'] ?? null;
-            $status = $_POST['equipment_condition'] ?? null;
             $remarks = $_POST['remarks'] ?? "";
     
-            if (!$sport_id || !$quantity || !$date || !$status) {
+            if (!$equipment_id || !$quantity || !$date) {
                 echo json_encode(['status' => 'error', 'message' => 'Missing required fields']);
                 return;
             }
     
             $model = new Equipment();
-            $result = $model->addStock($sport_id, $quantity, $date, $status, $remarks);
+            $result = $model->addStock($equipment_id, $quantity, $date, $remarks);
     
             if ($result) {
                 echo json_encode(['status' => 'success', 'message' => 'Stock added successfully']);
