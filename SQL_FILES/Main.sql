@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 09, 2025 at 08:01 AM
+-- Generation Time: Dec 10, 2025 at 03:18 PM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -82,26 +82,6 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `reply_to` varchar(12) NOT NULL,
   `content` varchar(300) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `comment`
---
-
-INSERT INTO `comment` (`comment_id`, `post_id`, `comment_from`, `reply_to`, `content`) VALUES
-('cmt_68ec', '', 'H4J1OHSX', 'P0003', 'hi'),
-('cmt_68ec', '', 'H4J1OHSX', 'P0003', 'Hi'),
-('cmt_68ec', '', 'H4J1OHSX', 'P0003', 'Hi'),
-('cmt_68ec', '', 'H4J1OHSX', 'P0003', 'Hi'),
-('cmt_68ec', 'P0003', 'H4J1OHSX', 'P0003', 'Hi'),
-('cmt_68ec', 'P0003', 'H4J1OHSX', '', 'Hi'),
-('cmt_68ec', 'P0003', 'H4J1OHSX', '', 'Hi'),
-('cmt_68ec', 'P0003', 'H4J1OHSX', '', 'Hi'),
-('cmt_68ec', 'P0003', 'H4J1OHSX', '', 'Hello'),
-('cmt_68ed', 'P0005', 'H4J1OHSX', '', 'Hi'),
-('cmt_68ef', 'P0001', 'L3NCL2J4', '', 'Hello'),
-('cmt_68f6', 'P0008', 'H4J1OHSX', '', 'Hi'),
-('cmt_68f8', 'P0001', 'usr_68f82fe0', '', 'Hello'),
-('cmt_68f9', 'P0008', 'FMX6Z8DF', '', 'Hello');
 
 -- --------------------------------------------------------
 
@@ -186,7 +166,8 @@ INSERT INTO `equipment` (`equipment_id`, `sport_id`, `equipment_name`, `max_allo
 ('EQ060', 'CRM', 'Carrom Board', 1, ''),
 ('EQ061', 'CRM', 'Carrom Coins', 1, ''),
 ('EQ062', 'CRM', 'Striker', 1, ''),
-('EQ69354316b1', 'TKD', 'Taekwondo Tatami', 9, 'taekwondo_tatami_2938.jpg');
+('EQ69354316b1', 'TKD', 'Taekwondo Tatami', 9, 'taekwondo_tatami_2938.jpg'),
+('EQ6937e28ddf', 'BOX', 'Boxing Shoes', 1, 'boxing_shoes_3247.jpg');
 
 -- --------------------------------------------------------
 
@@ -213,7 +194,7 @@ CREATE TABLE IF NOT EXISTS `equipment-requests` (
 --
 
 INSERT INTO `equipment-requests` (`request_id`, `student_id`, `equipment_id`, `request_date`, `start_time`, `end_time`, `purpose`, `status`, `notes`) VALUES
-('req_6936c2e1', '23000000', 'EQ69354316b1', '2025-12-17', '08:00:00', '10:00:00', '-', 'ACTIVE', '-');
+('req_6937e152', '23000000', 'EQ69354316b1', '2025-12-29', '08:00:00', '10:00:00', 'For the Taekwondo Provincial matches practices', 'ACTIVE', '-');
 
 -- --------------------------------------------------------
 
@@ -301,7 +282,9 @@ INSERT INTO `equipment_inventory` (`stock_id`, `equipment_id`, `sport_id`, `quan
 ('STK00060', 'EQ060', 'CRM', 10, 10, '2025-12-08', '-'),
 ('STK00061', 'EQ061', 'CRM', 40, 40, '2025-12-08', '-'),
 ('STK00062', 'EQ062', 'CRM', 15, 15, '2025-12-08', '-'),
-('STK00063', 'EQ69354316b1', 'TKD', 200, 200, '2025-12-08', '-');
+('STK00063', 'EQ69354316b1', 'TKD', 200, 200, '2025-12-08', '-'),
+('STK6937d', 'EQ046', 'BOX', 12, 12, '2025-12-09', 'Donated by Sri Lanka Boxing Federation'),
+('STK6937e', 'EQ6937e28ddf', 'BOX', 20, 20, '2025-12-09', 'Donated by Sri Lanka Boxing Federation');
 
 -- --------------------------------------------------------
 
@@ -344,7 +327,8 @@ INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, 
 ('BK711559', 'H4J1OHSX', '9', '2025-12-11', 'FULL', 'To practice for Inter Provincial Matches held in January 2026', 'BOOKED', 'INCOMPLETE'),
 ('BK398317', 'H4J1OHSX', '3', '2025-12-10', 'AFTERNOON', 'Badminton Provincial Matches Practice', 'BOOKED', 'INCOMPLETE'),
 ('BK861578', 'L3NCL2J4', '11', '2025-12-10', 'MORNING', 'For Inter University Practices for SLIIT University', 'BOOKED', 'INCOMPLETE'),
-('BK937846', 'L3NCL2J4', '15', '2025-12-18', 'FULL', 'For TOC Championship Match Practice', 'BOOKED', 'INCOMPLETE');
+('BK937846', 'L3NCL2J4', '15', '2025-12-18', 'FULL', 'For TOC Championship Match Practice', 'BOOKED', 'INCOMPLETE'),
+('BK405911', 'H4J1OHSX', '5', '2025-12-11', 'FULL', 'Divisional Tennis Matches', 'BOOKED', 'INCOMPLETE');
 
 -- --------------------------------------------------------
 
@@ -514,6 +498,14 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post` (
   PRIMARY KEY (`post_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `newsfeed_post`
+--
+
+INSERT INTO `newsfeed_post` (`post_id`, `title`, `description`, `commenting`, `date_posted`, `status`) VALUES
+('P0001', 'Track & Field and Ground Marking Workshop', 'A workshop on Track & Field and Ground Marking was held on the 30th and 31st of March 2021 at the University of Colombo ground premises. This workshop was conducted by Mr Palitha Jayathilaka, Senior Technical Official at the Sri Lanka Athletic Association, to update our staff members on the new methods and changes in ground marking. Participants who completed this workshop successfully received a certificate.', 'YES', '2025-12-09', 'ACTIVE'),
+('P0002', '36th National Rowing Championship', 'University of Colombo rowers won 5 medals at the 36th National Rowing Championship which was held on the 12-13 March 2021 at Diyawannawa Rowing Center. In the Open Category (Women’s), Ms Ranmalee Nanayakkara and Nadani Mendis won the Silver medal in the Open Double scull, Ms Nadani Mendis and Upuli Edirisingha won the bronze medal in the open Pair and Ms Ranmalee Nanayakkara won the bronze medal in the Open Scull category. In the Intermediate Category (Women’s), Ms Himasha Panditharatne and Vibhanga Amarasingha won the bronze medal in the pair event. In the Intermediate Category (Men’s), Mr Avishka Jayaweera, Mr Shehan Shamalka, Mr Dushyantha Hettiarachchi, Mr Shehan Dinusha Liyanage, Mr Samitha Wijethilake won the Bronze medal in the coxed four events.', 'NO', '2025-12-09', 'ACTIVE');
+
 -- --------------------------------------------------------
 
 --
@@ -527,26 +519,15 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post_image` (
   `image_path` varchar(255) NOT NULL,
   PRIMARY KEY (`image_id`),
   KEY `post_id` (`post_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `newsfeed_post_image`
 --
 
 INSERT INTO `newsfeed_post_image` (`image_id`, `post_id`, `image_path`) VALUES
-(1, 'P0004', 'images/posts/img_68ea09b0a08e47.10740325.png'),
-(2, 'P0004', 'images/posts/img_68ea09b0a13271.00437227.png'),
-(3, 'P0004', 'images/posts/img_68ea09b0a1a209.61825111.png'),
-(4, 'P0005', 'images/posts/img_68ea0a67303374.67241459.png'),
-(5, 'P0005', 'images/posts/img_68ea0a6730ff65.18004106.png'),
-(6, 'P0005', 'images/posts/img_68ea0a67318c59.20239513.png'),
-(7, 'P0006', 'images/posts/img_68ea0b8b1f70b5.40059936.png'),
-(8, 'P0007', 'images/posts/img_68ea0ba0eaec78.25493508.png'),
-(9, 'P0008', 'images/posts/img_68f6748fea7445.42547219.png'),
-(10, 'P0009', 'images/posts/img_68f678cf993129.41130705.png'),
-(11, 'P0010', 'images/posts/img_68f6794d0c5296.42644225.png'),
-(12, 'P0004', 'images/posts/img_68f9f38717d384.76990012.jpg'),
-(13, 'P0005', 'images/posts/img_691c45d9977f18.03558971.jpg');
+(15, 'P0002', 'images/posts/img_69380b0ce85be5.20787564.jpg'),
+(14, 'P0001', 'images/posts/img_6937eab81c8785.14752532.jpg');
 
 -- --------------------------------------------------------
 
@@ -595,21 +576,26 @@ CREATE TABLE IF NOT EXISTS `practice-session` (
 DROP TABLE IF EXISTS `practice_sessions`;
 CREATE TABLE IF NOT EXISTS `practice_sessions` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `sport_id` varchar(8) NOT NULL,
+  `added_by` varchar(8) NOT NULL,
   `facility` varchar(100) NOT NULL,
   `session_date` date NOT NULL,
   `session_time` time NOT NULL,
   `description` text,
+  `status` varchar(12) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `practice_sessions`
 --
 
-INSERT INTO `practice_sessions` (`id`, `facility`, `session_date`, `session_time`, `description`, `created_at`, `updated_at`) VALUES
-(4, 'Badminton one Court (08 Persons for practices)', '2025-12-03', '12:45:00', '-', '2025-11-28 07:11:04', NULL);
+INSERT INTO `practice_sessions` (`id`, `sport_id`, `added_by`, `facility`, `session_date`, `session_time`, `description`, `status`, `created_at`, `updated_at`) VALUES
+(4, '', '', 'Badminton one Court (08 Persons for practices)', '2025-12-03', '12:45:00', '-', '', '2025-11-28 07:11:04', NULL),
+(5, '', '', 'Karate / Taekwondo with without Tatami', '2026-01-01', '16:00:00', 'For Inter Uni matches', '', '2025-12-09 09:54:15', NULL),
+(6, '', '', 'Table Tennis', '2026-01-01', '13:00:00', 'Practices for Inter University Tennis Matches', '', '2025-12-10 11:36:20', NULL);
 
 -- --------------------------------------------------------
 
@@ -924,9 +910,9 @@ INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `m
 ('KCLIH538', 'vvds', 'qeq', 'PUBLIC', 'esff@gmail.com', '$2y$10$sNchOEew9G1m6qKtSJbguuFPaYJ3qWHRsqTlDqoJ3q2tfnFojGenK', 0, '2025-09-01 23:53:34', NULL, '', '', NULL, '', 'ACTIVE'),
 ('43N1VK76', 'vvdsdwef', 'qeq', 'PUBLIC', 'esrdrfff@gmail.com', '$2y$10$.nBD9d6ZqFXVsMZ4tzknn.25DfshuRPdNEJdehgcOa8JX6Q5uIiaK', 0, '2025-09-01 23:57:10', NULL, '', '', NULL, '', 'ACTIVE'),
 ('CE02XIPB', 'Admin', 'UOC', 'PUBLIC', 'admin@uocs.com', '$2y$10$ZGlvkCP/uyqffeCxj8Pm7.HA8JUcle3TlPEw8NEsuHDHUvr.jSt0C', 0, '2025-09-02 00:01:26', NULL, '', '', NULL, '', 'ACTIVE'),
-('H4J1OHSX', 'Chamal', 'Chamuditha', 'ADMIN', 'chamal.admin@uocs.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 02:04:39', NULL, '', '', NULL, '', 'ACTIVE'),
+('H4J1OHSX', 'Chamal', 'Chamuditha', 'ADMIN', 'chamal.admin@uocs.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 02:04:39', NULL, 'H4J1OHSX.png', '', NULL, '', 'ACTIVE'),
 ('usr_68ec8172', 'Sarath', 'Kumara', 'REG', 'chamlaanil99@gmail.com', '$2y$10$gOcGzGue3L4TOszEEwWAF.PlKwQwnFgUyMDXqwfX5urpgzd7Q18Ly', 1, '2025-10-13 04:34:59', '0710000000', '', '', NULL, '', 'ACTIVE'),
-('L3NCL2J4', 'Chamal', 'Hettiarachchi', 'STUDENT', 'chamal2@gmail.com', '$2y$10$zlUHk9p5y7uAz7u2jQQ0X.PNaxkDwan5JIDlR/jySjsAgtcutfqpm', 0, '2025-10-14 04:48:58', NULL, 'L3NCL2J4.png', '', '23000000', '', 'ACTIVE'),
+('L3NCL2J4', 'Chamal', 'Hettiarachchi', 'STUDENT', 'chamal2@gmail.com', '$2y$10$zlUHk9p5y7uAz7u2jQQ0X.PNaxkDwan5JIDlR/jySjsAgtcutfqpm', 0, '2025-10-14 04:48:58', NULL, 'L3NCL2J4.jpg', '', '23000000', '', 'ACTIVE'),
 ('usr_68f7c669', 'Jayashini', 'Jayaweera', 'SPT', 'chamalchamuditha1231@gmail.com', '$2y$10$mHrXH0uDC7UQkgi1qYZa5.QplnCgsCnu2RGBA1YWDoTn6EbGps5U.', 1, '2025-10-21 17:44:09', '0710000000', '', 'ATH', NULL, '', 'ACTIVE'),
 ('usr_68f82fe0', 'Shashini', 'Malsha', 'EQP', 'ccwrecker99@gmail.com', '$2y$10$0Tn8wECDAB8QNE6PwnexKeewRZA2GHwtm9Ljpx5USTm2LKEjsvL6W', 1, '2025-10-22 01:14:08', '076543213', '', '', NULL, '', 'ACTIVE'),
 ('usr_68f89998', 'Jaye', 'Jayaweera', 'EQP', 'jayashinisjayaweera@gmail.com', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 1, '2025-10-22 08:45:12', '0763452143', '', '', NULL, '', 'ACTIVE'),

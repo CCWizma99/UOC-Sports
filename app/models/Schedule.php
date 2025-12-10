@@ -1,6 +1,4 @@
 <?php
-// app/models/Schedule.php
-require_once __DIR__ . '/../../core/Database.php'; // or the path where your Database class file is
 
 class Schedule {
     private $pdo;
@@ -9,9 +7,14 @@ class Schedule {
         $this->pdo = Database::getConnection();
     }
 
-    public function getAll() {
-        $stmt = $this->pdo->prepare("SELECT * FROM practice_sessions ORDER BY session_date, session_time");
-        $stmt->execute();
+    public function getAll($sport_id = null) {
+        if ($sport_id) {
+            $stmt = $this->pdo->prepare("SELECT * FROM practice_sessions WHERE sport_id = ? ORDER BY session_date, session_time");
+            $stmt->execute([$sport_id]);
+        } else {
+            $stmt = $this->pdo->prepare("SELECT * FROM practice_sessions ORDER BY session_date, session_time");
+            $stmt->execute();
+        }
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -21,13 +24,16 @@ class Schedule {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function create($facility, $session_date, $session_time, $description) {
-        $stmt = $this->pdo->prepare("INSERT INTO practice_sessions (facility, session_date, session_time, description) VALUES (?, ?, ?, ?)");
+    public function create($facility, $session_date, $session_time, $description, $sport_id = '', $added_by = '') {
+        $stmt = $this->pdo->prepare("INSERT INTO practice_sessions (sport_id, added_by, facility, session_date, session_time, description, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
         return $stmt->execute([
+            $sport_id,
+            $added_by,
             $facility,
             $session_date,
             $session_time,
-            $description
+            $description,
+            '' // status defaults to empty string as per existing data
         ]);
     }
 
@@ -57,7 +63,7 @@ class Schedule {
         if ($sportId) {
             $stmt = $this->pdo->prepare("
                 SELECT * FROM practice_sessions 
-                WHERE facility LIKE CONCAT('%', :sport_id, '%')
+                WHERE sport_id = :sport_id
                 AND session_date >= CURDATE()
                 ORDER BY session_date ASC, session_time ASC
                 LIMIT :limit

@@ -1,4 +1,4 @@
-<div class="container">
+    <div class="container">
         <!-- Page Header -->
         <div class="page-header">
             <h1>Schedule Practice</h1>
@@ -67,100 +67,305 @@
         </div>
     </div>
 
-    <script>
-        const API_BASE = '/uoc-sports/public/api/get-facility-rates.php';
-        let timeout = null;
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Edit Practice Session</h3>
+                <button class="modal-close" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <input type="hidden" id="edit-id" name="id">
+                    
+                    <div class="form-group">
+                        <label for="edit-facility">Facility</label>
+                        <select id="edit-facility" name="facility" required>
+                            <option value="">-- Select Facility --</option>
+                        </select>
+                    </div>
 
-        // Load facilities on page load
+                    <div class="datetime">
+                        <div class="form-group">
+                            <label for="edit-date">Date</label>
+                            <input type="date" id="edit-date" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-time">Time</label>
+                            <input type="time" id="edit-time" name="time" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-description">Description</label>
+                        <textarea id="edit-description" name="description" placeholder="Enter practice details..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-cancel" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn-modal btn-confirm" onclick="saveEdit()">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay delete-modal" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-confirmation">
+                    <div class="delete-icon">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h4>Delete Practice Session?</h4>
+                    <p>Are you sure you want to delete this practice session?</p>
+                    <p>This action cannot be undone.</p>
+                    
+                    <div class="session-details" id="deleteSessionDetails">
+                        <!-- Session details will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-cancel" onclick="closeDeleteModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn-modal btn-confirm-delete" onclick="confirmDelete()">
+                    <i class="fas fa-trash"></i> Delete Session
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const API_BASE = '/uoc-sports/public/api/get-facility-rates.php';
+        const ATTENDANCE_API_BASE = '/uoc-sports/public/api/attendance';
+        
+        const SPORT_ID = '<?php echo $_SESSION['captain_sport_id'] ?? 'VOL'; ?>';
+        
+        let timeout = null;
+        let currentEditId = null;
+        let currentDeleteId = null;
+
+        // Load facilities and schedules on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadFacilities();
+            loadSchedules();
         });
+
+        // Load upcoming schedules
+        async function loadSchedules() {
+            try {
+                const response = await fetch(`${ATTENDANCE_API_BASE}/upcoming-sessions/${SPORT_ID}`);
+                const data = await response.json();
+                
+                const tbody = document.querySelector('.practice-table tbody');
+                tbody.innerHTML = '';
+                
+                if (data.status === 'success' && data.sessions.length > 0) {
+                    data.sessions.forEach(session => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>#${session.id}</td>
+                            <td>${session.facility}</td>
+                            <td>${session.session_date}</td>
+                            <td>${formatTime(session.session_time)}</td>
+                            <td>${session.description || '-'}</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="btn-action btn-edit" onclick="editSession(${session.id})" title="Edit Session">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-action btn-delete" onclick="deleteSession(${session.id})" title="Delete Session">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" class="no-records">No upcoming practice sessions found.</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading schedules:', error);
+                const tbody = document.querySelector('.practice-table tbody');
+                tbody.innerHTML = '<tr><td colspan="6" class="error-text">Failed to load schedules.</td></tr>';
+            }
+        }
 
         async function loadFacilities() {
             try {
                 const response = await fetch(`${API_BASE}?all=true`);
                 const facilities = await response.json();
                 
-                const selectBox = document.getElementById('facility');
-                const defaultOption = selectBox.querySelector('option[value=""]');
+                const selectBoxes = [document.getElementById('facility'), document.getElementById('edit-facility')];
                 
-                // Clear existing options except the default
-                while (selectBox.options.length > 1) {
-                    selectBox.remove(1);
-                }
-                
-                if (Array.isArray(facilities) && facilities.length > 0) {
-                    facilities.forEach(f => {
-                        const option = document.createElement('option');
-                        option.value = f.facility_name;
-                        option.textContent = f.facility_name;
-                        selectBox.appendChild(option);
-                    });
-                }
+                selectBoxes.forEach(selectBox => {
+                    // Clear existing options except the default
+                    while (selectBox.options.length > 1) {
+                        selectBox.remove(1);
+                    }
+                    
+                    if (Array.isArray(facilities) && facilities.length > 0) {
+                        facilities.forEach(f => {
+                            const option = document.createElement('option');
+                            option.value = f.facility_name;
+                            option.textContent = f.facility_name;
+                            selectBox.appendChild(option);
+                        });
+                    }
+                });
             } catch (error) {
                 console.error('Error loading facilities:', error);
             }
         }
 
-        async function searchFacilities() {
-            const name = document.getElementById('search_facility_name').value.trim();
-            const suggestionBox = document.getElementById('suggestions');
-            const detailsBox = document.getElementById('facilityDetails');
-
-            if (!name) {
-                suggestionBox.innerHTML = '';
-                detailsBox.innerHTML = '';
-                detailsBox.classList.add('hidden');
-                return;
-            }
-
-            clearTimeout(timeout);
-            timeout = setTimeout(async () => {
-                try {
-                    const response = await fetch(`${API_BASE}?facility_name=${encodeURIComponent(name)}`);
-                    const results = await response.json();
-
-                    if (!Array.isArray(results) || results.length === 0) {
-                        suggestionBox.innerHTML = '<div class="no-results">No facilities found.</div>';
-                        return;
+        function formatTime(timeString) {
+            if (!timeString) return '-';
+            const [hours, minutes] = timeString.split(':');
+            const h = parseInt(hours, 10);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const formattedHour = h % 12 || 12;
+            return `${formattedHour}:${minutes} ${ampm}`;
+        }
+        
+        // Edit Session
+        async function editSession(id) {
+            currentEditId = id;
+            
+            try {
+                const response = await fetch(`${ATTENDANCE_API_BASE}/upcoming-sessions/${SPORT_ID}`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    const session = data.sessions.find(s => s.id == id);
+                    
+                    if (session) {
+                        document.getElementById('edit-id').value = session.id;
+                        document.getElementById('edit-facility').value = session.facility;
+                        document.getElementById('edit-date').value = session.session_date;
+                        document.getElementById('edit-time').value = session.session_time;
+                        document.getElementById('edit-description').value = session.description || '';
+                        
+                        document.getElementById('editModal').classList.add('active');
                     }
-
-                    suggestionBox.innerHTML = results.map(r => `
-                        <div class="facility-card" onclick='showDetails(${JSON.stringify(r)})'>
-                            <h4>${r.facility_name}</h4>
-                            <p class="type">${r.facility_type.replace('_', ' ')}</p>
-                        </div>
-                    `).join('');
-
-                } catch (error) {
-                    suggestionBox.innerHTML = `<div class="error">Error fetching facilities.</div>`;
                 }
-            }, 400);
+            } catch (error) {
+                console.error('Error loading session:', error);
+                alert('Failed to load session details');
+            }
         }
-
-        function showDetails(data) {
-            const detailsBox = document.getElementById('facilityDetails');
-            detailsBox.classList.remove('hidden');
-            document.getElementById('suggestions').innerHTML = '';
-
-            detailsBox.innerHTML = `
-                <div class="facility-info">
-                    <h3>${data.facility_name}</h3>
-                    <p><strong>Type:</strong> ${data.facility_type.replace('_', ' ')}</p>
-                    ${data.capacity ? `<p><strong>Capacity:</strong> ${data.capacity}</p>` : ''}
-                    <div class="rate-grid">
-                        <div><strong>Practice (Working Days):</strong><span>${formatRate(data.practice_working_hours)}</span></div>
-                        <div><strong>Practice (Other Days):</strong><span>${formatRate(data.practice_other_hours)}</span></div>
-                        <div><strong>Tournament Full Day (Working Days):</strong><span>${formatRate(data.tournament_full_day_working)}</span></div>
-                        <div><strong>Tournament Half Day (Working Days):</strong><span>${formatRate(data.tournament_half_day_working)}</span></div>
-                        <div><strong>Tournament Full Day (Other Days):</strong><span>${formatRate(data.tournament_full_day_other)}</span></div>
-                        <div><strong>Tournament Half Day (Other Days):</strong><span>${formatRate(data.tournament_half_day_other)}</span></div>
-                    </div>
-                </div>
-            `;
+        
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentEditId = null;
         }
-
-        function formatRate(val) {
-            return val ? `Rs. ${parseFloat(val).toFixed(2)}` : '-';
+        
+        function saveEdit() {
+            const form = document.getElementById('editForm');
+            const formData = new FormData(form);
+            
+            // Create a form and submit it
+            const submitForm = document.createElement('form');
+            submitForm.method = 'POST';
+            submitForm.action = '/uoc-sports/public/captain/schedule-practice';
+            
+            // Add form data
+            formData.forEach((value, key) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                submitForm.appendChild(input);
+            });
+            
+            // Add update flag
+            const updateInput = document.createElement('input');
+            updateInput.type = 'hidden';
+            updateInput.name = 'update';
+            updateInput.value = '1';
+            submitForm.appendChild(updateInput);
+            
+            document.body.appendChild(submitForm);
+            submitForm.submit();
         }
+        
+        // Delete Session
+        async function deleteSession(id) {
+            currentDeleteId = id;
+            
+            try {
+                const response = await fetch(`${ATTENDANCE_API_BASE}/upcoming-sessions/${SPORT_ID}`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    const session = data.sessions.find(s => s.id == id);
+                    
+                    if (session) {
+                        const detailsDiv = document.getElementById('deleteSessionDetails');
+                        detailsDiv.innerHTML = `
+                            <div class="detail-row">
+                                <span class="detail-label">Session ID:</span>
+                                <span class="detail-value">#${session.id}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Facility:</span>
+                                <span class="detail-value">${session.facility}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Date:</span>
+                                <span class="detail-value">${session.session_date}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Time:</span>
+                                <span class="detail-value">${formatTime(session.session_time)}</span>
+                            </div>
+                            ${session.description ? `
+                            <div class="detail-row">
+                                <span class="detail-label">Description:</span>
+                                <span class="detail-value">${session.description}</span>
+                            </div>
+                            ` : ''}
+                        `;
+                        
+                        document.getElementById('deleteModal').classList.add('active');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading session:', error);
+                alert('Failed to load session details');
+            }
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            currentDeleteId = null;
+        }
+        
+        function confirmDelete() {
+            if (currentDeleteId) {
+                window.location.href = `/uoc-sports/public/captain/schedule-practice?delete=${currentDeleteId}`;
+            }
+        }
+        
+        // Close modals when clicking outside
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                closeEditModal();
+                closeDeleteModal();
+            }
+        });
     </script>
