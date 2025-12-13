@@ -60,39 +60,84 @@ class Equipment {
      * @param string $query
      * @return array
      */
-    public function search($query) {
+    public function searchEquipment($query) {
+
+        $sql = "SELECT 
+                    e.equipment_id,
+                    e.equipment_name,
+                    e.image_name,
+                    s.sport_name AS category,
+                    COALESCE(SUM(ei.quantity), 0) AS total_quantity,
+                    COALESCE(SUM(ei.usable), 0) AS quantity
+                FROM equipment e
+                INNER JOIN sport s ON e.sport_id = s.sport_id
+                LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
+                WHERE 
+                    e.equipment_name LIKE :q 
+                    OR e.equipment_id LIKE :q
+                    OR s.sport_name LIKE :q
+                GROUP BY e.equipment_id, e.equipment_name, e.image_name, s.sport_name
+                ORDER BY e.equipment_name";
+    
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':q' => '%' . $query . '%'
+        ]);
+    
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+
+    public function minimalSearch($query) {
         $sql = "
             SELECT 
                 e.equipment_id,
                 e.equipment_name,
-                e.sport_id,
+                e.max_allow,
+                e.image_name,
                 s.sport_name,
-                e.equipment_condition,
-                e.quantity,
-                MIN(i.image_name) AS image_name
+                COALESCE(
+                    (
+                        SELECT SUM(ei.usable)
+                        FROM equipment_inventory ei
+                        WHERE ei.equipment_id = e.equipment_id
+                    ), 0
+                ) AS total_stock,
+                COALESCE(
+                    (
+                        SELECT COUNT(*)
+                        FROM `equipment-requests` er
+                        WHERE er.equipment_id = e.equipment_id
+                        AND er.status = 'ACTIVE'
+                    ), 0
+                ) AS active_bookings,
+                GREATEST(
+                    0,
+                    COALESCE(
+                        (
+                            SELECT SUM(ei.usable)
+                            FROM equipment_inventory ei
+                            WHERE ei.equipment_id = e.equipment_id
+                        ), 0
+                    ) - (
+                        COALESCE(
+                            (
+                                SELECT COUNT(*)
+                                FROM `equipment-requests` er
+                                WHERE er.equipment_id = e.equipment_id
+                                AND er.status = 'ACTIVE'
+                            ), 0
+                        ) * e.max_allow
+                    )
+                ) AS available_quantity
             FROM equipment e
-            JOIN sport s ON e.sport_id = s.sport_id
-            JOIN equipment_image i ON e.equipment_id = i.equipment_id
-            WHERE e.equipment_id LIKE :query
-            OR e.equipment_name LIKE :query
-            OR e.sport_id LIKE :query
-            OR s.sport_name LIKE :query
-            GROUP BY e.equipment_id
-            LIMIT 5;
+            INNER JOIN sport s ON e.sport_id = s.sport_id
+            WHERE e.equipment_name LIKE :query
+            HAVING available_quantity > 0
+            ORDER BY e.equipment_name
+            LIMIT 10
         ";
-    
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute(['query' => "%$query%"]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function minimalSearch($query){
-        $sql = "
-            SELECT equipment_id, equipment_name
-            FROM equipment
-            WHERE equipment_name LIKE :query
-            LIMIT 5;
-            ";
+        
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['query' => "%$query%"]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -103,6 +148,84 @@ class Equipment {
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function addEquipmentType($sport_id, $equipment_name, $image_name) {
+        // Prevent duplicates for same sport
+        $checkSql = "SELECT equipment_id FROM equipment 
+                     WHERE sport_id = :sport_id AND equipment_name = :equipment_name";
+        $checkStmt = $this->db->prepare($checkSql);
+        $checkStmt->execute([
+            ':sport_id' => $sport_id,
+            ':equipment_name' => $equipment_name
+        ]);
+    
+        if ($checkStmt->rowCount() > 0) {
+            return "DUPLICATE";
+        }
+    
+        // Generate equipment ID
+        $equipment_id = uniqid("EQ");
+    
+        $sql = "INSERT INTO equipment 
+                (equipment_id, sport_id, equipment_name, image_name)
+                VALUES (:equipment_id, :sport_id, :equipment_name, :image_name)";
+    
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':equipment_id' => $equipment_id,
+            ':sport_id' => $sport_id,
+            ':equipment_name' => $equipment_name,
+            ':image_name' => $image_name
+        ]);
+    
+        return true;
+    }
+    
+
+    public function getEquipments($sport_id){
+        $sql = "SELECT equipment_id, equipment_name, image_name
+                FROM equipment
+                WHERE sport_id = :sport_id
+                ORDER BY equipment_name";
+        $stmt = $this -> db -> prepare($sql);
+        $stmt -> execute([':sport_id' => $sport_id]);
+        return $stmt -> fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function addStock($equipment_id, $quantity, $date, $remarks) {
+        // Generate stock ID (8 chars)
+        $stock_id = substr(uniqid("STK"), 0, 8);
+    
+        // Get sport_id from equipment_id
+        $sportSql = "SELECT sport_id FROM equipment WHERE equipment_id = :equipment_id";
+        $sportStmt = $this->db->prepare($sportSql);
+        $sportStmt->execute([':equipment_id' => $equipment_id]);
+        $sport = $sportStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$sport) {
+            throw new Exception("Equipment not found");
+        }
+        
+        $sport_id = $sport['sport_id'];
+    
+        // Insert into equipment_inventory with usable = quantity (all items are usable initially)
+        $sql = "INSERT INTO equipment_inventory
+                (stock_id, equipment_id, sport_id, quantity, usable, added_date, remarks)
+                VALUES (:stock_id, :equipment_id, :sport_id, :quantity, :usable, :added_date, :remarks)";
+    
+        $stmt = $this->db->prepare($sql);
+    
+        return $stmt->execute([
+            ':stock_id' => $stock_id,
+            ':equipment_id' => $equipment_id,
+            ':sport_id' => $sport_id,
+            ':quantity' => $quantity,
+            ':usable' => $quantity, // All items are usable initially
+            ':added_date' => $date,
+            ':remarks' => $remarks
+        ]);
+    }
+    
 
     // Fetch all equipment
     public function getAll() {
@@ -206,7 +329,6 @@ class Equipment {
             SELECT *
             FROM `equipment-requests` r
             LEFT JOIN equipment e ON r.equipment_id = e.equipment_id
-            LEFT JOIN equipment_image i ON e.equipment_id = i.equipment_id
             WHERE r.student_id = :student_id
             GROUP BY r.request_id
             ORDER BY r.request_date DESC;

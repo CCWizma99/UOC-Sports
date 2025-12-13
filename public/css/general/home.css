@@ -1,0 +1,436 @@
+/* Hero Section */
+.hero {
+    margin-top: 80px;
+    padding: 8rem 5% 6rem;
+    background-size: 200% 200%;
+    animation: gradient 15s ease infinite;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+}
+
+.hero-content {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.hero h1 {
+    font-size: 4.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: #1a1a1a;
+    letter-spacing: -2px;
+}
+
+.hero p {
+    font-size: 1.3rem;
+    color: #2a2a2a;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+.input-container {
+    background: white;
+    padding: 0.8rem;
+    border-radius: 12px;
+    display: flex;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.input-container input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    border-radius: 0.5rem;
+}
+
+.input-container input::placeholder {
+    color: #999;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.trusted-by {
+    margin-top: 4rem;
+    color: #4a4a4a;
+    font-size: 0.9rem;
+    font-weight: 500;
+    overflow: hidden;
+}
+
+.sports-marquee {
+    margin-top: 2rem;
+    overflow: hidden;
+    position: relative;
+    height: 60px;
+}
+
+.marquee-content {
+    display: flex;
+    gap: 3rem;
+    animation: marquee 30s linear infinite;
+    width: fit-content;
+}
+
+.marquee-content span {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.marquee-content span i {
+    font-size: 1.3rem;
+    color: rgba(255,255,255,0.8);
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Feature Section */
+.features {
+    padding: 6rem 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-label {
+    color: #5e2d91;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.section-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-top: 0.5rem;
+    letter-spacing: -1px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background: #fff;
+    padding: 0;
+    border-radius: 16px;
+    transition: all 0.3s;
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+.feature-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.feature-content {
+    padding: 2rem;
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.feature-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.feature-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+    font-weight: 700;
+}
+
+.feature-card p {
+    color: #666;
+    line-height: 1.7;
+}
+
+/* Showcase Section */
+.showcase {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: 6rem 5%;
+    color: white;
+}
+
+.showcase-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.showcase-text h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    letter-spacing: -1px;
+}
+
+.showcase-text p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #b0b0b0;
+    margin-bottom: 1rem;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.stat-item h3 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #5e2d91;
+    margin-bottom: 0.5rem;
+}
+
+.stat-item p {
+    font-size: 1rem;
+    color: #888;
+}
+
+.showcase-image {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+.showcase-image i {
+    font-size: 8rem;
+    opacity: 0.9;
+}
+
+/* Stories Section */
+.stories {
+    padding: 6rem 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.stories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.story-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.story-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+.story-image {
+    height: 200px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.story-image i {
+    font-size: 4rem;
+    color: rgba(255,255,255,0.9);
+}
+
+.story-tag {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(255,255,255,0.95);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #5e2d91;
+}
+
+.story-content {
+    padding: 1.5rem;
+}
+
+.story-content h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+.hero {
+    position: relative;
+    background: linear-gradient(135deg, #111 0%, #4b0082 100%);
+    padding: 10rem 5% 7rem;
+}
+
+/* Action silhouettes (overlay) */
+.hero::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 600px;
+    height: 500px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.25;
+    transform: translate(50px, 20px);
+    pointer-events: none;
+}
+
+/* Speed lines effect */
+.speed-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(120deg, rgba(255,255,255,0.1) 0%, transparent 60%),
+        linear-gradient(300deg, rgba(255,255,255,0.08) 0%, transparent 70%);
+    background-size: 200% 200%;
+    animation: speedMove 6s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes speedMove {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 200%; }
+}
+
+.hero h1 {
+    font-size: 4.2rem;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 1px;
+}
+
+.hero p {
+    color: #e0e0e0;
+    font-size: 1.25rem;
+    font-weight: 400;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+}
+
+/* Make search box sporty */
+.input-container {
+    border: 2px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+}
+
+.input-container input {
+    color: white;
+}
+
+.input-container input::placeholder {
+    color: #ccc;
+}
+
+.btn-hero {
+    background-color: #5e2d91;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero p {
+        font-size: 1.1rem;
+    }
+    
+    .showcase-content {
+        grid-template-columns: 1fr;
+    }
+}

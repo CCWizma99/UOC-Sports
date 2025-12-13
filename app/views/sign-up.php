@@ -12,36 +12,32 @@
 <body class="flex xy-center">
     <section id="sign-form" class="">
         <form action="/uoc-sports/public/sign-up" method="post">
+            <img src="/uoc-sports/public/images/uoc-logo.png" alt="UOC Logo" class="logo">
             <h2>Sign Up<br>UOC Sports E-Portal</h2>
             <div class="double-input-div">
                 <div class="input-div">
-                    <label for="fname-inp">Enter Your First Name</label>
-                    <input type="text" name="fname" id="fname-inp" title="Enter your First Name">
+                    <input type="text" name="fname" id="fname-inp" placeholder="First Name" title="Enter your First Name">
                     <div class="error">The name cannot be empty!</div>
                 </div>
                 <div class="input-div">
-                    <label for="lname-inp">Enter Your Last Name</label>
-                    <input type="text" name="lname" id="lname-inp" title="Enter your Last Name">
+                    <input type="text" name="lname" id="lname-inp" placeholder="Last Name" title="Enter your Last Name">
                     <div class="error">The name cannot be empty!</div>
                 </div>
             </div>
             <div class="input-div">
-                <label for="email-inp">Enter Your Email</label>
-                <input type="email" name="email" id="email-inp" title="Enter your Email">
+                <input type="email" name="email" id="email-inp" placeholder="Email" title="Enter your Email">
                 <div class="error">The email is invalid!</div>
             </div>
             <div class="input-div password-wrapper">
-                <label for="password-inp">Create a Password</label>
                 <div class="password-field">
-                    <input type="password" name="password" id="password-inp" title="Enter your Password">
+                    <input type="password" name="password" id="password-inp" placeholder="Create a Password" title="Enter your Password">
                     <div class="error">The password is weak!</div>
                     <span class="toggle-password" data-target="password-inp"><i class="fa-solid fa-eye-slash"></i></span>
                 </div>
             </div>
             <div class="input-div password-wrapper">
-                <label for="confirm-password-inp">Confirm Password</label>
                 <div class="password-field">
-                    <input type="password" name="confirm-password" id="confirm-password-inp" title="Confirm your Password">
+                    <input type="password" name="confirm-password" id="confirm-password-inp" placeholder="Confirm Password" title="Confirm your Password">
                     <div class="error">Passwords don't match!</div>
                     <span class="toggle-password" data-target="confirm-password-inp"><i class="fa-solid fa-eye-slash"></i></span>
                 </div>

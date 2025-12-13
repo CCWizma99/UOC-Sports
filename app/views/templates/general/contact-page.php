@@ -1,5 +1,4 @@
 <section id="contact">
-    <hr>
     <h2>Contact Us</h2>
     <form action="#">
         <div class="input-div">

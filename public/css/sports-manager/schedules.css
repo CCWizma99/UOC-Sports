@@ -1,0 +1,476 @@
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  /* Header Section */
+  .page-header {
+    margin-bottom: 40px;
+  }
+
+  .page-header h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 8px;
+  }
+
+  /* Content Grid */
+  .content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  /* Form Section */
+  .form-container {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    height: fit-content;
+    position: relative;
+  }
+
+  .form-container h2 {
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    padding: 25px 30px;
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .form {
+    padding: 30px;
+  }
+
+  .form-group {
+    margin-bottom: 22px;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #2d3748;
+    font-size: 14px;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #6b3fa0;
+    box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.1);
+  }
+
+  /* Equipment Selection */
+  .equipment-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f7fafc;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    min-height: 50px;
+    align-content: flex-start;
+  }
+
+  .equipment-item {
+    background: white;
+    border: 2px solid #cbd5e0;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+
+  .equipment-item:hover {
+    border-color: #6b3fa0;
+    background: #fafbff;
+  }
+
+  .equipment-item.selected {
+    background: linear-gradient(135deg, #6b3fa0 0%, #8e5fb8 100%);
+    color: white;
+    border-color: #6b3fa0;
+  }
+
+  /* Dropdown/Search */
+  .dropdown {
+    position: relative;
+  }
+
+  .search-box {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .search-box:focus {
+    outline: none;
+    border-color: #6b3fa0;
+    box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.1);
+  }
+
+  .options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+    display: none;
+  }
+
+  .options.show {
+    display: block;
+  }
+
+  .option-item {
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .option-item:hover {
+    background: #f7fafc;
+    color: #6b3fa0;
+  }
+
+  .option-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Buttons */
+  .buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .reset-btn,
+  .submit-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+  }
+
+  .reset-btn {
+    background: #e92d3d;
+    color: white;
+  }
+
+  .reset-btn:hover {
+    background: #b40f1d;
+    transform: translateY(-2px);
+  }
+
+  .submit-btn {
+    background: linear-gradient(135deg, #6b3fa0 0%, #8e5fb8 100%);
+    color: white;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(107, 63, 160, 0.3);
+  }
+
+  /* Table Section */
+  .schedule-section {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    grid-column: 1 / -1;
+  }
+
+  .schedule-section h2 {
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    padding: 25px 30px;
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .table-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .table-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+  }
+
+  .schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .schedule-table thead {
+    background-color: #f7fafc;
+    position: sticky;
+    top: 0;
+  }
+
+  .schedule-table thead th {
+    padding: 18px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #2d3748;
+    border-bottom: 2px solid #e2e8f0;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .schedule-table tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+  }
+
+  .schedule-table tbody tr:hover {
+    background-color: #f7fafc;
+  }
+
+  .schedule-table tbody td {
+    padding: 16px;
+    vertical-align: middle;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    padding: 7px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .update-btn {
+    background: #2e7d32;
+    color: white;
+  }
+
+  .update-btn:hover {
+    background: #22863a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 134, 57, 0.3);
+  }
+
+  .delete-btn {
+    background: #e92d3d;
+    color: white;
+  }
+
+  .delete-btn:hover {
+    background: #b40f1d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(180, 15, 29, 0.3);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .content-wrapper {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .form-container {
+      position: static;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 25px 16px;
+    }
+
+    .page-header h1 {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .form-container h2,
+    .schedule-section h2 {
+      padding: 20px;
+      font-size: 20px;
+    }
+
+    .form {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .buttons {
+      grid-template-columns: 1fr;
+    }
+
+    .equipment-list {
+      padding: 8px;
+    }
+
+    .equipment-item {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .schedule-table {
+      font-size: 12px;
+    }
+
+    .schedule-table thead th {
+      padding: 12px;
+      font-size: 11px;
+    }
+
+    .schedule-table tbody td {
+      padding: 12px;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .action-btn {
+      width: 100%;
+      text-align: center;
+      padding: 8px 10px;
+    }
+
+    .table-wrapper {
+      max-height: 400px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .container {
+      padding: 16px 12px;
+    }
+
+    .page-header h1 {
+      font-size: 20px;
+    }
+
+    .form-container h2,
+    .schedule-section h2 {
+      padding: 16px;
+      font-size: 18px;
+    }
+
+    .form {
+      padding: 16px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .search-box {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .equipment-list {
+      gap: 6px;
+      padding: 6px;
+    }
+
+    .equipment-item {
+      padding: 5px 10px;
+      font-size: 11px;
+    }
+
+    .reset-btn,
+    .submit-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+
+    .schedule-table {
+      font-size: 11px;
+    }
+
+    .schedule-table thead th {
+      padding: 8px;
+      font-size: 10px;
+    }
+
+    .schedule-table tbody td {
+      padding: 8px;
+    }
+
+    .action-btn {
+      padding: 6px 8px;
+      font-size: 10px;
+    }
+
+    .table-wrapper {
+      max-height: 300px;
+    }
+  }

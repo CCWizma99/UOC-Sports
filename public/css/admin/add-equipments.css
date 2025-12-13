@@ -1,6 +1,6 @@
 /* ====== Add Equipment Form ====== */
 
-#add-equipment {
+#add-equipment, #add-equipment-type {
     width: 90%;
     max-width: 960px;
     margin: 40px auto;
@@ -11,7 +11,7 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   }
   
-  #add-equipment h2 {
+  #add-equipment h2, #add-equipment-type h2 {
     text-align: center;
     margin-bottom: 25px;
     color: #222;
@@ -87,6 +87,10 @@
   
   .btn:hover {
     background-color: var(--primary-color);
+  }
+
+  .today-btn{
+    width: 120px;
   }
   
   /* ==== Message ==== */

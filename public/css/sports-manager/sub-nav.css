@@ -2,11 +2,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f9fafc;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-  padding: 0.5rem 1rem;
-  font-family: Arial, sans-serif;
+  background: #2b0c4d;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 20px 5%;
 }
 
 .sub-nav ul {
@@ -18,30 +17,25 @@
 }
 
 .sub-nav a {
+  position: relative;
   text-decoration: none;
-  color: #333;
+  color: #fff;
   font-weight: 500;
   transition: color 0.2s;
+  transition: 0.4s;
 }
 
-.sub-nav a:hover {
-  color: #0077cc;
+.sub-nav a::after{
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  background-color: #fff;
+  width: 0;
+  height: 2px;
+  transition: 0.4s;
 }
 
-.search-form {
-  position: relative;
-}
-
-.search-form input {
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 230px;
-  font-size: 0.9rem;
-}
-
-.search-form input:focus {
-  outline: none;
-  border-color: #0077cc;
-  box-shadow: 0 0 3px rgba(0, 119, 204, 0.3);
+.sub-nav a:hover::after{
+  width: 100%;
 }

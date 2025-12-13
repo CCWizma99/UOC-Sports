@@ -77,6 +77,7 @@ class Post {
      * @param array $files
      */
     private function uploadPostImages($post_id, $files) {
+        // Use absolute path with DOCUMENT_ROOT
         $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uoc-sports/public/images/posts/';
 
         if (!file_exists($uploadDir)) {
@@ -212,6 +213,79 @@ class Post {
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['post_id' => $post_id]);
     }
+
+    public function deleteComment($comment_id) {
+        $sql = "DELETE FROM comment WHERE comment_id = :comment_id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['comment_id' => $comment_id]);
+    }
+
+    /**
+     * Update an existing post
+     * @param string $post_id
+     * @param string $title
+     * @param string $description
+     * @param string $commenting
+     * @param string $status
+     * @return bool
+     */
+    public function updatePost($post_id, $title, $description, $commenting, $status) {
+        $sql = "
+            UPDATE newsfeed_post
+            SET title = :title,
+                description = :description,
+                commenting = :commenting,
+                status = :status
+            WHERE post_id = :post_id
+        ";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            'post_id' => $post_id,
+            'title' => $title,
+            'description' => $description,
+            'commenting' => strtoupper($commenting) === 'NO' ? 'NO' : 'YES',
+            'status' => strtoupper($status)
+        ]);
+    }
+
+
+    /**
+     * Toggle commenting on/off for a post
+     * @param string $post_id
+     * @param string $commenting 'YES' or 'NO'
+     * @return bool
+     */
+    public function updateCommenting($post_id, $commenting) {
+        $sql = "
+            UPDATE newsfeed_post
+            SET commenting = :commenting
+            WHERE post_id = :post_id
+        ";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            'post_id' => $post_id,
+            'commenting' => strtoupper($commenting) === 'NO' ? 'NO' : 'YES'
+        ]);
+    }
+
+    /**
+     * Toggle commenting (switch between YES and NO)
+     * @param string $post_id
+     * @return bool
+     */
+    public function toggleCommenting($post_id) {
+        $sql = "
+            UPDATE newsfeed_post
+            SET commenting = CASE 
+                WHEN commenting = 'YES' THEN 'NO'
+                ELSE 'YES'
+            END
+            WHERE post_id = :post_id
+        ";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['post_id' => $post_id]);
+    }
+    
 
     /**
      * Generate new post ID like P0001, P0002, etc.

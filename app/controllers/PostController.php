@@ -27,6 +27,25 @@ class PostController extends BaseController {
         ]);
     }
 
+public function deleteComment() {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $commentId = $data['comment_id'] ?? null;
+
+    if (!$commentId) {
+        echo json_encode(['status' => 'error', 'message' => 'Comment ID missing']);
+        return;
+    }
+
+    $postModel = new Post();
+    $success = $postModel->deleteComment($commentId);
+
+    echo json_encode([
+        'status' => $success ? 'success' : 'error',
+        'message' => $success ? 'Comment deleted successfully' : 'Failed to delete comment'
+    ]);
+}
+
+
     public function addComment() {
         try {
             if (!isset($_SESSION['user_id'])) {
