@@ -230,11 +230,82 @@
   font-size: 14px;
 }
 
+.time-cell {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 14px;
+}
+
 .venue-cell {
   color: #718096;
 }
 
 .purpose-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ===== Make Upcoming Events Table EXACT like Monthly Practices ===== */
+
+/* Force same base styles */
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+/* Header */
+.events-table thead {
+  background-color: #f7fafc !important;
+  position: sticky;
+  top: 0;
+}
+
+.events-table thead tr {
+  background: #f7fafc !important; /* override inline background */
+}
+
+.events-table thead th {
+  padding: 18px 20px;
+  text-align: left;
+  font-weight: 600;
+  color: #2d3748;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Body rows */
+.events-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.events-table tbody tr:hover {
+  background-color: #f7fafc;
+}
+
+.events-table tbody td {
+  padding: 16px 20px;
+  vertical-align: middle;
+}
+
+/* Match date / time style */
+.events-table .date-cell,
+.events-table .venue-cell {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 14px;
+}
+
+/* Badge same as practice purpose */
+.events-table .purpose-badge {
   display: inline-block;
   background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
   color: white;
@@ -578,3 +649,4 @@
     font-size: 14px;
   }
 }
+
