@@ -146,16 +146,16 @@ class User {
     }
 
     /**
-     * Get enrolled sports for a student
+     * Get enrolled sports for a student or captain
      * Returns sports with coach and schedule information
      */
     public function getEnrolledSports($userId) {
-        // First check if user is a student
+        // First check if user is a student or captain
         $userCheck = $this->db->prepare("SELECT type FROM user WHERE user_id = :user_id");
         $userCheck->execute(['user_id' => $userId]);
         $user = $userCheck->fetch(PDO::FETCH_ASSOC);
         
-        if (!$user || $user['type'] !== 'STUDENT') {
+        if (!$user || ($user['type'] !== 'STUDENT' && $user['type'] !== 'CAPTAIN')) {
             return [];
         }
 
