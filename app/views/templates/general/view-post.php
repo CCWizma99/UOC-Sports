@@ -1,5 +1,5 @@
 <?php
-  $user_id = $_SESSION['user_id'];
+  $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 ?>
 
 <!DOCTYPE html>

@@ -1,8 +1,14 @@
 <div class="container">
   <!-- Header -->
   <div class="page-header">
-    <h1>Welcome Back, Captain</h1>
+    <h1>Welcome Back, <?php echo isset($username) ? htmlspecialchars($username) : 'Captain'; ?></h1>
     <p>Manage your team and track sports activities</p>
+
+    <!-- Sport card (shows captain's sport) -->
+    <div class="sport-card" style="margin-top:10px; padding:8px 12px; background:#fff; border-radius:6px; display:inline-block; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+      <strong>Sport:</strong>
+      <span style="margin-left:8px;"><?php echo isset($sport_name) && $sport_name ? htmlspecialchars($sport_name) : 'Not assigned'; ?></span>
+    </div>
   </div>
 
   <!-- Stats Grid -->

@@ -53,7 +53,7 @@ class UserHomeController {
 
         // Get enrolled sports (only for students)
         $enrolledSports = [];
-        if ($user['type'] === 'STUDENT') {
+        if ($user['type'] === 'STUDENT' || $user['type'] === 'CAPTAIN') {
             $enrolledSports = $userModel->getEnrolledSports($user_id);
         }
 

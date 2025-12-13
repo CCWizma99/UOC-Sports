@@ -147,17 +147,19 @@
                 document.getElementById('joinedDate').textContent = joinedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             }
             
-            if (userData.accountType !== 'STUDENT') {
+            if (userData.accountType !== 'STUDENT' && userData.accountType !== 'CAPTAIN') {
                 document.getElementById('sportsSection').style.display = 'none';
             }
         }
 
         function loadSports() {
-            if (userData.accountType !== 'STUDENT' || enrolledSports.length === 0) {
-                if (userData.accountType === 'STUDENT') {
-                    const grid = document.getElementById('sportsGrid');
-                    grid.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">You are not enrolled in any sports yet.</p>';
-                }
+            if (userData.accountType !== 'STUDENT' && userData.accountType !== 'CAPTAIN') {
+                return;
+            }
+            
+            if (enrolledSports.length === 0) {
+                const grid = document.getElementById('sportsGrid');
+                grid.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">You are not enrolled in any sports yet.</p>';
                 return;
             }
             

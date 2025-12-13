@@ -2,7 +2,27 @@
 
 class CaptainController {
     public function index() {
-        view('captain/index');
+        // Ensure user is logged in
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /uoc-sports/public/sign-in");
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+
+        // Load models
+        $userModel = new User();
+        $sportModel = new Sport();
+
+        // Get user display name
+        $profile = $userModel->getUserProfile($userId);
+        $username = isset($profile['full_name']) ? $profile['full_name'] : (trim(($profile['fname'] ?? '') . ' ' . ($profile['lname'] ?? '')) ?: 'Captain');
+
+        // Get sport assigned to this captain (if any)
+        $sport = $sportModel->getSportByCaptain($userId);
+        $sportName = $sport && isset($sport['sport_name']) ? $sport['sport_name'] : null;
+
+        view('captain/index', ['username' => $username, 'sport_name' => $sportName]);
     }
     public function MarkAttendance() {
         view('captain/mark-attendance');
