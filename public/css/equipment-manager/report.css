@@ -1,7 +1,7 @@
         /* ------------------- Container ------------------- */
         .report-container {
         
-        margin-bottom: 15px;
+
           background: #fff;
           border-radius: 14px;
           box-shadow: 0 4px 15px rgba(0,0,0,0.08);
@@ -24,11 +24,9 @@
       .search-container {
           margin: 0 35px 35px 35px;
           display: flex;
-          justify-content: space-between;
-          flex-direction: row;
           align-items: center;
+          justify-content: space-between;
           gap: 15px;
-          flex-wrap: nowrap;
       }
 
       .btn-add {
@@ -104,7 +102,7 @@
     overflow-x: auto;
     overflow-y: visible;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    margin: 45px;
+    margin: 35px;
 }
 
 

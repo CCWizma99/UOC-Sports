@@ -104,7 +104,7 @@ $userName = $_SESSION['user_name'] ?? 'John Doe';
 
             <!-- Calendar Section (Compact) -->
             <div class="calendar-section-compact">
-                <h2>Equipment Reservations Calendar</h2>
+                <h3>Equipment Reservations Calendar</h3>
                 <div id="calendar"></div>
             </div>
         </div>

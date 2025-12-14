@@ -27,4 +27,8 @@ class EquipmentManagerController {
         
         view('equipment-manager/lostitem', ['lostitems' => $lostitems]);
     }
+
+    public function practiceschedule() {
+        view('equipment-manager/practiceschedule');
+    }
 }

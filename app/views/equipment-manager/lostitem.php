@@ -94,7 +94,7 @@
                     <?php else: ?>
                             <tr>
                                 <td colspan="4" style="text-align: center; padding: 2rem; color: #6b7280;">
-                                    No expenses found. <a href="/project/uoc-sports/app/views/sports-manager/add-lostitem.php">Add your first item</a>
+                                    No lost items found. <a href="/uoc-sports/public/equipment-manager/add-lostitem.php">Add your first item</a>
                                 </td>
                             </tr>
                         <?php endif; ?>

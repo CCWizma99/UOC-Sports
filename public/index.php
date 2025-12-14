@@ -64,7 +64,7 @@ $router->get('/reserve-equipments/view', 'EquipmentApiController@getReservedItem
 $router->get('/equipment-manager//', 'EquipmentManagerController@index');
 $router->get('/equipment-manager/equipment-reservations', 'EquipmentManagerController@equipmentReport');
 $router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipments');
-$router->get('/equipment-manager/schedules', 'EquipmentManagerController@schedules');
+$router->get('/equipment-manager/practiceschedule', 'EquipmentManagerController@practiceschedule');
 $router->get('/equipment-manager/lostitem', 'EquipmentManagerController@lostitem');
 
 $router->post('/post/delete-comment', 'PostController@deleteComment');
