@@ -64,7 +64,8 @@ $router->get('/reserve-equipments/view', 'EquipmentApiController@getReservedItem
 $router->get('/equipment-manager//', 'EquipmentManagerController@index');
 $router->get('/equipment-manager/equipment-reservations', 'EquipmentManagerController@equipmentReport');
 $router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipments');
-$router->get('/equipment-manager/schedules', 'EquipmentManagerController@schedules');
+$router->get('/equipment-manager/practiceschedule', 'EquipmentManagerController@practiceschedule');
+$router->get('/equipment-manager/lostitem', 'EquipmentManagerController@lostitem');
 
 $router->post('/post/delete-comment', 'PostController@deleteComment');
 
@@ -78,6 +79,8 @@ $router->get('/sport-manager/budget/remaining', 'BudgetController@remaining');
 $router->get('/sport-manager/update-transaction', 'BudgetController@updateTransaction');
 $router->post('/sport-manager/update-transaction', 'BudgetController@handleUpdateTransaction');
 $router->get('/sport-manager/remaining-budget', 'BudgetController@remainingBudget');
+$router->get('/sport-manager/practicesessions', 'SportManagerController@practicesessions');
+$router->get('/sport-manager/competitions', 'SportManagerController@competitions');
 
 $router->post('/profile/upload-image', 'ProfileController@uploadProfileImage');
 

@@ -54,6 +54,7 @@
           <thead>
             <tr>
               <th>Date</th>
+              <th>Time</th>
               <th>Venue</th>
               <th>Purpose</th>
             </tr>
@@ -61,16 +62,19 @@
           <tbody id="practiceBody">
             <tr>
               <td class="date-cell">20 Aug 2025</td>
+              <td class="time-cell">09:00 AM</td>
               <td class="venue-cell">Main Gym</td>
               <td><span class="purpose-badge">Team Practice</span></td>
             </tr>
             <tr>
               <td class="date-cell">22 Aug 2025</td>
+              <td class="time-cell">06:00 PM</td>
               <td class="venue-cell">Outdoor Field</td>
               <td><span class="purpose-badge">Fitness Training</span></td>
             </tr>
             <tr>
               <td class="date-cell">25 Aug 2025</td>
+              <td class="time-cell">04:30 PM</td>
               <td class="venue-cell">Main Gym</td>
               <td><span class="purpose-badge">Strategy Meeting</span></td>
             </tr>
@@ -81,27 +85,39 @@
 
     <!-- Sidebar -->
     <div class="sidebar-section">
-      <!-- Team Info Card -->
+      <!-- Upcoming Events Table -->
       <div class="info-card">
         <div class="info-card-header">
-          <h3>Team Overview</h3>
+          <h3>Upcoming Events</h3>
         </div>
         <div class="info-card-content">
-          <div class="info-item">
-            <span class="info-label">Total Players</span>
-            <span class="info-value">25</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Coaches</span>
-            <span class="info-value">2</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Matches Won</span>
-            <span class="info-value highlight">12</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">This Season</span>
-            <span class="info-value">2025</span>
+          <div class="table-wrapper" >
+            <table class="events-table" >
+              <thead>
+                <tr >
+                  <th >Date</th>
+                  <th >Time</th>
+                  <th >Event</th>
+                </tr>
+              </thead>
+              <tbody id="upcomingEvents">
+                <tr>
+                  <td class="date-cell">05 Jan 2026</td>
+                  <td class="venue-cell">09:00 AM</td>
+                  <td><span >Inter-Faculty Friendly</span></td>
+                </tr>
+                <tr>
+                  <td class="date-cell">18 Jan 2026</td>
+                  <td class="venue-cell">02:30 PM</td>
+                  <td><span >Training Camp</span></td>
+                </tr>
+                <tr>
+                  <td class="date-cell">28 Jan 2026</td>
+                  <td class="venue-cell">06:00 PM</td>
+                  <td><span >Friendly Match vs Alumni</span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
