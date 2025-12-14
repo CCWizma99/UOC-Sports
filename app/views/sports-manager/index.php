@@ -12,6 +12,7 @@
     @import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
     @import url("/uoc-sports/public/css/sports-manager/index.css");
     @import url("/uoc-sports/public/css/general/footer.css");
+
 </style>
 </head> 
 
@@ -20,9 +21,50 @@
     require "../app/views/templates/general/header.php";
     require "../app/views/sports-manager/header-subnav.php";  
 ?>
-<div class="calendar-container page-wrapper">
-    
+<div class="main-content-wrapper"> 
 
+ <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <!-- Today's Sessions -->
+            <div class="sidebar-section">
+                <h3> Today's Sessions</h3>
+                <div class="sessions-list" id="todaySessions">
+                    <div class="session-item">
+                        <div class="session-details">09:00 AM - 11:00 AM</div>
+                        <div class="session-com">Basketball</div>
+                        <div class="session-com">Court 1</div>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-details">02:00 PM - 04:00 PM</div>
+                        <div class="session-com">Football</div>
+                        <div class="session-com">Main Field</div>
+                    </div>
+
+                     <a href="/uoc-sports/sports-manager/practiceschedule" class="view-all-link">View All Practice Sessions</a>
+                </div>
+            </div>
+
+            <!-- Upcoming Competitions -->
+            <div class="sidebar-section">
+                <h3> Upcoming Competitions</h3>
+                <div class="session-list">
+                    <div class="session-item">
+                        <div class="session-details">Inter-University Basketball</div>
+                        <div class="session-com">Nov 5, 2025</div>
+                        
+                    </div>
+                    <div class="session-item">
+                        <div class="session-details">Football Championship</div>
+                        <div class="session-com">Nov 12, 2025</div>
+                       
+                    </div>
+
+                    <a href="/uoc-sports/sports-manager/practiceschedule" class="view-all-link">View All Competitions</a>
+                </div>
+            </div>
+        </aside>
+
+</div>
 <?php
     require "../app/views/templates/general/footer.php";      
     ?>
