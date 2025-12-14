@@ -1,3 +1,10 @@
+<?php
+$pageTitle = 'Equipment Manager Dashboard';
+$userRole = $_SESSION['user_role'] ?? 'Equipment Manager';
+$userName = $_SESSION['user_name'] ?? 'John Doe';
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,9 +28,64 @@
     require "../app/views/templates/general/header.php";
     require "../app/views/sports-manager/header-subnav.php";  
 ?>
-<div class="main-content-wrapper"> 
+<div class="main-wrapper"> 
+<!-- Left Sidebar -->
 
- <!-- Right Sidebar -->
+        <aside class="left-container">
+           <div class="welcome-section">
+                <h1>Welcome, <?php echo htmlspecialchars($userRole); ?>!</h1>
+                <p>Manage your sports activities and track progress</p>
+            </div>
+
+            <!-- Content Grid: Calendar and Chart in one row -->
+            <div class="content-grid-row">
+                <!-- Calendar Section -->
+                <div class="calendar-section-compact">
+                    <div class="section-header">
+                        <h2>Practice Sessions Calendar</h2>
+                    </div>
+                    <div id="calendar"></div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="section-header">
+                        <h2>Expense Overview</h2>
+                
+                    <div class="chart-controls">
+                        <select id="sport" class="btn-primary ">
+                            <option value="">All Sports</option>
+                            <option value="basketball">Basketball</option>
+                            <option value="football">Football</option>
+                            <option value="volleyball">Volleyball</option>
+                        </select>
+                        <select id="year" class="btn-primary ">
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                        </select>
+                    </div>
+                    </div>
+
+                    <div class="balance-box">
+                        <h3>Remaining Balance</h3>
+                        <div class="balance-amount" id="balance">Rs 0.00</div>
+                        <div class="progress-bar">
+                            <div class="progress" id="progress"></div>
+                        </div> 
+                        <div class="percentage" id="percent">0% Expenses</div>
+                    </div>
+
+                    <div class="chart-wrapper" id="chartBox">
+                        <div class="y-axis" id="yAxis"></div>
+                        <div class="y-axis-title">Expenses (Rs)</div>
+                        <div class="x-axis-title">Months</div> 
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Sidebar -->
         <aside class="right-sidebar">
             <!-- Today's Sessions -->
             <div class="sidebar-section">
@@ -65,6 +127,10 @@
         </aside>
 
 </div>
+
+<script src="/uoc-sports/public/js/equipment-manager/calendar.js"></script>
+<script src="/uoc-sports/public/js/sports-manager/expense-chart.js"></script>
+
 <?php
     require "../app/views/templates/general/footer.php";      
     ?>

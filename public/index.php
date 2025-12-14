@@ -79,6 +79,8 @@ $router->get('/sport-manager/budget/remaining', 'BudgetController@remaining');
 $router->get('/sport-manager/update-transaction', 'BudgetController@updateTransaction');
 $router->post('/sport-manager/update-transaction', 'BudgetController@handleUpdateTransaction');
 $router->get('/sport-manager/remaining-budget', 'BudgetController@remainingBudget');
+$router->get('/sport-manager/practicesessions', 'SportManagerController@practicesessions');
+$router->get('/sport-manager/competitions', 'SportManagerController@competitions');
 
 $router->post('/profile/upload-image', 'ProfileController@uploadProfileImage');
 

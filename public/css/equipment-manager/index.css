@@ -64,7 +64,7 @@
   border-radius: 8px;
   position: relative;
   cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
+  transition: transform 0.2s, 0.2s;
 }
 
 .days-grid .day:hover {
@@ -195,7 +195,7 @@
   cursor: pointer;
   font-size: 14px;
   color: #5e2d91;
-  transition: background 0.2s, color 0.2s;
+  transition: 0.2s, color 0.2s;
 }
 
 .filter-btn:hover {
