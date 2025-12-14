@@ -41,5 +41,12 @@ $router->post('/admin-equipments/add-stock', 'EquipmentApiController@addStock');
 $router->post('/admin-budget/add-budget', 'BudgetApiController@addBudget');
 $router->post('/admin-post/add-post', 'PostApiController@addPost');
 
+// Tournament routes
+$router->post('/admin-tournament/create', 'TournamentController@createTournament');
+$router->post('/admin-tournament/send-invitation', 'TournamentController@sendInvitation');
+$router->get('/admin-tournament/saved-recipients', 'TournamentController@getSavedRecipients');
+$router->post('/admin-tournament/save-recipient', 'TournamentController@saveRecipient');
+$router->get('/admin-tournament/list', 'TournamentController@getTournaments');
+
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

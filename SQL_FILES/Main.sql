@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 10, 2025 at 03:18 PM
+-- Generation Time: Dec 14, 2025 at 11:36 AM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -194,7 +194,8 @@ CREATE TABLE IF NOT EXISTS `equipment-requests` (
 --
 
 INSERT INTO `equipment-requests` (`request_id`, `student_id`, `equipment_id`, `request_date`, `start_time`, `end_time`, `purpose`, `status`, `notes`) VALUES
-('req_6937e152', '23000000', 'EQ69354316b1', '2025-12-29', '08:00:00', '10:00:00', 'For the Taekwondo Provincial matches practices', 'ACTIVE', '-');
+('req_6937e152', '23000000', 'EQ69354316b1', '2025-12-29', '08:00:00', '10:00:00', 'For the Taekwondo Provincial matches practices', 'ACTIVE', '-'),
+('req_693a734e', '23020342', 'EQ6937e28ddf', '2026-01-01', '13:00:00', '15:00:00', 'Foot work practice', 'ACTIVE', '-');
 
 -- --------------------------------------------------------
 
@@ -328,7 +329,8 @@ INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, 
 ('BK398317', 'H4J1OHSX', '3', '2025-12-10', 'AFTERNOON', 'Badminton Provincial Matches Practice', 'BOOKED', 'INCOMPLETE'),
 ('BK861578', 'L3NCL2J4', '11', '2025-12-10', 'MORNING', 'For Inter University Practices for SLIIT University', 'BOOKED', 'INCOMPLETE'),
 ('BK937846', 'L3NCL2J4', '15', '2025-12-18', 'FULL', 'For TOC Championship Match Practice', 'BOOKED', 'INCOMPLETE'),
-('BK405911', 'H4J1OHSX', '5', '2025-12-11', 'FULL', 'Divisional Tennis Matches', 'BOOKED', 'INCOMPLETE');
+('BK405911', 'H4J1OHSX', '5', '2025-12-11', 'FULL', 'Divisional Tennis Matches', 'BOOKED', 'INCOMPLETE'),
+('BK662944', '5Q1XZO2Y', '15', '2025-12-12', 'FULL', 'Inter Uni Matches Practice', 'BOOKED', 'INCOMPLETE');
 
 -- --------------------------------------------------------
 
@@ -582,20 +584,20 @@ CREATE TABLE IF NOT EXISTS `practice_sessions` (
   `session_date` date NOT NULL,
   `session_time` time NOT NULL,
   `description` text,
-  `status` varchar(12) NOT NULL,
+  `status` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `practice_sessions`
 --
 
 INSERT INTO `practice_sessions` (`id`, `sport_id`, `added_by`, `facility`, `session_date`, `session_time`, `description`, `status`, `created_at`, `updated_at`) VALUES
-(4, '', '', 'Badminton one Court (08 Persons for practices)', '2025-12-03', '12:45:00', '-', '', '2025-11-28 07:11:04', NULL),
-(5, '', '', 'Karate / Taekwondo with without Tatami', '2026-01-01', '16:00:00', 'For Inter Uni matches', '', '2025-12-09 09:54:15', NULL),
-(6, '', '', 'Table Tennis', '2026-01-01', '13:00:00', 'Practices for Inter University Tennis Matches', '', '2025-12-10 11:36:20', NULL);
+(4, 'BAD', 'CAPTAIN', 'Badminton one Court (08 Persons for practices)', '2025-12-03', '12:45:00', '-', '', '2025-11-28 07:11:04', '2025-12-10 16:04:35'),
+(5, 'TKD', 'CAPTAIN', 'Karate / Taekwondo with without Tatami', '2026-01-01', '16:00:00', 'For Inter Uni matches', '', '2025-12-09 09:54:15', '2025-12-10 16:04:53'),
+(8, 'VOL', 'CAPTAIN', 'Volleyball (25 Persons for practices)', '2026-01-01', '13:00:00', 'Practices for inter university Volleyball matches 2026', '', '2025-12-10 16:19:45', '2025-12-11 07:32:29');
 
 -- --------------------------------------------------------
 
@@ -623,6 +625,18 @@ INSERT INTO `remember_tokens` (`id`, `user_id`, `token`, `expires_at`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `saved_emails`
+--
+
+DROP TABLE IF EXISTS `saved_emails`;
+CREATE TABLE IF NOT EXISTS `saved_emails` (
+  `email` varchar(64) NOT NULL,
+  `recepient_name` varchar(64) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `sport`
 --
 
@@ -642,7 +656,7 @@ CREATE TABLE IF NOT EXISTS `sport` (
 
 INSERT INTO `sport` (`sport_id`, `sport_name`, `coach_id`, `captain_id`, `manager_id`) VALUES
 ('BAD', 'Badminton', '', '', ''),
-('VOL', 'Volleyball', '', '', ''),
+('VOL', 'Volleyball', '', '5Q1XZO2Y', ''),
 ('FOO', 'Football', '', '', ''),
 ('TEN', 'Tennis', '', '', ''),
 ('BAS', 'Basketball', '', '', ''),
@@ -687,7 +701,9 @@ CREATE TABLE IF NOT EXISTS `sports-team` (
 
 INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`) VALUES
 ('TKD', 'L3NCL2J4', '2025-12-03'),
-('ATH', 'L3NCL2J4', '2025-12-09');
+('ATH', 'L3NCL2J4', '2025-12-09'),
+('VOL', '5Q1XZO2Y', '2025-10-25'),
+('ATH', '5Q1XZO2Y', '2025-12-11');
 
 -- --------------------------------------------------------
 
@@ -918,7 +934,17 @@ INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `m
 ('usr_68f89998', 'Jaye', 'Jayaweera', 'EQP', 'jayashinisjayaweera@gmail.com', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 1, '2025-10-22 08:45:12', '0763452143', '', '', NULL, '', 'ACTIVE'),
 ('usr_68f89be0', 'J', 'Jaye', 'SPT', '2023is043@stu.ucsc.cmb.ac.lk', '$2y$10$0Z1ZoYUII3O2MDC3ltxdku2r3ROkBM.swVOJs88JYaG4fsZCyFy2W', 1, '2025-10-22 08:54:56', '0763452145', '', 'CRI', NULL, '', 'ACTIVE'),
 ('FMX6Z8DF', 'Shashini', 'Malsha', 'STUDENT', 'shashini@gmail.com', '$2y$10$PUWxFaoItXKbGY/52bG/vebAWPEQyHc39o5nwtTb2iPoZ6zpAd0rq', 0, '2025-10-23 07:10:43', NULL, '', '', '23020997', '', 'ACTIVE'),
-('5Q1XZO2Y', 'Jansika', 'Balakrishnan', 'CAPTAIN', 'jansi@gmail.com', '$2y$10$50U4SKStJpeogM4DSK5r2OnQO041WacupfYjfsX3w1B18UtX6RvCy', 0, '2025-10-23 07:23:06', NULL, '', '', '23020342', '', 'ACTIVE');
+('5Q1XZO2Y', 'Jansika', 'Balakrishnan', 'CAPTAIN', 'jansi@gmail.com', '$2y$10$50U4SKStJpeogM4DSK5r2OnQO041WacupfYjfsX3w1B18UtX6RvCy', 0, '2025-10-23 07:23:06', NULL, '5Q1XZO2Y.jpg', '', '23020342', '', 'ACTIVE'),
+('STU001', 'Ashan', 'Fernando', 'STUDENT', 'ashan.fernando@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0771234567', '', '', '23001001', '1', 'ACTIVE'),
+('STU002', 'Nimali', 'Perera', 'STUDENT', 'nimali.perera@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0772345678', '', '', '23001002', '1', 'ACTIVE'),
+('STU003', 'Kasun', 'Silva', 'STUDENT', 'kasun.silva@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0773456789', '', '', '23001003', '1', 'ACTIVE'),
+('STU004', 'Dilini', 'Jayasinghe', 'STUDENT', 'dilini.jayasinghe@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0774567890', '', '', '23001004', '1', 'ACTIVE'),
+('STU005', 'Tharindu', 'Wickramasinghe', 'STUDENT', 'tharindu.wickramasinghe@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0775678901', '', '', '23001005', '1', 'ACTIVE'),
+('STU006', 'Sanduni', 'Rathnayake', 'STUDENT', 'sanduni.rathnayake@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0776789012', '', '', '23001006', '1', 'ACTIVE'),
+('STU007', 'Ravindu', 'Dissanayake', 'STUDENT', 'ravindu.dissanayake@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0777890123', '', '', '23001007', '1', 'ACTIVE'),
+('STU008', 'Ishara', 'Gunasekara', 'STUDENT', 'ishara.gunasekara@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0778901234', '', '', '23001008', '1', 'ACTIVE'),
+('STU009', 'Dineth', 'Amarasinghe', 'STUDENT', 'dineth.amarasinghe@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0779012345', '', '', '23001009', '1', 'ACTIVE'),
+('STU010', 'Sachini', 'Wijewardena', 'STUDENT', 'sachini.wijewardena@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0770123456', '', '', '23001010', '1', 'ACTIVE');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
