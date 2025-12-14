@@ -28,4 +28,8 @@ class sportManagerController {
     public function competitions() {
         view('sports-manager/competitions');
     }
+
+    public function addPractice() {
+        view('sports-manager/add-practice');
+    }
 }

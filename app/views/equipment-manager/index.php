@@ -72,6 +72,13 @@ $userName = $_SESSION['user_name'] ?? 'John Doe';
                         <p class="reservation-user">User: James Wilson</p>
                     </div>
 
+                     <a href="/uoc-sports/public/equipment-manager/practiceschedule">
+                <div class="view-all-link">
+                    
+                        View All Found Items 
+                   
+                </div>  </a>
+
                 </div>
             </div>
         </aside>
@@ -142,11 +149,11 @@ $userName = $_SESSION['user_name'] ?? 'John Doe';
                     <?php endif; ?>
                 </div>
                 <a href="/uoc-sports/public/equipment-manager/lostitem">
-                <button class="btn-page">
+                <div class="view-all-link">
                     
                         View All Found Items 
                    
-                </button>  </a>
+                </div>  </a>
             </div>
         </aside>
         
