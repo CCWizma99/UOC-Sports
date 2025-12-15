@@ -31,4 +31,25 @@ class EquipmentManagerController {
     public function practiceschedule() {
         view('equipment-manager/practiceschedule');
     }
+
+    public function addLostItem() {
+        view('equipment-manager/add-lostitem');
+    }
+
+    public function addBooking() {
+        view('equipment-manager/add-booking');
+    }
+
+    public function bookingRequests() {
+        // Mock data for frontend display
+        $bookingRequests = [];
+        
+        view('equipment-manager/bookingrequests', ['bookingRequests' => $bookingRequests]);
+    }
+
+    public function manageEquipment() {
+        $sport = $_GET['sport'] ?? 'General';
+        
+        view('equipment-manager/manage-equipment', ['sport' => $sport]);
+    }
 }

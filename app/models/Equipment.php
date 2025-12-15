@@ -347,5 +347,32 @@ class Equipment {
             'student_id' => $studentId['student_id']
         ]);
     }
+
+    public function getAllBookingRequests() {
+        $sql = "
+            SELECT 
+                r.request_id,
+                r.student_id,
+                r.equipment_id,
+                e.equipment_name,
+                r.request_date,
+                r.start_time,
+                r.end_time,
+                r.purpose,
+                r.status,
+                r.notes,
+                u.first_name,
+                u.last_name,
+                s.sport_name
+            FROM `equipment-requests` r
+            LEFT JOIN equipment e ON r.equipment_id = e.equipment_id
+            LEFT JOIN student st ON r.student_id = st.student_id
+            LEFT JOIN user u ON st.user_id = u.user_id
+            LEFT JOIN sport s ON e.sport_id = s.sport_id
+            ORDER BY r.request_date DESC, r.start_time DESC
+        ";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 

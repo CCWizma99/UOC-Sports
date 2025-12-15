@@ -429,6 +429,8 @@
     --gray-300: #d1d5db;
     --gray-600: #4b5563;
     --gray-800: #1f2937;
+    --warning: #a78bfa;
+    --success: #a78bfa;
 
 }
 
@@ -491,7 +493,7 @@ body {
 /* Container and Layout */
 .main-content-wrapper {
     display: grid;
-    grid-template-columns: 280px 1fr 320px;
+    grid-template-columns: 340px 1fr 320px;
     gap: 1.5rem;
     padding: 0 rem;
     margin: 0;
@@ -928,7 +930,7 @@ body {
     padding: 0.625rem;
     background-color: var(--lightest-purple);
     border-radius: 8px;
-    text-decoration: none;
+    text-decoration: none !important;
     transition: all 0.3s ease;
     margin-top: 0.5rem;
 }
@@ -936,6 +938,7 @@ body {
 .view-all-link:hover {
     background-color: var(--light-purple);
     color: var(--white);
+    text-decoration: none !important;
 }
 
 /* Modal */

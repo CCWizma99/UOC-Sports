@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../core/Database.php';
 
 class Schedule {
     private $pdo;
@@ -51,6 +52,17 @@ class Schedule {
     public function delete($id) {
         $stmt = $this->pdo->prepare("DELETE FROM practice_sessions WHERE id = ?");
         return $stmt->execute([(int)$id]);
+    }
+
+    /**
+     * Set status for a practice session
+     * @param int $id
+     * @param string $status
+     * @return bool
+     */
+    public function setStatus($id, $status) {
+        $stmt = $this->pdo->prepare("UPDATE practice_sessions SET status = ? WHERE id = ?");
+        return $stmt->execute([$status, (int)$id]);
     }
 
     /**

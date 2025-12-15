@@ -13,18 +13,19 @@
     @import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
     @import url("/uoc-sports/public/css/general/footer.css");
 
-    @import url("/uoc-sports/public/css/equipment-manager/report.css");
+    @import url("/uoc-sports/public/css/sports-manager/report.css");
   </style>
 </head>
 <body>
 <?php
     require "../app/views/templates/general/header.php";
-    require "../app/views/equipment-manager/header-subnav.php";
+    require "../app/views/sports-manager/header-subnav.php";
 ?>
 <div class="report-container">
 
-    <div class="report-header">
-        <h2>Booking Requests</h2>
+    <div class="container-header">
+        <h2>Practice Sessions</h2>
+        <p>Manage and schedule practice sessions</p>
       </div>
 
      
@@ -33,10 +34,10 @@
   
 
    
-        <a href="/uoc-sports/public/equipment-manager/add-booking">
-            <button class="btn-add">
+        <a href="/uoc-sports/public/sport-manager/add-practice">
+            <button class="view-all-link">
               
-            Add New Booking 
+            Add New Practice Session 
             </button>
         </a>
     </div>
@@ -48,14 +49,14 @@
                 <tr>
                     <th onclick="sortTable(0)">Booking ID<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(1)">User ID<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(2)">Facility ID<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(2)">Sport ID<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Date<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(4)">Slot<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(5)">Purpose<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(6)">Status<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(7)">Payment<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(4)">Practice start time<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(5)">Practice end time<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(6)">Location<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(7)">Action<span class="sort-indicator"></span></th>
 
-                    <th onclick="sortTable(8)">Action<span class="sort-indicator"></span></th>
+                    
                 </tr>
             </thead>
 
@@ -79,7 +80,7 @@
                     <?php else: ?>
                             <tr>
                                 <td colspan="4" style="text-align: center; padding: 2rem; color: #6b7280;">
-                                    No booking requests <a href="/uoc-sports/public/equipment-manager/add-booking">Add your first item</a>
+                                    No practices Scheduled. <a href="/uoc-sports/public/sports-manager/add-practice.php">Add your first practice session</a>
                                 </td>
                             </tr>
                         <?php endif; ?>
