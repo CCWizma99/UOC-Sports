@@ -53,42 +53,8 @@ $current_year = date('Y');
 $current_period = $_GET['period'] ?? 'monthly';
 $selected_year = $_GET['year'] ?? $current_year;
 
-$connection_error = 0;
-
-if (isset($connection_error)) {
-    // Sample data for demonstration
-    $sample_data = [
-        'monthly' => [
-            ['period_label' => 'January', 'user_count' => 45],
-            ['period_label' => 'February', 'user_count' => 52],
-            ['period_label' => 'March', 'user_count' => 38],
-            ['period_label' => 'April', 'user_count' => 67],
-            ['period_label' => 'May', 'user_count' => 71],
-            ['period_label' => 'June', 'user_count' => 58],
-            ['period_label' => 'July', 'user_count' => 82],
-            ['period_label' => 'August', 'user_count' => 76]
-        ],
-        'weekly' => [
-            ['period_label' => 'Week 1', 'user_count' => 12],
-            ['period_label' => 'Week 2', 'user_count' => 18],
-            ['period_label' => 'Week 3', 'user_count' => 15],
-            ['period_label' => 'Week 4', 'user_count' => 22],
-            ['period_label' => 'Week 5', 'user_count' => 19],
-            ['period_label' => 'Week 6', 'user_count' => 25],
-            ['period_label' => 'Week 7', 'user_count' => 16],
-            ['period_label' => 'Week 8', 'user_count' => 21]
-        ],
-        'annually' => [
-            ['period_label' => '2021', 'user_count' => 324],
-            ['period_label' => '2022', 'user_count' => 567],
-            ['period_label' => '2023', 'user_count' => 689],
-            ['period_label' => '2024', 'user_count' => 489]
-        ]
-    ];
-    $chart_data = $sample_data[$current_period];
-} else {
-    $chart_data = getUserRegistrationData($pdo, $current_period, $selected_year) ?? [];
-}
+// Fetch data from backend
+$chart_data = getUserRegistrationData($pdo, $current_period, $selected_year) ?? [];
 
 // Calculate max value for chart scaling
 $max_value = !empty($chart_data) ? max(array_column($chart_data, 'user_count')) : 100;
@@ -148,31 +114,9 @@ $avg_users = !empty($chart_data) ? round($total_users / count($chart_data), 1) :
                 
                 <div class="chart-wrapper">
                     <div class="chart-title">User Registrations - <?php echo ucfirst($current_period); ?> View</div>
-                    
-                    <div class="chart-type-selector">
-                        <button class="chart-type-btn active" onclick="showChart('bar')">Bar Chart</button>
-                        <button class="chart-type-btn" onclick="showChart('line')">Line Chart</button>
-                    </div>
-
-                    <div id="barChart" class="chart-display">
-                        <div class="bar-chart">
-                            <?php foreach ($chart_data as $data): ?>
-                                <div class="bar" 
-                                     style="height: <?php echo ($data['user_count'] / $max_value) * 100; ?>%; animation-delay: <?php echo array_search($data, $chart_data) * 0.1; ?>s;"
-                                     data-value="<?php echo $data['user_count']; ?> users"
-                                     data-label="<?php echo $data['period_label']; ?>">
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                        <div class="chart-labels">
-                            <?php foreach ($chart_data as $data): ?>
-                                <div class="chart-label"><?php echo $data['period_label']; ?></div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
 
                     <!-- Line Chart -->
-                    <div id="lineChart" class="chart-display" style="display: none;">
+                    <div id="lineChart" class="chart-display">
                         <div class="line-chart">
                             <svg class="line-svg" viewBox="0 0 800 300">
                                 <defs>
@@ -192,22 +136,32 @@ $avg_users = !empty($chart_data) ? round($total_users / count($chart_data), 1) :
                                 $chartHeight = $height - ($padding * 2);
                                 $dataCount = count($chart_data);
                                 
-                                foreach ($chart_data as $index => $data) {
-                                    $x = $padding + ($index * ($chartWidth / ($dataCount - 1)));
-                                    $y = $padding + ($chartHeight - (($data['user_count'] / $max_value) * $chartHeight));
+                                if ($dataCount > 1) {
+                                    foreach ($chart_data as $index => $data) {
+                                        $x = $padding + ($index * ($chartWidth / ($dataCount - 1)));
+                                        $y = $padding + ($chartHeight - (($data['user_count'] / $max_value) * $chartHeight));
+                                        $points[] = "$x,$y";
+                                        
+                                        if ($index === 0) {
+                                            $areaPoints[] = "$x," . ($height - $padding);
+                                        }
+                                        $areaPoints[] = "$x,$y";
+                                        if ($index === $dataCount - 1) {
+                                            $areaPoints[] = "$x," . ($height - $padding);
+                                        }
+                                    }
+                                } elseif ($dataCount === 1) {
+                                    // Single data point - center it
+                                    $x = $width / 2;
+                                    $y = $padding + ($chartHeight - (($chart_data[0]['user_count'] / $max_value) * $chartHeight));
                                     $points[] = "$x,$y";
-                                    
-                                    if ($index === 0) {
-                                        $areaPoints[] = "$x," . ($height - $padding);
-                                    }
+                                    $areaPoints[] = "$x," . ($height - $padding);
                                     $areaPoints[] = "$x,$y";
-                                    if ($index === $dataCount - 1) {
-                                        $areaPoints[] = "$x," . ($height - $padding);
-                                    }
+                                    $areaPoints[] = "$x," . ($height - $padding);
                                 }
                                 
-                                $pathData = "M " . implode(" L ", $points);
-                                $areaData = "M " . implode(" L ", $areaPoints) . " Z";
+                                $pathData = !empty($points) ? "M " . implode(" L ", $points) : "";
+                                $areaData = !empty($areaPoints) ? "M " . implode(" L ", $areaPoints) . " Z" : "";
                                 ?>
                                 
                                 <!-- Grid lines -->
@@ -226,24 +180,46 @@ $avg_users = !empty($chart_data) ? round($total_users / count($chart_data), 1) :
                                 <path d="<?php echo $pathData; ?>" class="line-path" />
                                 
                                 <!-- Data points -->
-                                <?php foreach ($chart_data as $index => $data): 
-                                    $x = $padding + ($index * ($chartWidth / ($dataCount - 1)));
-                                    $y = $padding + ($chartHeight - (($data['user_count'] / $max_value) * $chartHeight));
+                                <?php 
+                                if ($dataCount > 1) {
+                                    foreach ($chart_data as $index => $data): 
+                                        $x = $padding + ($index * ($chartWidth / ($dataCount - 1)));
+                                        $y = $padding + ($chartHeight - (($data['user_count'] / $max_value) * $chartHeight));
                                 ?>
                                     <circle cx="<?php echo $x; ?>" cy="<?php echo $y; ?>" r="6" class="data-point">
                                         <title><?php echo $data['period_label'] . ': ' . $data['user_count']; ?> users</title>
                                     </circle>
-                                <?php endforeach; ?>
+                                <?php 
+                                    endforeach;
+                                } elseif ($dataCount === 1) {
+                                    $x = $width / 2;
+                                    $y = $padding + ($chartHeight - (($chart_data[0]['user_count'] / $max_value) * $chartHeight));
+                                ?>
+                                    <circle cx="<?php echo $x; ?>" cy="<?php echo $y; ?>" r="6" class="data-point">
+                                        <title><?php echo $chart_data[0]['period_label'] . ': ' . $chart_data[0]['user_count']; ?> users</title>
+                                    </circle>
+                                <?php } ?>
                                 
                                 <!-- X-axis labels -->
-                                <?php foreach ($chart_data as $index => $data): 
-                                    $x = $padding + ($index * ($chartWidth / ($dataCount - 1)));
+                                <?php 
+                                if ($dataCount > 1) {
+                                    foreach ($chart_data as $index => $data): 
+                                        $x = $padding + ($index * ($chartWidth / ($dataCount - 1)));
                                 ?>
                                     <text x="<?php echo $x; ?>" y="<?php echo $height - 20; ?>" 
                                           text-anchor="middle" fill="#666" font-size="12">
                                         <?php echo substr($data['period_label'], 0, 8); ?>
                                     </text>
-                                <?php endforeach; ?>
+                                <?php 
+                                    endforeach;
+                                } elseif ($dataCount === 1) {
+                                    $x = $width / 2;
+                                ?>
+                                    <text x="<?php echo $x; ?>" y="<?php echo $height - 20; ?>" 
+                                          text-anchor="middle" fill="#666" font-size="12">
+                                        <?php echo substr($chart_data[0]['period_label'], 0, 8); ?>
+                                    </text>
+                                <?php } ?>
                                 
                                 <!-- Y-axis labels -->
                                 <?php for ($i = 0; $i <= 5; $i++): 

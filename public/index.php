@@ -92,6 +92,9 @@ $router->get('/sport-manager/add-expense/', 'SportManagerController@addExpense')
 
 $router->post('/profile/upload-image', 'ProfileController@uploadProfileImage');
 
+// Contact form submission
+$router->post('/contact/submit', 'InquiryController@submit');
+
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->get('/sign-in', 'AuthController@showSigninForm');
 $router->get('/student-sign-up', 'AuthController@showStudentSignupForm');

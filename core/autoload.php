@@ -4,6 +4,7 @@ spl_autoload_register(function ($className) {
         '../app/controllers/',
         '../app/controllers/api/',
         '../app/models/',
+        '../app/services/',
         '../core/'
     ];
 
