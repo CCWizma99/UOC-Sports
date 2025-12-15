@@ -1,4 +1,6 @@
-
+.page-container{
+    margin: 1rem;
+}
 /* Form Grid */
 .form-container { 
     margin-top: 1rem;
@@ -103,7 +105,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin: 1.5rem;
     gap: 1rem;
 }
 
@@ -219,12 +221,13 @@
 
 .data-table td {
     font-size: 0.85rem;
-    padding: 0.75rem 0.5rem;
-    border-bottom: 1px solid var(--gray-200);
+    padding: 1.2rem 0.5rem;
+    border-bottom: 1px solid #b0b3b5;
     text-align: center;
     word-wrap: break-word;
     overflow-wrap: break-word;
     vertical-align: middle;
+   
 }
 
 .data-table tbody tr:hover {
