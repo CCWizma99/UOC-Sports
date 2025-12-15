@@ -36,4 +36,8 @@ class sportManagerController {
     public function addParticipants() {
         view('sports-manager/add-participants');
     }
+
+    public function addExpense() {
+        view('sports-manager/add-expense');
+    }
 }

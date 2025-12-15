@@ -31,4 +31,8 @@ class EquipmentManagerController {
     public function practiceschedule() {
         view('equipment-manager/practiceschedule');
     }
+
+    public function addLostItem() {
+        view('equipment-manager/add-lostitem');
+    }
 }

@@ -33,7 +33,7 @@
   
 
    
-        <a href="/project/uoc-sports/app/views/equipment-manager/add-lostitem.php">
+        <a href="/uoc-sports/public/equipment-manager/add-lostitem.php">
             <button class="btn-add">
               
             Add Lost Item
