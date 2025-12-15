@@ -178,4 +178,67 @@ class EmailService {
 
         return $this->sendEmail($email, $name, $subject, $htmlContent);
     }
+
+    /**
+     * Send inquiry confirmation email
+     * 
+     * @param string $email User email
+     * @param string $subject Inquiry subject
+     * @param string $inquiryId Generated inquiry ID
+     * @return array Response with status and message
+     */
+    public function sendInquiryConfirmation($email, $subject, $inquiryId) {
+        $emailSubject = "Inquiry Received - UOC Sports Department";
+        
+        $htmlContent = "
+            <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+                        .header { background-color: #5e2d91; color: white; padding: 20px; text-align: center; }
+                        .content { padding: 20px; }
+                        .inquiry-box { background-color: #f4f4f4; padding: 15px; margin: 20px 0; border-left: 4px solid #5e2d91; }
+                        .inquiry-box h3 { margin-top: 0; color: #5e2d91; }
+                        .footer { background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 12px; color: #666; }
+                        .inquiry-id { font-weight: bold; color: #5e2d91; font-size: 16px; }
+                    </style>
+                </head>
+                <body>
+                    <div class='header'>
+                        <h1>University of Colombo Sports</h1>
+                        <p>Physical Education Department</p>
+                    </div>
+                    <div class='content'>
+                        <h2>Thank you for contacting us!</h2>
+                        <p>We have received your inquiry and our team will review it shortly.</p>
+                        
+                        <div class='inquiry-box'>
+                            <h3>Inquiry Details</h3>
+                            <p><strong>Reference ID:</strong> <span class='inquiry-id'>$inquiryId</span></p>
+                            <p><strong>Subject:</strong> " . htmlspecialchars($subject) . "</p>
+                            <p><strong>Date:</strong> " . date('F j, Y') . "</p>
+                        </div>
+                        
+                        <p>Our team typically responds within 2-3 business days. You can use the reference ID above to track your inquiry.</p>
+                        
+                        <p>If you have any urgent matters, please contact us directly at:</p>
+                        <ul>
+                            <li><strong>Email:</strong> info@ped.cmb.ac.lk</li>
+                            <li><strong>Phone:</strong> +94 112 502 405</li>
+                        </ul>
+                        
+                        <p>Best regards,<br>
+                        <strong>University of Colombo Sports Department</strong></p>
+                    </div>
+                    <div class='footer'>
+                        <p>This is an automated confirmation email from the UOC Sports E-Portal.</p>
+                        <p>University of Colombo | Physical Education Department</p>
+                        <p>94, Cumaratunga Munidasa Mw, Colombo 03, Sri Lanka</p>
+                    </div>
+                </body>
+            </html>
+        ";
+
+        return $this->sendEmail($email, 'Valued User', $emailSubject, $htmlContent);
+    }
 }

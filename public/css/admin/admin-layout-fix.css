@@ -1,0 +1,99 @@
+/* Global admin layout fix for sidebar and quick-bar */
+/* Sidebar: 240px (left), Quick-bar: ~240px (right) */
+
+/* Apply to all admin page containers */
+#add-user,
+#add-equipment,
+#add-equipment-type,
+#add-post,
+#budgetForm,
+#add-match-result,
+#search-user,
+#search-posts,
+#Search-equipment,
+#search-budget,
+#search-team,
+.search-container,
+#event-table-container,
+#budget-card,
+.user-stat-container,
+#calendar-container,
+#week-reservations {
+    margin-left: 260px !important;
+    margin-right: 260px !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1600px) {
+
+    #add-user,
+    #add-equipment,
+    #add-equipment-type,
+    #add-post,
+    #budgetForm,
+    #add-match-result,
+    #search-user,
+    #search-posts,
+    #Search-equipment,
+    #search-budget,
+    #search-team,
+    .search-container,
+    #event-table-container,
+    #budget-card,
+    .user-stat-container,
+    #calendar-container,
+    #week-reservations {
+        margin-left: 260px !important;
+        margin-right: 20px !important;
+    }
+}
+
+@media (max-width: 1024px) {
+
+    /* Hide quick-bar on tablets */
+    #add-user,
+    #add-equipment,
+    #add-equipment-type,
+    #add-post,
+    #budgetForm,
+    #add-match-result,
+    #search-user,
+    #search-posts,
+    #Search-equipment,
+    #search-budget,
+    #search-team,
+    .search-container,
+    #event-table-container,
+    #budget-card,
+    .user-stat-container,
+    #calendar-container,
+    #week-reservations {
+        margin-left: 260px !important;
+        margin-right: 20px !important;
+    }
+}
+
+@media (max-width: 768px) {
+
+    /* Hide both sidebars on mobile */
+    #add-user,
+    #add-equipment,
+    #add-equipment-type,
+    #add-post,
+    #budgetForm,
+    #add-match-result,
+    #search-user,
+    #search-posts,
+    #Search-equipment,
+    #search-budget,
+    #search-team,
+    .search-container,
+    #event-table-container,
+    #budget-card,
+    .user-stat-container,
+    #calendar-container,
+    #week-reservations {
+        margin-left: 20px !important;
+        margin-right: 20px !important;
+    }
+}
