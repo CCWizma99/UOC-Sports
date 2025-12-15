@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Equipment Manager Dashboard';
 $userRole = $_SESSION['user_role'] ?? 'Equipment Manager';
-$userName = $_SESSION['user_name'] ?? 'John Doe';
+$userName = $_SESSION['user_name'] ?? 'J Jayaweera';
 ?>
 
 
@@ -33,7 +33,7 @@ $userName = $_SESSION['user_name'] ?? 'John Doe';
 
         <aside class="left-container">
            <div class="welcome-section">
-                <h1>Welcome, <?php echo htmlspecialchars($userRole); ?>!</h1>
+                <h1>Welcome, <?php echo htmlspecialchars($userName); ?>!</h1>
                 <p>Manage your sports activities and track progress</p>
             </div>
 

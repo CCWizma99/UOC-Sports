@@ -13,7 +13,7 @@
     @import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
     @import url("/uoc-sports/public/css/general/footer.css");
 
-    @import url("/uoc-sports/public/css/equipment-manager/report.css");
+    @import url("/uoc-sports/public/css/sports-manager/report.css");
   </style>
 </head>
 <body>
@@ -23,8 +23,9 @@
 ?>
 <div class="report-container">
 
-    <div class="report-header">
+    <div class="container-header">
         <h2>Practice Sessions</h2>
+        <p>Manage and schedule practice sessions</p>
       </div>
 
      
@@ -34,7 +35,7 @@
 
    
         <a href="/uoc-sports/public/sport-manager/add-practice">
-            <button class="btn-add">
+            <button class="view-all-link">
               
             Add New Practice Session 
             </button>

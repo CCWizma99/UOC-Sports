@@ -928,7 +928,7 @@ body {
     padding: 0.625rem;
     background-color: var(--lightest-purple);
     border-radius: 8px;
-    text-decoration: none;
+    text-decoration: none !important;
     transition: all 0.3s ease;
     margin-top: 0.5rem;
 }
@@ -936,6 +936,7 @@ body {
 .view-all-link:hover {
     background-color: var(--light-purple);
     color: var(--white);
+    text-decoration: none !important;
 }
 
 /* Modal */

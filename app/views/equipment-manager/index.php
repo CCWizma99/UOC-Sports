@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Equipment Manager Dashboard';
 $userRole = $_SESSION['user_role'] ?? 'Equipment Manager';
-$userName = $_SESSION['user_name'] ?? 'John Doe';
+$userName = $_SESSION['user_name'] ?? 'J Jayaweera';
 ?>
 
 <!DOCTYPE html>
@@ -72,12 +72,9 @@ $userName = $_SESSION['user_name'] ?? 'John Doe';
                         <p class="reservation-user">User: James Wilson</p>
                     </div>
 
-                     <a href="/uoc-sports/public/equipment-manager/practiceschedule">
-                <div class="view-all-link">
-                    
-                        View All Found Items 
-                   
-                </div>  </a>
+                     <a href="/uoc-sports/public/equipment-manager/practiceschedule" class="view-all-link">
+                        View All Found Items
+                    </a>
 
                 </div>
             </div>
@@ -148,12 +145,9 @@ $userName = $_SESSION['user_name'] ?? 'John Doe';
                         </p>
                     <?php endif; ?>
                 </div>
-                <a href="/uoc-sports/public/equipment-manager/lostitem">
-                <div class="view-all-link">
-                    
-                        View All Found Items 
-                   
-                </div>  </a>
+                <a href="/uoc-sports/public/equipment-manager/lostitem" class="view-all-link">
+                    View All Found Items
+                </a>
             </div>
         </aside>
         

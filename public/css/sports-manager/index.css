@@ -736,11 +736,10 @@ body {
 
 /* Balance Box */
 .balance-box {
-
   color: green;
   padding: 1.8rem;
-
-  align-items: center ;
+  text-align: center;
+  align-items: center;
   margin-bottom: 2rem;
 }
 

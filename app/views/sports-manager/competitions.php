@@ -13,7 +13,7 @@
     @import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
     @import url("/uoc-sports/public/css/general/footer.css");
 
-    @import url("/uoc-sports/public/css/equipment-manager/report.css");
+    @import url("/uoc-sports/public/css/sports-manager/report.css");
   </style>
 </head>
 <body>
@@ -21,10 +21,11 @@
     require "../app/views/templates/general/header.php";
     require "../app/views/sports-manager/header-subnav.php";
 ?>
-<div class="report-container">
+<div class="page-container">
 
-    <div class="report-header">
+    <div class="container-header">
         <h2>Upcoming Competitions</h2>
+        <p>Manage scheduled competitions</p>
       </div>
 
      
@@ -43,7 +44,7 @@
                     <th onclick="sortTable(2)">Sport<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Date<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(4)">Location<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(5)">Participants count<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(5)">Participants Count<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(6)">Participants<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(7)">Action<span class="sort-indicator"></span></th>
 
@@ -63,7 +64,9 @@
                         <td><?= $sch['participants_count'] ?></td>
                         <td><?= $sch['participants'] ?></td>
                         <td>
+                            <a href="/uoc-sports/public/sport-manager/add-participants/<?= $sch['competition_id'] ?>">
                             <button class="btn-action btn-primary">Add Participants</button>
+                            </a>
                         </td>
                      </tr>
                   <?php endforeach; ?>
@@ -79,7 +82,9 @@
                                 <td>12</td>
                                 <td>No participants selected</td>
                                 <td>
-                                    <button class="btn-action btn-primary">Add Participants</button>
+                                    <a href="/uoc-sports/public/sport-manager/add-participants/">
+                                    <button class="btn-add">Add Participants</button>
+                                    </a>
                                 </td>
                             </tr>
                             <tr>
@@ -91,7 +96,9 @@
                                 <td>22</td>
                                 <td>No participants selected</td>
                                 <td>
-                                    <button class="btn-action btn-primary">Add Participants</button>
+                                    <a href="/uoc-sports/public/sport-manager/add-participants/">
+                                    <button class="btn-add">Add Participants</button>
+                                    </a>
                                 </td>
                             </tr>
                             <tr>
@@ -102,8 +109,8 @@
                                 <td>Tennis Court A</td>
                                 <td>8</td>
                                 <td>No participants selected</td>
-                                <td>
-                                    <button class="btn-action btn-primary">Add Participants</button>
+                                <td><a href="/uoc-sports/public/sport-manager/add-participants">
+                                    <button class="btn-add">Add Participants</button></a>
                                 </td>
                             </tr>
                            
