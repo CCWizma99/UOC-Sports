@@ -19,7 +19,7 @@
         @import url(/uoc-sports/public/css/admin/footer.css);
     </style>
 </head>
-<body>
+<body style="margin-top: 120px;">
 <?php 
 require '../app/views/templates/admin/header.php';
 require '../app/views/templates/admin/link-bar.php';

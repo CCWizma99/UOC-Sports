@@ -29,7 +29,7 @@ require '../app/views/templates/admin/search-equipment.php';
 require '../app/views/templates/admin/add-equipment.php';
 require '../app/views/templates/admin/footer.php';
 ?>
-</body>
+<body style="margin-top: 120px;">
 <script>
     var currentPage = document.getElementById("sidebar-equipments");
     currentPage.classList.add("active") 

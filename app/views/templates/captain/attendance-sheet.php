@@ -4,7 +4,6 @@ $captainSportId = $_SESSION['captain_sport_id'] ?? '';
 
 // If not in session, try to get from database
 if (empty($captainSportId) && isset($_SESSION['user_id'])) {
-    require_once __DIR__ . '/../../../core/Database.php';
     $pdo = Database::getConnection();
     $stmt = $pdo->prepare("SELECT sport_id FROM sport WHERE captain_id = ?");
     $stmt->execute([$_SESSION['user_id']]);

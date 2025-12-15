@@ -1,13 +1,21 @@
-#search-user{
+#search-user {
     width: 960px;
     margin: auto;
-    margin-top: 30px;
+    margin-top: 40px;
+    background: #fff;
     padding: 20px;
-    border: var(--primary-color) 1px solid;
-    border-radius: 12px;
-    box-shadow: rgba(0,0,0,0.1) 1px 2px 5px 1px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-.filter-bar{
+
+#search-user h2 {
+    width: 100%;
+    font-weight: 300;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.filter-bar {
     width: 80%;
     margin: auto;
     color: #333;
@@ -15,41 +23,47 @@
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 15px;
-    background-color: rgba(238, 238, 238, 0.5);
+    background-color: #fafafa;
     padding: 10px;
     border-radius: 8px;
 }
-.filter-bar h3{
+
+.filter-bar h3 {
     width: 100%;
     font-size: 16px;
     font-weight: 300;
 }
-.filter-bar .btn{
-    border: var(--primary-color) 1px solid;
-    color: var(--primary-color);
+
+.filter-bar .btn {
+    border: 1px solid #ccc;
+    color: #555;
     background-color: #fff;
     padding: 8px;
     width: 100px;
     text-align: center;
-    border-radius: 30px;
-    transition: 0.4s;
+    border-radius: 6px;
+    transition: 0.2s;
 }
-.filter-bar .btn:hover{
-    background-color: #ddd;
+
+.filter-bar .btn:hover {
+    background-color: #e6f0fb;
     cursor: pointer;
 }
-.filter-bar .btn.selected{
-    background-color: var(--primary-color);
+
+.filter-bar .btn.selected {
+    background-color: var(--primary-color-8);
     color: #fff;
+    border-color: var(--primary-color-8);
 }
+
 .dropdown {
     display: none;
     position: absolute;
     background: white;
-    border: 1px solid var(--primary-color);
-    border-radius: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     margin-top: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     width: 120px;
     z-index: 10;
 }
@@ -57,11 +71,11 @@
 .dropdown div {
     padding: 8px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: 0.2s;
 }
 
 .dropdown div:hover {
-    background: #f0f0f0;
+    background: #e6f0fb;
 }
 
 .dropdown.show {
@@ -72,55 +86,63 @@
     position: relative;
 }
 
-#search-user input{
+#search-user input {
     width: 80%;
     display: block;
     margin: auto;
     margin-top: 20px;
-    line-height: 32px;
-    padding-left: 10px;
-    border-radius: 50px;
+    padding: 12px 15px;
+    font-size: 16px;
+    border-radius: 6px;
     outline: none;
-    border: var(--primary-color) 1px solid;
+    border: 1px solid #ccc;
+    transition: 0.3s;
 }
-#search-user h2{
-    width: 100%;
-    font-weight: 200;
-    text-align: center;
+
+#search-user input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px var(--primary-color-5);
 }
+
 .user-table {
     width: calc(80% + 14px);
     border-collapse: collapse;
     border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 0 10px 2px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     margin: auto;
     margin-top: 20px;
 }
 
 .user-table thead {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: #fafafa;
+    color: #555;
 }
 
-.user-table th, .user-table td {
+.user-table th,
+.user-table td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
 }
 
-.user-table tbody tr{
-    transition: 0.4s;
+.user-table th {
+    font-weight: 600;
+}
+
+.user-table tbody tr {
+    transition: 0.2s;
 }
 
 .user-table tbody tr:hover {
-    background-color: #f1f1f1;
+    background-color: #e6f0fb;
 }
 
 .action-link {
     color: #333;
     text-decoration: none;
-    transition: color 0.4s ease;
+    transition: 0.2s;
     font-size: 20px;
     display: block;
     width: 100%;
@@ -130,15 +152,14 @@
 .action-link:hover {
     color: var(--primary-color);
 }
-#search-user p{
+
+#search-user p {
     width: 80%;
     margin: auto;
     margin-top: 20px;
 }
 
-
-/*Search Reservation Special Styles*/
-
+/* Search Reservation Special Styles */
 #date-btn input[type="date"] {
     background: transparent;
     border: none;
@@ -148,30 +169,29 @@
     color: inherit;
     cursor: pointer;
     outline: none;
-    width: 130px; /* adjust for your button size */
+    width: 130px;
 }
 
-/* Remove the default calendar icon background */
 #date-btn input[type="date"]::-webkit-calendar-picker-indicator {
     background: transparent;
     cursor: pointer;
-    filter: invert(1); /* makes icon white if your btn is dark */
+    filter: invert(1);
     opacity: 0.7;
-    transition: opacity 0.2s;
+    transition: 0.2s;
 }
 
 #date-btn input[type="date"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
 }
 
-/* Optional: subtle underline focus effect */
 #date-btn input[type="date"]:focus {
-    border-bottom: 1px solid rgba(255,255,255,0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.pay-complete{
+.pay-complete {
     background-color: rgba(128, 0, 128, 0.2);
 }
-.pay-incomplete{
+
+.pay-incomplete {
     background-color: rgba(255, 0, 0, 0.2);
 }
