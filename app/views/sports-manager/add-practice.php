@@ -79,6 +79,14 @@
                         <label for="endTime">End Time</label>
                         <input type="time" id="endTime" name="etime" required>
                     </div>
+
+                    <div class="form-group">
+                        <label for="needEquipment">Need Equipment *</label>
+                        <select id="equipment" name="equipment" required>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                    </div>
+
                     
                 <div class="form-row">
                     <div class="form-group">

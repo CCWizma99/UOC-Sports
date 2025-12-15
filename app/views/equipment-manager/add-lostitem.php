@@ -80,7 +80,7 @@
                         
                     <div class="form-actions">
                     <button type="button" class="view-all-link" onclick="window.location.href='/uoc-sports/public/equipment-manager/lostitem/'">
-                       Cancel
+                       Back
                     </button>
                     <button type="submit" class="view-all-link">
                        Add Found Item

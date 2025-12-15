@@ -65,9 +65,12 @@ $router->get('/equipment-manager//', 'EquipmentManagerController@index');
 $router->get('/equipment-manager/equipment-reservations', 'EquipmentManagerController@equipmentReport');
 $router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipments');
 $router->get('/equipment-manager/practiceschedule', 'EquipmentManagerController@practiceschedule');
-$router->get('/equipment-manager/lostitem', 'EquipmentManagerController@addLostItem');
-
+$router->get('/equipment-manager/lostitem', 'EquipmentManagerController@LostItem');
+$router->get('/equipment-manager/add-lostitem', 'EquipmentManagerController@addLostItem');
+$router->get('/equipment-manager/add-booking', 'EquipmentManagerController@addBooking');
 $router->post('/post/delete-comment', 'PostController@deleteComment');
+$router->get('/equipment-manager/bookingrequests', 'EquipmentManagerController@bookingRequests');
+$router->get('/equipment-manager/manage-equipment', 'EquipmentManagerController@manageEquipment');
 
 $router->get('/sport-manager//', 'SportManagerController@index');
 $router->get('/sport-manager/schedule', 'SportManagerController@schedule');
