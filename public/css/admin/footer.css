@@ -1,5 +1,5 @@
 footer{
-    width: calc(100vw - 490px);
+    width: calc(100vw);
     margin: auto;
     margin-top: 30px;
     background: linear-gradient(90deg, var(--primary-color), #9b59b6);

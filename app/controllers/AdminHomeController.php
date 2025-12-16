@@ -36,4 +36,7 @@ class AdminHomeController {
     public function inquiry() {
         view('admin/inquiry', ['title' => 'Users']);
     }
+    public function reservationDetails() {
+        view('admin/reservation', ['title' => 'Reservation Details']);
+    }
 }

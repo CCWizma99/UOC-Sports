@@ -1,6 +1,7 @@
 #event-table-container {
   max-width: 960px;
-  margin: 40px auto 30px;
+  margin-left: 260px;
+  margin-top: 40px;
   padding: 20px;
 }
 

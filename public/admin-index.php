@@ -14,6 +14,7 @@ $router = new Router();
 $router->get('/admin-index', 'AdminHomeController@index');
 $router->get('/admin-users', 'AdminHomeController@users');
 $router->get('/admin-reservations', 'AdminHomeController@reservations');
+$router->get('/admin-reservation', 'AdminHomeController@reservationDetails');
 $router->get('/admin-players', 'AdminHomeController@players');
 $router->get('/admin-equipments', 'AdminHomeController@equipments');
 $router->get('/admin-events', 'AdminHomeController@events');

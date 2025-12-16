@@ -1,11 +1,11 @@
         .user-stat-container {
             width: 960px;
-            margin: 0 auto;
+            margin-left: 260px;
+            margin-top: 40px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(94, 45, 145, 0.1);
             overflow: hidden;
-            margin-top: 150px;
             border: 1px solid var(--primary-color);
         }
 
@@ -332,17 +332,17 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-            
+
             .filter-btn {
                 text-align: center;
             }
-            
+
             .chart-svg,
             .bar-chart,
             .line-chart {
                 height: 300px;
             }
-            
+
             .header h1 {
                 font-size: 2rem;
             }

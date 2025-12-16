@@ -2,8 +2,8 @@
         display: flex;
         flex-wrap: wrap;
         width: 960px;
-        margin: auto;
-        margin-top: 40px;
+        margin-left: 260px;
+        margin-top: 140px;
         justify-content: center;
         gap: 20px;
         padding: 10px;
