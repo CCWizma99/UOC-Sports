@@ -13,6 +13,7 @@ class CaptainController {
         // Load models
         $userModel = new User();
         $sportModel = new Sport();
+        $sportTeamModel = new SportTeam();
 
         // Get user display name
         $profile = $userModel->getUserProfile($userId);
@@ -22,7 +23,9 @@ class CaptainController {
         $sport = $sportModel->getSportByCaptain($userId);
         $sportName = $sport && isset($sport['sport_name']) ? $sport['sport_name'] : null;
 
-        view('captain/index', ['username' => $username, 'sport_name' => $sportName]);
+        $memberCount = $sportTeamModel->getTeamMemberCount($sport['sport_id'] ?? null);
+
+        view('captain/index', ['username' => $username, 'sport_name' => $sportName, 'member_count' => $memberCount]);
     }
     public function MarkAttendance() {
         view('captain/mark-attendance');

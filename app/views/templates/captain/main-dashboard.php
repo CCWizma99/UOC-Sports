@@ -16,7 +16,7 @@
     <div class="stat-card">
       <div class="stat-icon">👥</div>
       <div class="stat-label">Team Members</div>
-      <div class="stat-value">25</div>
+      <div class="stat-value"><?php echo isset($member_count) ? htmlspecialchars($member_count) : '0'; ?></div>
       <div class="stat-subtitle">Active members this season</div>
     </div>
 
