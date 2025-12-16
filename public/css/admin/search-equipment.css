@@ -1,14 +1,14 @@
 #Search-equipment {
     width: 960px;
-    margin: auto;
-    margin-top: 140px;
+    margin-left: 260px;
+    margin-top: 40px;
     background: #fff;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-#Search-equipment h2{
+#Search-equipment h2 {
     margin-bottom: 10px;
     font-weight: 300;
 }

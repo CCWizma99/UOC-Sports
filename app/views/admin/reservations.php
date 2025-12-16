@@ -12,22 +12,17 @@
         @import url(/uoc-sports/public/css/admin/header.css);
         @import url(/uoc-sports/public/css/admin/link-bar.css);
         @import url(/uoc-sports/public/css/admin/sidebar.css);
-        @import url(/uoc-sports/public/css/admin/quick-bar.css);
         @import url(/uoc-sports/public/css/admin/user-stat.css);
         @import url(/uoc-sports/public/css/admin/search-user.css);
         @import url(/uoc-sports/public/css/admin/week-reservations.css);
         @import url(/uoc-sports/public/css/admin/footer.css);
-        #link-bar{
-            width: calc(100vw - 488px);
-        }
     </style>
 </head>
-<body>
+<body style="margin-top: 120px;">
 <?php 
 require '../app/views/templates/admin/header.php';
 require '../app/views/templates/admin/link-bar.php';
 require '../app/views/templates/admin/sidebar.php';
-require '../app/views/templates/admin/quick-bar.php';
 require '../app/views/templates/admin/reservations-status.php';
 require '../app/views/templates/admin/search-reservation.php';
 require '../app/views/templates/admin/week-reservations.php';

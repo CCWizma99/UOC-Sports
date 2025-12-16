@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 14, 2025 at 11:36 AM
+-- Generation Time: Dec 16, 2025 at 02:55 AM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -30,11 +30,19 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `attendance`;
 CREATE TABLE IF NOT EXISTS `attendance` (
   `attendance_id` varchar(12) NOT NULL,
-  `practice_id` varchar(12) NOT NULL,
+  `practice_id` int NOT NULL,
   `user_id` varchar(12) NOT NULL,
   `status` varchar(12) NOT NULL,
   PRIMARY KEY (`attendance_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `attendance`
+--
+
+INSERT INTO `attendance` (`attendance_id`, `practice_id`, `user_id`, `status`) VALUES
+('ATDFD77F382E', 8, 'L3NCL2J4', 'ABSENT'),
+('ATD16507D601', 8, '5Q1XZO2Y', 'PRESENT');
 
 -- --------------------------------------------------------
 
@@ -317,6 +325,7 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
   `purpose` varchar(300) NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'BOOKED',
   `payment_status` varchar(12) NOT NULL DEFAULT 'INCOMPLETE',
+  `rejection_reason` varchar(256) NOT NULL,
   PRIMARY KEY (`booking_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -324,13 +333,13 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
 -- Dumping data for table `facility-booking`
 --
 
-INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, `slot`, `purpose`, `status`, `payment_status`) VALUES
-('BK711559', 'H4J1OHSX', '9', '2025-12-11', 'FULL', 'To practice for Inter Provincial Matches held in January 2026', 'BOOKED', 'INCOMPLETE'),
-('BK398317', 'H4J1OHSX', '3', '2025-12-10', 'AFTERNOON', 'Badminton Provincial Matches Practice', 'BOOKED', 'INCOMPLETE'),
-('BK861578', 'L3NCL2J4', '11', '2025-12-10', 'MORNING', 'For Inter University Practices for SLIIT University', 'BOOKED', 'INCOMPLETE'),
-('BK937846', 'L3NCL2J4', '15', '2025-12-18', 'FULL', 'For TOC Championship Match Practice', 'BOOKED', 'INCOMPLETE'),
-('BK405911', 'H4J1OHSX', '5', '2025-12-11', 'FULL', 'Divisional Tennis Matches', 'BOOKED', 'INCOMPLETE'),
-('BK662944', '5Q1XZO2Y', '15', '2025-12-12', 'FULL', 'Inter Uni Matches Practice', 'BOOKED', 'INCOMPLETE');
+INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, `slot`, `purpose`, `status`, `payment_status`, `rejection_reason`) VALUES
+('BK711559', 'H4J1OHSX', '9', '2025-12-11', 'FULL', 'To practice for Inter Provincial Matches held in January 2026', 'BOOKED', 'INCOMPLETE', ''),
+('BK398317', 'H4J1OHSX', '3', '2025-12-10', 'AFTERNOON', 'Badminton Provincial Matches Practice', 'BOOKED', 'INCOMPLETE', ''),
+('BK861578', 'L3NCL2J4', '11', '2025-12-10', 'MORNING', 'For Inter University Practices for SLIIT University', 'BOOKED', 'INCOMPLETE', ''),
+('BK937846', 'L3NCL2J4', '15', '2025-12-18', 'FULL', 'For TOC Championship Match Practice', 'BOOKED', 'INCOMPLETE', ''),
+('BK405911', 'H4J1OHSX', '5', '2025-12-11', 'FULL', 'Divisional Tennis Matches', 'BOOKED', 'INCOMPLETE', ''),
+('BK662944', '5Q1XZO2Y', '15', '2025-12-12', 'FULL', 'Inter Uni Matches Practice', 'BOOKED', 'INCOMPLETE', '');
 
 -- --------------------------------------------------------
 
@@ -453,6 +462,13 @@ CREATE TABLE IF NOT EXISTS `inquiry` (
   PRIMARY KEY (`inquiry_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `inquiry`
+--
+
+INSERT INTO `inquiry` (`inquiry_id`, `user_id`, `email`, `subject`, `message`, `date`, `status`) VALUES
+('INQA1A688463', 'H4J1OHSX', 'maximal@gmail.com', 'Testing contact', 'Something Something', '2025-12-15', 'RESOLVED');
+
 -- --------------------------------------------------------
 
 --
@@ -481,6 +497,26 @@ DROP TABLE IF EXISTS `lost_found_images`;
 CREATE TABLE IF NOT EXISTS `lost_found_images` (
   `case_id` varchar(12) NOT NULL,
   `image_name` varchar(32) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lost_item`
+--
+
+DROP TABLE IF EXISTS `lost_item`;
+CREATE TABLE IF NOT EXISTS `lost_item` (
+  `lostItem_id` int NOT NULL AUTO_INCREMENT,
+  `itemName` varchar(255) NOT NULL,
+  `foundDate` date NOT NULL,
+  `description` text,
+  `foundLocation` varchar(255) NOT NULL,
+  `foundBy` varchar(255) NOT NULL,
+  `contactNumber` varchar(20) NOT NULL,
+  `itemStatus` varchar(20) NOT NULL DEFAULT 'unclaimed',
+  `image` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`lostItem_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -597,7 +633,7 @@ CREATE TABLE IF NOT EXISTS `practice_sessions` (
 INSERT INTO `practice_sessions` (`id`, `sport_id`, `added_by`, `facility`, `session_date`, `session_time`, `description`, `status`, `created_at`, `updated_at`) VALUES
 (4, 'BAD', 'CAPTAIN', 'Badminton one Court (08 Persons for practices)', '2025-12-03', '12:45:00', '-', '', '2025-11-28 07:11:04', '2025-12-10 16:04:35'),
 (5, 'TKD', 'CAPTAIN', 'Karate / Taekwondo with without Tatami', '2026-01-01', '16:00:00', 'For Inter Uni matches', '', '2025-12-09 09:54:15', '2025-12-10 16:04:53'),
-(8, 'VOL', 'CAPTAIN', 'Volleyball (25 Persons for practices)', '2026-01-01', '13:00:00', 'Practices for inter university Volleyball matches 2026', '', '2025-12-10 16:19:45', '2025-12-11 07:32:29');
+(8, 'VOL', 'CAPTAIN', 'Volleyball (25 Persons for practices)', '2026-01-01', '13:00:00', 'Practices for inter university Volleyball matches 2026', 'MARKED', '2025-12-10 16:19:45', '2025-12-15 11:16:17');
 
 -- --------------------------------------------------------
 
@@ -633,6 +669,13 @@ CREATE TABLE IF NOT EXISTS `saved_emails` (
   `email` varchar(64) NOT NULL,
   `recepient_name` varchar(64) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `saved_emails`
+--
+
+INSERT INTO `saved_emails` (`email`, `recepient_name`) VALUES
+('sports@usj.ac.lk', 'USJ');
 
 -- --------------------------------------------------------
 
@@ -703,7 +746,8 @@ INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`) VALUES
 ('TKD', 'L3NCL2J4', '2025-12-03'),
 ('ATH', 'L3NCL2J4', '2025-12-09'),
 ('VOL', '5Q1XZO2Y', '2025-10-25'),
-('ATH', '5Q1XZO2Y', '2025-12-11');
+('ATH', '5Q1XZO2Y', '2025-12-11'),
+('VOL', 'L3NCL2J4', '2025-12-15');
 
 -- --------------------------------------------------------
 
@@ -788,7 +832,7 @@ CREATE TABLE IF NOT EXISTS `sport_result_value` (
 
 DROP TABLE IF EXISTS `tournament`;
 CREATE TABLE IF NOT EXISTS `tournament` (
-  `tournament_id` varchar(12) NOT NULL,
+  `tournament_id` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `tournament_name` varchar(64) NOT NULL,
   `sport_id` varchar(4) NOT NULL,
   `start_date` date DEFAULT NULL,
@@ -797,6 +841,13 @@ CREATE TABLE IF NOT EXISTS `tournament` (
   PRIMARY KEY (`tournament_id`),
   KEY `sport_id` (`sport_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `tournament`
+--
+
+INSERT INTO `tournament` (`tournament_id`, `tournament_name`, `sport_id`, `start_date`, `end_date`, `status`) VALUES
+('TOUR_693ea72aa6387', 'Vice Chancellors Invitational Badminton Championship', 'BAD', '2026-01-01', '2026-02-26', 'INCOMPLETE');
 
 -- --------------------------------------------------------
 

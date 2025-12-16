@@ -38,6 +38,19 @@ class AttendanceApiController {
             $attendanceData = $input['attendance'];
 
             $result = $this->attendanceModel->saveAttendance($practiceId, $attendanceData);
+
+            if (isset($result['status']) && $result['status'] === 'success') {
+                // Mark the practice session status as MARKED
+                try {
+                    $this->scheduleModel->setStatus($practiceId, 'MARKED');
+                    $result['practice_status'] = 'MARKED';
+                } catch (Exception $e) {
+                    // If status update fails, include a warning but still return success for attendance save
+                    $result['practice_status'] = 'failed_to_mark';
+                    $result['practice_status_message'] = $e->getMessage();
+                }
+            }
+
             echo json_encode($result);
             
         } catch (Exception $e) {

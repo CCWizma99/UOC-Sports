@@ -1,14 +1,14 @@
 #search-team {
     width: 960px;
-    margin: auto;
-    margin-top: 140px;
+    margin-left: 260px;
+    margin-top: 40px;
     padding: 20px;
     background: #fff;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-#search-team h2{
+#search-team h2 {
     margin-bottom: 10px;
     font-weight: 300;
 }
@@ -38,7 +38,7 @@
     margin: 0;
     border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     background: #f9f9f9;
 }
 
