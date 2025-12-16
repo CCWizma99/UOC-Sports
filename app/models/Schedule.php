@@ -123,8 +123,9 @@ class Schedule {
     public function getSessionsBySport($sportId) {
         $stmt = $this->pdo->prepare("
             SELECT * FROM practice_sessions
-            WHERE facility LIKE CONCAT('%', :sport_id, '%')
-            ORDER BY session_date DESC, session_time DESC
+            WHERE sport_id = :sport_id
+            AND session_date >= CURDATE()
+            ORDER BY session_date ASC, session_time ASC
         ");
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
