@@ -3,10 +3,11 @@
   margin-left: 260px;
   margin-top: 40px;
   padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 #event-table-container h2 {
-  color: #5e2d91;
   margin-bottom: 20px;
   text-align: center;
 }

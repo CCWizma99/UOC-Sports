@@ -12,16 +12,28 @@
         @import url(/uoc-sports/public/css/admin/header.css);
         @import url(/uoc-sports/public/css/admin/link-bar.css);
         @import url(/uoc-sports/public/css/admin/sidebar.css);
+        @import url(/uoc-sports/public/css/admin/team-stat.css);
         @import url(/uoc-sports/public/css/admin/search-team.css);
+        @import url(/uoc-sports/public/css/admin/team-details.css);
         @import url(/uoc-sports/public/css/admin/footer.css);
     </style>
 </head>
-<body style="margin-top: 120px;">
+<body style="margin-top: 140px;">
 <?php 
 require '../app/views/templates/admin/header.php';
 require '../app/views/templates/admin/link-bar.php';
 require '../app/views/templates/admin/sidebar.php';
+
+// Show team statistics if no sport is selected
+if (!isset($_GET['sport_id'])) {
+    require '../app/views/templates/admin/team-stat.php';
+}
+
 require '../app/views/templates/admin/search-team.php';
+
+// Show team details if sport_id is provided
+require '../app/views/templates/admin/team-details.php';
+
 require '../app/views/templates/admin/footer.php';
 ?>
 </body>

@@ -1,4 +1,5 @@
 <form id="budgetForm">
+    <h2>Add Budget</h2>
     <label for="sport">Sport:</label>
     <select id="sport" name="sport_id" required>
         <option value="">Select Sport</option>
