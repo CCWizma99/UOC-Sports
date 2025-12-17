@@ -77,26 +77,133 @@
                                 No Image
                               <?php endif; ?>
                         </td>
-                        <td><?= $lst['status'] ?></td>
-                        <td> <form action="/uoc-sports/app/views/equipment-manager/delete-l.php" method="POST">
-                            <input type="hidden" name="lostItem_id" value="<?= $lst['lostItem_id'] ?>">
-                            <?php if ($lst['status'] === 'unclaimed'): ?>
-                                <button type="submit" class="btn-claim">Mark as Claimed</button>
-                            <?php else: ?>
-                                <button type="button" class="btn-claimed" disabled>Already Claimed</button>
-                            <?php endif; ?>
-
-                            <a href="/project/uoc-sports/app/views/equipment-manager/add-lostitem.php?id=<?php echo $lst['lostItem_id']; ?>" class="btn-edit">Edit</a>
-                        </form></td>
+                        <td>
+                            <select class="status-dropdown" onchange="updateStatus('<?= $lst['lostItem_id'] ?>', this.value)">
+                                <option value="unclaimed" <?= $lst['status'] === 'unclaimed' ? 'selected' : '' ?>>Unclaimed</option>
+                                <option value="claimed" <?= $lst['status'] === 'claimed' ? 'selected' : '' ?>>Claimed</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                                <button class="btn-edit" onclick="editItem('<?= $lst['lostItem_id'] ?>')">Edit</button>
+                                <button class="btn-delete" onclick="deleteItem('<?= $lst['lostItem_id'] ?>', '<?= $lst['itemName'] ?>')">Delete</button>
+                            </div>
+                        </td>
                      </tr>
                   <?php endforeach; ?>
 
                     <?php else: ?>
-                            <tr>
-                                <td colspan="4" style="text-align: center; padding: 2rem; color: #6b7280;">
-                                    No lost items found. <a href="/uoc-sports/public/equipment-manager/add-lostitem.php">Add your first item</a>
-                                </td>
-                            </tr>
+                        <!-- Sample Data -->
+                        <tr>
+                            <td>LI001</td>
+                            <td>Blue Backpack</td>
+                            <td>2025-12-15</td>
+                            <td>Blue backpack with laptop compartment</td>
+                            <td>Main Sports Hall</td>
+                            <td>John Doe</td>
+                            <td>0771234567</td>
+                            <td>No Image</td>
+                            <td>
+                                <select class="status-dropdown" onchange="updateStatus('LI001', this.value)">
+                                    <option value="unclaimed" selected>Unclaimed</option>
+                                    <option value="claimed">Claimed</option>
+                                </select>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                                    <button class="btn-edit" onclick="editItem('LI001')">Edit</button>
+                                    <button class="btn-delete" onclick="deleteItem('LI001', 'Blue Backpack')">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>LI002</td>
+                            <td>Water Bottle</td>
+                            <td>2025-12-14</td>
+                            <td>Stainless steel water bottle with UOC logo</td>
+                            <td>Basketball Court</td>
+                            <td>Jane Smith</td>
+                            <td>0777654321</td>
+                            <td>No Image</td>
+                            <td>
+                                <select class="status-dropdown" onchange="updateStatus('LI002', this.value)">
+                                    <option value="unclaimed">Unclaimed</option>
+                                    <option value="claimed" selected>Claimed</option>
+                                </select>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                                    <button class="btn-edit" onclick="editItem('LI002')">Edit</button>
+                                    <button class="btn-delete" onclick="deleteItem('LI002', 'Water Bottle')">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>LI003</td>
+                            <td>ID Card</td>
+                            <td>2025-12-16</td>
+                            <td>Student ID card - ID number partially visible</td>
+                            <td>Swimming Pool</td>
+                            <td>Mike Johnson</td>
+                            <td>0769876543</td>
+                            <td>No Image</td>
+                            <td>
+                                <select class="status-dropdown" onchange="updateStatus('LI003', this.value)">
+                                    <option value="unclaimed" selected>Unclaimed</option>
+                                    <option value="claimed">Claimed</option>
+                                </select>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                                    <button class="btn-edit" onclick="editItem('LI003')">Edit</button>
+                                    <button class="btn-delete" onclick="deleteItem('LI003', 'ID Card')">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>LI004</td>
+                            <td>Tennis Racket</td>
+                            <td>2025-12-13</td>
+                            <td>Wilson tennis racket with red grip</td>
+                            <td>Tennis Court A</td>
+                            <td>Sarah Williams</td>
+                            <td>0763456789</td>
+                            <td>No Image</td>
+                            <td>
+                                <select class="status-dropdown" onchange="updateStatus('LI004', this.value)">
+                                    <option value="unclaimed" selected>Unclaimed</option>
+                                    <option value="claimed">Claimed</option>
+                                </select>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                                    <button class="btn-edit" onclick="editItem('LI004')">Edit</button>
+                                    <button class="btn-delete" onclick="deleteItem('LI004', 'Tennis Racket')">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>LI005</td>
+                            <td>Gym Towel</td>
+                            <td>2025-12-17</td>
+                            <td>White gym towel with blue stripes</td>
+                            <td>Fitness Center</td>
+                            <td>David Brown</td>
+                            <td>0756789012</td>
+                            <td>No Image</td>
+                            <td>
+                                <select class="status-dropdown" onchange="updateStatus('LI005', this.value)">
+                                    <option value="unclaimed" selected>Unclaimed</option>
+                                    <option value="claimed">Claimed</option>
+                                </select>
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                                    <button class="btn-edit" onclick="editItem('LI005')">Edit</button>
+                                    <button class="btn-delete" onclick="deleteItem('LI005', 'Gym Towel')">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
                         <?php endif; ?>
 
                     </tbody>
@@ -106,6 +213,27 @@
             </div>
 
 </body>
+
+<script>
+function updateStatus(itemId, newStatus) {
+    console.log('Updating item ' + itemId + ' to status: ' + newStatus);
+    // Add AJAX call here to update status in database
+    alert('Status update functionality will be implemented');
+}
+
+function editItem(itemId) {
+    window.location.href = '/uoc-sports/public/equipment-manager/add-lostitem?id=' + itemId;
+}
+
+function deleteItem(itemId, itemName) {
+    if (confirm('Are you sure you want to delete "' + itemName + '"?')) {
+        console.log('Deleting item: ' + itemId);
+        // Add AJAX call or form submission here to delete from database
+        alert('Delete functionality will be implemented');
+    }
+}
+</script>
+
 </html>
 
             <?php
