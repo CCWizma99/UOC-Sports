@@ -12,6 +12,7 @@
 		@import url("/uoc-sports/public/css/sports-manager/messages.css");
 		@import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
 		@import url("/uoc-sports/public/css/general/footer.css");
+    @import url("/uoc-sports/public/css/sports-manager/report.css");
 	</style>  
 </head> 
 <body>
@@ -22,11 +23,11 @@
 
 <div class="container">
   <!-- Header -->
-  <div class="page-header">
-    <h1>Messages</h1>
-  </div>
+    <div class="container-header">
+        <h2>Messages</h2>
+        <p>Manage important messages among the sport's team members.</p>
+      </div>
 
-  <!-- Content Wrapper -->
   <div class="content-wrapper">
     <!-- Send Message Form -->
     <div class="form-section">
@@ -53,8 +54,8 @@
         </div>
 
         <div class="buttons">
-          <button type="reset" class="reset-btn">Reset</button>
-          <button type="submit" class="submit-btn">Submit</button>
+          <button type="reset" class="view-all-link">Cancel</button>
+          <button type="submit" class="view-all-link">Send</button>
         </div>
       </form>
     </div>
@@ -277,5 +278,10 @@
   const currentPage = document.getElementById("sub-messages");
   if (currentPage) currentPage.classList.add("active");
 </script>
+
+         <?php
+    require "../app/views/templates/general/footer.php";
+?>
+
 </body>
 </html>
