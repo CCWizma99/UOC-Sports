@@ -6,10 +6,9 @@
         margin-top: 140px;
         justify-content: center;
         gap: 20px;
-        padding: 10px;
-        border-radius: 12px;
-        box-shadow: rgba(0, 0, 0, 0.1) 1px 2px 5px 1px;
-        border: #5e2d91 solid 1px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     #calendar-container h2 {

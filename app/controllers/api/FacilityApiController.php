@@ -166,4 +166,28 @@ class FacilityApiController {
             echo json_encode([]);
         }
     }
+
+    /**
+     * Get reservations for this week and next week
+     */
+    public function getWeekReservations() {
+        header('Content-Type: application/json');
+        
+        try {
+            $model = new Facility();
+            $reservations = $model->getThisAndNextWeekReservations();
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $reservations
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'data' => [],
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }

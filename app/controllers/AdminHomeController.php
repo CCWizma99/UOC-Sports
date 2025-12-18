@@ -13,7 +13,12 @@ class AdminHomeController {
         ]);
     }
     public function reservations() {
-        view('admin/reservations', ['title' => 'Users']);
+        $facilityModel = new Facility();
+        $reservations = $facilityModel->getThisAndNextWeekReservations();
+        view('admin/reservations', [
+            'title' => 'Reservations',
+            'reservations' => $reservations
+        ]);
     }
     public function players() {
         view('admin/players', ['title' => 'Users']);

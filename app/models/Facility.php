@@ -298,4 +298,42 @@ class Facility {
             ':reason' => $reason
         ]);
     }
+
+    /* ---------- GET THIS WEEK AND NEXT WEEK RESERVATIONS ---------- */
+    public function getThisAndNextWeekReservations() {
+        $sql = "SELECT 
+                    fb.booking_id,
+                    fb.user_id,
+                    fb.facility_id,
+                    fb.date,
+                    fb.slot,
+                    fb.purpose,
+                    fb.status,
+                    fb.payment_status,
+                    CONCAT(u.fname, ' ', u.lname) AS user_name,
+                    fr.facility_name,
+                    CASE 
+                        WHEN fb.slot = 'MORNING' THEN '08:00 AM'
+                        WHEN fb.slot = 'AFTERNOON' THEN '01:00 PM'
+                        WHEN fb.slot = 'FULL' THEN '08:00 AM'
+                        ELSE fb.slot
+                    END as start_time,
+                    CASE 
+                        WHEN fb.slot = 'MORNING' THEN '12:00 PM'
+                        WHEN fb.slot = 'AFTERNOON' THEN '05:00 PM'
+                        WHEN fb.slot = 'FULL' THEN '05:00 PM'
+                        ELSE fb.slot
+                    END as end_time
+                FROM `facility-booking` fb
+                INNER JOIN user u ON fb.user_id = u.user_id
+                INNER JOIN facility_rates fr ON fb.facility_id = fr.id
+                WHERE YEARWEEK(fb.date, 1) = YEARWEEK(CURDATE(), 1)
+                   OR YEARWEEK(fb.date, 1) = YEARWEEK(CURDATE(), 1) + 1
+                ORDER BY fb.date ASC, fb.slot ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
