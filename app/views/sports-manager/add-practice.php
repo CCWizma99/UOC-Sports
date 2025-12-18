@@ -72,11 +72,11 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="startTime">Start Time</label>
+                        <label for="startTime">Start Time * </label>
                         <input type="time" id="startTime" name="stime" required>
                     </div>
                     <div class="form-group">
-                        <label for="endTime">End Time</label>
+                        <label for="endTime">End Time * </label>
                         <input type="time" id="endTime" name="etime" required>
                     </div>
 
@@ -85,16 +85,9 @@
                         <select id="equipment" name="equipment" required>
                             <option value="yes">Yes</option>
                             <option value="no">No</option>
+                        </select>
                     </div>
 
-                    
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="expenseDescription"> Special Notes *</label>
-                        <textarea id="expenseDescription" name="notes" rows="4" placeholder="Enter any special notes..."></textarea>
-                    </div>
-                </div>
-                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="location"> Location *</label>
@@ -112,7 +105,16 @@
                         </select>
                     </div>
                 </div>
+
                 
+                    
+                <div class="form-group">
+                    <div class="form-group">
+                        <label for="expenseDescription"> Special Notes *</label>
+                        <textarea id="expenseDescription" name="notes" rows="4" placeholder="Enter any special notes..."></textarea>
+                    </div>
+                </div>
+                                
                     
                 </div>
 

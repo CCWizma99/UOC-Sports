@@ -1,32 +1,49 @@
 #budgetForm {
     width: 960px;
-    margin: 30px auto;
+    margin-top: 40px;
+    margin-left: 260px;
+    background: #fff;
     display: grid;
     grid-template-columns: 120px 1fr;
     gap: 15px 10px;
     padding: 20px;
-    border-radius: 8px;
-    border: 1px solid var(--primary-color);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#budgetForm h2 {
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 300;
+    grid-column: 1 / 3;
 }
 
 #budgetForm label {
     text-align: left;
     padding-right: 10px;
-    font-weight: bold;
+    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: left;
+    color: #333;
 }
 
-#budgetForm input, 
-#budgetForm select, 
+#budgetForm input,
+#budgetForm select,
 #budgetForm textarea {
-    padding: 10px;
-    border: 1px solid var(--primary-color);
-    border-radius: 4px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     width: 100%;
     font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+}
+
+#budgetForm input:focus,
+#budgetForm select:focus,
+#budgetForm textarea:focus {
+    border-color: var(--primary-color);
 }
 
 #budgetForm textarea {
@@ -36,19 +53,22 @@
 #budgetForm button {
     grid-column: 1 / 3;
     padding: 12px;
-    background: var(--primary-color);
+    background: var(--primary-color-8);
     color: white;
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 500;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: 0.2s;
 }
 
 #budgetForm button:hover {
-    background: #000;
+    background: var(--primary-color);
 }
 
-#responseMsg{
+#responseMsg {
     grid-column: 1 / 3;
+    text-align: center;
+    font-weight: 500;
 }

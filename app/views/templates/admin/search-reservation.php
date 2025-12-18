@@ -155,7 +155,7 @@ function performSearch() {
                             <td>${r.facility_id}</td>
                             <td>${r.user_type}</td>
                             <td>
-                                <a href="./reservation.php?id=${r.reservation_id}" class="action-link" title="View Reservation">
+                                <a href="/uoc-sports/public/admin-reservation?id=${r.booking_id}" class="action-link" title="View Reservation">
                                     <i class="fa-solid fa-circle-arrow-right"></i>
                                 </a>
                             </td>

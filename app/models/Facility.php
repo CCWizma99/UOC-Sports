@@ -205,6 +205,135 @@ class Facility {
             ];
         }
         
+        
         return $chartData;
+    }
+
+    /* ---------- GET RESERVATION DETAILS ---------- */
+    public function getReservationDetails($booking_id) {
+        $sql = "SELECT 
+                    fb.booking_id,
+                    fb.user_id,
+                    fb.facility_id,
+                    fb.date,
+                    fb.slot,
+                    fb.purpose,
+                    fb.status,
+                    fb.payment_status,
+                    fb.rejection_reason,
+                    CONCAT(u.fname, ' ', u.lname) AS user_name,
+                    u.email AS user_email,
+                    u.type AS user_type,
+                    fr.facility_name,
+                    fr.facility_type,
+                    CASE 
+                        WHEN fb.slot = 'MORNING' THEN '08:00 AM - 12:00 PM'
+                        WHEN fb.slot = 'AFTERNOON' THEN '01:00 PM - 05:00 PM'
+                        WHEN fb.slot = 'FULL' THEN '08:00 AM - 05:00 PM'
+                        ELSE fb.slot
+                    END as time_range
+                FROM `facility-booking` fb
+                INNER JOIN user u ON fb.user_id = u.user_id
+                INNER JOIN facility_rates fr ON fb.facility_id = fr.id
+                WHERE fb.booking_id = :booking_id
+                LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':booking_id' => $booking_id]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /* ---------- GET WEEK RESERVATIONS ---------- */
+    public function getWeekReservations($date) {
+        $sql = "SELECT 
+                    fb.booking_id,
+                    fb.date,
+                    fb.slot,
+                    fb.status,
+                    fb.payment_status,
+                    CONCAT(u.fname, ' ', u.lname) AS user_name,
+                    u.type AS user_type,
+                    fr.facility_name,
+                    CASE 
+                        WHEN fb.slot = 'MORNING' THEN '08:00 AM'
+                        WHEN fb.slot = 'AFTERNOON' THEN '01:00 PM'
+                        WHEN fb.slot = 'FULL' THEN '08:00 AM'
+                        ELSE fb.slot
+                    END as start_time
+                FROM `facility-booking` fb
+                INNER JOIN user u ON fb.user_id = u.user_id
+                INNER JOIN facility_rates fr ON fb.facility_id = fr.id
+                WHERE YEARWEEK(fb.date, 1) = YEARWEEK(:date, 1)
+                ORDER BY fb.date ASC, fb.slot ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':date' => $date]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /* ---------- ACCEPT RESERVATION ---------- */
+    public function acceptReservation($booking_id) {
+        $sql = "UPDATE `facility-booking`
+                SET status = 'ACCEPTED'
+                WHERE booking_id = :booking_id
+                AND status = 'BOOKED'";
+
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([':booking_id' => $booking_id]);
+    }
+
+    /* ---------- REJECT RESERVATION ---------- */
+    public function rejectReservation($booking_id, $reason) {
+        $sql = "UPDATE `facility-booking`
+                SET status = 'REJECTED',
+                    rejection_reason = :reason
+                WHERE booking_id = :booking_id
+                AND status = 'BOOKED'";
+
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':booking_id' => $booking_id,
+            ':reason' => $reason
+        ]);
+    }
+
+    /* ---------- GET THIS WEEK AND NEXT WEEK RESERVATIONS ---------- */
+    public function getThisAndNextWeekReservations() {
+        $sql = "SELECT 
+                    fb.booking_id,
+                    fb.user_id,
+                    fb.facility_id,
+                    fb.date,
+                    fb.slot,
+                    fb.purpose,
+                    fb.status,
+                    fb.payment_status,
+                    CONCAT(u.fname, ' ', u.lname) AS user_name,
+                    fr.facility_name,
+                    CASE 
+                        WHEN fb.slot = 'MORNING' THEN '08:00 AM'
+                        WHEN fb.slot = 'AFTERNOON' THEN '01:00 PM'
+                        WHEN fb.slot = 'FULL' THEN '08:00 AM'
+                        ELSE fb.slot
+                    END as start_time,
+                    CASE 
+                        WHEN fb.slot = 'MORNING' THEN '12:00 PM'
+                        WHEN fb.slot = 'AFTERNOON' THEN '05:00 PM'
+                        WHEN fb.slot = 'FULL' THEN '05:00 PM'
+                        ELSE fb.slot
+                    END as end_time
+                FROM `facility-booking` fb
+                INNER JOIN user u ON fb.user_id = u.user_id
+                INNER JOIN facility_rates fr ON fb.facility_id = fr.id
+                WHERE YEARWEEK(fb.date, 1) = YEARWEEK(CURDATE(), 1)
+                   OR YEARWEEK(fb.date, 1) = YEARWEEK(CURDATE(), 1) + 1
+                ORDER BY fb.date ASC, fb.slot ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
