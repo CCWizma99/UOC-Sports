@@ -25,6 +25,13 @@ class Schedule {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getSessionCountById($id) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) as count FROM practice_sessions WHERE session_date >= CURDATE() AND sport_id = ?");
+        $stmt->execute([$id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? (int)$result['count'] : 0;
+    }
+
     public function create($facility, $session_date, $session_time, $description, $sport_id = '', $added_by = '') {
         $stmt = $this->pdo->prepare("INSERT INTO practice_sessions (sport_id, added_by, facility, session_date, session_time, description, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
         return $stmt->execute([

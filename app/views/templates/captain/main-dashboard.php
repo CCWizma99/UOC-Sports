@@ -23,7 +23,7 @@
     <div class="stat-card blue">
       <div class="stat-icon">🏋️</div>
       <div class="stat-label">Practice Sessions</div>
-      <div class="stat-value">3</div>
+      <div class="stat-value"><?php echo isset($session_count) ? htmlspecialchars($session_count) : '0'; ?></div>
       <div class="stat-subtitle">Scheduled this month</div>
     </div>
 
