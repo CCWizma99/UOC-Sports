@@ -36,7 +36,7 @@
     </div>
 
     <!-- Add Participants Form (Initially Hidden) -->
-    <div class="form-container" id="addParticipantsForm">
+    <div class="form-container" id="addParticipantsForm" style="display: none;">
         <div class="page-header">
             <div>
                 <h2>Add Participants</h2>

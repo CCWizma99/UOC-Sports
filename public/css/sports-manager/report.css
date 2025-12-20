@@ -1,10 +1,14 @@
+.main-wrapper{
+    background-color: #efe8f9;
+  
+    }
 .page-container{
     margin: 2rem;
-}
+    }
 
 /* Form Grid */
 .form-container { 
-    display: none;
+   
     border: 1px solid #7530E1;
     background-color: #f9f7ff;
     padding: 2rem;
@@ -13,6 +17,20 @@
     margin: 2rem auto;
     width: 70%;
     max-width: 1200px;
+}
+
+.page-form-container { 
+   
+  
+    background-color: white;
+    padding: 2rem;
+  
+    box-shadow: 0 4px 6px rgba(117, 48, 225, 0.1);
+    margin: 2rem auto;
+    width: 60%;
+    max-width: 1400px;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 .page-header{
