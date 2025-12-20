@@ -16,14 +16,14 @@
     <div class="stat-card">
       <div class="stat-icon">👥</div>
       <div class="stat-label">Team Members</div>
-      <div class="stat-value">25</div>
+      <div class="stat-value"><?php echo isset($member_count) ? htmlspecialchars($member_count) : '0'; ?></div>
       <div class="stat-subtitle">Active members this season</div>
     </div>
 
     <div class="stat-card blue">
       <div class="stat-icon">🏋️</div>
       <div class="stat-label">Practice Sessions</div>
-      <div class="stat-value">3</div>
+      <div class="stat-value"><?php echo isset($session_count) ? htmlspecialchars($session_count) : '0'; ?></div>
       <div class="stat-subtitle">Scheduled this month</div>
     </div>
 
@@ -60,24 +60,14 @@
             </tr>
           </thead>
           <tbody id="practiceBody">
+            <?php foreach ($practice_sessions as $session): ?>
             <tr>
-              <td class="date-cell">20 Aug 2025</td>
-              <td class="time-cell">09:00 AM</td>
-              <td class="venue-cell">Main Gym</td>
-              <td><span class="purpose-badge">Team Practice</span></td>
+              <td class="date-cell"><?php echo isset($session['session_date']) ? htmlspecialchars($session['session_date']) : 'N/A'; ?></td>
+              <td class="time-cell"><?php echo isset($session['session_time']) ? htmlspecialchars($session['session_time']) : 'N/A'; ?></td>
+              <td class="venue-cell"><?php echo isset($session['facility']) ? htmlspecialchars($session['facility']) : 'N/A'; ?></td>
+              <td><span class="purpose-badge"><?php echo isset($session['description']) ? htmlspecialchars($session['description']) : 'N/A'; ?></span></td>
             </tr>
-            <tr>
-              <td class="date-cell">22 Aug 2025</td>
-              <td class="time-cell">06:00 PM</td>
-              <td class="venue-cell">Outdoor Field</td>
-              <td><span class="purpose-badge">Fitness Training</span></td>
-            </tr>
-            <tr>
-              <td class="date-cell">25 Aug 2025</td>
-              <td class="time-cell">04:30 PM</td>
-              <td class="venue-cell">Main Gym</td>
-              <td><span class="purpose-badge">Strategy Meeting</span></td>
-            </tr>
+            <?php endforeach; ?>
           </tbody>
         </table>
       </div>
