@@ -15,6 +15,7 @@
 
     @import url("/uoc-sports/public/css/sports-manager/report.css");
   </style>
+  <script src="/uoc-sports/public/js/sports-manager/page.js"></script>
 </head>
 <body>
 <?php
@@ -180,19 +181,6 @@
             </div>
 
 </div>
-
-<script>
-function toggleAddParticipantsForm() {
-    const form = document.getElementById('addParticipantsForm');
-    if (form.style.display === 'none' || form.style.display === '') {
-        form.style.display = 'block';
-        // Scroll to the form
-        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-        form.style.display = 'none';
-    }
-}
-</script>
 
 </body>
 </html>
