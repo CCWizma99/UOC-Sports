@@ -21,7 +21,7 @@
     require "../app/views/templates/general/header.php";
     require "../app/views/sports-manager/header-subnav.php";
 ?>
-<div class="report-container">
+<div class="page-container">
 
     <div class="container-header">
         <h2>Practice Sessions</h2>

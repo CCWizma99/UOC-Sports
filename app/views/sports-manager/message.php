@@ -21,7 +21,7 @@
     require "../app/views/sports-manager/header-subnav.php";  
 ?>
 
-<div class="container">
+<div class="page-container">
   <!-- Header -->
     <div class="container-header">
         <h2>Messages</h2>
