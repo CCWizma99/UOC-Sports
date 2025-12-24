@@ -25,6 +25,7 @@ class Post {
             WHERE p.title LIKE :query OR p.post_id LIKE :query
             GROUP BY p.post_id
             ORDER BY p.date_posted DESC
+            LIMIT 4
         ";
     
         $stmt = $this->db->prepare($sql);

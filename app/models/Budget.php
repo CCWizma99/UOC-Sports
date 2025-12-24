@@ -34,6 +34,7 @@ class Budget {
             LEFT JOIN transaction t ON b.budget_id = t.budget_id
             WHERE s.sport_name LIKE :query
             ORDER BY b.allocation_date DESC, t.timestamp DESC
+        LIMIT 4
         ";
 
         $stmt = $this->db->prepare($sql);
@@ -257,6 +258,25 @@ class Budget {
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['transaction_id' => $transactionId]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+    /**
+     * Get budget summary (total spent and remaining for current year)
+     */
+    public function getBudgetSummary($year = null) {
+        if ($year === null) {
+            $year = date('Y');
+        }
+        
+        $stmt = $this->db->prepare("
+            SELECT 
+                SUM(spent_amount) AS total_spent, 
+                SUM(allocated_amount - spent_amount) AS total_remaining,
+                SUM(allocated_amount) AS total_allocated
+            FROM budget
+            WHERE year = ?
+        ");
+        $stmt->execute([$year]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
 }

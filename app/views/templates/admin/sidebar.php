@@ -16,7 +16,4 @@
         <a href="./admin-news" id="sidebar-news"><i class="fas fa-newspaper"></i> News Feed</a>
         <a href="./admin-inquiry" id="sidebar-inquiry"><i class="fas fa-envelope"></i> Inquiries</a>
     </div>
-    <div class="side-links">
-        <a href="#" id="log-out-btn"><i class="fas fa-sign-out-alt"></i> Log Out</a>
-    </div>
 </nav>

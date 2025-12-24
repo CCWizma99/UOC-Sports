@@ -75,39 +75,42 @@ function handleDayClick(day) {
       infoBox.style.display = 'block';
 
       if (data.booked && data.data.length > 0) {
-        let html = `<p><strong>Date:</strong> ${date}</p>`;
-        html += `
-          <table border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse;">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Booked By</th>
-                <th>Facility</th>
-                <th>Time</th>
-                <th>Status</th>
-                <th>Payment</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
+        let html = `<p class="booking-date"><strong>Date:</strong> ${date}</p>`;
+        html += `<div class="booking-cards">`;
 
         data.data.forEach((booking, index) => {
           html += `
-            <tr>
-              <td>${index + 1}</td>
-              <td>${booking.user_name}</td>
-              <td>${booking.facility_id}</td>
-              <td>${booking.start_time} - ${booking.ent_time}</td>
-              <td>${booking.status}</td>
-              <td>${booking.payment_status}</td>
-            </tr>
+            <div class="booking-card">
+              <div class="booking-card-header">
+                <span class="booking-number">#${index + 1}</span>
+                <span class="booking-status ${booking.status.toLowerCase()}">${booking.status}</span>
+              </div>
+              <div class="booking-card-body">
+                <div class="booking-field">
+                  <span class="field-label">Booked By</span>
+                  <span class="field-value">${booking.user_name}</span>
+                </div>
+                <div class="booking-field">
+                  <span class="field-label">Facility</span>
+                  <span class="field-value">${booking.facility_id}</span>
+                </div>
+                <div class="booking-field">
+                  <span class="field-label">Time</span>
+                  <span class="field-value">${booking.start_time || 'N/A'} - ${booking.end_time || 'N/A'}</span>
+                </div>
+                <div class="booking-field">
+                  <span class="field-label">Payment</span>
+                  <span class="field-value ${booking.payment_status === 'COMPLETE' ? 'paid' : 'pending'}">${booking.payment_status}</span>
+                </div>
+              </div>
+            </div>
           `;
         });
 
-        html += `</tbody></table>`;
+        html += `</div>`;
         details.innerHTML = html;
       } else {
-        details.innerHTML = `<p><strong>Date:</strong> ${date}</p><p>No bookings on this day.</p>`;
+        details.innerHTML = `<p class="booking-date"><strong>Date:</strong> ${date}</p><p class="no-bookings">No bookings on this day.</p>`;
       }
     });
 }
@@ -116,10 +119,14 @@ const today = new Date();
 const currentMonth = today.getMonth();
 const currentYear = today.getFullYear();
 
+// Calculate next month with year rollover
+const nextMonth = (currentMonth + 1) % 12;
+const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+
 Promise.all([
   fetchBookedDates(currentMonth + 1, currentYear),
-  fetchBookedDates(currentMonth + 2, currentYear)
+  fetchBookedDates(nextMonth + 1, nextYear)
 ]).then(() => {
   generateCalendar('calendar-current-month', currentYear, currentMonth);
-  generateCalendar('calendar-next-month', currentYear, currentMonth + 1);
+  generateCalendar('calendar-next-month', nextYear, nextMonth);
 });

@@ -1,5 +1,6 @@
 nav {
-    justify-content: space-between;
+    display: flex;
+    flex-direction: column;
     height: calc(100vh - 70px);
     width: 240px;
     position: fixed;
@@ -13,7 +14,7 @@ nav {
 
 .sidebar-header {
     display: none;
-    padding: 15px;
+    padding: 10px 15px;
     border-bottom: 1px solid rgba(75, 0, 130, 0.1);
 }
 

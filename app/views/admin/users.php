@@ -45,9 +45,11 @@ $selected_year = $_GET['year'] ?? date('Y');
                         Faculty
                         <div class="dropdown" data-filter="faculty">
                             <div data-value="">All</div>
-                            <div data-value="Science">Science</div>
-                            <div data-value="Arts">Arts</div>
-                            <div data-value="Medicine">Medicine</div>
+                            <?php foreach ($faculty_data as $faculty): ?>
+                                <div data-value="<?= htmlspecialchars($faculty['faculty_name']) ?>">
+                                    <?= htmlspecialchars($faculty['faculty_name']) ?>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
 
@@ -55,9 +57,11 @@ $selected_year = $_GET['year'] ?? date('Y');
                         Sport
                         <div class="dropdown" data-filter="sport">
                             <div data-value="">All</div>
-                            <div data-value="Cricket">Cricket</div>
-                            <div data-value="Football">Football</div>
-                            <div data-value="Rowing">Rowing</div>
+                            <?php foreach ($sport_data as $sport): ?>
+                                <div data-value="<?= htmlspecialchars($sport['sport_name']) ?>">
+                                    <?= htmlspecialchars($sport['sport_name']) ?>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
 
