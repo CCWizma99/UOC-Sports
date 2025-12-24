@@ -23,8 +23,9 @@
 ?>
 <div class="report-container">
 
-    <div class="report-header">
+    <div class="container-header">
         <h2>Found Items</h2>
+        <p>Manage lost and found items</p>
       </div>
 
      

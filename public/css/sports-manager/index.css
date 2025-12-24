@@ -521,6 +521,7 @@ body {
 .view-all-link:hover {
     background-color: var(--light-purple);
     color: var(--white);
+    transition: all 0.3s ease;
 }
 
 /* Modal */

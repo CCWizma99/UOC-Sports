@@ -1,8 +1,8 @@
 
 .container {
   max-width: 1400px;
-  margin: 0 auto;
-  padding: 40px 20px;
+  margin-left: 30px;
+ 
 }
 
 /* Header */
@@ -29,12 +29,13 @@
   background: white;
   border-radius: 16px;
   overflow: hidden;
+  margin: 10px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
   height: fit-content;
 }
 
 .form-section h2 {
-  background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+  background: #7530E1;
   padding: 25px 30px;
   color: white;
   font-size: 24px;
@@ -74,8 +75,8 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #6b3fa0;
-  box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.1);
+  border-color: #7530E1;
+  box-shadow: 0 0 0 3px rgba(117, 48, 225, 0.1);
 }
 
 .form-group textarea {
@@ -112,20 +113,21 @@
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, #6b3fa0 0%, #8e5fb8 100%);
+  background: #7530E1;
   color: white;
 }
 
 .submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(107, 63, 160, 0.3);
+  box-shadow: 0 10px 25px rgba(117, 48, 225, 0.3);
 }
 
 /* ===== MESSAGES SECTION ===== */
 .messages-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 40px;
+  margin-left: 50px;
 }
 
 .messages-header {
@@ -141,7 +143,7 @@
 }
 
 .message-count {
-  background: linear-gradient(135deg, #6b3fa0 0%, #8e5fb8 100%);
+  background: #7530E1;
   color: white;
   padding: 6px 14px;
   border-radius: 20px;
@@ -206,12 +208,12 @@
   overflow: hidden;
   transition: all 0.3s ease;
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 2px solid #e2e8f0;
 }
 
 .chat-card:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  border-color: #e2e8f0;
+  border-color: #7530E1;
 }
 
 .chat-header {
@@ -236,7 +238,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6b3fa0 0%, #8e5fb8 100%);
+  background: #7530E1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -314,7 +316,7 @@
 .message.sent {
   background: #f0e6ff;
   color: #5a3a7d;
-  border-left: 3px solid #6b3fa0;
+  border-left: 3px solid #7530E1;
 }
 
 .message.received {

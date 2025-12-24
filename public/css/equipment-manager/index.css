@@ -939,6 +939,7 @@ body {
     background-color: var(--light-purple);
     color: var(--white);
     text-decoration: none !important;
+    transition: all 0.3s ease;
 }
 
 /* Modal */

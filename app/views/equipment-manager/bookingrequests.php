@@ -23,8 +23,9 @@
 ?>
 <div class="report-container">
 
-    <div class="report-header">
+    <div class="container-header">
         <h2>Equipment Booking Requests</h2>
+        <p>Manage equipment booking requests</p>
       </div>
 
      

@@ -35,7 +35,7 @@
                
             </div>
             <form id="addPracticeForm" class="form" method="POST" enctype="multipart/form-data">
-                <div class="form-row">
+                <div class="form-grid">
                     <div class="form-group">
                         <label for="Sport name">Sport *</label>
                         <select id="sport" name="sport" required>
@@ -65,19 +65,20 @@
                             <option value="Karate">Karate</option>
                             <option value="Swimming">Swimming</option>
                         </select>
-                        </div>
-
-                        <div class="form-group">
-                        <label for="competitionName">Competition Name</label>
-                        <input type="text" id="competitionName" name="competitionName" placeholder="Enter competition name" required>
                     </div>
 
                     <div class="form-group">
+                        <label for="competitionName">Competition Name *</label>
+                        <input type="text" id="competitionName" name="competitionName" placeholder="Enter competition name" required>
+                    </div>
+
+                    <div class="form-group full-width">
                         <label for="participants">Participant Image *</label>
                         <input type="file" id="participants" name="participants" required>
                     </div>
+                </div>
                         
-                    <div class="form-actions">
+                <div class="form-actions">
                     <button type="button" class="view-all-link" onclick="window.location.href='/uoc-sports/public/sport-manager/competitions/'">
                        Cancel
                     </button>
@@ -86,10 +87,8 @@
                     </button>
                 </div>
 
-                  </form>
+            </form>
         </div>
-    </div>
-
 
         <?php
     require "../app/views/templates/general/footer.php";
