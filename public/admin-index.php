@@ -49,6 +49,12 @@ $router->post('/admin-budget/add-budget', 'BudgetApiController@addBudget');
 $router->post('/admin-post/add-post', 'PostApiController@addPost');
 $router->post('/admin-post/usdate', 'PostApiController@updatePost');
 
+// User Registration Stats API
+$router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
+
+// Reservation Stats API
+$router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
+
 // Tournament routes
 $router->post('/admin-tournament/create', 'TournamentController@createTournament');
 $router->post('/admin-tournament/send-invitation', 'TournamentController@sendInvitation');
