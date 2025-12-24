@@ -31,7 +31,6 @@
     </div>
 
     <button type="submit" class="btn">Add Post</button>
-    <div id="form-message"></div>
   </form>
 </section>
 
@@ -60,7 +59,6 @@
 
   // ============ FORM SUBMISSION ============
   const form = document.getElementById("add-post-form");
-  const msg = document.getElementById("form-message");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -77,17 +75,14 @@
       const result = await response.json();
 
       if (result.status === "success") {
-        msg.textContent = "Post added successfully!";
-        msg.style.color = "green";
+        showNotification("Post added successfully!", "success");
         form.reset();
         previewDiv.innerHTML = "";
       } else {
-        msg.textContent = result.message;
-        msg.style.color = "red";
+        showNotification(result.message, "error");
       }
     } catch (err) {
-      msg.textContent = "Something went wrong. Try again!";
-      msg.style.color = "red";
+      showNotification("Something went wrong. Try again!", "error");
     }
   });
 </script>

@@ -35,7 +35,7 @@ if (isset($_GET['sport_id'])) {
             </div>
         </div>
         <div class="team-actions">
-            <a href="teams.php" class="btn-back">
+            <a href="admin-teams" class="btn-back">
                 <i class="fas fa-arrow-left"></i> Back to Teams
             </a>
         </div>
@@ -104,14 +104,14 @@ function removeMember(sportId, userId, userName) {
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                alert('Member removed successfully');
+                showNotification('Member removed successfully', 'success');
                 location.reload();
             } else {
-                alert('Error: ' + (data.message || 'Failed to remove member'));
+                showNotification('Error: ' + (data.message || 'Failed to remove member'), 'error');
             }
         })
         .catch(err => {
-            alert('Error removing member');
+            showNotification('Error removing member', 'error');
             console.error(err);
         });
     }

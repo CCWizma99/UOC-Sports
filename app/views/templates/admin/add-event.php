@@ -15,7 +15,6 @@
         
         <button type="submit">Create Event</button>
       </form>
-      <div id="eventMessage" class="message"></div>
     </section>
 
     <section id="invitationSection" style="display: none;">
@@ -46,8 +45,6 @@
         </select>
         <button type="button" id="sendSavedInvitation">Send Invitation</button>
       </div>
-      
-      <div id="invitationMessage" class="message"></div>
     </section>
   </div>
 
@@ -136,11 +133,9 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
     });
     
     const data = await response.json();
-    const messageDiv = document.getElementById('eventMessage');
     
     if (data.status === 'success') {
-      messageDiv.className = 'message success';
-      messageDiv.textContent = data.message;
+      showNotification(data.message, 'success');
       currentTournamentId = data.tournament_id;
       
       // Show invitation section
@@ -149,13 +144,10 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
       // Reset form
       document.getElementById('eventForm').reset();
     } else {
-      messageDiv.className = 'message error';
-      messageDiv.textContent = data.message;
+      showNotification(data.message, 'error');
     }
   } catch (error) {
-    const messageDiv = document.getElementById('eventMessage');
-    messageDiv.className = 'message error';
-    messageDiv.textContent = 'Error creating tournament: ' + error.message;
+    showNotification('Error creating tournament: ' + error.message, 'error');
   }
 });
 
@@ -252,13 +244,7 @@ async function sendInvitation(email, recipientName, saveRecipient) {
 
 // Show invitation message
 function showInvitationMessage(message, type) {
-  const messageDiv = document.getElementById('invitationMessage');
-  messageDiv.className = `message ${type}`;
-  messageDiv.textContent = message;
-  
-  setTimeout(() => {
-    messageDiv.style.display = 'none';
-  }, 5000);
+  showNotification(message, type);
 }
 
 // Initialize on page load

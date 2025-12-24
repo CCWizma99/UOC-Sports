@@ -1,7 +1,9 @@
 <style>
     @import url("/uoc-sports/public/css/general/floating-message.css");
+    @import url("/uoc-sports/public/css/admin/admin-notifications.css");
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="/uoc-sports/public/js/admin-notifications.js"></script>
 
 
 <?php
@@ -49,6 +51,9 @@ if (!isset($_SESSION['user_id'])) {
     
     <div class="filler">
         <header class="flex y-center">
+            <button id="sidebar-toggle" class="hamburger-menu" aria-label="Toggle sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
             <a href="/uoc-sports/public/admin-index" class="no-dec text-black" id="home-link">
                 <h1>
                     UOC Sports<br>E-Portal

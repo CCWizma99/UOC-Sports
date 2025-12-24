@@ -2,8 +2,7 @@
 
 #add-equipment,
 #add-equipment-type {
-  width: 90%;
-  max-width: 960px;
+  width: calc(100vw - 280px);
   margin-top: 40px;
   margin-left: 260px;
   background: #ffffff;

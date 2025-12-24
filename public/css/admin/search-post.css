@@ -1,5 +1,5 @@
 #search-posts {
-  width: 960px;
+  width: calc(100vw - 280px);
   margin-left: 260px;
   margin-top: 40px;
   background: #fff;
@@ -92,17 +92,15 @@
   border: 1px solid #ccc;
 }
 
-/* Message */
 #search-message {
   margin-top: 10px;
   font-weight: 500;
 }
 
-/* Modal Base */
 .modal {
   display: none;
   position: fixed;
-  z-index: 999;
+  z-index: 10;
   left: 0;
   top: 0;
   width: 100%;
@@ -113,7 +111,6 @@
   padding: 20px;
 }
 
-/* Modal Box */
 .modal-content {
   background: #fff;
   padding: 24px;

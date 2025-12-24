@@ -1,40 +1,42 @@
 <section id="add-user">
     <h2>Add a User</h2>
-    <div class="name-div">
-        <div class="input-field">
-            <label for="user-fname">First Name</label>
-            <input type="text" name="fname" id="user-fname">
+    <div class="add-user-form-content">
+        <div class="name-div">
+            <div class="input-field">
+                <label for="user-fname">First Name</label>
+                <input type="text" name="fname" id="user-fname">
+            </div>
+            <div class="input-field">
+                <label for="user-lname">Last Name</label>
+                <input type="text" name="lname" id="user-lname">
+            </div>
         </div>
+
         <div class="input-field">
-            <label for="user-lname">Last Name</label>
-            <input type="text" name="lname" id="user-lname">
+            <label for="user-email">Email</label>
+            <input type="email" name="email" id="user-email">
         </div>
+
+        <div class="input-field">
+            <label for="user-phone">Phone Number</label>
+            <input type="tel" name="phone" id="user-phone" placeholder="+94XXXXXXXXX">
+        </div>
+
+        <div class="input-field">
+            <label for="user-type">User Type</label>
+            <select name="type" id="user-type">
+                <option value="">Select User Type</option>
+                <option value="SPT">Sport Manager</option>
+                <option value="EQP">Equipment Manager</option>
+                <option value="REG">Registrar</option>
+            </select>
+        </div>
+
+        <!-- Dynamic fields container -->
+        <div id="extra-fields"></div>
+
+        <a href="#" class="add-user-btn" id="submit-user">Add User</a>
     </div>
-
-    <div class="input-field">
-        <label for="user-email">Email</label>
-        <input type="email" name="email" id="user-email">
-    </div>
-
-    <div class="input-field">
-        <label for="user-phone">Phone Number</label>
-        <input type="tel" name="phone" id="user-phone" placeholder="+94XXXXXXXXX">
-    </div>
-
-    <div class="input-field">
-        <label for="user-type">User Type</label>
-        <select name="type" id="user-type">
-            <option value="">Select User Type</option>
-            <option value="SPT">Sport Manager</option>
-            <option value="EQP">Equipment Manager</option>
-            <option value="REG">Registrar</option>
-        </select>
-    </div>
-
-    <!-- Dynamic fields container -->
-    <div id="extra-fields"></div>
-
-    <a href="#" class="add-user-btn" id="submit-user">Add User</a>
 </section>
 
 <?php

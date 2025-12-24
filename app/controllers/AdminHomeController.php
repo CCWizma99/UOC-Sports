@@ -32,6 +32,9 @@ class AdminHomeController {
     public function teams() {
         view('admin/teams', ['title' => 'Users']);
     }
+    public function teamDetails() {
+        view('admin/team-details', ['title' => 'Team Details']);
+    }
     public function budget() {
         view('admin/budget', ['title' => 'Users']);
     }

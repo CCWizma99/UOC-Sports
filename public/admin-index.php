@@ -19,6 +19,7 @@ $router->get('/admin-players', 'AdminHomeController@players');
 $router->get('/admin-equipments', 'AdminHomeController@equipments');
 $router->get('/admin-events', 'AdminHomeController@events');
 $router->get('/admin-teams', 'AdminHomeController@teams');
+$router->get('/admin-team-details', 'AdminHomeController@teamDetails');
 $router->get('/admin-budget', 'AdminHomeController@budget');
 $router->get('/admin-news', 'AdminHomeController@news');
 $router->get('/admin-inquiry', 'AdminHomeController@inquiry');
@@ -46,6 +47,7 @@ $router->post('/admin-equipments/add-equipment-type', 'EquipmentApiController@ad
 $router->post('/admin-equipments/add-stock', 'EquipmentApiController@addStock');
 $router->post('/admin-budget/add-budget', 'BudgetApiController@addBudget');
 $router->post('/admin-post/add-post', 'PostApiController@addPost');
+$router->post('/admin-post/usdate', 'PostApiController@updatePost');
 
 // Tournament routes
 $router->post('/admin-tournament/create', 'TournamentController@createTournament');

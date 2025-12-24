@@ -1,6 +1,6 @@
 /* ===== Add Match Result Section ===== */
 #add-match-result {
-  width: 960px;
+  width: calc(100vw - 280px);
   margin-top: 40px;
   margin-left: 260px;
   background: #fff;

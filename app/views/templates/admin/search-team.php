@@ -21,7 +21,7 @@ document.getElementById('team-search').addEventListener('input', function() {
                 let html = '<ul>';
                 data.data.forEach(team => {
                     html += `<li>${team.sport_name} 
-                             - <a href="teams.php?sport_id=${team.sport_id}">View</a></li>`;
+                             - <a href="admin-team-details?sport_id=${team.sport_id}">View</a></li>`;
                 });
                 html += '</ul>';
                 resultsDiv.innerHTML = html;

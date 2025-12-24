@@ -1,6 +1,5 @@
 #add-post {
-  width: 90%;
-  max-width: 960px;
+  width: calc(100vw - 280px);
   margin-left: 260px;
   margin-top: 40px;
   background: #fff;

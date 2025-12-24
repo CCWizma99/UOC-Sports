@@ -21,7 +21,6 @@
     <textarea id="description" name="description" rows="3" placeholder="Enter description"></textarea>
 
     <button type="submit">Allocate Budget</button>
-    <div id="responseMsg" style="text-align:center; margin-top:15px;"></div>
 </form>
 
 
@@ -44,19 +43,16 @@ document.getElementById('budgetForm').addEventListener('submit', async function(
         });
 
         const result = await response.json();
-        const msgDiv = document.getElementById('responseMsg');
 
         if (result.status === 'success') {
-            msgDiv.style.color = 'green';
-            msgDiv.textContent = 'Budget allocated successfully!';
+            showNotification('Budget allocated successfully!', 'success');
             form.reset();
         } else {
-            msgDiv.style.color = 'red';
-            msgDiv.textContent = result.message || 'Failed to allocate budget.';
+            showNotification(result.message || 'Failed to allocate budget.', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        document.getElementById('responseMsg').textContent = 'An error occurred.';
+        showNotification('An error occurred.', 'error');
     }
 });
 </script>

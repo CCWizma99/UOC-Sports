@@ -1,4 +1,10 @@
-<nav class="flex-y bg-theme">
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+<nav class="flex-y bg-theme" id="admin-sidebar">
+    <div class="sidebar-header">
+        <button id="sidebar-close" class="sidebar-close-btn" aria-label="Close sidebar">
+            <i class="fa-solid fa-times"></i>
+        </button>
+    </div>
     <div class="side-links">
         <a href="./admin-users" id="sidebar-users"><i class="fas fa-users"></i> Users</a>
         <a href="./admin-reservations" id="sidebar-reservations"><i class="fas fa-calendar-check"></i> Reservations</a>

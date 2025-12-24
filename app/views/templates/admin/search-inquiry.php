@@ -152,10 +152,10 @@ async function viewInquiry(inquiryId) {
             `;
             document.getElementById('inquiryModal').style.display = 'block';
         } else {
-            alert('Failed to load inquiry details');
+            showNotification('Failed to load inquiry details', 'error');
         }
     } catch (error) {
-        alert('An error occurred while loading inquiry details');
+        showNotification('An error occurred while loading inquiry details', 'error');
     }
 }
 
@@ -180,7 +180,7 @@ async function toggleStatus(inquiryId, currentStatus) {
         const result = await res.json();
 
         if (result.status === 'success') {
-            alert('Status updated successfully');
+            showNotification('Status updated successfully', 'success');
             // Reload the current view
             if (searchInput.value.trim()) {
                 searchInput.dispatchEvent(new Event('keyup'));
@@ -188,10 +188,10 @@ async function toggleStatus(inquiryId, currentStatus) {
                 loadAllInquiries();
             }
         } else {
-            alert('Failed to update status: ' + result.message);
+            showNotification('Failed to update status: ' + result.message, 'error');
         }
     } catch (error) {
-        alert('An error occurred while updating status');
+        showNotification('An error occurred while updating status', 'error');
     }
 }
 
@@ -213,7 +213,7 @@ async function deleteInquiry(inquiryId) {
         const result = await res.json();
 
         if (result.status === 'success') {
-            alert('Inquiry deleted successfully');
+            showNotification('Inquiry deleted successfully', 'success');
             // Reload the current view
             if (searchInput.value.trim()) {
                 searchInput.dispatchEvent(new Event('keyup'));
@@ -221,10 +221,10 @@ async function deleteInquiry(inquiryId) {
                 loadAllInquiries();
             }
         } else {
-            alert('Failed to delete inquiry: ' + result.message);
+            showNotification('Failed to delete inquiry: ' + result.message, 'error');
         }
     } catch (error) {
-        alert('An error occurred while deleting inquiry');
+        showNotification('An error occurred while deleting inquiry', 'error');
     }
 }
 

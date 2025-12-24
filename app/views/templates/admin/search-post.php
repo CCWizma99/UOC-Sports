@@ -184,16 +184,15 @@ document.getElementById("update-post-form").addEventListener("submit", async (e)
     const result = await response.json();
     
     if (result.status === "success") {
-      alert(result.message || "Post updated successfully!");
+      showNotification(result.message || "Post updated successfully!", "success");
       modal.style.display = "none";
       document.body.style.overflow = "auto";
-      // Optionally refresh search results
       searchBtn.click();
     } else {
-      alert(result.message || "Failed to update post.");
+      showNotification(result.message || "Failed to update post.", "error");
     }
   } catch (err) {
-    alert("Error updating post: " + err.message);
+    showNotification("Error updating post: " + err.message, "error");
   }
 });
 </script>

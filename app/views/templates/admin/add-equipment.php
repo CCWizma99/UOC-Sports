@@ -38,7 +38,6 @@
     </div>
 
     <button type="submit" class="btn">Add Equipment</button>
-    <div id="form-message"></div>
   </form>
 </section>
 
@@ -75,7 +74,6 @@
     </div>
 
     <button type="submit" class="btn">Add Equipment Type</button>
-    <div id="equipment-type-message"></div>
 
   </form>
 </section>
@@ -106,11 +104,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   e.preventDefault();
 
   const form = e.target;
-  const msg = document.getElementById("form-message");
   const formData = new FormData(form);
-
-  msg.textContent = "Submitting...";
-  msg.style.color = "blue";
 
   try {
     const res = await fetch("admin-equipments/add-stock", {
@@ -121,17 +115,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const result = await res.json();
 
     if (result.status === "success") {
-      msg.textContent = result.message;
-      msg.style.color = "green";
+      showNotification(result.message, "success");
       form.reset();
     } else {
-      msg.textContent = result.message;
-      msg.style.color = "red";
+      showNotification(result.message, "error");
     }
 
   } catch {
-    msg.textContent = "Network error.";
-    msg.style.color = "red";
+    showNotification("Network error.", "error");
   }
 });
 
@@ -176,11 +167,7 @@ document.getElementById("add-equipment-type-form").addEventListener("submit", as
   e.preventDefault();
 
   const form = e.target;
-  const msg = document.getElementById("equipment-type-message");
   const formData = new FormData(form);
-
-  msg.textContent = "Adding equipment...";
-  msg.style.color = "blue";
 
   try {
     const res = await fetch("admin-equipments/add-equipment-type", {
@@ -191,21 +178,18 @@ document.getElementById("add-equipment-type-form").addEventListener("submit", as
     const result = await res.json();
 
     if (result.status === "success") {
-      msg.textContent = result.message;
-      msg.style.color = "green";
+      showNotification(result.message, "success");
       form.reset();
 
       // 🔥 AUTO reload equipment list if a sport is already selected
       loadEquipments();
 
     } else {
-      msg.textContent = result.message;
-      msg.style.color = "red";
+      showNotification(result.message, "error");
     }
 
   } catch {
-    msg.textContent = "Network error while adding equipment.";
-    msg.style.color = "red";
+    showNotification("Network error while adding equipment.", "error");
   }
 });
 
