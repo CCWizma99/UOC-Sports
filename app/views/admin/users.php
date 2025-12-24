@@ -18,6 +18,7 @@
         @import url(/uoc-sports/public/css/admin/search-user.css);
         @import url(/uoc-sports/public/css/admin/add-user.css);
         @import url(/uoc-sports/public/css/admin/user-stat.css);
+        @import url(/uoc-sports/public/css/admin/ui-improvements.css);
     </style>
 </head>
 <body>
@@ -50,17 +51,6 @@ $selected_year = $_GET['year'] ?? date('Y');
                         </div>
                     </div>
 
-                    <div class="btn" id="year-btn">
-                        Year
-                        <div class="dropdown" data-filter="year">
-                            <div data-value="">All</div>
-                            <div data-value="1">1</div>
-                            <div data-value="2">2</div>
-                            <div data-value="3">3</div>
-                            <div data-value="4">4</div>
-                        </div>
-                    </div>
-
                     <div class="btn" id="sport-btn">
                         Sport
                         <div class="dropdown" data-filter="sport">
@@ -84,38 +74,60 @@ $selected_year = $_GET['year'] ?? date('Y');
                 <input type="text" name="search-user-inp" id="search-user-inp" 
                     title="Enter user ID No. or Name" placeholder="Enter User ID or Name">
 
-                <div class="search-output"></div>
+                <div class="search-output">
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>Search for Users</h3>
+                        <p>Enter a user ID or name above, or use the filters to find users</p>
+                    </div>
+                </div>
             </section>
         </div>
 
         <div class="users-grid-right">
             <section id="add-user">
                 <h2>Add a User</h2>
-                <div class="add-user-form-content">
+                <form id="add-user-form" class="add-user-form-content" novalidate>
+                    <p class="required-note"><span>*</span> Required fields</p>
                     <div class="name-div">
                         <div class="input-field">
-                            <label for="user-fname">First Name</label>
-                            <input type="text" name="fname" id="user-fname">
+                            <label for="user-fname">First Name <span class="required">*</span></label>
+                            <input type="text" name="fname" id="user-fname" 
+                                   autocomplete="given-name" 
+                                   aria-required="true" 
+                                   required>
                         </div>
                         <div class="input-field">
                             <label for="user-lname">Last Name</label>
-                            <input type="text" name="lname" id="user-lname">
+                            <input type="text" name="lname" id="user-lname" 
+                                   autocomplete="family-name">
                         </div>
                     </div>
 
                     <div class="input-field">
-                        <label for="user-email">Email</label>
-                        <input type="email" name="email" id="user-email">
+                        <label for="user-email">Email <span class="required">*</span></label>
+                        <input type="email" name="email" id="user-email" 
+                               autocomplete="email"
+                               aria-required="true"
+                               required>
                     </div>
 
                     <div class="input-field">
-                        <label for="user-phone">Phone Number</label>
-                        <input type="tel" name="phone" id="user-phone" placeholder="+94XXXXXXXXX">
+                        <label for="user-phone">Phone Number <span class="required">*</span></label>
+                        <input type="tel" name="phone" id="user-phone" 
+                               placeholder="+94XXXXXXXXX"
+                               pattern="^\+94[0-9]{9}$"
+                               inputmode="tel"
+                               autocomplete="tel"
+                               aria-required="true"
+                               required>
                     </div>
 
                     <div class="input-field">
-                        <label for="user-type">User Type</label>
-                        <select name="type" id="user-type">
+                        <label for="user-type">User Type <span class="required">*</span></label>
+                        <select name="type" id="user-type" 
+                                aria-required="true"
+                                required>
                             <option value="">Select User Type</option>
                             <option value="SPT">Sport Manager</option>
                             <option value="EQP">Equipment Manager</option>
@@ -126,8 +138,8 @@ $selected_year = $_GET['year'] ?? date('Y');
                     <!-- Dynamic fields container -->
                     <div id="extra-fields"></div>
 
-                    <a href="#" class="add-user-btn" id="submit-user">Add User</a>
-                </div>
+                    <button type="submit" class="add-user-btn">Add User</button>
+                </form>
             </section>
         </div>
     </div>

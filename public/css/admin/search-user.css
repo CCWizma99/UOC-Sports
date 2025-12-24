@@ -80,9 +80,9 @@
     border: 1px solid rgba(75, 0, 130, 0.1);
     border-radius: 0.8rem;
     margin-top: 8px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     width: 140px;
-    z-index: 10;
+    z-index: 100;
     overflow: hidden;
 }
 
@@ -105,13 +105,19 @@
 
 .filter-bar .btn {
     position: relative;
+    z-index: 1;
+}
+
+/* When dropdown is shown, elevate the parent button's z-index */
+.filter-bar .btn:has(.dropdown.show) {
+    z-index: 100;
 }
 
 #search-user input {
     width: 100%;
     display: block;
     margin: 15px auto;
-    padding: 12px 18px;
+    padding: 10px 16px;
     font-size: 14px;
     border-radius: 0.8rem;
     outline: none;

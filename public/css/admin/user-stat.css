@@ -2,33 +2,33 @@
     width: 100%;
     margin: 0;
     background: white;
-    padding: 30px;
+    padding: 20px;
     border-radius: 1.5rem;
 }
 
 .chart-header {
     color: #1a1a1a;
-    padding: 0 0 20px 0;
+    padding: 0 0 12px 0;
     text-align: center;
 }
 
 .chart-header h2 {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     font-weight: 800;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: #4b0082;
 }
 
 .chart-header p {
     color: #666;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .controls {
-    padding: 15px;
+    padding: 10px;
     border-bottom: 1px solid rgba(75, 0, 130, 0.1);
     border-top: 1px solid rgba(75, 0, 130, 0.1);
-    margin-bottom: 25px;
+    margin-bottom: 15px;
 }
 
 .filter-group {
@@ -89,16 +89,16 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    margin-bottom: 25px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
 }
 
 .stat-card {
     background: white;
     border: 2px solid rgba(75, 0, 130, 0.1);
-    padding: 20px;
-    border-radius: 1.2rem;
+    padding: 10px 8px;
+    border-radius: 0.8rem;
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     opacity: 0;
@@ -107,7 +107,7 @@
 }
 
 .stat-card strong {
-    font-size: 2.2rem;
+    font-size: 1.3rem;
     display: block;
     color: #4b0082;
     font-weight: 800;
@@ -115,8 +115,9 @@
 
 .stat-card p {
     color: #666;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
+    margin: 0;
 }
 
 @keyframes slideUp {
@@ -128,26 +129,26 @@
 
 .chart-wrapper {
     background: rgba(75, 0, 130, 0.02);
-    border-radius: 1.2rem;
-    padding: 24px;
+    border-radius: 1rem;
+    padding: 15px;
     border: 1px solid rgba(75, 0, 130, 0.05);
 }
 
 .chart-title {
     text-align: center;
     color: #1a1a1a;
-    font-size: 1.1rem;
-    margin-bottom: 20px;
+    font-size: 1rem;
+    margin-bottom: 10px;
     font-weight: 700;
 }
 
 .line-chart {
     position: relative;
-    height: 300px;
+    height: 260px;
     background: white;
-    border-radius: 1rem;
+    border-radius: 0.8rem;
     border: 1px solid #eee;
-    padding: 10px;
+    padding: 8px;
 }
 
 .line-svg {
