@@ -49,6 +49,13 @@ try {
 <div class="main-content-wrapper">
     <div class="budget-grid-container">
         <div class="budget-grid-left">
+            <!-- Search Budget -->
+            <section id="search-budget">
+                <h2>Search Sport Budget</h2>
+                <input type="text" id="sport-inp" placeholder="Type a sport name...">
+                <div class="output-div" id="budget-results"></div>
+            </section>
+
             <!-- Budget Overview -->
             <section id="budget-card" class="bg-theme">
                 <h2>Budget Overview</h2>
@@ -79,13 +86,6 @@ try {
                         </table>
                     </div>
                 </div>
-            </section>
-
-            <!-- Search Budget -->
-            <section id="search-budget">
-                <h2>Search Sport Budget</h2>
-                <input type="text" id="sport-inp" placeholder="Type a sport name...">
-                <div class="output-div" id="budget-results"></div>
             </section>
         </div>
 

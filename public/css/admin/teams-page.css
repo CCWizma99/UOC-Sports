@@ -38,6 +38,13 @@
     min-height: 0;
 }
 
+/* Centered Single Column Layout */
+.teams-container {
+    max-width: 100%;
+    margin: 0 auto;
+    height: 100%;
+}
+
 /* Team Stats Container */
 .team-stat-container {
     width: 100%;

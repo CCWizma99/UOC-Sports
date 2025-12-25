@@ -44,7 +44,18 @@ class AdminHomeController {
         view('admin/teams', ['title' => 'UOC Teams']);
     }
     public function teamDetails() {
-        view('admin/team-details', ['title' => 'Team Details']);
+        $sportId = $_GET['sport_id'] ?? null;
+        $sportData = null;
+        
+        if ($sportId) {
+            $sportModel = new Sport();
+            $sportData = $sportModel->getSportWithStaff($sportId);
+        }
+        
+        view('admin/team-details', [
+            'title' => 'Team Details',
+            'sport_data' => $sportData
+        ]);
     }
     public function budget() {
         view('admin/budget', ['title' => 'Budget']);

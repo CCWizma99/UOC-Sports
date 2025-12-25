@@ -74,76 +74,40 @@ require '../app/views/templates/admin/sidebar.php';
 
         <div class="reservations-grid-right">
             <section id="week-reservations">
-                <h2>Reservations (This Week & Next Week)</h2>
+                <h2>Upcoming Reservations</h2>
                 
                 <?php if (!empty($reservations)) : ?>
                     <div class="reservations-cards">
                         <?php foreach ($reservations as $r): ?>
-                            <div class="reservation-card">
+                            <div class="reservation-card minimal">
                                 <div class="card-header">
-                                    <div class="booking-id">
-                                        <i class="fa-solid fa-ticket"></i>
-                                        <span><?= htmlspecialchars($r["booking_id"]) ?></span>
+                                    <div class="facility-name">
+                                        <i class="fa-solid fa-building"></i>
+                                        <span><?= htmlspecialchars($r["facility_name"]) ?></span>
                                     </div>
-                                    <div class="payment-badge <?= $r['payment_status'] === 'COMPLETE' ? 'paid' : 'pending' ?>">
-                                        <?= htmlspecialchars($r["payment_status"]) ?>
+                                    <span class="status-badge status-<?= strtolower($r['status']) ?>"><?= htmlspecialchars($r["status"]) ?></span>
+                                </div>
+                                
+                                <div class="card-body minimal-body">
+                                    <div class="date-time">
+                                        <i class="fa-solid fa-calendar"></i>
+                                        <span><?= htmlspecialchars($r["date"]) ?></span>
+                                        <span class="separator">|</span>
+                                        <i class="fa-solid fa-clock"></i>
+                                        <span><?= htmlspecialchars($r["start_time"]) ?></span>
                                     </div>
                                 </div>
                                 
-                                <div class="card-body">
-                                    <div class="info-row">
-                                        <i class="fa-solid fa-user"></i>
-                                        <div class="info-content">
-                                            <span class="label">User</span>
-                                            <span class="value"><?= htmlspecialchars($r["user_name"]) ?></span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="info-row">
-                                        <i class="fa-solid fa-building"></i>
-                                        <div class="info-content">
-                                            <span class="label">Facility</span>
-                                            <span class="value"><?= htmlspecialchars($r["facility_name"]) ?></span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="info-row">
-                                        <i class="fa-solid fa-calendar"></i>
-                                        <div class="info-content">
-                                            <span class="label">Date</span>
-                                            <span class="value"><?= htmlspecialchars($r["date"]) ?></span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="info-row">
-                                        <i class="fa-solid fa-clock"></i>
-                                        <div class="info-content">
-                                            <span class="label">Time</span>
-                                            <span class="value"><?= htmlspecialchars($r["start_time"]) ?> - <?= htmlspecialchars($r["end_time"]) ?></span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="info-row">
-                                        <i class="fa-solid fa-note-sticky"></i>
-                                        <div class="info-content">
-                                            <span class="label">Purpose</span>
-                                            <span class="value"><?= htmlspecialchars($r["purpose"]) ?></span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="info-row">
-                                        <i class="fa-solid fa-circle-check"></i>
-                                        <div class="info-content">
-                                            <span class="label">Status</span>
-                                            <span class="value status-<?= strtolower($r['status']) ?>"><?= htmlspecialchars($r["status"]) ?></span>
-                                        </div>
-                                    </div>
+                                <div class="card-footer">
+                                    <a href="admin-reservation?id=<?= urlencode($r['booking_id']) ?>" class="view-link">
+                                        <i class="fa-solid fa-eye"></i> View Details
+                                    </a>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <p class="no-data">No reservations found for this week or next week.</p>
+                    <p class="no-data">No upcoming reservations.</p>
                 <?php endif; ?>
             </section>
         </div>

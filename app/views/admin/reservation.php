@@ -16,7 +16,7 @@
         @import url(/uoc-sports/public/css/admin/footer.css);
     </style>
 </head>
-<body style="margin-top: 140px;">
+<body>
 <?php 
 require '../app/views/templates/admin/header.php';
 require '../app/views/templates/admin/link-bar.php';
@@ -313,5 +313,6 @@ document.getElementById('confirm-reject').addEventListener('click', () => {
 var currentPage = document.getElementById("sidebar-reservations");
 currentPage.classList.add("active");
 </script>
+<script src="/uoc-sports/public/js/sidebar-toggle.js"></script>
 </body>
 </html>

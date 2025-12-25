@@ -81,7 +81,27 @@ class User {
             'password' => $hashed,
             'must_change_pass' => $shouldChange
         ]);
+        
+        // If type is COACH, assign to sport table
+        if ($type === 'COACH' && !empty($sport)) {
+            $this->assignCoachToSport($sport, $userId);
+        }
+        
         return $userId;
+    }
+
+    /**
+     * Assign a coach to a sport
+     * @param string $sportId
+     * @param string $coachId
+     * @return bool
+     */
+    public function assignCoachToSport($sportId, $coachId) {
+        $stmt = $this->db->prepare("UPDATE sport SET coach_id = :coach_id WHERE sport_id = :sport_id");
+        return $stmt->execute([
+            'coach_id' => $coachId,
+            'sport_id' => $sportId
+        ]);
     }
 
     public function getUserById($userId) {

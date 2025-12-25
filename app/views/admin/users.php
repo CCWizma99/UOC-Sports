@@ -133,6 +133,7 @@ $selected_year = $_GET['year'] ?? date('Y');
                                 aria-required="true"
                                 required>
                             <option value="">Select User Type</option>
+                            <option value="COACH">Coach</option>
                             <option value="SPT">Sport Manager</option>
                             <option value="EQP">Equipment Manager</option>
                             <option value="REG">Registrar</option>
@@ -142,7 +143,7 @@ $selected_year = $_GET['year'] ?? date('Y');
                     <!-- Dynamic fields container -->
                     <div id="extra-fields"></div>
 
-                    <button type="submit" class="add-user-btn">Add User</button>
+                    <button type="button" class="add-user-btn" id="add-user-submit-btn">Add User</button>
                 </form>
             </section>
         </div>
@@ -548,9 +549,10 @@ document.getElementById('user-type').addEventListener('change', function () {
     const extraFields = document.getElementById('extra-fields');
     extraFields.innerHTML = '';
 
-    if (this.value === 'SPT') {
+    if (this.value === 'SPT' || this.value === 'COACH') {
         // Encode PHP array into JS
         const sports = <?php echo json_encode($sports ?? []); ?>;
+        const label = this.value === 'COACH' ? 'Select Sport to Coach' : 'Select Sport';
 
         let options = `<option value="">Select Sport</option>`;
         sports.forEach(sport => {
@@ -559,8 +561,8 @@ document.getElementById('user-type').addEventListener('change', function () {
 
         extraFields.innerHTML = `
             <div class="input-field">
-                <label for="user-sport">Select Sport</label>
-                <select id="user-sport" name="sport_name">
+                <label for="user-sport">${label}</label>
+                <select id="user-sport" name="sport_id" required>
                     ${options}
                 </select>
             </div>
@@ -581,6 +583,113 @@ document.getElementById('user-type').addEventListener('change', function () {
         `;
     }
 });
+
+// Handle Add User Form Submission via Fetch API (using button click, not form submit)
+document.getElementById('add-user-submit-btn').addEventListener('click', async function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const form = document.getElementById('add-user-form');
+    const submitBtn = this;
+    const originalBtnText = submitBtn.textContent;
+    
+    // Disable button and show loading state
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Adding User...';
+    
+    // Gather form data
+    const formData = {
+        fname: document.getElementById('user-fname').value.trim(),
+        lname: document.getElementById('user-lname').value.trim(),
+        email: document.getElementById('user-email').value.trim(),
+        phone: document.getElementById('user-phone').value.trim(),
+        type: document.getElementById('user-type').value
+    };
+    
+    // Add optional fields if present
+    const sportField = document.getElementById('user-sport');
+    const facultyField = document.getElementById('user-faculty');
+    
+    if (sportField) {
+        formData.sport = sportField.value;
+    }
+    if (facultyField) {
+        formData.faculty = facultyField.value;
+    }
+    
+    // Validate required fields
+    if (!formData.fname || !formData.email || !formData.type) {
+        showNotification('Please fill in all required fields.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+        return;
+    }
+    
+    try {
+        const response = await fetch('/uoc-sports/public/admin-users/add-internal-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showNotification(result.message || 'User added successfully! Temporary password sent via email.', 'success');
+            form.reset();
+            document.getElementById('extra-fields').innerHTML = '';
+        } else {
+            showNotification(result.message || 'Failed to add user.', 'error');
+        }
+    } catch (error) {
+        console.error('Add user error:', error);
+        showNotification('An error occurred while adding the user.', 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+    }
+});
+
+// Notification helper (uses admin notification system if available, falls back to alert)
+function showNotification(message, type = 'info') {
+    if (typeof window.showAdminNotification === 'function') {
+        window.showAdminNotification(message, type);
+    } else {
+        // Fallback: create a simple toast notification
+        const toast = document.createElement('div');
+        toast.className = `toast-notification toast-${type}`;
+        toast.innerHTML = `
+            <span class="toast-icon">${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span>
+            <span class="toast-message">${message}</span>
+        `;
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+            background: ${type === 'success' ? 'linear-gradient(135deg, #28a745, #20c997)' : 
+                        type === 'error' ? 'linear-gradient(135deg, #dc3545, #ff6b6b)' : 
+                        'linear-gradient(135deg, #6c5ce7, #a29bfe)'};
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+}
 </script>
 
 

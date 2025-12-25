@@ -110,13 +110,14 @@
 #booking-details {
     color: #666;
     font-size: 13px;
+    text-align: center;
 }
 
 #booking-details i {
     font-size: 2rem;
     color: rgba(75, 0, 130, 0.2);
     display: block;
-    margin-bottom: 10px;
+    margin: 0 auto 10px;
 }
 
 .booking-date {
@@ -135,8 +136,7 @@
 .booking-cards {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    max-height: 200px;
+    gap: 12px;
     overflow-y: auto;
 }
 

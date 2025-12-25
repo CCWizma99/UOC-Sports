@@ -114,22 +114,9 @@ require '../app/views/templates/admin/sidebar.php';
                 <div id="loadingMessage" class="loading-message">Loading tournaments...</div>
                 <div id="errorMessage" class="error-message" style="display: none;"></div>
                 
-                <table class="event-table" id="eventTable" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Event Name</th>
-                            <th>Sport</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="eventTableBody">
-                        <!-- Will be populated dynamically -->
-                    </tbody>
-                </table>
+                <div id="eventCardsContainer" class="event-cards-container" style="display: none;">
+                    <!-- Will be populated dynamically -->
+                </div>
             </div>
         </div>
     </div>
@@ -374,39 +361,49 @@ async function loadTournaments() {
         
         const loadingMsg = document.getElementById('loadingMessage');
         const errorMsg = document.getElementById('errorMessage');
-        const table = document.getElementById('eventTable');
-        const tbody = document.getElementById('eventTableBody');
+        const cardsContainer = document.getElementById('eventCardsContainer');
         
         loadingMsg.style.display = 'none';
         
         if (data.status === 'success' && data.data && data.data.length > 0) {
-            tbody.innerHTML = '';
+            cardsContainer.innerHTML = '';
             
             data.data.forEach((tournament, index) => {
-                const row = document.createElement('tr');
-                
                 const startDate = tournament.start_date ? new Date(tournament.start_date).toLocaleDateString() : '-';
                 const endDate = tournament.end_date ? new Date(tournament.end_date).toLocaleDateString() : '-';
                 const status = tournament.status || 'INCOMPLETE';
                 
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${tournament.tournament_name}</td>
-                    <td>${tournament.sport_name || '-'}</td>
-                    <td>${startDate}</td>
-                    <td>${endDate}</td>
-                    <td><span class="status-badge status-${status.toLowerCase()}">${status}</span></td>
-                    <td>
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <div class="event-card-header">
+                        <span class="event-number">#${index + 1}</span>
+                        <span class="status-badge status-${status.toLowerCase()}">${status}</span>
+                    </div>
+                    <div class="event-card-body">
+                        <h3 class="event-name">${tournament.tournament_name}</h3>
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-futbol"></i>
+                                <span>${tournament.sport_name || 'N/A'}</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>${startDate} - ${endDate}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="event-card-footer">
                         <button class="btn-invite" onclick="openInvitationModal('${tournament.tournament_id}', '${tournament.tournament_name}')">
-                            Send Invitation
+                            <i class="fas fa-envelope"></i> Send Invitation
                         </button>
-                    </td>
+                    </div>
                 `;
                 
-                tbody.appendChild(row);
+                cardsContainer.appendChild(card);
             });
             
-            table.style.display = 'table';
+            cardsContainer.style.display = 'flex';
         } else {
             errorMsg.textContent = 'No tournaments found.';
             errorMsg.style.display = 'block';
