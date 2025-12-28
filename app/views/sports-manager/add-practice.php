@@ -22,8 +22,8 @@
     require "../app/views/sports-manager/header-subnav.php";
 ?>
 
-        
-        <div class="form-container">
+        <div class="main-wrapper">
+        <div class="page-form-container">
 
             
             <!-- Add practice Form -->
@@ -121,6 +121,7 @@
                 </div>
             </form>
         </div>
+</div>
 
  <?php
     require "../app/views/templates/general/footer.php";

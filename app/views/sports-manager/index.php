@@ -32,19 +32,22 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
 <!-- Left Sidebar -->
 
         <aside class="left-container">
-           <div class="welcome-section">
-                <h1>Welcome, <?php echo htmlspecialchars($userName); ?>!</h1>
-                <p>Manage your sports activities and track progress</p>
-            </div>
-
-            <!-- Content Grid: Calendar and Chart in one row -->
+            <!-- Content Grid: Welcome/Calendar and Chart side by side -->
             <div class="content-grid-row">
-                <!-- Calendar Section -->
-                <div class="calendar-section-compact">
-                    <div class="section-header">
-                        <h2>Practice Sessions Calendar</h2>
+                <!-- Left Column: Welcome and Calendar -->
+                <div class="left-column">
+                    <div class="welcome-section">
+                        <h1>Welcome, <?php echo htmlspecialchars($userName); ?>!</h1>
+                        <p>Manage your sports activities and track progress</p>
                     </div>
-                    <div id="calendar"></div>
+
+                    <!-- Calendar Section -->
+                    <div class="calendar-section-compact">
+                        <div class="section-header" style="height: 1rem; color: black;">
+                            <h2>Practice Sessions Calendar</h2>
+                        </div>
+                        <div id="calendar"></div>
+                    </div>
                 </div>
 
                 <!-- Chart Section -->
