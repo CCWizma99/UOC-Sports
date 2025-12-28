@@ -286,5 +286,51 @@ class User {
             return null;
         }
     }
+
+    /**
+     * Update user information
+     * @param string $userId
+     * @param array $data - array with keys: fname, lname, email, contact_no, type
+     * @return bool
+     */
+    public function updateUser($userId, $data) {
+        $fields = [];
+        $params = ['user_id' => $userId];
+        
+        $allowedFields = ['fname', 'lname', 'email', 'contact_no', 'type', 'student_id', 'faculty_id', 'sport_id'];
+        
+        foreach ($allowedFields as $field) {
+            if (isset($data[$field])) {
+                $fields[] = "$field = :$field";
+                $params[$field] = $data[$field];
+            }
+        }
+        
+        if (empty($fields)) {
+            return false;
+        }
+        
+        $sql = "UPDATE user SET " . implode(', ', $fields) . " WHERE user_id = :user_id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    /**
+     * Update user status (ACTIVE/INACTIVE)
+     * @param string $userId
+     * @param string $status - 'ACTIVE' or 'INACTIVE'
+     * @return bool
+     */
+    public function updateUserStatus($userId, $status) {
+        if (!in_array($status, ['ACTIVE', 'INACTIVE'])) {
+            return false;
+        }
+        
+        $stmt = $this->db->prepare("UPDATE user SET status = :status WHERE user_id = :user_id");
+        return $stmt->execute([
+            'status' => $status,
+            'user_id' => $userId
+        ]);
+    }
     
 }

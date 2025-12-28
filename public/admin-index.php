@@ -13,6 +13,7 @@ $router = new Router();
 
 $router->get('/admin-index', 'AdminHomeController@index');
 $router->get('/admin-users', 'AdminHomeController@users');
+$router->get('/admin-user-profile', 'AdminHomeController@userProfile');
 $router->get('/admin-reservations', 'AdminHomeController@reservations');
 $router->get('/admin-reservation', 'AdminHomeController@reservationDetails');
 $router->get('/admin-players', 'AdminHomeController@players');
@@ -51,6 +52,10 @@ $router->post('/admin-post/usdate', 'PostApiController@updatePost');
 
 // User Registration Stats API
 $router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
+
+// User Management API
+$router->post('/api/user/update', 'UserApiController@updateUser');
+$router->post('/api/user/toggle-status', 'UserApiController@toggleStatus');
 
 // Reservation Stats API
 $router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');

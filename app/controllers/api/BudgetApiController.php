@@ -50,20 +50,24 @@ class BudgetApiController {
         try {
             $input = json_decode(file_get_contents("php://input"), true);
 
-            if (empty($input['sport_id']) || empty($input['year']) || empty($input['allocated_amount']) || empty($input['description'])) {
+            if (empty($input['sport_id']) || empty($input['year']) || empty($input['allocated_amount'])) {
                 echo json_encode([
                     'status' => 'error',
-                    'message' => 'All fields are required: sport_id, year, allocated_amount, description.'
+                    'message' => 'Required fields: sport_id, year, allocated_amount.'
                 ]);
                 return;
             }
+
+            $spent_amount = isset($input['spent_amount']) ? (int)$input['spent_amount'] : 0;
+            $description = isset($input['description']) ? $input['description'] : '';
 
             $budgetModel = new Budget();
             $budgetId = $budgetModel->addBudget(
                 $input['sport_id'],
                 $input['year'],
                 $input['allocated_amount'],
-                $input['description']
+                $spent_amount,
+                $description
             );
 
             echo json_encode([

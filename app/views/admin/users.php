@@ -352,7 +352,7 @@ function performSearch() {
                             <td>${user.fname} ${user.lname}</td>
                             <td>${user.type}</td>
                             <td>
-                                <a href="./user.php?id=${user.user_id}" class="action-link" title="View User">
+                                <a href="./admin-user-profile?id=${user.user_id}" class="action-link" title="View User">
                                     <i class="fa-solid fa-circle-arrow-right"></i>
                                 </a>
                             </td>

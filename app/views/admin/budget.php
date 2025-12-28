@@ -44,6 +44,10 @@ try {
 } catch (PDOException $e) {
     $result = ['total_spent' => 0, 'total_remaining' => 0];
 }
+
+// Fetch sports for dropdown
+$sportModel = new Sport();
+$sports = $sportModel->getSports();
 ?>
 
 <div class="main-content-wrapper">
@@ -98,9 +102,11 @@ try {
                 <label for="sport">Sport <span class="required">*</span></label>
                 <select id="sport" name="sport_id" aria-required="true" required>
                     <option value="">Select Sport</option>
-                    <option value="1">Cricket</option>
-                    <option value="2">Football</option>
-                    <option value="3">Basketball</option>
+                    <?php foreach ($sports as $sport): ?>
+                        <option value="<?= htmlspecialchars($sport['sport_id']) ?>">
+                            <?= htmlspecialchars($sport['sport_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
 
                 <label for="year">Year <span class="required">*</span></label>
