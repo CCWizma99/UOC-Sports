@@ -15,6 +15,7 @@
 
     @import url("/uoc-sports/public/css/equipment-manager/report.css");
   </style>
+  <script src="/uoc-sports/public/js/equipment-manager/page.js" defer></script>
 </head>
 <body>
 <?php
