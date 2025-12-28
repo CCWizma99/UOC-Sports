@@ -3,27 +3,24 @@
 }
 /* Form Grid */
 .form-container { 
-    margin-top: 1rem;
-    margin: 40px;
-    width: 60%;
-    margin-left: 20%;
+    margin: 1.5rem auto;
+    max-width: 1000px;
+    padding: 0 2rem;
 }
 
 .page-header{
-    margin-bottom: 4rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--lightest-purple);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #6b7280;
+    border-bottom: 1px solid #e5e7eb;
 }
-
 
 .page-header h2 {
     color: #7530E1;
-    font-size: 1.75rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -31,7 +28,14 @@
 
 .page-header p {
     color: rgba(0, 0, 0, 0.441);
-    font-size: 1rem;
+    font-size: 0.9rem;
+}
+
+.form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem 1.2rem;
+    padding: 1rem 0;
 }
 
 .form-grid {
@@ -43,7 +47,7 @@
 .form-group {
     display: flex;
     flex-direction: column;
-    padding-bottom: 20px;
+    margin-bottom: 0.5rem;
 }
 
 .form-group.full-width {
@@ -51,22 +55,21 @@
 }
 
 .form-group label {
-    font-weight: 600;
+    font-weight: 500;
     color: var(--gray-700);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.6rem;
     font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
-    padding: 0.75rem;
+    padding: 0.5rem;
     border: 2px solid rgba(0, 0, 0, 0.247);
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
     font-family: inherit;
-    margin-bottom: 8px;
 }
 
 .form-group input::placeholder,
@@ -86,18 +89,17 @@
 
 .form-group textarea {
     resize: vertical;
-    min-height: 80px;
+    min-height: 60px;
 }
 
 
 /* Form Actions */
 .form-actions {
     display: flex;
-    gap: 1rem;
-    justify-content: space-around;
-    margin-top: 1rem;
-    padding-top: 3rem;
-    border-top: 2px solid var(--gray-200);
+    gap: 12rem;
+    justify-content: center;
+    padding-top: 1rem;
+    grid-column: 1 / -1;
 }
 
 /* Search Container */

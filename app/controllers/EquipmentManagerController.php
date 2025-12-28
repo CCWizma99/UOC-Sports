@@ -21,11 +21,8 @@ class EquipmentManagerController {
         view('equipment-manager/schedules');
     }
 
-    public function lostitem() {
-        $lostitemModel = new Lostitem();
-        $lostitems = $lostitemModel->getAll();
-        
-        view('equipment-manager/lostitem', ['lostitems' => $lostitems]);
+    public function lostitem() {     
+        view('equipment-manager/lostitem');
     }
 
     public function practiceschedule() {
@@ -33,7 +30,16 @@ class EquipmentManagerController {
     }
 
     public function addLostItem() {
-        view('equipment-manager/add-lostitem');
+        $editData = null;
+        $isEdit = false;
+        
+        if (isset($_GET['id'])) {
+            $lostitemModel = new Lostitem(Database::getConnection());
+            $editData = $lostitemModel->getById($_GET['id']);
+            $isEdit = true;
+        }
+        
+        view('equipment-manager/add-lostitem', ['editData' => $editData, 'isEdit' => $isEdit]);
     }
 
     public function addBooking() {

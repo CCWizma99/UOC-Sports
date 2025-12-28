@@ -1,9 +1,9 @@
 <?php
 class Lostitem {
-    private $db;
+    private $conn;
 
-    public function __construct() {
-        $this->db = Database::getConnection(); // Your PDO connection
+    public function __construct($connection) {
+        $this->conn = $connection;
     }
 
     /**
@@ -13,41 +13,45 @@ class Lostitem {
      * @return int - The inserted lostItem_id
      */
     public function addLostItem($data, $file = null) {
-        $image = '';
+        $item_image = '';
         
         // Handle image upload
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uoc-sports/app/internal/lostitem/';
+            $uploadDir = __DIR__ . '/../internal/lostitem/';
             if (!file_exists($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
             
-            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $fileName = time() . "_" . uniqid() . "." . $ext;
+            $fileName = time() . "_" . basename($file['name']);
             $targetPath = $uploadDir . $fileName;
             
             if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-                $image = "app/internal/lostitem/" . $fileName;
+                $item_image = $fileName;
             }
         }
         
         $sql = "INSERT INTO lost_item 
                 (itemName, foundDate, `description`, foundLocation, foundBy, contactNumber, itemStatus, `image`)
-                VALUES (:itemName, :foundDate, :description, :foundLocation, :foundBy, :contactNumber, :itemStatus, :image)";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
+        $itemStatus = $data['itemStatus'] ?? 'unclaimed';
+        $description = $data['description'] ?? '';
+        
         $stmt->execute([
-            ':itemName' => $data['itemName'],
-            ':foundDate' => $data['foundDate'],
-            ':description' => $data['description'] ?? '',
-            ':foundLocation' => $data['foundLocation'],
-            ':foundBy' => $data['foundBy'],
-            ':contactNumber' => $data['contactNumber'],
-            ':itemStatus' => $data['itemStatus'] ?? 'unclaimed',
-            ':image' => $image
+            $data['itemName'],
+            $data['foundDate'],
+            $description,
+            $data['foundLocation'],
+            $data['foundBy'],
+            $data['contactNumber'],
+            $itemStatus,
+            $item_image
         ]);
         
-        return $this->db->lastInsertId();
+        $insertId = $this->conn->lastInsertId();
+        
+        return $insertId;
     }
 
     /**
@@ -64,50 +68,54 @@ class Lostitem {
         
         // Handle new image upload
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/uoc-sports/app/internal/lostitem/';
+            $uploadDir = __DIR__ . '/../internal/lostitem/';
             if (!file_exists($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
             
-            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $fileName = time() . "_" . uniqid() . "." . $ext;
+            $fileName = time() . "_" . basename($file['name']);
             $targetPath = $uploadDir . $fileName;
             
             if (move_uploaded_file($file['tmp_name'], $targetPath)) {
                 // Delete old image if exists
                 if ($existingItem['image']) {
-                    $oldImagePath = $_SERVER['DOCUMENT_ROOT'] . '/uoc-sports/app/internal/lostitem/' . $existingItem['image'];
+                    $oldImagePath = __DIR__ . '/../internal/lostitem/' . $existingItem['image'];
                     if (file_exists($oldImagePath)) {
                         unlink($oldImagePath);
                     }
                 }
-                $image = "app/internal/lostitem/" . $fileName;
+                $item_image = $fileName;
             }
         }
         
         $sql = "UPDATE lost_item 
-                SET itemName = :itemName,
-                    foundDate = :foundDate,
-                    `description` = :description,
-                    foundLocation = :foundLocation,
-                    foundBy = :foundBy,
-                    contactNumber = :contactNumber,
-                    itemStatus = :itemStatus,
-                    `image` = :image
-                WHERE lostItem_id = :lostItem_id";
+                SET itemName = ?,
+                    foundDate = ?,
+                    `description` = ?,
+                    foundLocation = ?,
+                    foundBy = ?,
+                    contactNumber = ?,
+                    itemStatus = ?,
+                    `image` = ?
+                WHERE lostItem_id = ?";
         
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
-            ':itemName' => $data['itemName'],
-            ':foundDate' => $data['foundDate'],
-            ':description' => $data['description'] ?? '',
-            ':foundLocation' => $data['foundLocation'],
-            ':foundBy' => $data['foundBy'],
-            ':contactNumber' => $data['contactNumber'],
-            ':itemStatus' => $data['itemStatus'] ?? 'unclaimed',
-            ':image' => $item_image,
-            ':lostItem_id' => $lostItem_id
+        $stmt = $this->conn->prepare($sql);
+        $itemStatus = $data['itemStatus'] ?? 'unclaimed';
+        $description = $data['description'] ?? '';
+        
+        $result = $stmt->execute([
+            $data['itemName'],
+            $data['foundDate'],
+            $description,
+            $data['foundLocation'],
+            $data['foundBy'],
+            $data['contactNumber'],
+            $itemStatus,
+            $item_image,
+            $lostItem_id
         ]);
+        
+        return $result;
     }
 
     /**
@@ -145,7 +153,7 @@ class Lostitem {
         
         $sql .= " ORDER BY foundDate DESC";
         
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -163,7 +171,7 @@ class Lostitem {
                 AND MONTH(foundDate) = MONTH(CURDATE())
                 ORDER BY foundDate DESC";
         
-        $stmt = $this->db->query($sql);
+        $stmt = $this->conn->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -173,9 +181,9 @@ class Lostitem {
      * @return array|false
      */
     public function getById($lostItem_id) {
-        $sql = "SELECT * FROM lost_item WHERE lostItem_id = :lostItem_id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([':lostItem_id' => $lostItem_id]);
+        $sql = "SELECT * FROM lost_item WHERE lostItem_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$lostItem_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -189,15 +197,15 @@ class Lostitem {
         $item = $this->getById($lostItem_id);
         
         if ($item && $item['image']) {
-            $imagePath = $_SERVER['DOCUMENT_ROOT'] . '/uoc-sports/app/internal/lostitem/' . $item['image'];
+            $imagePath = __DIR__ . '/../internal/lostitem/' . $item['image'];
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }
         }
         
-        $sql = "DELETE FROM lost_item WHERE lostItem_id = :lostItem_id";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':lostItem_id' => $lostItem_id]);
+        $sql = "DELETE FROM lost_item WHERE lostItem_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([$lostItem_id]);
     }
 
     /**
@@ -208,7 +216,7 @@ class Lostitem {
      */
     public function updateStatus($lostItem_id, $status) {
         $sql = "UPDATE lost_item SET itemStatus = :status WHERE lostItem_id = :lostItem_id";
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
             ':status' => $status,
             ':lostItem_id' => $lostItem_id
@@ -230,7 +238,7 @@ class Lostitem {
                    OR `description` LIKE :query
                 ORDER BY foundDate DESC";
         
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute([':query' => '%' . $query . '%']);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -248,7 +256,7 @@ class Lostitem {
                           AND YEAR(foundDate) = YEAR(CURDATE()) THEN 1 END) as this_month_items
                 FROM lost_item";
         
-        $stmt = $this->db->query($sql);
+        $stmt = $this->conn->query($sql);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -259,7 +267,7 @@ class Lostitem {
      */
     public function getByFoundBy($foundBy) {
         $sql = "SELECT * FROM lost_item WHERE foundBy = :foundBy ORDER BY foundDate DESC";
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute([':foundBy' => $foundBy]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -273,7 +281,7 @@ class Lostitem {
         $sql = "SELECT * FROM lost_item 
                 WHERE foundLocation LIKE :location 
                 ORDER BY foundDate DESC";
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute([':location' => '%' . $location . '%']);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -288,7 +296,7 @@ class Lostitem {
         $sql = "SELECT * FROM lost_item 
                 WHERE foundDate BETWEEN :startDate AND :endDate 
                 ORDER BY foundDate DESC";
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute([
             ':startDate' => $startDate,
             ':endDate' => $endDate
@@ -305,7 +313,7 @@ class Lostitem {
         $sql = "SELECT * FROM lost_item 
                 ORDER BY foundDate DESC, lostItem_id DESC 
                 LIMIT :limit";
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -318,7 +326,7 @@ class Lostitem {
      */
     public function countByStatus($status) {
         $sql = "SELECT COUNT(*) FROM lost_item WHERE itemStatus = :status";
-        $stmt = $this->db->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
         $stmt->execute([':status' => $status]);
         return $stmt->fetchColumn();
     }
