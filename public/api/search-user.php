@@ -47,6 +47,8 @@ try {
         $params[] = $type;
     }
 
+    $sql .= " GROUP BY u.user_id LIMIT 4";
+
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);

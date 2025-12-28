@@ -98,7 +98,7 @@ class Inquiry {
                OR subject LIKE :q
                OR status LIKE :q
             ORDER BY date DESC
-            LIMIT 20
+            LIMIT 4
         ";
 
         $stmt = $this->db->prepare($sql);

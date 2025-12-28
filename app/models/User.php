@@ -81,7 +81,27 @@ class User {
             'password' => $hashed,
             'must_change_pass' => $shouldChange
         ]);
+        
+        // If type is COACH, assign to sport table
+        if ($type === 'COACH' && !empty($sport)) {
+            $this->assignCoachToSport($sport, $userId);
+        }
+        
         return $userId;
+    }
+
+    /**
+     * Assign a coach to a sport
+     * @param string $sportId
+     * @param string $coachId
+     * @return bool
+     */
+    public function assignCoachToSport($sportId, $coachId) {
+        $stmt = $this->db->prepare("UPDATE sport SET coach_id = :coach_id WHERE sport_id = :sport_id");
+        return $stmt->execute([
+            'coach_id' => $coachId,
+            'sport_id' => $sportId
+        ]);
     }
 
     public function getUserById($userId) {
@@ -220,6 +240,51 @@ class User {
             }
         }
         return false;
+    }
+
+    public function getRegistrationData($period = 'monthly', $year = null) {
+        if (!$year) $year = date('Y');
+        
+        try {
+            switch ($period) {
+                case 'weekly':
+                    $sql = "SELECT 
+                        WEEK(joined_date) as period_num,
+                        CONCAT('Week ', WEEK(joined_date)) as period_label,
+                        COUNT(*) as user_count 
+                        FROM user 
+                        WHERE YEAR(joined_date) = :year 
+                        GROUP BY WEEK(joined_date) 
+                        ORDER BY period_num";
+                    break;
+                case 'annually':
+                    $sql = "SELECT 
+                        YEAR(joined_date) as period_num,
+                        YEAR(joined_date) as period_label,
+                        COUNT(*) as user_count 
+                        FROM user 
+                        GROUP BY YEAR(joined_date) 
+                        ORDER BY period_num";
+                    break;
+                default:
+                    $sql = "SELECT 
+                        MONTH(joined_date) as period_num,
+                        MONTHNAME(joined_date) as period_label,
+                        COUNT(*) as user_count 
+                        FROM user 
+                        WHERE YEAR(joined_date) = :year 
+                        GROUP BY MONTH(joined_date), MONTHNAME(joined_date) 
+                        ORDER BY period_num";
+            }
+            $stmt = $this->db->prepare($sql);
+            if ($period !== 'annually') {
+                $stmt->bindParam(':year', $year);
+            }
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            return null;
+        }
     }
     
 }

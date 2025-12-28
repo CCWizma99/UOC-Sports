@@ -6,9 +6,9 @@ class EmailService {
     private $senderName;
 
     public function __construct() {
-        global $smtpKey;
+        global $smtpKey, $senderEmail;
         $this->apiKey = $smtpKey;
-        $this->senderEmail = "add-email-here"; // Configure this in config
+        $this->senderEmail = $senderEmail ?: "noreply@uoc-sports.lk"; // Fallback
         $this->senderName = "UOC Sports System";
     }
 

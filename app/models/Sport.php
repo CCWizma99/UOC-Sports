@@ -85,4 +85,41 @@ class Sport {
 
         return $matchId;
     }
+
+    /**
+     * Get sport with staff details (coach, captain, manager)
+     * @param string $sportId
+     * @return array|null
+     */
+    public function getSportWithStaff($sportId) {
+        $sql = "
+            SELECT 
+                s.sport_id,
+                s.sport_name,
+                s.coach_id,
+                s.captain_id,
+                s.manager_id,
+                coach.fname AS coach_fname,
+                coach.lname AS coach_lname,
+                coach.email AS coach_email,
+                coach.contact_no AS coach_contact,
+                captain.fname AS captain_fname,
+                captain.lname AS captain_lname,
+                captain.email AS captain_email,
+                captain.contact_no AS captain_contact,
+                manager.fname AS manager_fname,
+                manager.lname AS manager_lname,
+                manager.email AS manager_email,
+                manager.contact_no AS manager_contact
+            FROM sport s
+            LEFT JOIN user coach ON s.coach_id = coach.user_id
+            LEFT JOIN user captain ON s.captain_id = captain.user_id
+            LEFT JOIN user manager ON s.manager_id = manager.user_id
+            WHERE s.sport_id = :sport_id
+        ";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['sport_id' => $sportId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }

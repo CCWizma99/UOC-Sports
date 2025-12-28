@@ -129,7 +129,7 @@ class AuthController extends BaseController {
     }  
     
     public function addUser() {
-        $mainEmail = "add-email-here";
+        global $smtpKey, $senderEmail;
         header('Content-Type: application/json');
     
         try {
@@ -161,14 +161,14 @@ class AuthController extends BaseController {
             $shouldChange = 1;
             $userId = $userModel->addUser($fname, $lname, $email, $type, $phone, $sport, $faculty, $tempPass, $shouldChange);
     
-            // --- Brevo Config ---
-            $apiKey = $smtpKey;   // from config
-            $senderEmail = $mainEmail; // from config
+            // --- Brevo Config (from .env via config.php) ---
+            $apiKey = $smtpKey;
+            $senderAddr = $senderEmail;
     
-            if (empty($apiKey) || empty($senderEmail)) {
+            if (empty($apiKey) || empty($senderAddr)) {
                 echo json_encode([
                     'status' => 'error',
-                    'message' => 'User added but email not sent: Brevo API key or sender email missing.',
+                    'message' => 'User added but email not sent: Brevo API key or sender email missing in .env file.',
                     'user_id' => $userId
                 ]);
                 return;
@@ -178,7 +178,7 @@ class AuthController extends BaseController {
             $payload = [
                 "sender" => [
                     "name" => "UOC Sports System",
-                    "email" => $senderEmail
+                    "email" => $senderAddr
                 ],
                 "to" => [
                     [

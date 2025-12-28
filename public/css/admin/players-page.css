@@ -1,0 +1,374 @@
+/* Players Page - No-Scroll Single Page Layout */
+
+:root {
+    --profile-primary: #4b0082;
+    --profile-gradient: linear-gradient(135deg, #111 0%, #4b0082 100%);
+    --profile-accent: rgba(75, 0, 130, 0.05);
+    --profile-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+    --profile-border: 2px solid rgba(75, 0, 130, 0.1);
+    --profile-bg: #fdfbff;
+}
+
+/* Main Content Wrapper */
+.main-content-wrapper {
+    position: fixed;
+    top: 100px;
+    left: 240px;
+    right: 0;
+    bottom: 40px;
+    overflow: hidden;
+    padding: 24px;
+    background-color: var(--profile-bg);
+}
+
+/* Grid Layout */
+.players-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    height: 100%;
+    width: 100%;
+}
+
+.players-grid-left,
+.players-grid-right {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Search Player Records Section */
+#search-user {
+    width: 100%;
+    margin: 0;
+    background: #fff;
+    padding: 24px;
+    border-radius: 1.5rem;
+    box-shadow: var(--profile-shadow);
+    border: var(--profile-border);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#search-user h2 {
+    width: 100%;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+    font-size: 1.5rem;
+    color: #1a1a1a;
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+
+.filter-bar h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4b0082;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin: 0 0 8px 0;
+}
+
+.filter-bar .btn {
+    position: relative;
+    background: var(--profile-accent);
+    border: var(--profile-border);
+    padding: 8px 16px;
+    border-radius: 0.8rem;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-bar .btn:hover {
+    background: rgba(75, 0, 130, 0.1);
+}
+
+.filter-bar .dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: var(--profile-border);
+    border-radius: 0.8rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    min-width: 140px;
+    margin-top: 5px;
+}
+
+.filter-bar .dropdown.show {
+    display: block;
+}
+
+.filter-bar .dropdown div {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+}
+
+.filter-bar .dropdown div:hover {
+    background: var(--profile-accent);
+}
+
+.filter-bar .dropdown div:first-child {
+    border-radius: 0.8rem 0.8rem 0 0;
+}
+
+.filter-bar .dropdown div:last-child {
+    border-radius: 0 0 0.8rem 0.8rem;
+}
+
+#search-user input {
+    width: 100%;
+    display: block;
+    margin: 10px auto;
+    padding: 12px 18px;
+    font-size: 14px;
+    border-radius: 0.8rem;
+    outline: none;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s;
+    flex-shrink: 0;
+    background: #fff;
+}
+
+#search-user input:focus {
+    border-color: #4b0082;
+    box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.1);
+}
+
+.search-output {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding-top: 10px;
+}
+
+/* User Table */
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-table thead {
+    background-color: #f8f7ff;
+    color: #4b0082;
+    position: sticky;
+    top: 0;
+}
+
+.user-table th {
+    padding: 12px 10px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.user-table th:first-child {
+    border-radius: 0.8rem 0 0 0;
+}
+
+.user-table th:last-child {
+    border-radius: 0 0.8rem 0 0;
+}
+
+.user-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(75, 0, 130, 0.1);
+    font-size: 13px;
+}
+
+.user-table tbody tr:hover {
+    background: var(--profile-accent);
+}
+
+.action-link {
+    color: #4b0082;
+    font-size: 18px;
+    transition: all 0.3s;
+}
+
+.action-link:hover {
+    transform: scale(1.2);
+    color: #6b21a8;
+}
+
+/* Add Match Result Section */
+#add-match-result {
+    width: 100%;
+    margin: 0;
+    background: #fff;
+    padding: 24px;
+    border-radius: 1.5rem;
+    box-shadow: var(--profile-shadow);
+    border: var(--profile-border);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+#add-match-result h2 {
+    width: 100%;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+    font-size: 1.5rem;
+    color: #1a1a1a;
+}
+
+#add-match-result .input-div {
+    margin-bottom: 15px;
+}
+
+#add-match-result .input-div label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #4b0082;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#add-match-result .input-div input,
+#add-match-result .input-div select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 0.8rem;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s;
+    background: #fff;
+}
+
+#add-match-result .input-div input:focus,
+#add-match-result .input-div select:focus {
+    border-color: #4b0082;
+    box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.1);
+}
+
+#add-match-result .btn {
+    width: fit-content;
+    margin: 10px auto 0;
+    background: var(--profile-gradient);
+    color: white;
+    border: none;
+    border-radius: 0.8rem;
+    padding: 12px 40px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(75, 0, 130, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#add-match-result .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(75, 0, 130, 0.3);
+}
+
+#form-message {
+    margin-top: 15px;
+    text-align: center;
+    font-weight: 600;
+}
+
+#dynamic-fields {
+    margin-bottom: 15px;
+}
+
+#dynamic-fields p {
+    color: #666;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Custom Scrollbar */
+.search-output::-webkit-scrollbar,
+#add-match-result::-webkit-scrollbar {
+    width: 8px;
+}
+
+.search-output::-webkit-scrollbar-track,
+#add-match-result::-webkit-scrollbar-track {
+    background: rgba(75, 0, 130, 0.05);
+    border-radius: 10px;
+}
+
+.search-output::-webkit-scrollbar-thumb,
+#add-match-result::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #111 0%, #4b0082 100%);
+    border-radius: 10px;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+    .main-content-wrapper {
+        left: 0;
+        top: 100px;
+        bottom: 40px;
+        padding: 15px;
+        overflow-y: auto;
+    }
+
+    .players-grid-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        height: auto;
+    }
+
+    .players-grid-left,
+    .players-grid-right {
+        height: auto;
+        min-height: 400px;
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+    .main-content-wrapper {
+        padding: 10px;
+        bottom: 40px;
+        overflow-y: auto;
+    }
+
+    #search-user,
+    #add-match-result {
+        border-radius: 1.2rem;
+        padding: 15px;
+    }
+
+    #search-user h2,
+    #add-match-result h2 {
+        font-size: 1.15rem;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

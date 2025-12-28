@@ -46,6 +46,9 @@ $router->get('/api/attendance/last-session/{sport_id}', 'AttendanceApiController
 $router->get('/api/attendance/upcoming-sessions/{sport_id}', 'AttendanceApiController@getUpcomingSessions');
 $router->get('/api/attendance/exists/{practice_id}', 'AttendanceApiController@checkAttendanceExists');
 
+// User Registration Stats API
+$router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
+
 $router->get('/coach//', 'CoachController@TeamSchedules');
 $router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');
 $router->get('/coach/report-injury', 'CoachController@ReportInjury');
