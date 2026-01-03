@@ -1,1 +1,22 @@
 # Add files to ignore here
+
+# Environment files (IMPORTANT: keeps API keys private)
+.env
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+/vendor/
+node_modules/
+
+# Logs
+*.log
+
+# Local config overrides
+config.local.php

@@ -77,7 +77,8 @@ class Equipment {
                     OR e.equipment_id LIKE :q
                     OR s.sport_name LIKE :q
                 GROUP BY e.equipment_id, e.equipment_name, e.image_name, s.sport_name
-                ORDER BY e.equipment_name";
+                ORDER BY e.equipment_name
+                LIMIT 4";
     
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
@@ -346,6 +347,33 @@ class Equipment {
             'reservation_id' => $reservationId,
             'student_id' => $studentId['student_id']
         ]);
+    }
+
+    public function getAllBookingRequests() {
+        $sql = "
+            SELECT 
+                r.request_id,
+                r.student_id,
+                r.equipment_id,
+                e.equipment_name,
+                r.request_date,
+                r.start_time,
+                r.end_time,
+                r.purpose,
+                r.status,
+                r.notes,
+                u.first_name,
+                u.last_name,
+                s.sport_name
+            FROM `equipment-requests` r
+            LEFT JOIN equipment e ON r.equipment_id = e.equipment_id
+            LEFT JOIN student st ON r.student_id = st.student_id
+            LEFT JOIN user u ON st.user_id = u.user_id
+            LEFT JOIN sport s ON e.sport_id = s.sport_id
+            ORDER BY r.request_date DESC, r.start_time DESC
+        ";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 

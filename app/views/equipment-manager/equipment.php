@@ -25,124 +25,196 @@
 <body>
 <div class ="content">
 
-    <div class="card">
-       <h3>Athletics</h3> 
-       <img src="/uoc-sports/public/images/equipment/athletic.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Athletics&sport_id=ATH'">
+       <img src="/uoc-sports/public/images/equipment/athletic.jpg" class="image">
+       <div class="card-content">
+           <h3>Athletics</h3>
+           <p class="card-id">ID: SP-01</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Rugby</h3> 
-       <img src="/uoc-sports/public/images/equipment/rugby.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Rugby&sport_id=RUG'">
+       <img src="/uoc-sports/public/images/equipment/rugby.jpg" class="image">
+       <div class="card-content">
+           <h3>Rugby</h3>
+           <p class="card-id">ID: SP-02</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Tennis</h3> 
-       <img src="/uoc-sports/public/images/equipment/tennis.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Tennis&sport_id=TEN'">
+       <img src="/uoc-sports/public/images/equipment/tennis.jpg" class="image">
+       <div class="card-content">
+           <h3>Tennis</h3>
+           <p class="card-id">ID: SP-03</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Weightlifting</h3> 
-       <img src="/uoc-sports/public/images/equipment/weightlifting.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Weightlifting&sport_id=WEI'">
+       <img src="/uoc-sports/public/images/equipment/weightlifting.jpg" class="image">
+       <div class="card-content">
+           <h3>Weightlifting</h3>
+           <p class="card-id">ID: SP-04</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Basketball</h3> 
-       <img src="/uoc-sports/public/images/equipment/basketball" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Basketball&sport_id=BAS'">
+       <img src="/uoc-sports/public/images/equipment/basketball" class="image">
+       <div class="card-content">
+           <h3>Basketball</h3>
+           <p class="card-id">ID: SP-05</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Carrom</h3> 
-       <img src="/uoc-sports/public/images/equipment/carrom.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Carrom&sport_id=CAR'">
+       <img src="/uoc-sports/public/images/equipment/carrom.jpg" class="image">
+       <div class="card-content">
+           <h3>Carrom</h3>
+           <p class="card-id">ID: SP-06</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Scrable</h3> 
-       <img src="/uoc-sports/public/images/equipment/scrable.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Scrable&sport_id=SCR'">
+       <img src="/uoc-sports/public/images/equipment/scrable.jpg" class="image">
+       <div class="card-content">
+           <h3>Scrable</h3>
+           <p class="card-id">ID: SP-07</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Chess</h3> 
-       <img src="/uoc-sports/public/images/equipment/chess.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Chess&sport_id=CHE'">
+       <img src="/uoc-sports/public/images/equipment/chess.jpg" class="image">
+       <div class="card-content">
+           <h3>Chess</h3>
+           <p class="card-id">ID: SP-08</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Football</h3> 
-       <img src="/uoc-sports/public/images/equipment/football.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Football&sport_id=FOO'">
+       <img src="/uoc-sports/public/images/equipment/football.jpg" class="image">
+       <div class="card-content">
+           <h3>Football</h3>
+           <p class="card-id">ID: SP-09</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Baseball</h3> 
-       <img src="/uoc-sports/public/images/equipment/baseball.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Baseball&sport_id=BSB'">
+       <img src="/uoc-sports/public/images/equipment/baseball.jpg" class="image">
+       <div class="card-content">
+           <h3>Baseball</h3>
+           <p class="card-id">ID: SP-10</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Rowing</h3> 
-       <img src="/uoc-sports/public/images/equipment/rowing.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Rowing&sport_id=ROW'">
+       <img src="/uoc-sports/public/images/equipment/rowing.jpg" class="image">
+       <div class="card-content">
+           <h3>Rowing</h3>
+           <p class="card-id">ID: SP-11</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Netball</h3> 
-       <img src="/uoc-sports/public/images/equipment/netball.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Netball&sport_id=NET'">
+       <img src="/uoc-sports/public/images/equipment/netball.jpg" class="image">
+       <div class="card-content">
+           <h3>Netball</h3>
+           <p class="card-id">ID: SP-12</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Taekwondo</h3> 
-       <img src="/uoc-sports/public/images/equipment/taekwondo.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Taekwondo&sport_id=TEA'">
+       <img src="/uoc-sports/public/images/equipment/taekwondo.jpg" class="image">
+       <div class="card-content">
+           <h3>Taekwondo</h3>
+           <p class="card-id">ID: SP-13</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Hockey</h3> 
-       <img src="/uoc-sports/public/images/equipment/hockey.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Hockey&sport_id=HOC'">
+       <img src="/uoc-sports/public/images/equipment/hockey.jpg" class="image">
+       <div class="card-content">
+           <h3>Hockey</h3>
+           <p class="card-id">ID: SP-14</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Swimming</h3> 
-       <img src="/uoc-sports/public/images/equipment/swimming.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Swimming&sport_id=SWI'">
+       <img src="/uoc-sports/public/images/equipment/swimming.jpg" class="image">
+       <div class="card-content">
+           <h3>Swimming</h3>
+           <p class="card-id">ID: SP-15</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Elle</h3> 
-       <img src="/uoc-sports/public/images/equipment/elle.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Elle&sport_id=ELL'">
+       <img src="/uoc-sports/public/images/equipment/elle.jpg" class="image">
+       <div class="card-content">
+           <h3>Elle</h3>
+           <p class="card-id">ID: SP-16</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Cricket</h3> 
-       <img src="/uoc-sports/public/images/equipment/cricket.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Cricket&sport_id=CRI'">
+       <img src="/uoc-sports/public/images/equipment/cricket.jpg" class="image">
+       <div class="card-content">
+           <h3>Cricket</h3>
+           <p class="card-id">ID: SP-17</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Kabaddi</h3> 
-       <img src="/uoc-sports/public/images/equipment/kabaddi.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Kabaddi&sport_id=KAB'">
+       <img src="/uoc-sports/public/images/equipment/kabaddi.jpg" class="image">
+       <div class="card-content">
+           <h3>Kabaddi</h3>
+           <p class="card-id">ID: SP-18</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Wrestling</h3> 
-       <img src="/uoc-sports/public/images/equipment/wrestling.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Wrestling&sport_id=WRE'">
+       <img src="/uoc-sports/public/images/equipment/wrestling.jpg" class="image">
+       <div class="card-content">
+           <h3>Wrestling</h3>
+           <p class="card-id">ID: SP-19</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Badminton</h3> 
-       <img src="/uoc-sports/public/images/equipment/badminton.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Badminton&sport_id=BAD'">
+       <img src="/uoc-sports/public/images/equipment/badminton.jpg" class="image">
+       <div class="card-content">
+           <h3>Badminton</h3>
+           <p class="card-id">ID: SP-20</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Table Tennis</h3> 
-       <img src="/uoc-sports/public/images/equipment/table_tennis.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Table Tennis&sport_id=TBT'">
+       <img src="/uoc-sports/public/images/equipment/table_tennis.jpg" class="image">
+       <div class="card-content">
+           <h3>Table Tennis</h3>
+           <p class="card-id">ID: SP-21</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Volleyball</h3> 
-       <img src="/uoc-sports/public/images/equipment/volleyball.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Volleyball&sport_id=VOL'">
+       <img src="/uoc-sports/public/images/equipment/volleyball.jpg" class="image">
+       <div class="card-content">
+           <h3>Volleyball</h3>
+           <p class="card-id">ID: SP-22</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Boxing</h3> 
-       <img src="/uoc-sports/public/images/equipment/boxing.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Boxing&sport_id=BOX'">
+       <img src="/uoc-sports/public/images/equipment/boxing.jpg" class="image">
+       <div class="card-content">
+           <h3>Boxing</h3>
+           <p class="card-id">ID: SP-23</p>
+       </div>     
     </div>
 
-    <div class="card">
-       <h3>Karate</h3> 
-       <img src="/uoc-sports/public/images/equipment/karate.jpg" class="image">     
+    <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Karate&sport_id=KAR'">
+       <img src="/uoc-sports/public/images/equipment/karate.jpg" class="image">
+       <div class="card-content">
+           <h3>Karate</h3>
+           <p class="card-id">ID: SP-24</p>
+       </div>     
     </div>
 
 </div>

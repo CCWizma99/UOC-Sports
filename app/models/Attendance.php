@@ -13,7 +13,12 @@ class Attendance {
      * Generate unique attendance ID
      */
     private function generateAttendanceId() {
-        return 'ATD' . strtoupper(uniqid());
+        // Generate a unique ID that fits within 12 characters
+        // Format: ATD + microtime-based hash (9 chars)
+        usleep(1); // Ensure microsecond difference
+        $microtime = microtime(true);
+        $hash = substr(md5($microtime . random_bytes(4)), 0, 9);
+        return 'ATD' . strtoupper($hash);
     }
 
     /**
@@ -113,7 +118,7 @@ class Attendance {
             FROM attendance a
             INNER JOIN practice_sessions ps ON a.practice_id = ps.id
             WHERE a.user_id = :user_id 
-            AND ps.facility LIKE CONCAT('%', :sport_id, '%')
+            AND ps.sport_id = :sport_id
         ");
         
         $stmt->execute([
@@ -142,7 +147,7 @@ class Attendance {
                 COUNT(DISTINCT ps.id) as total_sessions,
                 SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) as present_count
             FROM `sports-team` st
-            LEFT JOIN practice_sessions ps ON ps.facility LIKE CONCAT('%', st.sport_id, '%')
+            LEFT JOIN practice_sessions ps ON ps.sport_id = st.sport_id
             LEFT JOIN attendance a ON a.practice_id = ps.id AND a.user_id = st.student_id
             WHERE st.sport_id = :sport_id
             GROUP BY st.student_id
@@ -185,7 +190,7 @@ class Attendance {
             FROM practice_sessions ps
             LEFT JOIN attendance a ON ps.id = a.practice_id
             LEFT JOIN user u ON a.user_id = u.user_id
-            WHERE ps.facility LIKE CONCAT('%', :sport_id, '%')
+            WHERE ps.sport_id = :sport_id
             AND ps.session_date <= CURDATE()
             ORDER BY ps.session_date DESC, ps.session_time DESC
             LIMIT :limit

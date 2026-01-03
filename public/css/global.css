@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap');
-*{
+
+* {
     margin: 0;
     padding: 0;
     font-family: "Inter", sans-serif;
@@ -7,93 +8,113 @@
     font-style: normal;
     box-sizing: border-box;
 }
+
 :root {
     --primary-color: rgb(94, 45, 145);
     --primary-color-5: rgba(93, 45, 145, 0.5);
     --primary-color-8: rgba(93, 45, 145, 0.8);
     --primary-color-9: rgba(93, 45, 145, 0.9);
 }
-body{
+
+body {
     color: #1a1a1a;
     overflow-x: hidden;
     background: #fff;
 }
-.red{
+
+.red {
     color: red;
 }
-.green{
+
+.green {
     color: rgb(0, 176, 0);
 }
-button.red{
+
+button.red {
     background-color: red !important;
 }
-button.green{
+
+button.green {
     background-color: rgb(0, 176, 0) !important;
 }
+
 /* The entire scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
-  }
-  
-  /* The track (background) */
-  ::-webkit-scrollbar-track {
-    background: #000000;
-    border-radius: 2px;
-  }
-  
-  /* The draggable thumb */
-  ::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 2px;
-  }
-  
-  /* On hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
-  
-.bg-theme{
+}
+
+/* The track (background) */
+::-webkit-scrollbar-track {
+    background: rgba(75, 0, 130, 0.05);
+    border-radius: 10px;
+}
+
+/* The draggable thumb */
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #111 0%, #4b0082 100%);
+    border-radius: 10px;
+}
+
+/* On hover */
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #333 0%, #6b20a2 100%);
+}
+
+.bg-theme {
     background-color: #fff;
 }
-.text-theme{
+
+.text-theme {
     color: #f6d8f9;
 }
-.text-black{
+
+.text-black {
     color: #000;
 }
-.bg-black{
+
+.bg-black {
     background-color: #000;
 }
-.no-dec{
+
+.no-dec {
     text-decoration: none;
 }
-.flex{
+
+.flex {
     display: flex;
 }
-.flex-y{
+
+.flex-y {
     display: flex;
     flex-direction: column;
 }
-.y-center{
+
+.y-center {
     align-items: center;
 }
-.x-center{
+
+.x-center {
     justify-content: center;
 }
-.xy-center{
+
+.xy-center {
     align-items: center;
     justify-content: center;
 }
-.bold-6{
+
+.bold-6 {
     font-weight: 600;
 }
-.scroll{
+
+.scroll {
     overflow-y: scroll;
 }
-.bor-t{
+
+.bor-t {
     border-top: 1px solid rgba(0, 0, 0, 0.3);
 }
-.text-center{
+
+.text-center {
     text-align: center;
 }

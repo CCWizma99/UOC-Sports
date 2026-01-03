@@ -222,11 +222,17 @@
             </div>
             
             <div class="contact-grid">
-                <form class="contact-form">
-                    <input type="email" placeholder="Your Email Address" required>
-                    <input type="text" placeholder="Subject of Inquiry" required>
-                    <textarea placeholder="Your Message" required></textarea>
-                    <button type="submit" class="btn-primary">Send Message</button>
+                <form class="contact-form" id="contactForm">
+                    <div id="formMessage" class="form-message" style="display: none;"></div>
+                    <input type="email" id="contactEmail" name="email" placeholder="Your Email Address" required>
+                    <input type="text" id="contactSubject" name="subject" placeholder="Subject of Inquiry" required>
+                    <textarea id="contactMessage" name="message" placeholder="Your Message" required></textarea>
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <span id="btnText">Send Message</span>
+                        <span id="btnLoader" class="btn-loader" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Sending...
+                        </span>
+                    </button>
                 </form>
                 
                 <div class="contact-info">
@@ -260,3 +266,57 @@
             </div>
         </div>
     </section>
+
+<script>
+// Contact form submission handler
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const form = this;
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnLoader = document.getElementById('btnLoader');
+    const formMessage = document.getElementById('formMessage');
+    
+    // Get form data
+    const formData = new FormData(form);
+    
+    // Disable submit button and show loader
+    submitBtn.disabled = true;
+    btnText.style.display = 'none';
+    btnLoader.style.display = 'inline';
+    formMessage.style.display = 'none';
+    
+    try {
+        const response = await fetch('/uoc-sports/public/contact/submit', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        // Show message
+        formMessage.style.display = 'block';
+        formMessage.className = 'form-message ' + (result.status === 'success' ? 'success' : 'error');
+        formMessage.textContent = result.message;
+        
+        // If successful, reset form
+        if (result.status === 'success') {
+            form.reset();
+            
+            // Scroll to message
+            formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+    } catch (error) {
+        formMessage.style.display = 'block';
+        formMessage.className = 'form-message error';
+        formMessage.textContent = 'An error occurred. Please try again later.';
+    } finally {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+    }
+});
+</script>

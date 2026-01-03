@@ -1,6 +1,6 @@
 <?php
 
-class sportManagerController {
+class SportManagerController {
     public function index() {
         view('sports-manager/index');
     }
@@ -21,4 +21,23 @@ class sportManagerController {
         view('sports-manager/message');
     }
     
+    public function practicesessions() {
+        view('sports-manager/practicesessions');
+    }
+
+    public function competitions() {
+        view('sports-manager/competitions');
+    }
+
+    public function addPractice() {
+        view('sports-manager/add-practice');
+    }
+
+    public function addParticipants() {
+        view('sports-manager/add-participants');
+    }
+
+    public function addExpense() {
+        view('sports-manager/add-expense');
+    }
 }

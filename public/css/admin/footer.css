@@ -1,9 +1,12 @@
-footer{
-    width: calc(100vw - 490px);
-    margin: auto;
-    margin-top: 30px;
-    background: linear-gradient(90deg, var(--primary-color), #9b59b6);
-    padding: 11px;
+footer {
+    width: 100%;
+    background: linear-gradient(135deg, #111 0%, #4b0082 100%);
+    padding: 10px;
     text-align: center;
     color: #fff;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
 }

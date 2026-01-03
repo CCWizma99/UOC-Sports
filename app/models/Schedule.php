@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../core/Database.php';
 
 class Schedule {
     private $pdo;
@@ -22,6 +23,13 @@ class Schedule {
         $stmt = $this->pdo->prepare("SELECT * FROM practice_sessions WHERE id = ?");
         $stmt->execute([(int)$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getSessionCountById($id) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) as count FROM practice_sessions WHERE session_date >= CURDATE() AND sport_id = ?");
+        $stmt->execute([$id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? (int)$result['count'] : 0;
     }
 
     public function create($facility, $session_date, $session_time, $description, $sport_id = '', $added_by = '') {
@@ -51,6 +59,17 @@ class Schedule {
     public function delete($id) {
         $stmt = $this->pdo->prepare("DELETE FROM practice_sessions WHERE id = ?");
         return $stmt->execute([(int)$id]);
+    }
+
+    /**
+     * Set status for a practice session
+     * @param int $id
+     * @param string $status
+     * @return bool
+     */
+    public function setStatus($id, $status) {
+        $stmt = $this->pdo->prepare("UPDATE practice_sessions SET status = ? WHERE id = ?");
+        return $stmt->execute([$status, (int)$id]);
     }
 
     /**
@@ -111,8 +130,9 @@ class Schedule {
     public function getSessionsBySport($sportId) {
         $stmt = $this->pdo->prepare("
             SELECT * FROM practice_sessions
-            WHERE facility LIKE CONCAT('%', :sport_id, '%')
-            ORDER BY session_date DESC, session_time DESC
+            WHERE sport_id = :sport_id
+            AND session_date >= CURDATE()
+            ORDER BY session_date ASC, session_time ASC
         ");
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
