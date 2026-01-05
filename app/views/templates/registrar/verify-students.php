@@ -3,99 +3,206 @@
   <div class="verify-container">
     <div class="header-bar">
       <h2>Verify Student Accounts</h2>
-      <div class="filters">
-        <select id="statusFilter">
-          <option value="all">Status</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
-        <select id="dateFilter">
-          <option value="all">Date Range</option>
-          <option value="today">Today</option>
-          <option value="week">This Week</option>
-          <option value="month">This Month</option>
-        </select>
+      <div class="stats-badge">
+        <span id="pending-count"><?php echo count($verifications ?? []); ?></span> Pending
       </div>
     </div>
 
     <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search" />
+      <input type="text" id="searchInput" placeholder="Search by name, student ID, or sport..." />
     </div>
 
-    <table class="verify-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Student ID</th>
-          <th>Department</th>
-          <th>Email</th>
-          <th>Registration ID</th>
-          <th>Verification Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="studentTableBody">
-        <tr>
-          <td>Ethan Harper</td>
-          <td>STU12345</td>
-          <td>Computer Science</td>
-          <td>ethan.harper@email.com</td>
-          <td>REG67890</td>
-          <td><span class="status pending">Pending</span></td>
-          <td>
-            <button class="approve-btn">Approve</button>
-            <button class="reject-btn">Reject</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Olivia Bennett</td>
-          <td>STU67890</td>
-          <td>Biology</td>
-          <td>olivia.bennett@email.com</td>
-          <td>REG12345</td>
-          <td><span class="status approved">Approved</span></td>
-          <td>
-            <button class="view-btn">View</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Noah Carter</td>
-          <td>STU24680</td>
-          <td>Business Administration</td>
-          <td>noah.carter@email.com</td>
-          <td>REG36912</td>
-          <td><span class="status rejected">Rejected</span></td>
-          <td>
-            <button class="view-btn">View</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Ava Thompson</td>
-          <td>STU13579</td>
-          <td>Psychology</td>
-          <td>ava.thompson@email.com</td>
-          <td>REG80246</td>
-          <td><span class="status pending">Pending</span></td>
-          <td>
-            <button class="approve-btn">Approve</button>
-            <button class="reject-btn">Reject</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Liam Foster</td>
-          <td>STU98765</td>
-          <td>Engineering</td>
-          <td>liam.foster@email.com</td>
-          <td>REG54321</td>
-          <td><span class="status approved">Approved</span></td>
-          <td>
-            <button class="approve-btn">Approve</button>
-            <button class="reject-btn">Reject</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <?php if (empty($verifications)): ?>
+      <div class="empty-state">
+        <i class="fas fa-check-circle"></i>
+        <h3>No Pending Verifications</h3>
+        <p>All student verifications have been processed.</p>
+      </div>
+    <?php else: ?>
+      <div class="verification-cards" id="verification-cards">
+        <?php foreach ($verifications as $v): ?>
+          <div class="verification-card" data-request-id="<?php echo htmlspecialchars($v['request_id']); ?>" data-student-id="<?php echo htmlspecialchars($v['student_id']); ?>">
+            <div class="card-header">
+              <div class="sport-badge"><?php echo htmlspecialchars($v['sport_name'] ?? 'Unknown Sport'); ?></div>
+              <div class="request-date"><?php echo date('M d, Y', strtotime($v['request_date'])); ?></div>
+            </div>
+            
+            <div class="student-info">
+              <div class="student-avatar">
+                <i class="fas fa-user-graduate"></i>
+              </div>
+              <div class="student-details">
+                <h3><?php echo htmlspecialchars($v['fname'] . ' ' . $v['lname']); ?></h3>
+                <p class="student-id-text"><i class="fas fa-id-badge"></i> <?php echo htmlspecialchars($v['uni_student_id']); ?></p>
+                <p class="student-email"><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($v['email']); ?></p>
+              </div>
+            </div>
+            
+            <div class="requested-by">
+              <small>Requested by: <strong><?php echo htmlspecialchars($v['requested_by_name'] ?? 'Sport Manager'); ?></strong></small>
+            </div>
+
+            <div class="card-actions">
+              <button class="btn-view-id" onclick="viewIdCard('<?php echo htmlspecialchars($v['student_id']); ?>')">
+                <i class="fas fa-id-card"></i> View ID Card
+              </button>
+              <button class="btn-approve" onclick="verifyStudent('<?php echo htmlspecialchars($v['request_id']); ?>', '<?php echo htmlspecialchars($v['student_id']); ?>', 'VERIFIED')">
+                <i class="fas fa-check"></i> Approve
+              </button>
+              <button class="btn-reject" onclick="showRejectModal('<?php echo htmlspecialchars($v['request_id']); ?>', '<?php echo htmlspecialchars($v['student_id']); ?>')">
+                <i class="fas fa-times"></i> Reject
+              </button>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
   </div>
 </div>
- 
+
+<!-- ID Card Modal -->
+<div id="idCardModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Student ID Card</h3>
+      <span class="close-modal">&times;</span>
+    </div>
+    <div class="modal-body">
+      <img id="idCardImage" src="" alt="Student ID Card" />
+      <p id="noIdCardMsg" style="display:none;">No ID card image uploaded by this student.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div id="rejectModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Reject Verification</h3>
+      <span class="close-modal">&times;</span>
+    </div>
+    <div class="modal-body">
+      <p>Please provide a reason for rejection:</p>
+      <textarea id="rejectionReason" rows="3" placeholder="Enter reason..."></textarea>
+      <input type="hidden" id="rejectRequestId" />
+      <input type="hidden" id="rejectStudentId" />
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+        <button class="btn-confirm-reject" onclick="confirmReject()">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+    const query = this.value.toLowerCase();
+    const cards = document.querySelectorAll('.verification-card');
+    
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(query) ? 'block' : 'none';
+    });
+});
+
+// View ID Card
+async function viewIdCard(studentId) {
+    const modal = document.getElementById('idCardModal');
+    const img = document.getElementById('idCardImage');
+    const noMsg = document.getElementById('noIdCardMsg');
+    
+    try {
+        const res = await fetch(`/uoc-sports/public/api/registrar/student-details?student_id=${studentId}`);
+        const data = await res.json();
+        
+        if (data.status === 'success' && data.id_card_image) {
+            img.src = data.id_card_image;
+            img.style.display = 'block';
+            noMsg.style.display = 'none';
+        } else {
+            img.style.display = 'none';
+            noMsg.style.display = 'block';
+        }
+        
+        modal.style.display = 'flex';
+    } catch (err) {
+        alert('Failed to load student details');
+    }
+}
+
+// Verify Student
+async function verifyStudent(requestId, studentId, status, reason = null) {
+    try {
+        const res = await fetch('/uoc-sports/public/api/registrar/verify-student', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                request_id: requestId,
+                student_id: studentId,
+                status: status,
+                reason: reason
+            })
+        });
+        
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            // Remove card from UI
+            const card = document.querySelector(`[data-request-id="${requestId}"][data-student-id="${studentId}"]`);
+            if (card) {
+                card.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => card.remove(), 300);
+                
+                // Update count
+                const countEl = document.getElementById('pending-count');
+                const currentCount = parseInt(countEl.textContent);
+                countEl.textContent = Math.max(0, currentCount - 1);
+            }
+            closeModals();
+        } else {
+            alert(data.message || 'Failed to update verification');
+        }
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+}
+
+// Show reject modal
+function showRejectModal(requestId, studentId) {
+    document.getElementById('rejectRequestId').value = requestId;
+    document.getElementById('rejectStudentId').value = studentId;
+    document.getElementById('rejectionReason').value = '';
+    document.getElementById('rejectModal').style.display = 'flex';
+}
+
+// Confirm reject
+function confirmReject() {
+    const requestId = document.getElementById('rejectRequestId').value;
+    const studentId = document.getElementById('rejectStudentId').value;
+    const reason = document.getElementById('rejectionReason').value.trim();
+    
+    if (!reason) {
+        alert('Please provide a reason for rejection');
+        return;
+    }
+    
+    verifyStudent(requestId, studentId, 'REJECTED', reason);
+}
+
+// Close modals
+function closeModals() {
+    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+}
+
+// Close modal on click outside
+document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) closeModals();
+    });
+});
+
+document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.addEventListener('click', closeModals);
+});
+</script>

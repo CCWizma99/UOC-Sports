@@ -135,4 +135,23 @@ class Tournament {
             return [];
         }
     }
+
+    /**
+     * Get count of active events (ongoing tournaments) for dashboard stats
+     * @return int
+     */
+    public function getActiveEventsCount() {
+        try {
+            $today = date('Y-m-d');
+            $sql = "SELECT COUNT(*) as total FROM tournament 
+                    WHERE status = 'INCOMPLETE' 
+                    AND (end_date >= :today OR end_date IS NULL)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['today' => $today]);
+            return $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Get active events count error: " . $e->getMessage());
+            return 0;
+        }
+    }
 }

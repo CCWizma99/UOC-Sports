@@ -700,6 +700,15 @@ function showNotification(message, type = 'info') {
     var currentPage = document.getElementById("sidebar-users");
     currentPage.classList.add("active") 
 </script>
+<script src="/uoc-sports/public/js/search-keyboard-nav.js"></script>
+<script>
+    SearchKeyboardNav.init({
+        inputSelector: '#search-user-inp',
+        resultsSelector: '.search-output',
+        itemSelector: 'tbody tr',
+        actionSelector: '.action-link'
+    });
+</script>
 <script src="/uoc-sports/public/js/sidebar-toggle.js"></script>
 </html>
 

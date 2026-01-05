@@ -5,9 +5,21 @@ class AdminHomeController {
         $budgetModel = new Budget();
         $budgetSummary = $budgetModel->getBudgetSummary();
         
+        // Fetch dashboard statistics
+        $userModel = new User();
+        $facilityModel = new Facility();
+        $tournamentModel = new Tournament();
+        
+        $dashboardStats = [
+            'total_users' => $userModel->getTotalUsersCount(),
+            'pending_reservations' => $facilityModel->getPendingReservationsCount(),
+            'active_events' => $tournamentModel->getActiveEventsCount()
+        ];
+        
         view('admin-home', [
             'title' => 'Home',
-            'budget_summary' => $budgetSummary
+            'budget_summary' => $budgetSummary,
+            'dashboard_stats' => $dashboardStats
         ]);
     }
     public function users() {

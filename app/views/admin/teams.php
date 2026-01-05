@@ -81,5 +81,14 @@ document.getElementById('team-search').addEventListener('input', function() {
     var currentPage = document.getElementById("sidebar-teams");
     currentPage.classList.add("active") 
 </script>
+<script src="/uoc-sports/public/js/search-keyboard-nav.js"></script>
+<script>
+    SearchKeyboardNav.init({
+        inputSelector: '#team-search',
+        resultsSelector: '#search-results',
+        itemSelector: 'li',
+        actionSelector: 'a'
+    });
+</script>
 <script src="/uoc-sports/public/js/sidebar-toggle.js"></script>
 </html>

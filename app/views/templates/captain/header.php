@@ -37,8 +37,8 @@
                 else if($user && $user['type'] === 'SPT') {
                     echo '<a href="/uoc-sports/public/sport-manager/" id="user_type">Sp. Manager</a>';
                 }
-                else if($user && $user['type'] === 'REGISTRAR') {
-                    echo '<a href="/uoc-sports/public/student/" id="user_type">Registrar</a>';
+                else if($user && $user['type'] === 'REG') {
+                    echo '<a href="/uoc-sports/public/registrar//" id="user_type">Registrar</a>';
                 }
                 else if($user && $user['type'] === 'INSTAFF') {
                     echo '<a href="/uoc-sports/public/student/" id="user_type">Staff</a>';

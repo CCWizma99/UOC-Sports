@@ -322,7 +322,7 @@
         }
 
         function handleLogout() { 
-            window.location.href = '/uoc-sports/public/sign-in';
+            window.location.href = '/uoc-sports/public/logout';
         }
         
         function showDeleteModal() { 

@@ -114,17 +114,17 @@ function displayInquiries(data) {
 
     resultsBody.innerHTML = data.map(i => `
         <tr>
-            <td>${i.inquiry_id}</td>
-            <td>${i.user_id}</td>
-            <td>${i.email}</td>
-            <td class="subject-cell" title="${escapeHtml(i.subject)}">${truncate(i.subject, 30)}</td>
-            <td>${formatDate(i.date)}</td>
-            <td>
+            <td data-label="Inquiry ID">${i.inquiry_id}</td>
+            <td data-label="User ID">${i.user_id}</td>
+            <td data-label="Email">${i.email}</td>
+            <td data-label="Subject" class="subject-cell" title="${escapeHtml(i.subject)}">${truncate(i.subject, 30)}</td>
+            <td data-label="Date">${formatDate(i.date)}</td>
+            <td data-label="Status">
                 <span class="status-badge ${i.status === 'RESOLVED' ? 'resolved' : 'not-resolved'}">
                     ${i.status}
                 </span>
             </td>
-            <td class="action-buttons">
+            <td data-label="Actions" class="action-buttons">
                 <button class="btn-action btn-view" onclick="viewInquiry('${i.inquiry_id}')" title="View Details">
                     <i class="fas fa-eye"></i>
                 </button>
@@ -291,6 +291,15 @@ function escapeHtml(text) {
 <script>
     var currentPage = document.getElementById("sidebar-inquiry");
     currentPage.classList.add("active") 
+</script>
+<script src="/uoc-sports/public/js/search-keyboard-nav.js"></script>
+<script>
+    SearchKeyboardNav.init({
+        inputSelector: '#search',
+        resultsSelector: '#resultsBody',
+        itemSelector: 'tr',
+        actionSelector: '.btn-view'
+    });
 </script>
 <script src="/uoc-sports/public/js/sidebar-toggle.js"></script>
 </html>

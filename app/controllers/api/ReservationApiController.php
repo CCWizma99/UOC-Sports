@@ -18,7 +18,8 @@ class ReservationApiController extends BaseController {
         // Calculate analytics
         $totalReservations = !empty($chartData) ? array_sum(array_column($chartData, 'res_count')) : 0;
         $avgReservations = !empty($chartData) ? round($totalReservations / count($chartData), 1) : 0;
-        $maxValue = !empty($chartData) ? max(array_column($chartData, 'res_count')) : 100;
+        // Ensure max_value is at least 1 to prevent rendering issues
+        $maxValue = !empty($chartData) ? max(1, max(array_column($chartData, 'res_count'))) : 10;
 
         echo json_encode([
             'chart_data' => $chartData,
