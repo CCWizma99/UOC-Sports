@@ -88,17 +88,17 @@ require '../app/views/templates/admin/sidebar.php';
                 <div class="stats-grid">
                     <div class="stat-card">
                         <i class="fas fa-users"></i>
-                        <strong id="total-users">--</strong>
+                        <strong id="total-users"><?= $dashboard_stats['total_users'] ?? 0 ?></strong>
                         <p>Total Users</p>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-calendar-check"></i>
-                        <strong id="pending-reservations">--</strong>
+                        <strong id="pending-reservations"><?= $dashboard_stats['pending_reservations'] ?? 0 ?></strong>
                         <p>Pending Reservations</p>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-trophy"></i>
-                        <strong id="active-events">--</strong>
+                        <strong id="active-events"><?= $dashboard_stats['active_events'] ?? 0 ?></strong>
                         <p>Active Events</p>
                     </div>
                 </div>

@@ -54,8 +54,8 @@
                             echo '<a href="/uoc-sports/public/sport-manager/" id="user_type" class="user-type btn-primary">Sp. Manager</a>';
                             break;
 
-                        case 'REGISTRAR':
-                            echo '<a href="/uoc-sports/public/student/" id="user_type" class="user-type btn-primary">Registrar</a>';
+                        case 'REG':
+                            echo '<a href="/uoc-sports/public/registrar//" id="user_type" class="user-type btn-primary">Registrar</a>';
                             break;
 
                         case 'INSTAFF':

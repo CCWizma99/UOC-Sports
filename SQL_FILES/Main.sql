@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 16, 2025 at 02:55 AM
+-- Generation Time: Jan 04, 2026 at 02:13 PM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -74,7 +74,8 @@ INSERT INTO `budget` (`budget_id`, `sport_id`, `year`, `allocated_amount`, `spen
 ('3', '3', 2025, 300000, 100000, '2025-03-12', NULL),
 ('4', '4', 2025, 200000, 50000, '2025-04-05', NULL),
 ('5', '5', 2025, 150000, 30000, '2025-05-01', NULL),
-('ABC012', 'CRI', 2025, 200000, 42000, '2025-08-24', 'This is for testing');
+('ABC012', 'CRI', 2025, 200000, 42000, '2025-08-24', 'This is for testing'),
+('BDG96F74E4F0', 'ROW', 2026, 100000, 12000, '2025-12-26', '-');
 
 -- --------------------------------------------------------
 
@@ -336,10 +337,13 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
 INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, `slot`, `purpose`, `status`, `payment_status`, `rejection_reason`) VALUES
 ('BK711559', 'H4J1OHSX', '9', '2025-12-11', 'FULL', 'To practice for Inter Provincial Matches held in January 2026', 'BOOKED', 'INCOMPLETE', ''),
 ('BK398317', 'H4J1OHSX', '3', '2025-12-10', 'AFTERNOON', 'Badminton Provincial Matches Practice', 'BOOKED', 'INCOMPLETE', ''),
-('BK861578', 'L3NCL2J4', '11', '2025-12-10', 'MORNING', 'For Inter University Practices for SLIIT University', 'BOOKED', 'INCOMPLETE', ''),
-('BK937846', 'L3NCL2J4', '15', '2025-12-18', 'FULL', 'For TOC Championship Match Practice', 'BOOKED', 'INCOMPLETE', ''),
+('BK861578', 'L3NCL2J4', '11', '2025-12-10', 'MORNING', 'For Inter University Practices for SLIIT University', 'REJECTED', 'INCOMPLETE', 'No reason'),
+('BK937846', 'L3NCL2J4', '15', '2025-12-18', 'FULL', 'For TOC Championship Match Practice', 'REJECTED', 'INCOMPLETE', 'A maintenance on the ground has been scheduled for that day. Sorry for the inconvenience.'),
 ('BK405911', 'H4J1OHSX', '5', '2025-12-11', 'FULL', 'Divisional Tennis Matches', 'BOOKED', 'INCOMPLETE', ''),
-('BK662944', '5Q1XZO2Y', '15', '2025-12-12', 'FULL', 'Inter Uni Matches Practice', 'BOOKED', 'INCOMPLETE', '');
+('BK662944', '5Q1XZO2Y', '15', '2025-12-12', 'FULL', 'Inter Uni Matches Practice', 'BOOKED', 'INCOMPLETE', ''),
+('BK743077', 'L3NCL2J4', '18', '2025-12-27', 'FULL', 'Cricket practice', 'ACCEPTED', 'INCOMPLETE', ''),
+('BK425118', 'H4J1OHSX', '13', '2025-12-29', 'FULL', '-', 'BOOKED', 'INCOMPLETE', ''),
+('BK896561', 'H4J1OHSX', '13', '2026-01-01', 'FULL', '-', 'BOOKED', 'INCOMPLETE', '');
 
 -- --------------------------------------------------------
 
@@ -414,16 +418,19 @@ INSERT INTO `facility_rates` (`id`, `facility_type`, `facility_name`, `capacity`
 DROP TABLE IF EXISTS `faculty`;
 CREATE TABLE IF NOT EXISTS `faculty` (
   `faculty_id` varchar(4) NOT NULL,
-  `faculty_name` varchar(64) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `faculty_name` varchar(64) NOT NULL,
+  `registrar_id` varchar(12) DEFAULT NULL COMMENT 'User ID of the faculty registrar',
+  `registrar_email` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`faculty_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `faculty`
 --
 
-INSERT INTO `faculty` (`faculty_id`, `faculty_name`) VALUES
-('1', 'UCSC'),
-('2', 'Science');
+INSERT INTO `faculty` (`faculty_id`, `faculty_name`, `registrar_id`, `registrar_email`) VALUES
+('1', 'UCSC', 'REG003', 'kasun.silva@ucsc.uoc.lk'),
+('2', 'Science', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -467,7 +474,8 @@ CREATE TABLE IF NOT EXISTS `inquiry` (
 --
 
 INSERT INTO `inquiry` (`inquiry_id`, `user_id`, `email`, `subject`, `message`, `date`, `status`) VALUES
-('INQA1A688463', 'H4J1OHSX', 'maximal@gmail.com', 'Testing contact', 'Something Something', '2025-12-15', 'RESOLVED');
+('INQA1A688463', 'H4J1OHSX', 'maximal@gmail.com', 'Testing contact', 'Something Something', '2025-12-15', 'RESOLVED'),
+('INQE8F057499', 'H4J1OHSX', 'dakshinagn@gmail.com', 'about group project', 'on progress', '2025-12-18', 'NOT-RESOLVED');
 
 -- --------------------------------------------------------
 
@@ -541,8 +549,10 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post` (
 --
 
 INSERT INTO `newsfeed_post` (`post_id`, `title`, `description`, `commenting`, `date_posted`, `status`) VALUES
-('P0001', 'Track & Field and Ground Marking Workshop', 'A workshop on Track & Field and Ground Marking was held on the 30th and 31st of March 2021 at the University of Colombo ground premises. This workshop was conducted by Mr Palitha Jayathilaka, Senior Technical Official at the Sri Lanka Athletic Association, to update our staff members on the new methods and changes in ground marking. Participants who completed this workshop successfully received a certificate.', 'YES', '2025-12-09', 'ACTIVE'),
-('P0002', '36th National Rowing Championship', 'University of Colombo rowers won 5 medals at the 36th National Rowing Championship which was held on the 12-13 March 2021 at Diyawannawa Rowing Center. In the Open Category (Women’s), Ms Ranmalee Nanayakkara and Nadani Mendis won the Silver medal in the Open Double scull, Ms Nadani Mendis and Upuli Edirisingha won the bronze medal in the open Pair and Ms Ranmalee Nanayakkara won the bronze medal in the Open Scull category. In the Intermediate Category (Women’s), Ms Himasha Panditharatne and Vibhanga Amarasingha won the bronze medal in the pair event. In the Intermediate Category (Men’s), Mr Avishka Jayaweera, Mr Shehan Shamalka, Mr Dushyantha Hettiarachchi, Mr Shehan Dinusha Liyanage, Mr Samitha Wijethilake won the Bronze medal in the coxed four events.', 'NO', '2025-12-09', 'ACTIVE');
+('P0001', 'Track & Field and Ground Marking Workshop', 'A workshop on Track & Field and Ground Marking was held on the 30th and 31st of March 2025 at the University of Colombo ground premises. This workshop was conducted by Mr Palitha Jayathilaka, Senior Technical Official at the Sri Lanka Athletic Association, to update our staff members on the new methods and changes in ground marking. Participants who completed this workshop successfully received a valuable certificate.', 'YES', '2025-12-09', 'ACTIVE'),
+('P0002', '36th National Rowing Championship', 'University of Colombo rowers won 5 medals at the 36th National Rowing Championship which was held on the 12-13 March 2021 at Diyawannawa Rowing Center. In the Open Category (Women’s), Ms Ranmalee Nanayakkara and Nadani Mendis won the Silver medal in the Open Double scull, Ms Nadani Mendis and Upuli Edirisingha won the bronze medal in the open Pair and Ms Ranmalee Nanayakkara won the bronze medal in the Open Scull category. In the Intermediate Category (Women’s), Ms Himasha Panditharatne and Vibhanga Amarasinghe won the bronze medal in the pair event. In the Intermediate Category (Men’s), Mr Avishka Jayaweera, Mr Shehan Shamalka, Mr Dushyantha Hettiarachchi, Mr Shehan Dinusha Liyanage, Mr Samitha Wijethilake won the Bronze medal in the coxed four events.', 'NO', '2025-12-09', 'ACTIVE'),
+('P0003', 'ggghg', 'bnvvhjbjkkbjh', 'YES', '2025-12-18', 'ACTIVE'),
+('P0004', 'Test News', 'This is a test news post for admin feature testing purposes.', 'YES', '2025-12-26', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -557,13 +567,14 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post_image` (
   `image_path` varchar(255) NOT NULL,
   PRIMARY KEY (`image_id`),
   KEY `post_id` (`post_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `newsfeed_post_image`
 --
 
 INSERT INTO `newsfeed_post_image` (`image_id`, `post_id`, `image_path`) VALUES
+(16, 'P0003', 'images/posts/img_6943e8018adf40.57949946.jpg'),
 (15, 'P0002', 'images/posts/img_69380b0ce85be5.20787564.jpg'),
 (14, 'P0001', 'images/posts/img_6937eab81c8785.14752532.jpg');
 
@@ -583,26 +594,6 @@ CREATE TABLE IF NOT EXISTS `payment` (
   `payment_method` varchar(24) NOT NULL,
   `payment_status` varchar(12) NOT NULL DEFAULT 'DONE',
   PRIMARY KEY (`payment_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `practice-session`
---
-
-DROP TABLE IF EXISTS `practice-session`;
-CREATE TABLE IF NOT EXISTS `practice-session` (
-  `practice_id` varchar(12) NOT NULL,
-  `sport_id` varchar(12) NOT NULL,
-  `facility_id` varchar(12) NOT NULL,
-  `date` date NOT NULL,
-  `start_time` time NOT NULL,
-  `end_time` time NOT NULL,
-  `purpose` varchar(64) NOT NULL,
-  `status` varchar(12) NOT NULL DEFAULT 'ACTIVE',
-  `attendance_taken` varchar(3) NOT NULL DEFAULT 'NO',
-  PRIMARY KEY (`practice_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -702,7 +693,7 @@ INSERT INTO `sport` (`sport_id`, `sport_name`, `coach_id`, `captain_id`, `manage
 ('VOL', 'Volleyball', '', '5Q1XZO2Y', ''),
 ('FOO', 'Football', '', '', ''),
 ('TEN', 'Tennis', '', '', ''),
-('BAS', 'Basketball', '', '', ''),
+('BAS', 'Basketball', '', '', 'SPT004'),
 ('HOC', 'Hockey', '', '', ''),
 ('NET', 'Netball', '', '', ''),
 ('CRI', 'Cricket', '', '', 'usr_68f89be0'),
@@ -735,6 +726,7 @@ CREATE TABLE IF NOT EXISTS `sports-team` (
   `sport_id` varchar(12) NOT NULL,
   `student_id` varchar(12) NOT NULL,
   `joined_date` date NOT NULL,
+  `in_team` varchar(7) NOT NULL DEFAULT 'NO',
   PRIMARY KEY (`sport_id`,`student_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -742,12 +734,13 @@ CREATE TABLE IF NOT EXISTS `sports-team` (
 -- Dumping data for table `sports-team`
 --
 
-INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`) VALUES
-('TKD', 'L3NCL2J4', '2025-12-03'),
-('ATH', 'L3NCL2J4', '2025-12-09'),
-('VOL', '5Q1XZO2Y', '2025-10-25'),
-('ATH', '5Q1XZO2Y', '2025-12-11'),
-('VOL', 'L3NCL2J4', '2025-12-15');
+INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`, `in_team`) VALUES
+('TKD', 'L3NCL2J4', '2025-12-03', 'NO'),
+('ATH', 'L3NCL2J4', '2025-12-09', 'NO'),
+('VOL', '5Q1XZO2Y', '2025-10-25', 'NO'),
+('ATH', '5Q1XZO2Y', '2025-12-11', 'NO'),
+('VOL', 'L3NCL2J4', '2025-12-15', 'NO'),
+('BAS', 'STU005', '2026-01-04', 'NO');
 
 -- --------------------------------------------------------
 
@@ -827,6 +820,22 @@ CREATE TABLE IF NOT EXISTS `sport_result_value` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `student_id_cards`
+--
+
+DROP TABLE IF EXISTS `student_id_cards`;
+CREATE TABLE IF NOT EXISTS `student_id_cards` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `student_id` varchar(12) NOT NULL COMMENT 'References user.student_id',
+  `image_name` varchar(128) NOT NULL,
+  `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `student_id` (`student_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tournament`
 --
 
@@ -847,7 +856,8 @@ CREATE TABLE IF NOT EXISTS `tournament` (
 --
 
 INSERT INTO `tournament` (`tournament_id`, `tournament_name`, `sport_id`, `start_date`, `end_date`, `status`) VALUES
-('TOUR_693ea72aa6387', 'Vice Chancellors Invitational Badminton Championship', 'BAD', '2026-01-01', '2026-02-26', 'INCOMPLETE');
+('TOUR_693ea72aa6387', 'Vice Chancellors Invitational Badminton Championship', 'BAD', '2026-01-01', '2026-02-26', 'INCOMPLETE'),
+('TOUR_694cd4c59abad', 'This is an sport event', 'KRT', '2026-02-01', '2026-12-01', 'INCOMPLETE');
 
 -- --------------------------------------------------------
 
@@ -936,9 +946,9 @@ CREATE TABLE IF NOT EXISTS `user` (
   `contact_no` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `profile_img` varchar(64) NOT NULL,
   `sport_id` varchar(5) NOT NULL,
-  `student_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `faculty_id` varchar(4) NOT NULL,
-  `status` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'ACTIVE',
+  `student_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `faculty_id` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `status` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `Email` (`email`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -966,7 +976,7 @@ INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `m
 ('303', 'Isuru', 'Lakshan', 'PUBLIC', 'isuru.lakshan@example.com', '', 0, '2025-08-24 06:07:00', '0723344556', '', '', NULL, '', 'ACTIVE'),
 ('304', 'Gayan', 'Rathnayake', 'PUBLIC', 'gayan.rathnayake@example.com', '', 0, '2025-08-24 06:07:00', '0779988775', '', '', NULL, '', 'ACTIVE'),
 ('305', 'Roshan', 'Abeysinghe', 'PUBLIC', 'roshan.abeysinghe@example.com', '', 0, '2025-08-24 06:07:00', '0764455667', '', '', NULL, '', 'ACTIVE'),
-('NPM8O9RE', 'Chamal', 'Chamuditha', 'PUBLIC', 'chamal1@gmail.com', '$2y$10$8trbPHuAHueKspCIvyWQyudyy97asXBJzzKTvWW7bXgSeoLdq2aku', 0, '2025-09-01 22:53:08', NULL, '', '', NULL, '', 'ACTIVE'),
+('NPM8O9RE', 'Chamal', 'Chamuditha', 'COACH', 'chamal1@gmail.com', '$2y$10$8trbPHuAHueKspCIvyWQyudyy97asXBJzzKTvWW7bXgSeoLdq2aku', 0, '2025-09-01 22:53:08', NULL, '', '', NULL, '', 'ACTIVE'),
 ('UBVXZ90U', 'ddkjn', 'fsrvn', 'PUBLIC', 'maximal@gmail.com', '$2y$10$LYuhIcrTAZJqsfDTzQlZLecow/GgbcLCngpkp7ltpuyKJZ6rlR6zi', 0, '2025-09-01 23:24:32', NULL, '', '', NULL, '', 'ACTIVE'),
 ('KI5RL42D', 'ddkjn', 'fsrvn', 'PUBLIC', 'hj@gmail.com', '$2y$10$TPyJAf4EyP825BBF0mACouJOFnqcAWbXO/bxm7IK5xNtTVI1PlP7S', 0, '2025-09-01 23:29:53', NULL, '', '', NULL, '', 'ACTIVE'),
 ('PA0XK3QZ', 'ddkjn', 'fsrvn', 'PUBLIC', 'hjggd@gmail.com', '$2y$10$cODg7SN2ZxBh2.gsibO4yOvm9zJYuPdMCDDDPCWHduYywH7RTLUSa', 0, '2025-09-01 23:32:55', NULL, '', '', NULL, '', 'ACTIVE'),
@@ -978,9 +988,8 @@ INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `m
 ('43N1VK76', 'vvdsdwef', 'qeq', 'PUBLIC', 'esrdrfff@gmail.com', '$2y$10$.nBD9d6ZqFXVsMZ4tzknn.25DfshuRPdNEJdehgcOa8JX6Q5uIiaK', 0, '2025-09-01 23:57:10', NULL, '', '', NULL, '', 'ACTIVE'),
 ('CE02XIPB', 'Admin', 'UOC', 'PUBLIC', 'admin@uocs.com', '$2y$10$ZGlvkCP/uyqffeCxj8Pm7.HA8JUcle3TlPEw8NEsuHDHUvr.jSt0C', 0, '2025-09-02 00:01:26', NULL, '', '', NULL, '', 'ACTIVE'),
 ('H4J1OHSX', 'Chamal', 'Chamuditha', 'ADMIN', 'chamal.admin@uocs.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 02:04:39', NULL, 'H4J1OHSX.png', '', NULL, '', 'ACTIVE'),
-('usr_68ec8172', 'Sarath', 'Kumara', 'REG', 'chamlaanil99@gmail.com', '$2y$10$gOcGzGue3L4TOszEEwWAF.PlKwQwnFgUyMDXqwfX5urpgzd7Q18Ly', 1, '2025-10-13 04:34:59', '0710000000', '', '', NULL, '', 'ACTIVE'),
+('usr_694d89fa', 'Amal', 'Shantha', 'SPT', 'chamlaanil99@gmail.com', '$2y$10$5GAnmRD7UblTn9Q3TQOXCeWwslM.A8uoZdXe1EDU9g32gc7tBem3S', 1, '2025-12-25 19:01:15', '0716379044', '', 'KBD', NULL, NULL, 'ACTIVE'),
 ('L3NCL2J4', 'Chamal', 'Hettiarachchi', 'STUDENT', 'chamal2@gmail.com', '$2y$10$zlUHk9p5y7uAz7u2jQQ0X.PNaxkDwan5JIDlR/jySjsAgtcutfqpm', 0, '2025-10-14 04:48:58', NULL, 'L3NCL2J4.jpg', '', '23000000', '', 'ACTIVE'),
-('usr_68f7c669', 'Jayashini', 'Jayaweera', 'SPT', 'chamalchamuditha1231@gmail.com', '$2y$10$mHrXH0uDC7UQkgi1qYZa5.QplnCgsCnu2RGBA1YWDoTn6EbGps5U.', 1, '2025-10-21 17:44:09', '0710000000', '', 'ATH', NULL, '', 'ACTIVE'),
 ('usr_68f82fe0', 'Shashini', 'Malsha', 'EQP', 'ccwrecker99@gmail.com', '$2y$10$0Tn8wECDAB8QNE6PwnexKeewRZA2GHwtm9Ljpx5USTm2LKEjsvL6W', 1, '2025-10-22 01:14:08', '076543213', '', '', NULL, '', 'ACTIVE'),
 ('usr_68f89998', 'Jaye', 'Jayaweera', 'EQP', 'jayashinisjayaweera@gmail.com', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 1, '2025-10-22 08:45:12', '0763452143', '', '', NULL, '', 'ACTIVE'),
 ('usr_68f89be0', 'J', 'Jaye', 'SPT', '2023is043@stu.ucsc.cmb.ac.lk', '$2y$10$0Z1ZoYUII3O2MDC3ltxdku2r3ROkBM.swVOJs88JYaG4fsZCyFy2W', 1, '2025-10-22 08:54:56', '0763452145', '', 'CRI', NULL, '', 'ACTIVE'),
@@ -988,14 +997,53 @@ INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `m
 ('5Q1XZO2Y', 'Jansika', 'Balakrishnan', 'CAPTAIN', 'jansi@gmail.com', '$2y$10$50U4SKStJpeogM4DSK5r2OnQO041WacupfYjfsX3w1B18UtX6RvCy', 0, '2025-10-23 07:23:06', NULL, '5Q1XZO2Y.jpg', '', '23020342', '', 'ACTIVE'),
 ('STU001', 'Ashan', 'Fernando', 'STUDENT', 'ashan.fernando@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0771234567', '', '', '23001001', '1', 'ACTIVE'),
 ('STU002', 'Nimali', 'Perera', 'STUDENT', 'nimali.perera@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0772345678', '', '', '23001002', '1', 'ACTIVE'),
-('STU003', 'Kasun', 'Silva', 'STUDENT', 'kasun.silva@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0773456789', '', '', '23001003', '1', 'ACTIVE'),
-('STU004', 'Dilini', 'Jayasinghe', 'STUDENT', 'dilini.jayasinghe@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0774567890', '', '', '23001004', '1', 'ACTIVE'),
+('REG003', 'Kasun', 'Silva', 'REG', 'kasun.silva@ucsc.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0773456789', '', '', '23001003', '1', 'ACTIVE'),
+('SPT004', 'Dilini', 'Jayasinghe', 'SPT', 'dilini.jayasinghe@uoc.lk', '$2y$10$zlUHk9p5y7uAz7u2jQQ0X.PNaxkDwan5JIDlR/jySjsAgtcutfqpm', 0, '2025-12-10 17:47:24', '0774567890', '', '', '23001004', '1', 'ACTIVE'),
 ('STU005', 'Tharindu', 'Wickramasinghe', 'STUDENT', 'tharindu.wickramasinghe@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0775678901', '', '', '23001005', '1', 'ACTIVE'),
 ('STU006', 'Sanduni', 'Rathnayake', 'STUDENT', 'sanduni.rathnayake@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0776789012', '', '', '23001006', '1', 'ACTIVE'),
 ('STU007', 'Ravindu', 'Dissanayake', 'STUDENT', 'ravindu.dissanayake@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0777890123', '', '', '23001007', '1', 'ACTIVE'),
 ('STU008', 'Ishara', 'Gunasekara', 'STUDENT', 'ishara.gunasekara@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0778901234', '', '', '23001008', '1', 'ACTIVE'),
 ('STU009', 'Dineth', 'Amarasinghe', 'STUDENT', 'dineth.amarasinghe@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0779012345', '', '', '23001009', '1', 'ACTIVE'),
 ('STU010', 'Sachini', 'Wijewardena', 'STUDENT', 'sachini.wijewardena@student.uoc.lk', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 0, '2025-12-10 17:47:24', '0770123456', '', '', '23001010', '1', 'ACTIVE');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `verification_requests`
+--
+
+DROP TABLE IF EXISTS `verification_requests`;
+CREATE TABLE IF NOT EXISTS `verification_requests` (
+  `request_id` varchar(16) NOT NULL,
+  `requested_by` varchar(12) NOT NULL COMMENT 'Sport manager user_id',
+  `sport_id` varchar(4) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` enum('PENDING','COMPLETED','CANCELLED') DEFAULT 'PENDING',
+  `notes` text,
+  PRIMARY KEY (`request_id`),
+  KEY `requested_by` (`requested_by`),
+  KEY `sport_id` (`sport_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `verification_request_students`
+--
+
+DROP TABLE IF EXISTS `verification_request_students`;
+CREATE TABLE IF NOT EXISTS `verification_request_students` (
+  `request_id` varchar(16) NOT NULL,
+  `student_id` varchar(12) NOT NULL COMMENT 'References user.student_id',
+  `faculty_id` varchar(4) NOT NULL,
+  `verified_by` varchar(12) DEFAULT NULL COMMENT 'Registrar user_id who verified',
+  `verification_status` enum('PENDING','VERIFIED','REJECTED') DEFAULT 'PENDING',
+  `verified_at` timestamp NULL DEFAULT NULL,
+  `rejection_reason` varchar(256) DEFAULT NULL,
+  PRIMARY KEY (`request_id`,`student_id`),
+  KEY `faculty_id` (`faculty_id`),
+  KEY `verification_status` (`verification_status`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
         input.addEventListener('input', () => validateField(input));
     });
 
-    submitBtn.addEventListener('click', function (e) {
+    const handleSubmit = function (e) {
         e.preventDefault();
         let valid = true;
 
@@ -56,6 +56,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (valid) {
             document.querySelector('form').submit();
+        }
+    };
+
+    submitBtn.addEventListener('click', handleSubmit);
+
+    // Allow Enter key to submit the form
+    document.querySelector('form').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            handleSubmit(e);
         }
     });
 });

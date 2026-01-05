@@ -383,5 +383,15 @@ class Facility {
         }
     }
 
-
+    /* ---------- GET PENDING RESERVATIONS COUNT ---------- */
+    public function getPendingReservationsCount() {
+        try {
+            $sql = "SELECT COUNT(*) as total FROM `facility-booking` WHERE status = 'BOOKED'";
+            $stmt = $this->db->query($sql);
+            return $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Get pending reservations count error: " . $e->getMessage());
+            return 0;
+        }
+    }
 }
