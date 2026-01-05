@@ -132,7 +132,6 @@ require '../app/views/templates/admin/sidebar.php';
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-save">Save Changes</button>
-                <button type="button" class="btn btn-cancel close-btn">Cancel</button>
             </div>
         </form>
     </div>
@@ -152,10 +151,16 @@ const commentingField = document.getElementById("commenting");
 const statusField = document.getElementById("status");
 const dateField = document.getElementById("date-posted");
 
-// Fetch and render posts
-searchBtn.addEventListener("click", async () => {
+// Debounce timer for live search
+let searchTimeout = null;
+
+// Perform search function
+async function performSearch() {
     const q = searchQuery.value.trim();
-    if (!q) return;
+    if (!q) {
+        searchResults.innerHTML = "";
+        return;
+    }
 
     searchResults.innerHTML = "Searching...";
     try {
@@ -215,12 +220,22 @@ searchBtn.addEventListener("click", async () => {
     } catch (err) {
         searchResults.innerHTML = `<p style="color:red">Error fetching posts.</p>`;
     }
+}
+
+// Search button click
+searchBtn.addEventListener("click", performSearch);
+
+// Live search on typing (debounced)
+searchQuery.addEventListener("input", () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(performSearch, 300);
 });
 
 // Also search on Enter key
 searchQuery.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
-        searchBtn.click();
+        clearTimeout(searchTimeout);
+        performSearch();
     }
 });
 
@@ -337,6 +352,15 @@ form.addEventListener("submit", async (e) => {
 <script>
     var currentPage = document.getElementById("sidebar-news");
     currentPage.classList.add("active") 
+</script>
+<script src="/uoc-sports/public/js/search-keyboard-nav.js"></script>
+<script>
+    SearchKeyboardNav.init({
+        inputSelector: '#search-query',
+        resultsSelector: '#search-results',
+        itemSelector: '.post-card',
+        actionSelector: '.btn-view'
+    });
 </script>
 <script src="/uoc-sports/public/js/sidebar-toggle.js"></script>
 </html>

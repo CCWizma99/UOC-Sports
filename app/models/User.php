@@ -56,6 +56,12 @@ class User {
         $stmt->execute([$email]);
         return $stmt->fetch(PDO::FETCH_ASSOC); // Returns associative array or false if not found
     }
+
+    public function findByStudentId($studentId) {
+        $stmt = $this->db->prepare("SELECT * FROM user WHERE student_id = ? LIMIT 1");
+        $stmt->execute([$studentId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
         
     public function storeRememberToken($user_id, $token, $expiry) {
         $stmt = $this->db->prepare("INSERT INTO remember_tokens (user_id, token, expires_at) VALUES (?, ?, ?)");
@@ -331,6 +337,21 @@ class User {
             'status' => $status,
             'user_id' => $userId
         ]);
+    }
+
+    /**
+     * Get total count of active users for dashboard stats
+     * @return int
+     */
+    public function getTotalUsersCount() {
+        try {
+            $sql = "SELECT COUNT(*) as total FROM `user` WHERE status = 'ACTIVE'";
+            $stmt = $this->db->query($sql);
+            return $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Get total users count error: " . $e->getMessage());
+            return 0;
+        }
     }
     
 }
