@@ -97,4 +97,11 @@ class UserHomeController {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    public function payment() {
+        view('general/payment');
+    }
+     
+
+
 }

@@ -22,18 +22,13 @@ $router->get('/reserve-facilities/view-reservations', 'FacilityApiController@vie
 $router->get('/get-reserved-slots', 'FacilityApiController@getReservedSlots');
 $router->get('/reserve-facilities/chart', 'FacilityApiController@getReservationChart');
 $router->post('/create-facility-booking', 'FacilityApiController@createBooking');
+$router->get('/payment', 'UserHomeController@payment');
 
 $router->get('/student', 'StudentController@index');
-<<<<<<< HEAD
-$router->get('/student/profile', 'StudentController@profile');
-
-$router->get('/external/profile', 'ExternalController@profile');
-=======
 $router->get('/student/available-sports', 'StudentController@getAvailableSports');
 $router->get('/student/enrolled-sports', 'StudentController@getEnrolledSports');
 $router->post('/student/enroll-sport', 'StudentController@enrollSport');
 $router->post('/student/unenroll-sport', 'StudentController@unenrollSport');
->>>>>>> 6fc6c10d1a8fb12d22d9e1341ba3449d0e144b82
 
 $router->get('/captain//', 'CaptainController@index');
 $router->get('/captain/mark-attendance', 'CaptainController@MarkAttendance');
