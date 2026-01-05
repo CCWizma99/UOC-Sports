@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `attendance` (
   `user_id` varchar(12) NOT NULL,
   `status` varchar(12) NOT NULL,
   PRIMARY KEY (`attendance_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `attendance`
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `budget` (
   `allocation_date` date NOT NULL,
   `description` text,
   PRIMARY KEY (`budget_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `budget`
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `comment_from` varchar(12) NOT NULL,
   `reply_to` varchar(12) NOT NULL,
   `content` varchar(300) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -104,9 +104,9 @@ CREATE TABLE IF NOT EXISTS `equipment` (
   `sport_id` varchar(4) NOT NULL,
   `equipment_name` varchar(32) NOT NULL,
   `max_allow` int NOT NULL,
-  `image_name` varchar(48) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `image_name` varchar(48) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`equipment_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `equipment`
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS `equipment-requests` (
   `status` varchar(12) NOT NULL DEFAULT 'ACTIVE',
   `notes` varchar(64) NOT NULL,
   PRIMARY KEY (`request_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `equipment-requests`
@@ -215,14 +215,14 @@ INSERT INTO `equipment-requests` (`request_id`, `student_id`, `equipment_id`, `r
 DROP TABLE IF EXISTS `equipment_inventory`;
 CREATE TABLE IF NOT EXISTS `equipment_inventory` (
   `stock_id` varchar(8) NOT NULL,
-  `equipment_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `equipment_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `sport_id` varchar(4) NOT NULL,
   `quantity` int NOT NULL,
   `usable` int NOT NULL,
   `added_date` date NOT NULL,
   `remarks` varchar(256) NOT NULL,
   PRIMARY KEY (`stock_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `equipment_inventory`
@@ -308,7 +308,7 @@ CREATE TABLE IF NOT EXISTS `facility` (
   `facility_name` int NOT NULL,
   `slots` int NOT NULL,
   PRIMARY KEY (`facility_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -328,7 +328,7 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
   `payment_status` varchar(12) NOT NULL DEFAULT 'INCOMPLETE',
   `rejection_reason` varchar(256) NOT NULL,
   PRIMARY KEY (`booking_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `facility-booking`
@@ -449,7 +449,7 @@ CREATE TABLE IF NOT EXISTS `injury_report` (
   `need_substitude` varchar(3) NOT NULL,
   `substitude_id` varchar(12) NOT NULL,
   PRIMARY KEY (`report_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -467,7 +467,7 @@ CREATE TABLE IF NOT EXISTS `inquiry` (
   `date` date NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'NOT-RESOLVED',
   PRIMARY KEY (`inquiry_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `inquiry`
@@ -493,7 +493,7 @@ CREATE TABLE IF NOT EXISTS `lost_found` (
   `reporter_contact` varchar(15) NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'NOT-RESOLVED',
   PRIMARY KEY (`case_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -505,7 +505,7 @@ DROP TABLE IF EXISTS `lost_found_images`;
 CREATE TABLE IF NOT EXISTS `lost_found_images` (
   `case_id` varchar(12) NOT NULL,
   `image_name` varchar(32) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -525,7 +525,7 @@ CREATE TABLE IF NOT EXISTS `lost_item` (
   `itemStatus` varchar(20) NOT NULL DEFAULT 'unclaimed',
   `image` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`lostItem_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -537,12 +537,12 @@ DROP TABLE IF EXISTS `newsfeed_post`;
 CREATE TABLE IF NOT EXISTS `newsfeed_post` (
   `post_id` varchar(12) NOT NULL,
   `title` varchar(64) NOT NULL,
-  `description` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `description` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `commenting` varchar(8) NOT NULL,
   `date_posted` date NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`post_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `newsfeed_post`
@@ -594,7 +594,7 @@ CREATE TABLE IF NOT EXISTS `payment` (
   `payment_method` varchar(24) NOT NULL,
   `payment_status` varchar(12) NOT NULL DEFAULT 'DONE',
   PRIMARY KEY (`payment_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -611,11 +611,11 @@ CREATE TABLE IF NOT EXISTS `practice_sessions` (
   `session_date` date NOT NULL,
   `session_time` time NOT NULL,
   `description` text,
-  `status` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ACTIVE',
+  `status` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `practice_sessions`
@@ -640,7 +640,7 @@ CREATE TABLE IF NOT EXISTS `remember_tokens` (
   `expires_at` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `remember_tokens`
@@ -659,7 +659,7 @@ DROP TABLE IF EXISTS `saved_emails`;
 CREATE TABLE IF NOT EXISTS `saved_emails` (
   `email` varchar(64) NOT NULL,
   `recepient_name` varchar(64) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `saved_emails`
@@ -682,7 +682,7 @@ CREATE TABLE IF NOT EXISTS `sport` (
   `captain_id` varchar(12) NOT NULL,
   `manager_id` varchar(12) NOT NULL,
   PRIMARY KEY (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `sport`
@@ -728,7 +728,7 @@ CREATE TABLE IF NOT EXISTS `sports-team` (
   `joined_date` date NOT NULL,
   `in_team` varchar(7) NOT NULL DEFAULT 'NO',
   PRIMARY KEY (`sport_id`,`student_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `sports-team`
@@ -758,7 +758,7 @@ CREATE TABLE IF NOT EXISTS `sport_result_field` (
   `unit` varchar(16) DEFAULT NULL,
   PRIMARY KEY (`field_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `sport_result_field`
@@ -815,7 +815,7 @@ CREATE TABLE IF NOT EXISTS `sport_result_value` (
   PRIMARY KEY (`value_id`),
   KEY `result_id` (`result_id`),
   KEY `field_id` (`field_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -841,7 +841,7 @@ CREATE TABLE IF NOT EXISTS `student_id_cards` (
 
 DROP TABLE IF EXISTS `tournament`;
 CREATE TABLE IF NOT EXISTS `tournament` (
-  `tournament_id` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `tournament_id` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `tournament_name` varchar(64) NOT NULL,
   `sport_id` varchar(4) NOT NULL,
   `start_date` date DEFAULT NULL,
@@ -849,7 +849,7 @@ CREATE TABLE IF NOT EXISTS `tournament` (
   `status` varchar(10) NOT NULL DEFAULT 'INCOMPLETE',
   PRIMARY KEY (`tournament_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tournament`
@@ -876,7 +876,7 @@ CREATE TABLE IF NOT EXISTS `tournament_match` (
   PRIMARY KEY (`match_id`),
   KEY `tournament_id` (`tournament_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -893,7 +893,7 @@ CREATE TABLE IF NOT EXISTS `tournament_result` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`result_id`),
   KEY `match_id` (`match_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -908,11 +908,11 @@ CREATE TABLE IF NOT EXISTS `transaction` (
   `amount` int NOT NULL,
   `purpose` varchar(256) NOT NULL,
   `timestamp` timestamp NOT NULL,
-  `proof_doc` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `proof_doc` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `remarks` varchar(256) NOT NULL,
-  `change_reason` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `change_reason` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`transaction_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `transaction`
@@ -943,7 +943,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `password` varchar(256) NOT NULL,
   `must_change_pass` int NOT NULL,
   `joined_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `contact_no` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `contact_no` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `profile_img` varchar(64) NOT NULL,
   `sport_id` varchar(5) NOT NULL,
   `student_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
@@ -951,7 +951,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `status` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `Email` (`email`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user`

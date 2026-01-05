@@ -22,7 +22,7 @@ $router->get('/reserve-facilities/view-reservations', 'FacilityApiController@vie
 $router->get('/get-reserved-slots', 'FacilityApiController@getReservedSlots');
 $router->get('/reserve-facilities/chart', 'FacilityApiController@getReservationChart');
 $router->post('/create-facility-booking', 'FacilityApiController@createBooking');
-$router->get('/logout', 'AuthController@handleLogout');
+$router->get('/payment', 'UserHomeController@payment');
 
 $router->get('/student', 'StudentController@index');
 $router->get('/student/available-sports', 'StudentController@getAvailableSports');
