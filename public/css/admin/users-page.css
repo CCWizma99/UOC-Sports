@@ -164,6 +164,7 @@
         bottom: 40px;
         overflow-y: auto;
         /* Enable scrolling on mobile */
+        margin-top: 20px;
     }
 
     .floating-insights-btn {

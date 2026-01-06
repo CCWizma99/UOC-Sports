@@ -233,4 +233,144 @@ class TournamentController extends BaseController {
             ]);
         }
     }
+
+    /**
+     * Add match result (Hybrid JSON approach)
+     */
+    public function addResult() {
+        header('Content-Type: application/json');
+        
+        try {
+            $tournamentId = $_POST['tournament_id'] ?? '';
+            $sportId = $_POST['sport_id'] ?? '';
+            $matchName = trim($_POST['match_name'] ?? '');
+            $matchDate = $_POST['match_date'] ?? '';
+            $winnerId = $_POST['winner_id'] ?? null;
+            $winnerScore = $_POST['winner_score'] ?? null;
+            $loserScore = $_POST['loser_score'] ?? null;
+            $details = $_POST['details'] ?? [];
+            $participants = $_POST['participants'] ?? [];
+            
+            // Validation
+            if (empty($tournamentId) || empty($sportId) || empty($matchName) || empty($matchDate)) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Tournament, sport, match name, and date are required.'
+                ]);
+                return;
+            }
+            
+            $sportModel = new Sport();
+            
+            // Add match result
+            $matchId = $sportModel->addResult(
+                $tournamentId,
+                $sportId,
+                $matchName,
+                $matchDate,
+                $winnerId ?: null,
+                $winnerScore ?: null,
+                $loserScore ?: null,
+                $details
+            );
+            
+            // Add participants if provided
+            if (!empty($participants) && is_array($participants)) {
+                foreach ($participants as $p) {
+                    $sportModel->addMatchParticipant(
+                        $matchId,
+                        $p['user_id'],
+                        $p['team'] ?? 'A',
+                        $p['score'] ?? null,
+                        $p['performance_data'] ?? [],
+                        $p['notes'] ?? null
+                    );
+                }
+            }
+            
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'Match result added successfully.',
+                'match_id' => $matchId
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+    
+    /**
+     * Add match result using sport-specific tables
+     * New method that replaces the hybrid JSON approach
+     */
+    public function addMatchResult() {
+        header('Content-Type: application/json');
+        
+        try {
+            $tournamentId = $_POST['tournament_id'] ?? '';
+            $sportId = $_POST['sport_id'] ?? '';
+            $matchName = trim($_POST['match_name'] ?? '');
+            $matchDate = $_POST['match_date'] ?? '';
+            $winnerId = $_POST['winner_id'] ?? null;
+            $resultStatus = $_POST['result_status'] ?? 'COMPLETED';
+            $details = $_POST['details'] ?? [];
+            
+            // Validation
+            if (empty($tournamentId) || empty($sportId) || empty($matchName) || empty($matchDate)) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Tournament, sport, match name, and date are required.'
+                ]);
+                return;
+            }
+            
+            // Prepare match data
+            $matchData = [
+                'tournament_id' => $tournamentId,
+                'sport_id' => $sportId,
+                'match_name' => $matchName,
+                'match_date' => $matchDate,
+                'winner_id' => $winnerId ?: null,
+                'result_status' => $resultStatus
+            ];
+            
+            // Process JSON fields in details
+            if (is_array($details)) {
+                foreach ($details as $key => $value) {
+                    // Decode JSON strings (set_scores, round_scores, period_scores, results)
+                    if (is_string($value) && in_array($key, ['set_scores', 'round_scores', 'period_scores', 'results', 'competition_results'])) {
+                        $decoded = json_decode($value, true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            $details[$key] = $decoded;
+                        }
+                    }
+                }
+            }
+            
+            $sportModel = new Sport();
+            $matchId = $sportModel->addMatchResult($matchData, $details);
+            
+            if ($matchId) {
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Match result added successfully.',
+                    'match_id' => $matchId
+                ]);
+            } else {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Failed to add match result. Please check the sport configuration.'
+                ]);
+            }
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
