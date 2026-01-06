@@ -130,7 +130,7 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                                         <?php echo htmlspecialchars($lst['description']); ?>
                             </p>
                                     <?php if (!empty($lst['image'])): ?>
-                                        <img src="/project/uoc-sports/public/<?php echo htmlspecialchars($lst['image']); ?>" 
+                                        <img src="/uoc-sports/app/internal/lostitem/<?php echo htmlspecialchars($lst['image']); ?>" 
                                              alt="Item Image" 
                                              style="width: 100%; max-width: 150px; border-radius: 6px; margin-top: 0.5rem;">
                                     <?php else: ?>

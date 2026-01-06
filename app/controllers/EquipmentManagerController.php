@@ -3,7 +3,7 @@
 class EquipmentManagerController {
 
     public function index() {
-        $lostitemModel = new Lostitem();
+        $lostitemModel = new Lostitem(Database::getConnection());
         $lostitem = $lostitemModel->getUnclaimedItemsCurrentMonth();
         
         view('equipment-manager/index', ['lostitem' => $lostitem]);
