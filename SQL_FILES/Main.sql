@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `attendance` (
   `user_id` varchar(12) NOT NULL,
   `status` varchar(12) NOT NULL,
   PRIMARY KEY (`attendance_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `attendance`
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `budget` (
   `allocation_date` date NOT NULL,
   `description` text,
   PRIMARY KEY (`budget_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `budget`
@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `comment_from` varchar(12) NOT NULL,
   `reply_to` varchar(12) NOT NULL,
   `content` varchar(300) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -104,9 +104,9 @@ CREATE TABLE IF NOT EXISTS `equipment` (
   `sport_id` varchar(4) NOT NULL,
   `equipment_name` varchar(32) NOT NULL,
   `max_allow` int NOT NULL,
-  `image_name` varchar(48) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `image_name` varchar(48) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`equipment_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `equipment`
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS `equipment-requests` (
   `status` varchar(12) NOT NULL DEFAULT 'ACTIVE',
   `notes` varchar(64) NOT NULL,
   PRIMARY KEY (`request_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `equipment-requests`
@@ -215,14 +215,14 @@ INSERT INTO `equipment-requests` (`request_id`, `student_id`, `equipment_id`, `r
 DROP TABLE IF EXISTS `equipment_inventory`;
 CREATE TABLE IF NOT EXISTS `equipment_inventory` (
   `stock_id` varchar(8) NOT NULL,
-  `equipment_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `equipment_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `sport_id` varchar(4) NOT NULL,
   `quantity` int NOT NULL,
   `usable` int NOT NULL,
   `added_date` date NOT NULL,
   `remarks` varchar(256) NOT NULL,
   PRIMARY KEY (`stock_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `equipment_inventory`
@@ -308,7 +308,7 @@ CREATE TABLE IF NOT EXISTS `facility` (
   `facility_name` int NOT NULL,
   `slots` int NOT NULL,
   PRIMARY KEY (`facility_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -328,7 +328,7 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
   `payment_status` varchar(12) NOT NULL DEFAULT 'INCOMPLETE',
   `rejection_reason` varchar(256) NOT NULL,
   PRIMARY KEY (`booking_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `facility-booking`
@@ -354,8 +354,8 @@ INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, 
 DROP TABLE IF EXISTS `facility_rates`;
 CREATE TABLE IF NOT EXISTS `facility_rates` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `facility_type` enum('INDOOR_GYM','GROUND') COLLATE utf8mb4_general_ci NOT NULL,
-  `facility_name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `facility_type` enum('INDOOR_GYM','GROUND') COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `facility_name` varchar(255) COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `capacity` int DEFAULT NULL,
   `practice_working_hours` decimal(10,2) DEFAULT NULL,
   `practice_other_hours` decimal(10,2) DEFAULT NULL,
@@ -369,7 +369,7 @@ CREATE TABLE IF NOT EXISTS `facility_rates` (
   KEY `idx_facility_type` (`facility_type`),
   KEY `idx_facility_name` (`facility_name`),
   KEY `idx_capacity` (`capacity`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `facility_rates`
@@ -449,7 +449,7 @@ CREATE TABLE IF NOT EXISTS `injury_report` (
   `need_substitude` varchar(3) NOT NULL,
   `substitude_id` varchar(12) NOT NULL,
   PRIMARY KEY (`report_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -467,7 +467,7 @@ CREATE TABLE IF NOT EXISTS `inquiry` (
   `date` date NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'NOT-RESOLVED',
   PRIMARY KEY (`inquiry_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `inquiry`
@@ -493,7 +493,7 @@ CREATE TABLE IF NOT EXISTS `lost_found` (
   `reporter_contact` varchar(15) NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'NOT-RESOLVED',
   PRIMARY KEY (`case_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -505,7 +505,7 @@ DROP TABLE IF EXISTS `lost_found_images`;
 CREATE TABLE IF NOT EXISTS `lost_found_images` (
   `case_id` varchar(12) NOT NULL,
   `image_name` varchar(32) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -525,7 +525,7 @@ CREATE TABLE IF NOT EXISTS `lost_item` (
   `itemStatus` varchar(20) NOT NULL DEFAULT 'unclaimed',
   `image` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`lostItem_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -537,12 +537,12 @@ DROP TABLE IF EXISTS `newsfeed_post`;
 CREATE TABLE IF NOT EXISTS `newsfeed_post` (
   `post_id` varchar(12) NOT NULL,
   `title` varchar(64) NOT NULL,
-  `description` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `description` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `commenting` varchar(8) NOT NULL,
   `date_posted` date NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`post_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `newsfeed_post`
@@ -594,7 +594,7 @@ CREATE TABLE IF NOT EXISTS `payment` (
   `payment_method` varchar(24) NOT NULL,
   `payment_status` varchar(12) NOT NULL DEFAULT 'DONE',
   PRIMARY KEY (`payment_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -611,11 +611,11 @@ CREATE TABLE IF NOT EXISTS `practice_sessions` (
   `session_date` date NOT NULL,
   `session_time` time NOT NULL,
   `description` text,
-  `status` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'ACTIVE',
+  `status` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `practice_sessions`
@@ -640,7 +640,7 @@ CREATE TABLE IF NOT EXISTS `remember_tokens` (
   `expires_at` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `remember_tokens`
@@ -659,7 +659,7 @@ DROP TABLE IF EXISTS `saved_emails`;
 CREATE TABLE IF NOT EXISTS `saved_emails` (
   `email` varchar(64) NOT NULL,
   `recepient_name` varchar(64) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `saved_emails`
@@ -678,42 +678,43 @@ DROP TABLE IF EXISTS `sport`;
 CREATE TABLE IF NOT EXISTS `sport` (
   `sport_id` varchar(4) NOT NULL,
   `sport_name` varchar(24) NOT NULL,
+  `sport_category` ENUM('TEAM_GOAL', 'RACKET', 'CRICKET', 'COMBAT', 'TRACK_FIELD', 'BOARD_GAME', 'BALL_COURT', 'WEIGHT') NOT NULL,
   `coach_id` varchar(12) NOT NULL,
   `captain_id` varchar(12) NOT NULL,
   `manager_id` varchar(12) NOT NULL,
   PRIMARY KEY (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sport`
 --
 
-INSERT INTO `sport` (`sport_id`, `sport_name`, `coach_id`, `captain_id`, `manager_id`) VALUES
-('BAD', 'Badminton', '', '', ''),
-('VOL', 'Volleyball', '', '5Q1XZO2Y', ''),
-('FOO', 'Football', '', '', ''),
-('TEN', 'Tennis', '', '', ''),
-('BAS', 'Basketball', '', '', 'SPT004'),
-('HOC', 'Hockey', '', '', ''),
-('NET', 'Netball', '', '', ''),
-('CRI', 'Cricket', '', '', 'usr_68f89be0'),
-('RUG', 'Rugby', '', '', ''),
-('SWI', 'Swimming', '', '', ''),
-('TT', 'Table Tennis', '', '', ''),
-('WL', 'Weight Lifting', '', '', ''),
-('ROW', 'Rowing', '', '', ''),
-('WRE', 'Wrestling', '', '', ''),
-('CHE', 'Chess', '', '', ''),
-('ATH', 'Athletics', '', '', 'usr_68f89be0'),
-('BOX', 'Boxing', '', '', ''),
-('TKD', 'Taekwondo', '', '', ''),
-('KRT', 'Karate', '', '', ''),
-('RR', 'Road Race', '', '', ''),
-('SCR', 'Scrabble', '', '', ''),
-('ELL', 'Elle', '', '', ''),
-('BB', 'Baseball', '', '', ''),
-('KBD', 'Kabaddi', '', '', ''),
-('CRM', 'Carrom', '', '', '');
+INSERT INTO `sport` (`sport_id`, `sport_name`, `sport_category`, `coach_id`, `captain_id`, `manager_id`) VALUES
+('BAD', 'Badminton', 'RACKET', '', '', ''),
+('VOL', 'Volleyball', 'BALL_COURT', '', '5Q1XZO2Y', ''),
+('FOO', 'Football', 'TEAM_GOAL', '', '', ''),
+('TEN', 'Tennis', 'RACKET', '', '', ''),
+('BAS', 'Basketball', 'BALL_COURT', '', '', 'SPT004'),
+('HOC', 'Hockey', 'TEAM_GOAL', '', '', ''),
+('NET', 'Netball', 'TEAM_GOAL', '', '', ''),
+('CRI', 'Cricket', 'CRICKET', '', '', 'usr_68f89be0'),
+('RUG', 'Rugby', 'TEAM_GOAL', '', '', ''),
+('SWI', 'Swimming', 'TRACK_FIELD', '', '', ''),
+('TT', 'Table Tennis', 'RACKET', '', '', ''),
+('WL', 'Weight Lifting', 'WEIGHT', '', '', ''),
+('ROW', 'Rowing', 'TRACK_FIELD', '', '', ''),
+('WRE', 'Wrestling', 'COMBAT', '', '', ''),
+('CHE', 'Chess', 'BOARD_GAME', '', '', ''),
+('ATH', 'Athletics', 'TRACK_FIELD', '', '', 'usr_68f89be0'),
+('BOX', 'Boxing', 'COMBAT', '', '', ''),
+('TKD', 'Taekwondo', 'COMBAT', '', '', ''),
+('KRT', 'Karate', 'COMBAT', '', '', ''),
+('RR', 'Road Race', 'TRACK_FIELD', '', '', ''),
+('SCR', 'Scrabble', 'BOARD_GAME', '', '', ''),
+('ELL', 'Elle', 'TEAM_GOAL', '', '', ''),
+('BB', 'Baseball', 'BALL_COURT', '', '', ''),
+('KBD', 'Kabaddi', 'COMBAT', '', '', ''),
+('CRM', 'Carrom', 'BOARD_GAME', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -728,7 +729,7 @@ CREATE TABLE IF NOT EXISTS `sports-team` (
   `joined_date` date NOT NULL,
   `in_team` varchar(7) NOT NULL DEFAULT 'NO',
   PRIMARY KEY (`sport_id`,`student_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sports-team`
@@ -745,77 +746,362 @@ INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`, `in_team`) V
 -- --------------------------------------------------------
 
 --
--- Table structure for table `sport_result_field`
+-- Table structure for table `match_team_goal`
+-- For: Football, Hockey, Rugby, Netball, Elle
 --
 
-DROP TABLE IF EXISTS `sport_result_field`;
-CREATE TABLE IF NOT EXISTS `sport_result_field` (
-  `field_id` int NOT NULL AUTO_INCREMENT,
-  `sport_id` varchar(4) NOT NULL,
-  `field_name` varchar(32) NOT NULL,
-  `field_label` varchar(64) NOT NULL,
-  `data_type` varchar(16) NOT NULL DEFAULT 'INT',
-  `unit` varchar(16) DEFAULT NULL,
-  PRIMARY KEY (`field_id`),
-  KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `sport_result_field`
---
-
-INSERT INTO `sport_result_field` (`field_id`, `sport_id`, `field_name`, `field_label`, `data_type`, `unit`) VALUES
-(1, 'BAD', 'sets_won', 'Sets Won', 'INT', NULL),
-(2, 'BAD', 'points_scored', 'Points Scored', 'INT', NULL),
-(5, 'VOL', 'sets_won', 'Sets Won', 'INT', NULL),
-(6, 'VOL', 'points_scored', 'Points Scored', 'INT', NULL),
-(9, 'FOO', 'goals', 'Goals', 'INT', NULL),
-(10, 'FOO', 'assists', 'Assists', 'INT', NULL),
-(11, 'FOO', 'fouls', 'Fouls', 'INT', NULL),
-(15, 'TEN', 'sets_won', 'Sets Won', 'INT', NULL),
-(16, 'TEN', 'games_won', 'Games Won', 'INT', NULL),
-(19, 'BAS', 'points_scored', 'Points Scored', 'INT', NULL),
-(20, 'BAS', 'rebounds', 'Rebounds', 'INT', NULL),
-(21, 'BAS', 'assists', 'Assists', 'INT', NULL),
-(25, 'HOC', 'goals', 'Goals', 'INT', NULL),
-(26, 'HOC', 'assists', 'Assists', 'INT', NULL),
-(29, 'NET', 'goals', 'Goals', 'INT', NULL),
-(31, 'CRI', 'runs', 'Runs Scored', 'INT', NULL),
-(32, 'CRI', 'wickets', 'Wickets Taken', 'INT', NULL),
-(33, 'CRI', 'overs', 'Overs Bowled', 'FLOAT', 'overs'),
-(39, 'RUG', 'tries', 'Tries', 'INT', NULL),
-(40, 'RUG', 'points', 'Points', 'INT', NULL),
-(41, 'SWI', 'time', 'Time', 'FLOAT', 'seconds'),
-(45, 'TT', 'sets_won', 'Sets Won', 'INT', NULL),
-(46, 'TT', 'points_scored', 'Points Scored', 'INT', NULL),
-(47, 'WL', 'snatch', 'Snatch Weight', 'FLOAT', 'kg'),
-(48, 'WL', 'clean_jerk', 'Clean & Jerk', 'FLOAT', 'kg'),
-(49, 'WL', 'total', 'Total', 'FLOAT', 'kg'),
-(53, 'ROW', 'time', 'Time', 'FLOAT', 'seconds'),
-(55, 'WRE', 'points', 'Points', 'INT', NULL),
-(56, 'WRE', 'fall', 'Fall', 'INT', NULL),
-(59, 'CHE', 'result', 'Result', 'VARCHAR', NULL),
-(60, 'ATH', 'time', 'Time', 'FLOAT', 'seconds'),
-(61, 'ATH', 'distance', 'Distance', 'FLOAT', 'meters'),
-(62, 'BOX', 'points', 'Points', 'INT', NULL),
-(63, 'BOX', 'knockdowns', 'Knockdowns', 'INT', NULL);
+DROP TABLE IF EXISTS `match_team_goal`;
+CREATE TABLE IF NOT EXISTS `match_team_goal` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `match_id` VARCHAR(50) NOT NULL,
+  
+  -- Team names
+  `team_a_name` VARCHAR(100) DEFAULT NULL,
+  `team_b_name` VARCHAR(100) DEFAULT NULL,
+  
+  -- Score
+  `team_a_goals` INT DEFAULT 0,
+  `team_b_goals` INT DEFAULT 0,
+  
+  -- Cards (for football, hockey)
+  `team_a_yellow_cards` INT DEFAULT 0,
+  `team_b_yellow_cards` INT DEFAULT 0,
+  `team_a_red_cards` INT DEFAULT 0,
+  `team_b_red_cards` INT DEFAULT 0,
+  
+  -- For rugby
+  `team_a_tries` INT DEFAULT NULL,
+  `team_b_tries` INT DEFAULT NULL,
+  `team_a_conversions` INT DEFAULT NULL,
+  `team_b_conversions` INT DEFAULT NULL,
+  `team_a_penalties` INT DEFAULT NULL,
+  `team_b_penalties` INT DEFAULT NULL,
+  
+  -- Extra time / Penalties
+  `extra_time` BOOLEAN DEFAULT FALSE,
+  `penalty_shootout` BOOLEAN DEFAULT FALSE,
+  `penalty_score_a` INT DEFAULT NULL,
+  `penalty_score_b` INT DEFAULT NULL,
+  
+  `notes` TEXT,
+  
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `sport_result_value`
+-- Table structure for table `match_racket`
+-- For: Badminton, Tennis, Table Tennis
 --
 
-DROP TABLE IF EXISTS `sport_result_value`;
-CREATE TABLE IF NOT EXISTS `sport_result_value` (
-  `value_id` varchar(12) NOT NULL,
-  `result_id` varchar(12) NOT NULL,
-  `field_id` int NOT NULL,
-  `field_value` varchar(64) NOT NULL,
-  PRIMARY KEY (`value_id`),
-  KEY `result_id` (`result_id`),
-  KEY `field_id` (`field_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+DROP TABLE IF EXISTS `match_racket`;
+CREATE TABLE IF NOT EXISTS `match_racket` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `match_id` VARCHAR(50) NOT NULL,
+  
+  -- Players/Teams
+  `player_a_name` VARCHAR(100) DEFAULT NULL,
+  `player_b_name` VARCHAR(100) DEFAULT NULL,
+  
+  -- Match format
+  `match_format` ENUM('BEST_OF_3', 'BEST_OF_5', 'SINGLE_SET') DEFAULT 'BEST_OF_3',
+  `match_type` ENUM('SINGLES', 'DOUBLES', 'MIXED_DOUBLES') DEFAULT 'SINGLES',
+  
+  -- Set scores (JSON array)
+  `set_scores` JSON,  -- e.g., [{"a": 21, "b": 19}, {"a": 15, "b": 21}, {"a": 21, "b": 18}]
+  
+  -- Summary
+  `sets_won_a` INT DEFAULT 0,
+  `sets_won_b` INT DEFAULT 0,
+  `total_points_a` INT DEFAULT 0,
+  `total_points_b` INT DEFAULT 0,
+  
+  `notes` TEXT,
+  
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_cricket`
+-- For: Cricket
+--
+
+DROP TABLE IF EXISTS `match_cricket`;
+CREATE TABLE IF NOT EXISTS `match_cricket` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `match_id` VARCHAR(50) NOT NULL,
+  
+  -- Team names
+  `team_a_name` VARCHAR(100) DEFAULT NULL,
+  `team_b_name` VARCHAR(100) DEFAULT NULL,
+  
+  -- Match format
+  `match_format` ENUM('TEST', 'ODI', 'T20', 'T10', 'OTHER') DEFAULT 'T20',
+  `overs_per_innings` DECIMAL(4,1) DEFAULT NULL,
+  
+  -- First Innings
+  `innings_1_team` CHAR(1) DEFAULT NULL,  -- 'A' or 'B'
+  `innings_1_runs` INT DEFAULT 0,
+  `innings_1_wickets` INT DEFAULT 0,
+  `innings_1_overs` DECIMAL(4,1) DEFAULT 0,
+  `innings_1_extras` INT DEFAULT 0,
+  
+  -- Second Innings
+  `innings_2_team` CHAR(1) DEFAULT NULL,
+  `innings_2_runs` INT DEFAULT 0,
+  `innings_2_wickets` INT DEFAULT 0,
+  `innings_2_overs` DECIMAL(4,1) DEFAULT 0,
+  `innings_2_extras` INT DEFAULT 0,
+  
+  -- Result
+  `result_type` ENUM('WIN_RUNS', 'WIN_WICKETS', 'TIE', 'DRAW', 'NO_RESULT', 'SUPER_OVER') DEFAULT NULL,
+  `win_margin` INT DEFAULT NULL,
+  `winning_team` CHAR(1) DEFAULT NULL,
+  
+  -- Super Over (if applicable)
+  `super_over_team_a` INT DEFAULT NULL,
+  `super_over_team_b` INT DEFAULT NULL,
+  
+  -- Player of the match
+  `potm_user_id` VARCHAR(12) DEFAULT NULL,
+  
+  -- Toss details
+  `toss_won_by` CHAR(1) DEFAULT NULL,
+  `toss_decision` ENUM('BAT', 'BOWL') DEFAULT NULL,
+  
+  `notes` TEXT,
+  
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_combat`
+-- For: Boxing, Taekwondo, Karate, Wrestling, Kabaddi
+--
+
+DROP TABLE IF EXISTS `match_combat`;
+CREATE TABLE IF NOT EXISTS `match_combat` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `match_id` VARCHAR(50) NOT NULL,
+  
+  -- Competitors
+  `fighter_a_name` VARCHAR(100) DEFAULT NULL,
+  `fighter_b_name` VARCHAR(100) DEFAULT NULL,
+  `weight_category` VARCHAR(50) DEFAULT NULL,
+  
+  -- Score by rounds (JSON array)
+  `round_scores` JSON,  -- e.g., [{"a": 10, "b": 9}, {"a": 9, "b": 10}]
+  `total_rounds` INT DEFAULT 3,
+  `rounds_completed` INT DEFAULT 0,
+  
+  -- Final scores
+  `final_score_a` INT DEFAULT 0,
+  `final_score_b` INT DEFAULT 0,
+  
+  -- Result type
+  `result_type` ENUM('POINTS', 'KO', 'TKO', 'SUBMISSION', 'IPPON', 'WAZA_ARI', 'DISQUALIFICATION', 'WALKOVER', 'PIN') DEFAULT 'POINTS',
+  
+  -- Combat-specific stats
+  `knockdowns_a` INT DEFAULT 0,
+  `knockdowns_b` INT DEFAULT 0,
+  `warnings_a` INT DEFAULT 0,
+  `warnings_b` INT DEFAULT 0,
+  
+  -- For wrestling
+  `pins_a` INT DEFAULT 0,
+  `pins_b` INT DEFAULT 0,
+  
+  -- For kabaddi
+  `raid_points_a` INT DEFAULT NULL,
+  `raid_points_b` INT DEFAULT NULL,
+  `tackle_points_a` INT DEFAULT NULL,
+  `tackle_points_b` INT DEFAULT NULL,
+  
+  `notes` TEXT,
+  
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_timed`
+-- For: Athletics, Swimming, Rowing, Road Race
+--
+
+DROP TABLE IF EXISTS `match_timed`;
+CREATE TABLE IF NOT EXISTS `match_timed` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `match_id` VARCHAR(50) NOT NULL,
+  
+  -- Event details
+  `event_type` ENUM('SPRINT', 'MIDDLE_DISTANCE', 'LONG_DISTANCE', 'RELAY', 'SWIMMING', 'ROWING', 'FIELD_THROW', 'FIELD_JUMP', 'ROAD_RACE') DEFAULT 'SPRINT',
+  `event_name` VARCHAR(100) DEFAULT NULL,  -- e.g., "100m", "Long Jump", "50m Freestyle"
+  
+  -- Participant results stored in JSON (multiple participants)
+  `results` JSON,  -- [{"user_id": "...", "name": "...", "time": 10.5, "distance": null, "position": 1}]
+  
+  -- Winning stats
+  `winning_time` DECIMAL(10,3) DEFAULT NULL,  -- in seconds
+  `winning_distance` DECIMAL(10,3) DEFAULT NULL,  -- in meters
+  `winner_user_id` VARCHAR(12) DEFAULT NULL,
+  
+  -- Records
+  `is_record` BOOLEAN DEFAULT FALSE,
+  `record_type` ENUM('PERSONAL_BEST', 'UNIVERSITY_RECORD', 'NATIONAL_RECORD') DEFAULT NULL,
+  
+  -- Conditions
+  `weather_conditions` VARCHAR(100) DEFAULT NULL,
+  `wind_speed` DECIMAL(4,2) DEFAULT NULL,  -- for sprints/jumps (m/s)
+  
+  `notes` TEXT,
+  
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_ball_court`
+-- For: Basketball, Volleyball, Baseball
+--
+
+DROP TABLE IF EXISTS `match_ball_court`;
+CREATE TABLE IF NOT EXISTS `match_ball_court` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `match_id` VARCHAR(50) NOT NULL,
+  
+  -- Team names
+  `team_a_name` VARCHAR(100) DEFAULT NULL,
+  `team_b_name` VARCHAR(100) DEFAULT NULL,
+  
+  -- Sport subtype (determines period interpretation)
+  `sport_subtype` ENUM('BASKETBALL', 'VOLLEYBALL', 'BASEBALL') NOT NULL,
+  
+  -- Period scores (JSON for flexibility)
+  `period_scores` JSON,
+  -- Basketball: [{"a": 24, "b": 22}, ...] (quarters)
+  -- Volleyball: [{"a": 25, "b": 23}, ...] (sets)
+  -- Baseball: [{"a": 1, "b": 0}, ...] (innings)
+  
+  -- Final scores
+  `final_score_a` INT DEFAULT 0,
+  `final_score_b` INT DEFAULT 0,
+  
+  -- Basketball specific
+  `overtime_periods` INT DEFAULT 0,
+  
+  -- Volleyball specific
+  `sets_won_a` INT DEFAULT NULL,
+  `sets_won_b` INT DEFAULT NULL,
+  
+  -- Baseball specific
+  `innings_played` INT DEFAULT NULL,
+  
+  `notes` TEXT,
+  
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_board_game`
+-- For: Chess, Scrabble, Carrom
+--
+
+DROP TABLE IF EXISTS `match_board_game`;
+CREATE TABLE IF NOT EXISTS `match_board_game` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `match_id` VARCHAR(50) NOT NULL,
+  
+  -- Players
+  `player_a_name` VARCHAR(100) DEFAULT NULL,
+  `player_b_name` VARCHAR(100) DEFAULT NULL,
+  
+  `game_type` ENUM('CHESS', 'SCRABBLE', 'CARROM') NOT NULL,
+  
+  -- For Chess
+  `chess_result` ENUM('WHITE_WIN', 'BLACK_WIN', 'DRAW', 'STALEMATE') DEFAULT NULL,
+  `chess_opening` VARCHAR(100) DEFAULT NULL,
+  `moves_count` INT DEFAULT NULL,
+  `time_control` VARCHAR(50) DEFAULT NULL,  -- e.g., "10+5", "Classical"
+  
+  -- For Scrabble
+  `scrabble_score_a` INT DEFAULT NULL,
+  `scrabble_score_b` INT DEFAULT NULL,
+  `highest_word_score` INT DEFAULT NULL,
+  `highest_word` VARCHAR(50) DEFAULT NULL,
+  
+  -- For Carrom
+  `carrom_score_a` INT DEFAULT NULL,
+  `carrom_score_b` INT DEFAULT NULL,
+  `boards_played` INT DEFAULT 1,
+  
+  `notes` TEXT,
+  
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_weight_lifting`
+-- For: Weight Lifting
+--
+
+DROP TABLE IF EXISTS `match_weight_lifting`;
+CREATE TABLE IF NOT EXISTS `match_weight_lifting` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `match_id` VARCHAR(50) NOT NULL,
+  
+  `athlete_name` VARCHAR(100) DEFAULT NULL,
+  `weight_category` VARCHAR(50) DEFAULT NULL,  -- e.g., "56kg", "62kg"
+  
+  -- Snatch attempts (3 attempts max)
+  `snatch_1` DECIMAL(5,1) DEFAULT NULL,
+  `snatch_1_valid` BOOLEAN DEFAULT NULL,
+  `snatch_2` DECIMAL(5,1) DEFAULT NULL,
+  `snatch_2_valid` BOOLEAN DEFAULT NULL,
+  `snatch_3` DECIMAL(5,1) DEFAULT NULL,
+  `snatch_3_valid` BOOLEAN DEFAULT NULL,
+  `snatch_best` DECIMAL(5,1) DEFAULT NULL,
+  
+  -- Clean & Jerk attempts
+  `cj_1` DECIMAL(5,1) DEFAULT NULL,
+  `cj_1_valid` BOOLEAN DEFAULT NULL,
+  `cj_2` DECIMAL(5,1) DEFAULT NULL,
+  `cj_2_valid` BOOLEAN DEFAULT NULL,
+  `cj_3` DECIMAL(5,1) DEFAULT NULL,
+  `cj_3_valid` BOOLEAN DEFAULT NULL,
+  `cj_best` DECIMAL(5,1) DEFAULT NULL,
+  
+  -- Total
+  `total_kg` DECIMAL(5,1) DEFAULT NULL,
+  
+  -- Competition results stored in JSON for multiple participants
+  `competition_results` JSON,  -- [{"user_id": "...", "total": 250, "position": 1}]
+  
+  -- Ranking
+  `final_position` INT DEFAULT NULL,
+  
+  `notes` TEXT,
+  
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -841,7 +1127,7 @@ CREATE TABLE IF NOT EXISTS `student_id_cards` (
 
 DROP TABLE IF EXISTS `tournament`;
 CREATE TABLE IF NOT EXISTS `tournament` (
-  `tournament_id` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `tournament_id` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `tournament_name` varchar(64) NOT NULL,
   `sport_id` varchar(4) NOT NULL,
   `start_date` date DEFAULT NULL,
@@ -849,7 +1135,7 @@ CREATE TABLE IF NOT EXISTS `tournament` (
   `status` varchar(10) NOT NULL DEFAULT 'INCOMPLETE',
   PRIMARY KEY (`tournament_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `tournament`
@@ -863,22 +1149,53 @@ INSERT INTO `tournament` (`tournament_id`, `tournament_name`, `sport_id`, `start
 
 --
 -- Table structure for table `tournament_match`
+-- Central match table linking to sport-specific detail tables
 --
 
 DROP TABLE IF EXISTS `tournament_match`;
 CREATE TABLE IF NOT EXISTS `tournament_match` (
-  `match_id` varchar(12) NOT NULL,
-  `tournament_id` varchar(12) NOT NULL,
-  `match_name` varchar(64) DEFAULT NULL,
-  `match_date` datetime DEFAULT NULL,
-  `sport_id` varchar(4) NOT NULL,
-  `winner_id` varchar(12) DEFAULT NULL,
+  `match_id` VARCHAR(50) NOT NULL,
+  `tournament_id` VARCHAR(24) NOT NULL,
+  `sport_id` VARCHAR(4) NOT NULL,
+  `sport_category` ENUM('TEAM_GOAL', 'RACKET', 'CRICKET', 'COMBAT', 'TRACK_FIELD', 'BOARD_GAME', 'BALL_COURT', 'WEIGHT') NOT NULL,
+  `match_name` VARCHAR(100) NOT NULL,
+  `match_date` DATE NOT NULL,
+  
+  -- Common queryable fields
+  `winner_id` VARCHAR(12) DEFAULT NULL,
+  `result_status` ENUM('COMPLETED', 'CANCELLED', 'DRAW', 'PENDING', 'NO_RESULT') DEFAULT 'PENDING',
+  
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`match_id`),
   KEY `tournament_id` (`tournament_id`),
-  KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `sport_id` (`sport_id`),
+  KEY `sport_category` (`sport_category`),
+  KEY `winner_id` (`winner_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
+
+--
+-- Table structure for table `match_participant`
+-- Links individual players to matches for performance tracking
+--
+
+DROP TABLE IF EXISTS `match_participant`;
+CREATE TABLE IF NOT EXISTS `match_participant` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `match_id` VARCHAR(50) NOT NULL,
+  `user_id` VARCHAR(12) NOT NULL,
+  `team` ENUM('A', 'B') DEFAULT 'A',
+  `score` INT DEFAULT NULL,
+  `performance_data` JSON,
+  `notes` TEXT DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `match_id` (`match_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
 
 --
 -- Table structure for table `tournament_result`
@@ -893,7 +1210,7 @@ CREATE TABLE IF NOT EXISTS `tournament_result` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`result_id`),
   KEY `match_id` (`match_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -908,11 +1225,11 @@ CREATE TABLE IF NOT EXISTS `transaction` (
   `amount` int NOT NULL,
   `purpose` varchar(256) NOT NULL,
   `timestamp` timestamp NOT NULL,
-  `proof_doc` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `proof_doc` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `remarks` varchar(256) NOT NULL,
-  `change_reason` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `change_reason` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`transaction_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `transaction`
@@ -943,7 +1260,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `password` varchar(256) NOT NULL,
   `must_change_pass` int NOT NULL,
   `joined_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `contact_no` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `contact_no` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `profile_img` varchar(64) NOT NULL,
   `sport_id` varchar(5) NOT NULL,
   `student_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
@@ -951,7 +1268,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `status` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `Email` (`email`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `user`

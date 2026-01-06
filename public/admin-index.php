@@ -66,6 +66,12 @@ $router->post('/admin-tournament/send-invitation', 'TournamentController@sendInv
 $router->get('/admin-tournament/saved-recipients', 'TournamentController@getSavedRecipients');
 $router->post('/admin-tournament/save-recipient', 'TournamentController@saveRecipient');
 $router->get('/admin-tournament/list', 'TournamentController@getTournaments');
+$router->post('/admin-tournament/add-result', 'TournamentController@addResult');
+$router->post('/admin-tournament/add-match-result', 'TournamentController@addMatchResult');
 
+// Match & Player Performance API routes
+$router->get('/admin-sport/player-match-history', 'SportApiController@getPlayerMatchHistory');
+$router->get('/admin-sport/search-matches', 'SportApiController@searchMatches');
+$router->get('/admin-sport/match-details', 'SportApiController@getMatchDetails');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

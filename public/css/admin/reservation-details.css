@@ -420,6 +420,7 @@
 @media (max-width: 768px) {
     #reservation-details {
         padding: 10px;
+        margin-top: 20px;
     }
 
     #reservation-details h2 {

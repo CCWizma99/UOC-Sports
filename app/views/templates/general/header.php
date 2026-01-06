@@ -61,6 +61,10 @@
                         case 'INSTAFF':
                             echo '<a href="/uoc-sports/public/student/" id="user_type" class="user-type btn-primary">Staff</a>';
                             break;
+
+                        case 'ADMIN':
+                            echo '<a href="/uoc-sports/public/admin-index" id="user_type" class="user-type btn-primary">Admin Dashboard</a>';
+                            break;
                     }
 
                     // Profile button

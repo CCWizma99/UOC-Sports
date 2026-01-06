@@ -119,5 +119,6 @@ $router->get('/student-sign-up', 'AuthController@showStudentSignupForm');
 $router->post('/sign-up', 'AuthController@handleSignup');
 $router->post('/sign-in', 'AuthController@handleSignin');
 $router->post('sign-up-student', 'AuthController@handleStudentSignup');
+$router->get('/logout', 'AuthController@handleLogout');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
