@@ -40,6 +40,16 @@
             }
         });
 
+        function switchTab(tab) {
+            // Update Tab Buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update Tab Content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             

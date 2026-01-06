@@ -13,31 +13,31 @@
                         <div class="booking-summary">
                             <div class="summary-row">
                                 <span class="summary-label">Booking ID:</span>
-                                <span class="summary-value">BK-2024-001</span>
+                                <span class="summary-value"><?php echo $booking['booking_id']; ?></span>
                             </div>
                             <div class="summary-row">
                                 <span class="summary-label">Facility Name:</span>
-                                <span class="summary-value">Tennis Court A</span>
+                                <span class="summary-value"><?php echo $booking['facility_name']; ?></span>
                             </div>
                             <div class="summary-row">
                                 <span class="summary-label">Date:</span>
-                                <span class="summary-value">2024-01-15</span>
+                                <span class="summary-value"><?php echo $booking['date']; ?></span>
                             </div>
                             <div class="summary-row">
                                 <span class="summary-label">Slot:</span>
-                                <span class="summary-value">08:00 AM - 10:00 AM</span>
+                                <span class="summary-value"><?php echo $booking['time_range']; ?></span>
                             </div>
                             <div class="summary-row">
                                 <span class="summary-label">Purpose:</span>
-                                <span class="summary-value">Practice Session</span>
+                                <span class="summary-value"><?php echo htmlspecialchars($booking['purpose']); ?></span>
                             </div>
                             <div class="summary-row">
                                 <span class="summary-label">Name:</span>
-                                <span class="summary-value">John Doe</span>
+                                <span class="summary-value"><?php echo $booking['user_name']; ?></span>
                             </div>
                             <div class="summary-row">
                                 <span class="summary-label">Amount:</span>
-                                <span class="summary-value amount">Rs. 2,500.00</span>
+                                <span class="summary-value amount">Rs. <?php echo number_format($booking['amount'], 2); ?></span>
                             </div>
                         </div>
                     </div>
@@ -78,40 +78,80 @@
             <div class="bottom-section">
                 <div class="section">
                     <div class="card">
-                        <h2 class="section-title">Payment Proof Form</h2>
-                        <form id="paymentForm">
-                            <div class="form-group">
-                                <label>Payment Method <span class="required">*</span></label>
-                                <div class="radio-group">
-                                    <div class="radio-option">
-                                        <input type="radio" id="bankDeposit" name="paymentMethod" value="Bank Deposit" required>
-                                        <label for="bankDeposit">Bank Deposit</label>
-                                    </div>
-                                    <div class="radio-option">
-                                        <input type="radio" id="onlineTransfer" name="paymentMethod" value="Online Transfer">
-                                        <label for="onlineTransfer">Online Transfer</label>
+                    <div class="card">
+                        <h2 class="section-title">Choose Payment Method</h2>
+                        
+                        <!-- Tabs -->
+                        <div class="payment-tabs">
+                            <button class="tab-btn active" onclick="switchTab('online')">Pay Online (PayHere)</button>
+                            <button class="tab-btn" onclick="switchTab('slip')">Upload Payment Slip</button>
+                        </div>
+
+                        <!-- Tab 1: PayHere Form -->
+                        <div id="tab-online" class="tab-content active">
+                            <div class="info-box">
+                                <p>You will be redirected to the generic PayHere Sandbox for secure payment.</p>
+                            </div>
+                            
+                            <form method="post" action="https://sandbox.payhere.lk/pay/checkout">
+                                <input type="hidden" name="merchant_id" value="121XXXX">    <!-- Replace with Merchant ID -->
+                                <input type="hidden" name="return_url" value="http://localhost/uoc-sports/public/payment/success">
+                                <input type="hidden" name="cancel_url" value="http://localhost/uoc-sports/public/payment/cancel">
+                                <input type="hidden" name="notify_url" value="http://localhost/uoc-sports/public/payment/notify">  
+                                <input type="hidden" name="order_id" value="<?php echo $booking['booking_id']; ?>">
+                                <input type="hidden" name="items" value="<?php echo $booking['facility_name']; ?> Reservation">
+                                <input type="hidden" name="currency" value="LKR">
+                                <input type="hidden" name="amount" value="<?php echo $booking['amount']; ?>">  
+                                <input type="hidden" name="first_name" value="<?php echo explode(' ', $booking['user_name'])[0]; ?>">
+                                <input type="hidden" name="last_name" value="<?php echo explode(' ', $booking['user_name'])[1] ?? ''; ?>">
+                                <input type="hidden" name="email" value="<?php echo $booking['user_email'] ?? 'test@example.com'; ?>">
+                                <input type="hidden" name="phone" value="<?php echo $booking['contact_no'] ?? '0771234567'; ?>">
+                                <input type="hidden" name="address" value="No.1, University of Colombo">
+                                <input type="hidden" name="city" value="Colombo">
+                                <input type="hidden" name="country" value="Sri Lanka">
+                                <input type="hidden" name="hash" value=""> <!-- Checksum calculation logic needed later -->
+
+                                <button type="submit" class="btn-submit">Pay with PayHere</button>
+                            </form>
+                        </div>
+
+                        <!-- Tab 2: Upload Slip Form -->
+                        <div id="tab-slip" class="tab-content">
+                            <form id="paymentForm">
+                                <div class="form-group">
+                                    <label>Payment Method <span class="required">*</span></label>
+                                    <div class="radio-group">
+                                        <div class="radio-option">
+                                            <input type="radio" id="bankDeposit" name="paymentMethod" value="Bank Deposit" required checked>
+                                            <label for="bankDeposit">Bank Deposit</label>
+                                        </div>
+                                        <div class="radio-option">
+                                            <input type="radio" id="onlineTransfer" name="paymentMethod" value="Online Transfer">
+                                            <label for="onlineTransfer">Online Transfer</label>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group">
-                                <label for="referenceNumber">Reference Number <span class="required">*</span></label>
-                                <input type="text" id="referenceNumber" name="referenceNumber" required placeholder="Enter transaction reference number">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="paymentSlip">Upload Payment Slip <span class="required">*</span></label>
-                                <div class="file-upload">
-                                    <input type="file" id="paymentSlip" name="paymentSlip" accept=".jpg,.jpeg,.png,.pdf" required>
-                                    <label for="paymentSlip" class="file-upload-label">
-                                        <span>📎 Click to upload payment slip (JPG, PNG, or PDF)</span>
-                                    </label>
-                                    <div class="file-name" id="fileName"></div>
+                                <div class="form-group">
+                                    <label for="referenceNumber">Reference Number <span class="required">*</span></label>
+                                    <input type="text" id="referenceNumber" name="referenceNumber" required placeholder="Enter transaction reference number">
                                 </div>
-                            </div>
 
-                            <button type="submit" class="btn-submit">Submit</button>
-                        </form>
+                                <div class="form-group">
+                                    <label for="paymentSlip">Upload Payment Slip <span class="required">*</span></label>
+                                    <div class="file-upload">
+                                        <input type="file" id="paymentSlip" name="paymentSlip" accept=".jpg,.jpeg,.png,.pdf" required>
+                                        <label for="paymentSlip" class="file-upload-label">
+                                            <span>📎 Click to upload payment slip (JPG, PNG, or PDF)</span>
+                                        </label>
+                                        <div class="file-name" id="fileName"></div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn-submit">Submit Payment Proof</button>
+                            </form>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>

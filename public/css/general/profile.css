@@ -10,7 +10,7 @@
 }
 
 .page-header h1 {
-    font-size: 2.5rem;
+    font-size: 1.8rem;
     font-weight: 800;
     color: #1a1a1a;
     margin-bottom: 0.5rem;
@@ -137,7 +137,7 @@
     border: none;
     border-radius: 0.8rem;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.3s;
 }
@@ -171,19 +171,19 @@
 
 .section-header i {
     color: #4b0082;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
 }
 
 .section-header h2 {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: #1a1a1a;
 }
 
 .sports-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
     margin-bottom: 3rem;
 }
 
@@ -204,7 +204,7 @@
 
 .sport-image {
     position: relative;
-    height: 200px;
+    height: 140px;
     overflow: hidden;
 }
 
@@ -228,16 +228,16 @@
 
 .sport-name {
     position: absolute;
-    bottom: 1rem;
-    left: 1rem;
+    bottom: 0.8rem;
+    left: 0.8rem;
     color: white;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 700;
     z-index: 1;
 }
 
 .sport-details {
-    padding: 1.5rem;
+    padding: 1rem;
 }
 
 .sport-details p {
@@ -297,13 +297,13 @@
 }
 
 .booking-item {
-    border-radius: 1.2rem;
-    padding: 1.8rem;
+    border-radius: 1rem;
+    padding: 1rem;
     border: 2px solid;
     transition: all 0.3s;
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 2rem;
+    gap: 1rem;
     align-items: center;
 }
 
@@ -333,16 +333,16 @@
 }
 
 .booking-icon {
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #4b0082;
-    margin-top: 0.3rem;
+    margin-top: 0.2rem;
 }
 
 .booking-details h3 {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #1a1a1a;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.5rem;
 }
 
 .booking-meta {
@@ -377,10 +377,10 @@
 }
 
 .booking-status {
-    padding: 0.6rem 1.5rem;
+    padding: 0.4rem 1rem;
     border-radius: 2rem;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
 }
 
@@ -400,7 +400,7 @@
 }
 
 .booking-price {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: #1a1a1a;
 }
