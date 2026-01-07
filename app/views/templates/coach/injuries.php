@@ -1,4 +1,19 @@
 <div class="container">
+<?php
+// Get coach sport id from session or DB
+$coachSportId = $_SESSION['coach_sport_id'] ?? '';
+if (empty($coachSportId) && isset($_SESSION['user_id'])) {
+    require_once dirname(__DIR__, 4) . '/core/Database.php';
+    $pdo = Database::getConnection();
+    $stmt = $pdo->prepare("SELECT sport_id FROM sport WHERE coach_id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($res && !empty($res['sport_id'])) {
+        $coachSportId = $res['sport_id'];
+        $_SESSION['coach_sport_id'] = $coachSportId;
+    }
+}
+?>
     <!-- Injury Management Section -->
     <div class="table-section">
         <h2 class="section-title">Player Injury Management</h2>
@@ -15,7 +30,14 @@
                             <!-- Filled dynamically via JS -->
                         </select>
                     </div>
-    
+                    
+                    <div class="form-group">
+                        <label for="selectPractice">Select Practice</label>
+                        <select id="selectPractice" class="form-input">
+                            <option value="">Select practice session...</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label for="injuryType">Injury Type</label>
                         <input type="text" id="injuryType" class="form-input" placeholder="e.g., Muscle strain">
@@ -59,6 +81,7 @@
                 <thead>
                     <tr>
                         <th>Player</th>
+                        <th>Practice Session</th>
                         <th>Injury</th>
                         <th>Date</th>
                         <th>Severity</th>
@@ -100,6 +123,63 @@ function populatePlayerDropdowns() {
 
 populatePlayerDropdowns();
 
+// Provide sport id to JS
+const SPORT_ID = <?php echo json_encode($coachSportId ?? ''); ?>;
+
+// Fetch upcoming practice sessions for coach's sport and populate dropdown
+async function loadPracticeSessions() {
+    try {
+        const url = '/uoc-sports/public/api/injury/upcoming-sessions' + (SPORT_ID ? ('?sport_id=' + encodeURIComponent(SPORT_ID)) : '');
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.status === 'success') {
+            const select = document.getElementById('selectPractice');
+            data.sessions.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = `${s.facility} - ${s.session_date} ${s.session_time}`;
+                select.appendChild(opt);
+            });
+        }
+    } catch (err) {
+        console.error('Failed to load practice sessions', err);
+    }
+}
+
+loadPracticeSessions();
+
+// Load existing injury reports for this sport
+async function loadInjuryReports() {
+    if (!SPORT_ID) return;
+    try {
+        const res = await fetch('/uoc-sports/public/api/injury/reports/' + encodeURIComponent(SPORT_ID));
+        const data = await res.json();
+        if (data.status === 'success') {
+            const tbody = document.getElementById('injuryTableBody');
+            tbody.innerHTML = '';
+            data.data.forEach(r => {
+                const playerName = r.fname ? (r.fname + ' ' + (r.lname || '')) : r.user_id;
+                const practiceText = `${r.facility || ''} - ${r.session_date || ''} ${r.session_time || ''}`.trim();
+                const row = `
+                    <tr>
+                        <td>${playerName}</td>
+                        <td>${practiceText}</td>
+                        <td>${r.description}</td>
+                        <td>${r.date}</td>
+                        <td>${r.description.includes('Minor') ? 'Minor' : (r.description.includes('Moderate') ? 'Moderate' : (r.description.includes('Severe') ? 'Severe' : '-'))}</td>
+                        <td>${r.substitude_id || '-'}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+    } catch (err) {
+        console.error('Failed to load injury reports', err);
+    }
+}
+
+loadInjuryReports();
+
 // Show substitution section when player is in the team
 document.getElementById("injuredPlayer").addEventListener("change", function () {
     const selected = this.value;
@@ -131,6 +211,7 @@ document.getElementById("injuryForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
     const playerId = document.getElementById("injuredPlayer").value;
+    const practiceId = document.getElementById("selectPractice").value;
     const injuryType = document.getElementById("injuryType").value;
     const injuryDate = document.getElementById("injuryDate").value;
     const injurySeverity = document.getElementById("injurySeverity").value;
@@ -141,20 +222,38 @@ document.getElementById("injuryForm").addEventListener("submit", function (e) {
 
     const tableBody = document.getElementById("injuryTableBody");
 
-    const row = `
-        <tr>
-            <td>${player.name}</td>
-            <td>${injuryType}</td>
-            <td>${injuryDate}</td>
-            <td>${injurySeverity}</td>
-            <td>${subPlayer ? subPlayer.name : "-"}</td>
-        </tr>
-    `;
+    // POST to API
+    (async () => {
+        try {
+            const payload = {
+                user_id: playerId,
+                practice_id: practiceId,
+                date: injuryDate,
+                description: injuryType + ' (' + injurySeverity + ')',
+                need_substitude: substituteId ? 'YES' : 'NO',
+                substitude_id: substituteId || ''
+            };
 
-    tableBody.innerHTML += row;
+            const resp = await fetch('/uoc-sports/public/api/injury/report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
 
-    this.reset();
-    document.getElementById("substitutionSection").style.display = "none";
+            const result = await resp.json();
+            if (result.status === 'success') {
+                document.getElementById('injuryForm').reset();
+                document.getElementById('substitutionSection').style.display = 'none';
+                // reload reports table
+                loadInjuryReports();
+            } else {
+                alert('Failed to save injury: ' + (result.message || 'Unknown error'));
+            }
+        } catch (err) {
+            console.error('Error saving injury', err);
+            alert('Server error saving injury');
+        }
+    })();
 });
 
 </script>
