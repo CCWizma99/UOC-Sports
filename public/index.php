@@ -51,6 +51,12 @@ $router->post('/api/injury/report', 'InjuryApiController@reportInjury');
 $router->get('/api/injury/upcoming-sessions', 'InjuryApiController@getUpcomingSessions');
 $router->get('/api/injury/reports/{sport_id}', 'InjuryApiController@getReportsBySport');
 
+// Captain Message API routes
+$router->get('/api/captain/message/recipients', 'MessageApiController@getRecipients');
+$router->post('/api/captain/message/send', 'MessageApiController@sendMessage');
+$router->get('/api/captain/message/list', 'MessageApiController@getMessages');
+$router->post('/api/captain/message/delete', 'MessageApiController@deleteMessage');
+
 $router->get('/coach//', 'CoachController@TeamSchedules');
 $router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');
 $router->get('/coach/report-injury', 'CoachController@ReportInjury');
