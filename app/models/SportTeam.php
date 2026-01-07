@@ -14,7 +14,8 @@ class SportTeam {
      */
     public function search($query) {
         $sql = "SELECT * FROM sport
-                WHERE sport_id LIKE :query OR sport_name LIKE :query";
+                WHERE sport_id LIKE :query OR sport_name LIKE :query
+                LIMIT 4";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['query' => "%$query%"]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -1,0 +1,180 @@
+/* Users Page - No-Scroll Single Page Layout */
+
+:root {
+    --profile-primary: #4b0082;
+    --profile-gradient: linear-gradient(135deg, #111 0%, #4b0082 100%);
+    --profile-accent: rgba(75, 0, 130, 0.05);
+    --profile-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+    --profile-border: 2px solid rgba(75, 0, 130, 0.1);
+    --profile-bg: #fdfbff;
+}
+
+/* Main Content Wrapper */
+.main-content-wrapper {
+    position: fixed;
+    top: 100px;
+    /* header 70px + link-bar 30px */
+    left: 240px;
+    /* sidebar width */
+    right: 0;
+    bottom: 40px;
+    /* Footer height approx */
+    overflow: hidden;
+    padding: 24px;
+    background-color: var(--profile-bg);
+}
+
+/* Grid Layout */
+.users-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    height: 100%;
+    width: 100%;
+}
+
+.users-grid-left,
+.users-grid-right {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Floating Insights Button */
+.floating-insights-btn {
+    position: fixed;
+    bottom: 60px;
+    /* Above footer */
+    right: 30px;
+    background: var(--profile-gradient);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(75, 0, 130, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 998;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.floating-insights-btn:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(75, 0, 130, 0.5);
+}
+
+.floating-insights-btn i {
+    font-size: 20px;
+}
+
+/* Insights Modal */
+.insights-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.insights-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+}
+
+.insights-modal-content {
+    background: white;
+    border-radius: 1.5rem;
+    width: 700px;
+    max-width: 95%;
+    max-height: 85vh;
+    overflow: hidden;
+    /* No scroll on desktop */
+    position: relative;
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: var(--profile-border);
+}
+
+.insights-modal.active .insights-modal-content {
+    transform: scale(1);
+}
+
+.insights-modal-close {
+    position: sticky;
+    top: 15px;
+    right: 15px;
+    float: right;
+    background: var(--profile-gradient);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(75, 0, 130, 0.3);
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+    .main-content-wrapper {
+        left: 0;
+        top: 100px;
+        bottom: 40px;
+        padding: 15px;
+        overflow-y: auto;
+        /* Enable scrolling on smaller screens */
+    }
+
+    .users-grid-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        height: auto;
+    }
+
+    /* Allow modal to scroll on smaller screens */
+    .insights-modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+    .main-content-wrapper {
+        padding: 10px;
+        bottom: 40px;
+        overflow-y: auto;
+        /* Enable scrolling on mobile */
+        margin-top: 20px;
+    }
+
+    .floating-insights-btn {
+        bottom: 70px;
+        right: 15px;
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .floating-insights-btn span {
+        display: none;
+    }
+}

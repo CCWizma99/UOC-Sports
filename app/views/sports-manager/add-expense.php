@@ -21,10 +21,9 @@
     require "../app/views/templates/general/header.php";
     require "../app/views/sports-manager/header-subnav.php";
 ?>
-
+<div class="main-wrapper">
         
-        <div class="form-container">
-
+        <div class="page-form-container">
             
             <!-- Add practice Form -->
              <div class="page-header">
@@ -35,7 +34,7 @@
                
             </div>
             <form id="addPracticeForm" class="form" method="POST" enctype="multipart/form-data">
-                <div class="form-row">
+                <div class="form-grid">
                     <div class="form-group">
                         <label for="Sport name">Sport *</label>
                         <select id="sport" name="sport" required>
@@ -65,24 +64,30 @@
                             <option value="Karate">Karate</option>
                             <option value="Swimming">Swimming</option>
                         </select>
-                        </div>
-
-                        <div class="form-group">
-                        <label for="expense">Expense Title *</label>
-                        <input type="text" id="expense" name="expense" placeholder="Enter expense name" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="participants">Participant Image *</label>
-                        <input type="file" id="participants" name="participants" required>
+                        <label for="expense">Expense Title *</label>
+                        <input type="text" id="expense" name="expense" placeholder="Enter expense purpose" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="receipt">Receipt *</label>
+                        <input type="file" id="receipt" name="receipt" required>
                     </div>
 
                      <div class="form-group">
-                        <label for="notes">Special Notes *</label>
-                        <textarea id="notes" name="notes" placeholder="Enter special notes" rows="5" required></textarea>
+                        <label for="submittedBy">Submitted By *</label>
+                        <input type="text" id="submittedBy" name="submittedBy" placeholder="S K Silva" required>
                     </div>
+
+                    <div class="form-group full-width">
+                        <label for="notes">Special Notes *</label>
+                        <textarea id="notes" name="notes" placeholder="Enter special notes" rows="3" required></textarea>
+                    </div>
+                </div>
                         
-                    <div class="form-actions">
+                <div class="form-actions">
                     <button type="button" class="view-all-link" onclick="window.location.href='/uoc-sports/public/sport-manager/expenses/'">
                        Cancel
                     </button>
@@ -91,10 +96,9 @@
                     </button>
                 </div>
 
-                  </form>
+            </form>
         </div>
 </div>
-
   <?php
     require "../app/views/templates/general/footer.php";
 ?>

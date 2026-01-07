@@ -13,12 +13,14 @@ $router = new Router();
 
 $router->get('/admin-index', 'AdminHomeController@index');
 $router->get('/admin-users', 'AdminHomeController@users');
+$router->get('/admin-user-profile', 'AdminHomeController@userProfile');
 $router->get('/admin-reservations', 'AdminHomeController@reservations');
 $router->get('/admin-reservation', 'AdminHomeController@reservationDetails');
 $router->get('/admin-players', 'AdminHomeController@players');
 $router->get('/admin-equipments', 'AdminHomeController@equipments');
 $router->get('/admin-events', 'AdminHomeController@events');
 $router->get('/admin-teams', 'AdminHomeController@teams');
+$router->get('/admin-team-details', 'AdminHomeController@teamDetails');
 $router->get('/admin-budget', 'AdminHomeController@budget');
 $router->get('/admin-news', 'AdminHomeController@news');
 $router->get('/admin-inquiry', 'AdminHomeController@inquiry');
@@ -46,6 +48,17 @@ $router->post('/admin-equipments/add-equipment-type', 'EquipmentApiController@ad
 $router->post('/admin-equipments/add-stock', 'EquipmentApiController@addStock');
 $router->post('/admin-budget/add-budget', 'BudgetApiController@addBudget');
 $router->post('/admin-post/add-post', 'PostApiController@addPost');
+$router->post('/admin-post/update', 'PostApiController@updatePost');
+
+// User Registration Stats API
+$router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
+
+// User Management API
+$router->post('/api/user/update', 'UserApiController@updateUser');
+$router->post('/api/user/toggle-status', 'UserApiController@toggleStatus');
+
+// Reservation Stats API
+$router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
 
 // Tournament routes
 $router->post('/admin-tournament/create', 'TournamentController@createTournament');
@@ -53,6 +66,12 @@ $router->post('/admin-tournament/send-invitation', 'TournamentController@sendInv
 $router->get('/admin-tournament/saved-recipients', 'TournamentController@getSavedRecipients');
 $router->post('/admin-tournament/save-recipient', 'TournamentController@saveRecipient');
 $router->get('/admin-tournament/list', 'TournamentController@getTournaments');
+$router->post('/admin-tournament/add-result', 'TournamentController@addResult');
+$router->post('/admin-tournament/add-match-result', 'TournamentController@addMatchResult');
 
+// Match & Player Performance API routes
+$router->get('/admin-sport/player-match-history', 'SportApiController@getPlayerMatchHistory');
+$router->get('/admin-sport/search-matches', 'SportApiController@searchMatches');
+$router->get('/admin-sport/match-details', 'SportApiController@getMatchDetails');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

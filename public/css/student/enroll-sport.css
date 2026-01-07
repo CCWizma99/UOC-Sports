@@ -1,13 +1,13 @@
 .container {
-    max-width: 1400px;
-    margin: 30px auto;
-    padding: 0 5%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 16px;
 }
 
 #enroll-sport {
     background: white;
     border-radius: 16px;
-    padding: 3rem;
+    padding: 16px;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
     margin-bottom: 3rem;
 }

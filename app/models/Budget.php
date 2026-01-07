@@ -16,8 +16,8 @@ class Budget {
             SELECT 
                 b.budget_id,
                 s.sport_name,
-                CONCAT(m.fname, ' ', m.lname) AS manager_name,
-                m.contact_no AS manager_contact,
+                COALESCE(CONCAT(m.fname, ' ', m.lname), 'Not Assigned') AS manager_name,
+                COALESCE(m.contact_no, 'N/A') AS manager_contact,
                 b.year,
                 b.allocated_amount,
                 b.spent_amount,
@@ -30,10 +30,11 @@ class Budget {
                 t.proof_doc
             FROM budget b
             INNER JOIN sport s ON b.sport_id = s.sport_id
-            INNER JOIN user m ON s.manager_id = m.user_id
+            LEFT JOIN user m ON s.manager_id = m.user_id
             LEFT JOIN transaction t ON b.budget_id = t.budget_id
             WHERE s.sport_name LIKE :query
             ORDER BY b.allocation_date DESC, t.timestamp DESC
+            LIMIT 4
         ";
 
         $stmt = $this->db->prepare($sql);
@@ -43,27 +44,40 @@ class Budget {
 
     /**
      * Add a new budget allocation
-     * @param int $sport_id
+     * @param string $sport_id
      * @param int $year
      * @param float $allocated_amount
+     * @param float $spent_amount
      * @param string $description
-     * @return int Inserted Budget ID
+     * @return string Inserted Budget ID
      */
-    public function addBudget($sport_id, $year, $allocated_amount, $description) {
+    public function addBudget($sport_id, $year, $allocated_amount, $spent_amount, $description) {
+        $budget_id = $this->generateBudgetId();
+        
         $sql = "
-            INSERT INTO budget (sport_id, year, allocated_amount, spent_amount, allocation_date, description)
-            VALUES (:sport_id, :year, :allocated_amount, 0, NOW(), :description)
+            INSERT INTO budget (budget_id, sport_id, year, allocated_amount, spent_amount, allocation_date, description)
+            VALUES (:budget_id, :sport_id, :year, :allocated_amount, :spent_amount, CURDATE(), :description)
         ";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
+            'budget_id' => $budget_id,
             'sport_id' => $sport_id,
             'year' => $year,
             'allocated_amount' => $allocated_amount,
+            'spent_amount' => $spent_amount,
             'description' => $description
         ]);
 
-        return $this->db->lastInsertId();
+        return $budget_id;
+    }
+
+    /**
+     * Generate a unique budget ID
+     * @return string
+     */
+    private function generateBudgetId() {
+        return 'BDG' . strtoupper(substr(uniqid(), -9));
     }
 
     public function updateTransaction($transactionId, $budgetId, $newAmount, $purpose, $remarks, $changeReason, $proofDoc = null) {
@@ -257,6 +271,25 @@ class Budget {
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['transaction_id' => $transactionId]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+    /**
+     * Get budget summary (total spent and remaining for current year)
+     */
+    public function getBudgetSummary($year = null) {
+        if ($year === null) {
+            $year = date('Y');
+        }
+        
+        $stmt = $this->db->prepare("
+            SELECT 
+                SUM(spent_amount) AS total_spent, 
+                SUM(allocated_amount - spent_amount) AS total_remaining,
+                SUM(allocated_amount) AS total_allocated
+            FROM budget
+            WHERE year = ?
+        ");
+        $stmt->execute([$year]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
 }

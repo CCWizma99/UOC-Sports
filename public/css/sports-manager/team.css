@@ -1,0 +1,452 @@
+/* Sport Manager Team Page Styles */
+
+:root {
+    --primary: #4b0082;
+    --primary-gradient: linear-gradient(135deg, #111 0%, #4b0082 100%);
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+}
+
+.main-wrapper {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.team-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.page-header {
+    margin-bottom: 10px;
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-header h1 i {
+    color: var(--primary);
+}
+
+.page-header p {
+    color: #666;
+    margin-top: 5px;
+}
+
+.sport-name-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary-gradient);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.sport-name-badge i {
+    color: #ffd700;
+}
+
+/* Sport Switcher */
+.sport-switcher {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.sport-switcher label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.sport-switcher label i {
+    color: #ffd700;
+}
+
+.sport-switcher select {
+    padding: 10px 16px;
+    border: 2px solid rgba(75, 0, 130, 0.2);
+    border-radius: 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background: var(--primary-gradient);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.sport-switcher select:hover {
+    box-shadow: 0 4px 15px rgba(75, 0, 130, 0.3);
+}
+
+.sport-switcher select:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.2);
+}
+
+/* Section Card */
+.section-card {
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+    border: 2px solid rgba(75, 0, 130, 0.1);
+    padding: 24px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.section-header h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 0.6rem;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 4px 15px rgba(75, 0, 130, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: var(--success);
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-secondary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filters select,
+.filters input {
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 0.6rem;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.filters select:focus,
+.filters input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.1);
+}
+
+.filters input {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Students Grid */
+.students-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.student-card {
+    background: #f9f9f9;
+    border: 2px solid #e0e0e0;
+    border-radius: 1rem;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.student-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.student-card.verified {
+    border-color: var(--success);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.student-card.pending {
+    border-color: var(--warning);
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.student-card.unverified {
+    border-color: #e0e0e0;
+}
+
+.card-checkbox {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+}
+
+.card-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.card-checkbox input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.student-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(75, 0, 130, 0.1) 0%, rgba(75, 0, 130, 0.2) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.student-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.student-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 5px;
+}
+
+.student-info p {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.student-info p i {
+    color: var(--primary);
+    width: 14px;
+}
+
+.status-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-badge.verified {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+}
+
+.status-badge.pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+}
+
+.status-badge.unverified {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+/* Request Items */
+.requests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.request-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: #f9f9f9;
+    border: 2px solid #e0e0e0;
+    border-radius: 0.8rem;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.request-item.completed {
+    border-color: var(--success);
+}
+
+.request-item.pending {
+    border-color: var(--warning);
+}
+
+.request-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.request-info p {
+    font-size: 12px;
+    color: #888;
+}
+
+.request-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.request-stats span {
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.request-stats .verified {
+    color: var(--success);
+}
+
+.request-stats .rejected {
+    color: var(--danger);
+}
+
+.request-stats .pending {
+    color: var(--warning);
+}
+
+.request-status {
+    padding: 6px 14px;
+    border-radius: 1rem;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.request-status.completed {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+}
+
+.request-status.pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+}
+
+/* Empty/Loading States */
+.loading,
+.empty-state,
+.error-state {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+.loading i,
+.empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.empty-state i {
+    color: #ccc;
+}
+
+.error-state {
+    color: var(--danger);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .header-actions button {
+        flex: 1;
+    }
+
+    .students-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .request-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

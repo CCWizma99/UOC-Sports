@@ -322,7 +322,7 @@
         }
 
         function handleLogout() { 
-            window.location.href = '/uoc-sports/public/sign-in';
+            window.location.href = '/uoc-sports/public/logout';
         }
         
         function showDeleteModal() { 
@@ -339,7 +339,7 @@
         }
         
         function payNow(id) { 
-            alert('Redirecting to payment for booking #' + id); 
+            window.location.href = '/uoc-sports/public/payment?booking_id=' + id;
         }
 
         init();

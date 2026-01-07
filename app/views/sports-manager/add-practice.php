@@ -22,8 +22,8 @@
     require "../app/views/sports-manager/header-subnav.php";
 ?>
 
-        
-        <div class="form-container">
+        <div class="main-wrapper">
+        <div class="page-form-container">
 
             
             <!-- Add practice Form -->
@@ -35,7 +35,7 @@
                
             </div>
             <form id="addPracticeForm" class="form" method="POST" enctype="multipart/form-data">
-                <div class="form-row">
+                <div class="form-grid">
                     <div class="form-group">
                         <label for="Sport name">Sport *</label>
                         <select id="sport" name="sport" required>
@@ -66,17 +66,19 @@
                             <option value="Swimming">Swimming</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label for="practiceSessionDate">Practice Session Date *</label>
                         <input type="date" id="practiceSessionDate" name="date" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="startTime">Start Time * </label>
+                        <label for="startTime">Start Time *</label>
                         <input type="time" id="startTime" name="stime" required>
                     </div>
+
                     <div class="form-group">
-                        <label for="endTime">End Time * </label>
+                        <label for="endTime">End Time *</label>
                         <input type="time" id="endTime" name="etime" required>
                     </div>
 
@@ -88,9 +90,8 @@
                         </select>
                     </div>
 
-                <div class="form-row">
                     <div class="form-group">
-                        <label for="location"> Location *</label>
+                        <label for="location">Location *</label>
                         <select id="location" name="location" required>
                             <option>Select the Location</option>
                             <option value="Indoor Court">Indoor Tennis Court</option>
@@ -101,25 +102,17 @@
                             <option value="Outdoor Field">Outdoor Cricket Field</option>
                             <option value="Swimming Pool">Elle Field</option>
                             <option value="Carrom room">Carrom Room</option>
-
                         </select>
                     </div>
-                </div>
 
-                
-                    
-                <div class="form-group">
-                    <div class="form-group">
-                        <label for="expenseDescription"> Special Notes *</label>
-                        <textarea id="expenseDescription" name="notes" rows="4" placeholder="Enter any special notes..."></textarea>
+                    <div class="form-group full-width">
+                        <label for="expenseDescription">Special Notes *</label>
+                        <textarea id="expenseDescription" name="notes" rows="2" placeholder="Enter any special notes..."></textarea>
                     </div>
-                </div>
-                                
-                    
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="view-all-link" onclick="window.location.href='/project/uoc-sports/app/views/sports-manager/expenses.php'">
+                    <button type="button" class="view-all-link" onclick="window.location.href='/uoc-sports/public/sport-manager/practicesessions'">
                        Cancel
                     </button>
                     <button type="submit" class="view-all-link">
@@ -128,6 +121,7 @@
                 </div>
             </form>
         </div>
+</div>
 
  <?php
     require "../app/views/templates/general/footer.php";

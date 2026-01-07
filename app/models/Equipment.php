@@ -77,7 +77,8 @@ class Equipment {
                     OR e.equipment_id LIKE :q
                     OR s.sport_name LIKE :q
                 GROUP BY e.equipment_id, e.equipment_name, e.image_name, s.sport_name
-                ORDER BY e.equipment_name";
+                ORDER BY e.equipment_name
+                LIMIT 4";
     
         $stmt = $this->db->prepare($sql);
         $stmt->execute([

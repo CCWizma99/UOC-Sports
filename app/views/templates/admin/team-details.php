@@ -35,9 +35,66 @@ if (isset($_GET['sport_id'])) {
             </div>
         </div>
         <div class="team-actions">
-            <a href="teams.php" class="btn-back">
+            <a href="admin-teams" class="btn-back">
                 <i class="fas fa-arrow-left"></i> Back to Teams
             </a>
+        </div>
+    </div>
+    
+    <!-- Team Staff Section -->
+    <div class="team-staff-section">
+        <h3><i class="fas fa-user-tie"></i> Team Staff</h3>
+        <div class="staff-cards">
+            <!-- Coach Card -->
+            <div class="staff-card">
+                <div class="staff-card-header">
+                    <i class="fas fa-whistle"></i>
+                    <span>Coach</span>
+                </div>
+                <div class="staff-card-body">
+                    <?php if (!empty($sport_data['coach_fname'])): ?>
+                        <h4><?php echo htmlspecialchars($sport_data['coach_fname'] . ' ' . $sport_data['coach_lname']); ?></h4>
+                        <p><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($sport_data['coach_email'] ?? 'N/A'); ?></p>
+                        <p><i class="fas fa-phone"></i> <?php echo htmlspecialchars($sport_data['coach_contact'] ?? 'N/A'); ?></p>
+                    <?php else: ?>
+                        <p class="not-assigned">Not Assigned</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <!-- Captain Card -->
+            <div class="staff-card">
+                <div class="staff-card-header">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Captain</span>
+                </div>
+                <div class="staff-card-body">
+                    <?php if (!empty($sport_data['captain_fname'])): ?>
+                        <h4><?php echo htmlspecialchars($sport_data['captain_fname'] . ' ' . $sport_data['captain_lname']); ?></h4>
+                        <p><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($sport_data['captain_email'] ?? 'N/A'); ?></p>
+                        <p><i class="fas fa-phone"></i> <?php echo htmlspecialchars($sport_data['captain_contact'] ?? 'N/A'); ?></p>
+                    <?php else: ?>
+                        <p class="not-assigned">Not Assigned</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <!-- Manager Card -->
+            <div class="staff-card">
+                <div class="staff-card-header">
+                    <i class="fas fa-tasks"></i>
+                    <span>Manager</span>
+                </div>
+                <div class="staff-card-body">
+                    <?php if (!empty($sport_data['manager_fname'])): ?>
+                        <h4><?php echo htmlspecialchars($sport_data['manager_fname'] . ' ' . $sport_data['manager_lname']); ?></h4>
+                        <p><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($sport_data['manager_email'] ?? 'N/A'); ?></p>
+                        <p><i class="fas fa-phone"></i> <?php echo htmlspecialchars($sport_data['manager_contact'] ?? 'N/A'); ?></p>
+                    <?php else: ?>
+                        <p class="not-assigned">Not Assigned</p>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -104,14 +161,14 @@ function removeMember(sportId, userId, userName) {
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                alert('Member removed successfully');
+                showNotification('Member removed successfully', 'success');
                 location.reload();
             } else {
-                alert('Error: ' + (data.message || 'Failed to remove member'));
+                showNotification('Error: ' + (data.message || 'Failed to remove member'), 'error');
             }
         })
         .catch(err => {
-            alert('Error removing member');
+            showNotification('Error removing member', 'error');
             console.error(err);
         });
     }

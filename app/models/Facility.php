@@ -336,4 +336,62 @@ class Facility {
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /* ---------- GET RESERVATION ANALYTICS DATA ---------- */
+    public function getReservationData($period = 'monthly', $year = null) {
+        if (!$year) $year = date('Y');
+        
+        try {
+            switch ($period) {
+                case 'weekly':
+                    $sql = "SELECT 
+                        WEEK(date) as period_num,
+                        CONCAT('Week ', WEEK(date)) as period_label,
+                        COUNT(*) as res_count 
+                        FROM `facility-booking` 
+                        WHERE YEAR(date) = :year 
+                        GROUP BY WEEK(date) 
+                        ORDER BY period_num";
+                    break;
+                case 'annually':
+                    $sql = "SELECT 
+                        YEAR(date) as period_num,
+                        YEAR(date) as period_label,
+                        COUNT(*) as res_count 
+                        FROM `facility-booking` 
+                        GROUP BY YEAR(date) 
+                        ORDER BY period_num";
+                    break;
+                default:
+                    $sql = "SELECT 
+                        MONTH(date) as period_num,
+                        MONTHNAME(date) as period_label,
+                        COUNT(*) as res_count 
+                        FROM `facility-booking` 
+                        WHERE YEAR(date) = :year 
+                        GROUP BY MONTH(date), MONTHNAME(date) 
+                        ORDER BY period_num";
+            }
+            $stmt = $this->db->prepare($sql);
+            if ($period !== 'annually') {
+                $stmt->bindParam(':year', $year);
+            }
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            return null;
+        }
+    }
+
+    /* ---------- GET PENDING RESERVATIONS COUNT ---------- */
+    public function getPendingReservationsCount() {
+        try {
+            $sql = "SELECT COUNT(*) as total FROM `facility-booking` WHERE status = 'BOOKED'";
+            $stmt = $this->db->query($sql);
+            return $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Get pending reservations count error: " . $e->getMessage());
+            return 0;
+        }
+    }
 }

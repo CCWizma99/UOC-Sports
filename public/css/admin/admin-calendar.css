@@ -1,88 +1,255 @@
-    #calendar-container {
-        display: flex;
-        flex-wrap: wrap;
-        width: 960px;
-        margin-left: 260px;
-        margin-top: 140px;
-        justify-content: center;
-        gap: 20px;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+/* Admin Calendar - Updated for grid layout */
 
-    #calendar-container h2 {
-        width: 100%;
-        font-weight: 200;
-        text-align: center;
-    }
+#calendar-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 0;
+}
 
-    .calendar-day.booked {
-        background-color: #5e2d91;
-        color: white;
-        font-weight: bold;
+#calendar-container h2 {
+    width: 100%;
+    font-weight: 600;
+    color: #4b0082;
+}
+
+.calendar-day.booked {
+    background-color: #5e2d91 !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+/* Calendar Tables */
+.booking-calendar {
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    table-layout: fixed;
+}
+
+.booking-calendar caption {
+    padding: 10px;
+    font-weight: 600;
+    color: #4b0082;
+    font-size: 14px;
+    text-align: center;
+}
+
+.booking-calendar th {
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    padding: 8px 4px;
+    background: rgba(75, 0, 130, 0.05);
+    color: #4b0082;
+    text-transform: uppercase;
+    border: 1px solid rgba(75, 0, 130, 0.1);
+}
+
+.booking-calendar td {
+    border: 1px solid rgba(75, 0, 130, 0.08);
+    padding: 8px;
+    text-align: center;
+    font-size: 13px;
+    color: #444;
+    transition: all 0.2s ease;
+}
+
+.booking-calendar td:hover {
+    background-color: rgba(75, 0, 130, 0.05);
+    cursor: pointer;
+}
+
+.booking-calendar td.booked:hover {
+    background-color: #4c2575;
+}
+
+/* Calendar Section in Grid */
+#calendar-section {
+    display: flex;
+    flex-direction: column;
+}
+
+#calendar-current-month,
+#calendar-next-month {
+    margin-bottom: 15px;
+}
+
+/* Calendar Wrapper - Flexbox for side by side */
+.calendars-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+#calendar-current-month,
+#calendar-next-month {
+    flex: 1;
+}
+
+/* Booking Info Box */
+#booking-info {
+    background: rgba(75, 0, 130, 0.03);
+    border-radius: 0.8rem;
+    padding: 15px;
+    margin-top: auto;
+    border: 1px solid rgba(75, 0, 130, 0.08);
+}
+
+#booking-info h3 {
+    color: #4b0082;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+#booking-details {
+    color: #666;
+    font-size: 13px;
+    text-align: center;
+}
+
+#booking-details i {
+    font-size: 2rem;
+    color: rgba(75, 0, 130, 0.2);
+    display: block;
+    margin: 0 auto 10px;
+}
+
+.booking-date {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: #4b0082;
+}
+
+.no-bookings {
+    color: #888;
+    text-align: center;
+    font-style: italic;
+}
+
+/* Booking Cards */
+.booking-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+}
+
+.booking-card {
+    background: white;
+    border: 1px solid rgba(75, 0, 130, 0.1);
+    border-radius: 0.6rem;
+    overflow: hidden;
+}
+
+.booking-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(75, 0, 130, 0.05);
+}
+
+.booking-number {
+    font-weight: 700;
+    color: #4b0082;
+    font-size: 12px;
+}
+
+.booking-status {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+}
+
+.booking-status.booked {
+    background: rgba(75, 0, 130, 0.1);
+    color: #4b0082;
+}
+
+.booking-status.rejected {
+    background: rgba(200, 0, 0, 0.1);
+    color: #c00;
+}
+
+.booking-status.completed {
+    background: rgba(0, 150, 0, 0.1);
+    color: #090;
+}
+
+.booking-card-body {
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.booking-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.field-label {
+    font-size: 10px;
+    color: #888;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.field-value {
+    font-size: 12px;
+    color: #333;
+    font-weight: 500;
+}
+
+.field-value.paid {
+    color: #090;
+}
+
+.field-value.pending {
+    color: #c60;
+}
+
+/* Calendar Wrapper - Column by default, row on tablet */
+.calendars-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+#calendar-current-month,
+#calendar-next-month {
+    flex: 1;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .calendars-wrapper {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 768px) {
+    .calendars-wrapper {
+        flex-direction: column;
     }
 
     .booking-calendar {
-        border-collapse: collapse;
-        background-color: white;
-        border-radius: 6px;
-        overflow: hidden;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        border-radius: 8px;
+        max-width: 100%;
     }
 
-    .booking-calendar caption {
-        margin-bottom: 10px;
-    }
-
-    .booking-calendar th {
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        width: 60px;
-        height: 60px;
-        border: 1px solid #ccc;
-    }
-
+    .booking-calendar th,
     .booking-calendar td {
-        border: 1px solid #ccc;
-        width: 60px;
-        height: 60px;
-        text-align: center;
+        padding: 6px 2px;
+        font-size: 11px;
     }
-
-    .booking-calendar td:hover {
-        background-color: #f1f1f1;
-        cursor: pointer;
-    }
-
-    .booking-calendar td.booked:hover {
-        background-color: #4c2575;
-    }
-
-    #booking-info {
-        width: 600px;
-        border-radius: 8px;
-    }
-
-    #booking-info p {
-        margin: 10px auto;
-        width: fit-content;
-    }
-
-    #booking-info table {
-        width: 100%;
-        background: #fff;
-        font-size: 16px;
-    }
-
-    #booking-info th {
-        background-color: #eee;
-        text-align: left;
-        padding: 5px;
-    }
-
-    #booking-info td {
-        text-align: left;
-        padding: 5px;
-    }
+}

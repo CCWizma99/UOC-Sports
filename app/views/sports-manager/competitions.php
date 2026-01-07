@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Equipment Report</title>
+  <title>Sports Manager - Competitions</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
@@ -15,6 +15,7 @@
 
     @import url("/uoc-sports/public/css/sports-manager/report.css");
   </style>
+  <script src="/uoc-sports/public/js/sports-manager/page.js"></script>
 </head>
 <body>
 <?php
@@ -28,11 +29,76 @@
         <p>Manage scheduled competitions</p>
       </div>
 
-     
+         
        <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search competition...">
   
     </div>
+
+    <!-- Add Participants Form (Initially Hidden) -->
+    <div class="form-container" id="addParticipantsForm" style="display: none;">
+        <div class="page-header">
+            <div>
+                <h2>Add Participants</h2>
+                <p>Add participants to the competition</p>
+            </div>
+        </div>
+        <form id="participantsForm" class="form" method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="sport">Sport *</label>
+                    <select id="sport" name="sport" required>
+                        <option value="">Select Sport</option>
+                        <option value="Athletics">Athletics</option>
+                        <option value="Rugby">Rugby</option>
+                        <option value="Tennis">Tennis</option>
+                        <option value="Weightlifting">Weightlifting</option>
+                        <option value="Basketball">Basketball</option>
+                        <option value="Carrom">Carrom</option>
+                        <option value="Scrabble">Scrabble</option>
+                        <option value="Chess">Chess</option>
+                        <option value="Football">Football</option>
+                        <option value="Baseball">Baseball</option>
+                        <option value="Rowing">Rowing</option>
+                        <option value="Netball">Netball</option>
+                        <option value="Teakwondo">Teakwondo</option>
+                        <option value="Hockey">Hockey</option>
+                        <option value="Elle">Elle</option>
+                        <option value="Cricket">Cricket</option>
+                        <option value="Kabaddi">Kabaddi</option>
+                        <option value="Wrestling">Wrestling</option>
+                        <option value="Badminton">Badminton</option>
+                        <option value="Table Tennis">Table Tennis</option>
+                        <option value="Volleyball">Volleyball</option>
+                        <option value="Boxing">Boxing</option>
+                        <option value="Karate">Karate</option>
+                        <option value="Swimming">Swimming</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="competitionName">Competition Name *</label>
+                    <input type="text" id="competitionName" name="competitionName" placeholder="Enter competition name" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="participants">Participant Image *</label>
+                    <input type="file" id="participants" name="participants" required>
+                </div>
+            </div>
+                    
+            <div class="form-actions">
+                <button type="button" class="view-all-link" onclick="toggleAddParticipantsForm()">
+                   Cancel
+                </button>
+                <button type="submit" class="view-all-link">
+                   Add Participants
+                </button>
+            </div>
+        </form>
+    </div>
+
+  
 
 
     <div class="data-table">
@@ -64,9 +130,7 @@
                         <td><?= $sch['participants_count'] ?></td>
                         <td><?= $sch['participants'] ?></td>
                         <td>
-                            <a href="/uoc-sports/public/sport-manager/add-participants/<?= $sch['competition_id'] ?>">
-                            <button class="btn-action btn-primary">Add Participants</button>
-                            </a>
+                            <button class="btn-action btn-primary" onclick="toggleAddParticipantsForm()">Add Participants</button>
                         </td>
                      </tr>
                   <?php endforeach; ?>
@@ -82,9 +146,7 @@
                                 <td>12</td>
                                 <td>No participants selected</td>
                                 <td>
-                                    <a href="/uoc-sports/public/sport-manager/add-participants/">
-                                    <button class="btn-add">Add Participants</button>
-                                    </a>
+                                    <button class="btn-add" onclick="toggleAddParticipantsForm()">Add Participants</button>
                                 </td>
                             </tr>
                             <tr>
@@ -96,9 +158,7 @@
                                 <td>22</td>
                                 <td>No participants selected</td>
                                 <td>
-                                    <a href="/uoc-sports/public/sport-manager/add-participants/">
-                                    <button class="btn-add">Add Participants</button>
-                                    </a>
+                                    <button class="btn-add" onclick="toggleAddParticipantsForm()">Add Participants</button>
                                 </td>
                             </tr>
                             <tr>
@@ -109,8 +169,8 @@
                                 <td>Tennis Court A</td>
                                 <td>8</td>
                                 <td>No participants selected</td>
-                                <td><a href="/uoc-sports/public/sport-manager/add-participants">
-                                    <button class="btn-add">Add Participants</button></a>
+                                <td>
+                                    <button class="btn-add" onclick="toggleAddParticipantsForm()">Add Participants</button>
                                 </td>
                             </tr>
                            
@@ -120,7 +180,7 @@
                 </table>
             </div>
 
-            </div>
+</div>
 
 </body>
 </html>

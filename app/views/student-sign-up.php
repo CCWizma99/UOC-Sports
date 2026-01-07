@@ -10,7 +10,7 @@
 
 <body class="flex xy-center">
     <section id="sign-form">
-        <form action="/uoc-sports/public/sign-up-student" method="post">
+        <form action="/uoc-sports/public/sign-up-student" method="post" enctype="multipart/form-data">
             <img src="/uoc-sports/public/images/uoc-logo.png" alt="UOC Logo" class="logo">
             <h2>Student Sign Up<br>UOC Sports E-Portal</h2>
 
@@ -59,6 +59,15 @@
                 </div>
             </div>
 
+            <div class="input-div file-upload-div">
+                <label for="id-card-inp" class="file-label">
+                    <i class="fa-solid fa-id-card"></i>
+                    <span id="file-name">Upload Student ID Card Image</span>
+                </label>
+                <input type="file" name="id_card" id="id-card-inp" accept="image/jpeg,image/png,image/jpg" style="display:none">
+                <div class="error">Please upload your student ID card image!</div>
+            </div>
+
             <a href="#" id="submit-btn" class="no-dec text-black">Sign Up</a>
 
             <div id="other-opt">
@@ -96,6 +105,38 @@
                 } catch (err) {
                     console.error('Error fetching faculties:', err);
                 }
+            }
+
+            // File upload handling
+            const fileInput = document.getElementById('id-card-inp');
+            const fileLabel = document.querySelector('.file-label');
+            const fileNameSpan = document.getElementById('file-name');
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const file = this.files[0];
+                        const maxSize = 5 * 1024 * 1024; // 5MB
+
+                        if (file.size > maxSize) {
+                            alert('File size must be less than 5MB');
+                            this.value = '';
+                            fileNameSpan.textContent = 'Upload Student ID Card Image';
+                            fileLabel.classList.remove('has-file');
+                            return;
+                        }
+
+                        fileNameSpan.textContent = file.name;
+                        fileLabel.classList.add('has-file');
+                        
+                        // Hide error if file selected
+                        const errorDiv = this.parentElement.querySelector('.error');
+                        if (errorDiv) errorDiv.style.display = 'none';
+                    } else {
+                        fileNameSpan.textContent = 'Upload Student ID Card Image';
+                        fileLabel.classList.remove('has-file');
+                    }
+                });
             }
         });
     </script>
