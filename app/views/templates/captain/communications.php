@@ -14,10 +14,7 @@
         <div class="form-group">
           <label for="recipient">Recipient</label>
           <select id="recipient" name="recipient" required>
-            <option value="" disabled selected>-- Select Recipient --</option>
-            <option value="Coach Kasun">Coach Kasun</option>
-            <option value="Coach Ratnayaka">Coach Ratnayaka</option>
-            <option value="Sports Manager">Sports Manager</option>
+            <option value="" disabled selected>-- Loading Recipients --</option>
           </select>
         </div>
 
@@ -50,36 +47,69 @@
       </div>
       <div class="messages-container" id="messagesContainer">
         <!-- Messages will be dynamically inserted here -->
+        <div class="loading-state">
+          <p>Loading messages...</p>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // Sample messages data
-  const messagesData = [
-    {
-      id: 1,
-      sender: 'Coach Kasun',
-      title: 'Schedule Update',
-      text: 'Check the schedule..',
-      date: '27 Jul'
-    },
-    {
-      id: 2,
-      sender: 'Coach Ratnayaka',
-      title: 'Cancellation',
-      text: 'Cancel the schedule..',
-      date: '27 Jul'
-    },
-    {
-      id: 3,
-      sender: 'Sports Manager',
-      title: 'Equipment',
-      text: 'Equipment ready for tomorrow\'s training',
-      date: '26 Jul'
+  const API_BASE = '/uoc-sports/public/api/captain/message';
+  let recipientsData = [];
+  let messagesData = [];
+
+  // Load recipients on page load
+  async function loadRecipients() {
+    try {
+      const response = await fetch(`${API_BASE}/recipients`);
+      const result = await response.json();
+      
+      const select = document.getElementById('recipient');
+      select.innerHTML = '<option value="" disabled selected>-- Select Recipient --</option>';
+      
+      if (result.status === 'success' && result.data.length > 0) {
+        recipientsData = result.data;
+        result.data.forEach(recipient => {
+          const option = document.createElement('option');
+          option.value = JSON.stringify({id: recipient.user_id, type: recipient.type});
+          option.textContent = recipient.label;
+          select.appendChild(option);
+        });
+      } else if (result.status === 'empty') {
+        select.innerHTML = '<option value="" disabled selected>-- No Recipients Available --</option>';
+        showStatus(result.message, 'error');
+      } else {
+        select.innerHTML = '<option value="" disabled selected>-- Error Loading --</option>';
+      }
+    } catch (error) {
+      console.error('Error loading recipients:', error);
+      const select = document.getElementById('recipient');
+      select.innerHTML = '<option value="" disabled selected>-- Error Loading --</option>';
     }
-  ];
+  }
+
+  // Load messages from API
+  async function loadMessages() {
+    try {
+      const response = await fetch(`${API_BASE}/list`);
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        messagesData = result.data;
+        renderMessages();
+      } else {
+        console.error('Error loading messages:', result.message);
+        messagesData = [];
+        renderMessages();
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      messagesData = [];
+      renderMessages();
+    }
+  }
 
   // Group messages by title
   function groupMessagesByTitle() {
@@ -129,7 +159,7 @@
             <div class="message-sender">${msg.sender}</div>
             <div class="message-text">${msg.text}</div>
             <div class="message-date">${msg.date}</div>
-            <button class="message-delete" title="Delete" onclick="deleteMessage(${msg.id})">×</button>
+            <button class="message-delete" title="Delete" onclick="deleteMessage('${msg.id}')">×</button>
           `;
           titleGroup.appendChild(item);
         });
@@ -141,15 +171,37 @@
     document.getElementById('messageCount').textContent = messagesData.length;
   }
 
-  // Delete message
-  function deleteMessage(id) {
-    if (confirm('Are you sure you want to delete this message?')) {
-      const index = messagesData.findIndex(msg => msg.id === id);
-      if (index > -1) {
-        messagesData.splice(index, 1);
-        renderMessages();
+  // Delete message via API
+  async function deleteMessage(id) {
+    if (!confirm('Are you sure you want to delete this message?')) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('message_id', id);
+
+      const response = await fetch(`${API_BASE}/delete`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        // Remove from local data
+        const index = messagesData.findIndex(msg => msg.id === id);
+        if (index > -1) {
+          messagesData.splice(index, 1);
+          renderMessages();
+        }
         showStatus('Message deleted successfully', 'success');
+      } else {
+        showStatus(result.message || 'Failed to delete message', 'error');
       }
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      showStatus('Error deleting message', 'error');
     }
   }
 
@@ -165,35 +217,53 @@
   }
 
   // Handle form submission
-  document.getElementById('messageForm').addEventListener('submit', (e) => {
+  document.getElementById('messageForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const recipient = document.getElementById('recipient').value;
-    const title = document.getElementById('title').value;
-    const message = document.getElementById('message').value;
+    const recipientSelect = document.getElementById('recipient');
+    const titleInput = document.getElementById('title');
+    const messageInput = document.getElementById('message');
 
-    if (!recipient || !title || !message) {
+    if (!recipientSelect.value || !titleInput.value || !messageInput.value) {
       showStatus('Please fill all fields', 'error');
       return;
     }
 
-    // Add new message
-    const newMessage = {
-      id: Date.now(),
-      sender: recipient,
-      title: title,
-      text: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    };
+    try {
+      const recipientData = JSON.parse(recipientSelect.value);
+      
+      const formData = new FormData();
+      formData.append('recipient_id', recipientData.id);
+      formData.append('recipient_type', recipientData.type);
+      formData.append('title', titleInput.value);
+      formData.append('message', messageInput.value);
 
-    messagesData.unshift(newMessage);
-    renderMessages();
-    e.target.reset();
-    showStatus('Message sent successfully!', 'success');
+      const response = await fetch(`${API_BASE}/send`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        showStatus('Message sent successfully!', 'success');
+        e.target.reset();
+        // Reload messages to show the new one
+        await loadMessages();
+      } else {
+        showStatus(result.message || 'Failed to send message', 'error');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      showStatus('Error sending message', 'error');
+    }
   });
 
-  // Initial render
-  renderMessages();
+  // Initialize
+  document.addEventListener('DOMContentLoaded', () => {
+    loadRecipients();
+    loadMessages();
+  });
 
   // Highlight active page
   const currentPage = document.getElementById('sub-messages');

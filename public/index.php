@@ -50,11 +50,16 @@ $router->get('/api/attendance/last-session/{sport_id}', 'AttendanceApiController
 $router->get('/api/attendance/upcoming-sessions/{sport_id}', 'AttendanceApiController@getUpcomingSessions');
 $router->get('/api/attendance/exists/{practice_id}', 'AttendanceApiController@checkAttendanceExists');
 
-// User Registration Stats API
-$router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
+// Injury API routes
+$router->post('/api/injury/report', 'InjuryApiController@reportInjury');
+$router->get('/api/injury/upcoming-sessions', 'InjuryApiController@getUpcomingSessions');
+$router->get('/api/injury/reports/{sport_id}', 'InjuryApiController@getReportsBySport');
 
-// Reservation Stats API
-$router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
+// Captain Message API routes
+$router->get('/api/captain/message/recipients', 'MessageApiController@getRecipients');
+$router->post('/api/captain/message/send', 'MessageApiController@sendMessage');
+$router->get('/api/captain/message/list', 'MessageApiController@getMessages');
+$router->post('/api/captain/message/delete', 'MessageApiController@deleteMessage');
 
 $router->get('/coach//', 'CoachController@TeamSchedules');
 $router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');
