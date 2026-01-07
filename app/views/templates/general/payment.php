@@ -90,18 +90,18 @@
                         <!-- Tab 1: PayHere Form -->
                         <div id="tab-online" class="tab-content active">
                             <div class="info-box">
-                                <p>You will be redirected to the generic PayHere Sandbox for secure payment.</p>
+                                <p>You will be redirected to the PayHere payment gateway for secure payment.</p>
                             </div>
                             
-                            <form method="post" action="https://sandbox.payhere.lk/pay/checkout">
-                                <input type="hidden" name="merchant_id" value="121XXXX">    <!-- Replace with Merchant ID -->
+                            <form method="post" action="<?php echo $payhere['url']; ?>">
+                                <input type="hidden" name="merchant_id" value="<?php echo $payhere['merchant_id']; ?>">
                                 <input type="hidden" name="return_url" value="http://localhost/uoc-sports/public/payment/success">
                                 <input type="hidden" name="cancel_url" value="http://localhost/uoc-sports/public/payment/cancel">
                                 <input type="hidden" name="notify_url" value="http://localhost/uoc-sports/public/payment/notify">  
                                 <input type="hidden" name="order_id" value="<?php echo $booking['booking_id']; ?>">
                                 <input type="hidden" name="items" value="<?php echo $booking['facility_name']; ?> Reservation">
                                 <input type="hidden" name="currency" value="LKR">
-                                <input type="hidden" name="amount" value="<?php echo $booking['amount']; ?>">  
+                                <input type="hidden" name="amount" value="<?php echo $payhere['amount_formatted']; ?>">  
                                 <input type="hidden" name="first_name" value="<?php echo explode(' ', $booking['user_name'])[0]; ?>">
                                 <input type="hidden" name="last_name" value="<?php echo explode(' ', $booking['user_name'])[1] ?? ''; ?>">
                                 <input type="hidden" name="email" value="<?php echo $booking['user_email'] ?? 'test@example.com'; ?>">
@@ -109,7 +109,7 @@
                                 <input type="hidden" name="address" value="No.1, University of Colombo">
                                 <input type="hidden" name="city" value="Colombo">
                                 <input type="hidden" name="country" value="Sri Lanka">
-                                <input type="hidden" name="hash" value=""> <!-- Checksum calculation logic needed later -->
+                                <input type="hidden" name="hash" value="<?php echo $payhere['hash']; ?>">
 
                                 <button type="submit" class="btn-submit">Pay with PayHere</button>
                             </form>
