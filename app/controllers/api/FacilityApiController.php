@@ -31,7 +31,7 @@ class FacilityApiController {
                 return;
             }
     
-            $success = $model->createBooking([
+            $booking_id = $model->createBooking([
                 'user_id' => $user_id,
                 'facility_id' => $facility_id,
                 'date' => $date,
@@ -39,10 +39,11 @@ class FacilityApiController {
                 'purpose' => $purpose
             ]);
     
-            if ($success) {
+            if ($booking_id) {
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Reservation created successfully.'
+                    'message' => 'Reservation created successfully. Redirecting to payment...',
+                    'booking_id' => $booking_id
                 ]);
             } else {
                 echo json_encode([
@@ -158,7 +159,7 @@ class FacilityApiController {
             $facility_id = $_GET['facility_id'];
             
             // Get next 7 days of data
-            $chartData = $model->getReservationChartData($facility_id, 7);
+            $chartData = $model->getReservationChartData($facility_id, 10);
             
             echo json_encode($chartData);
             

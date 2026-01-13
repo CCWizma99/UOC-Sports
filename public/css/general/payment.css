@@ -6,7 +6,6 @@
 
 body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 0;
 }
@@ -92,11 +91,11 @@ body {
 
 .section-title {
     color: #111827;
-    font-size: 20px;
+    font-size: 1.1rem;
     font-weight: 700;
     margin-bottom: 20px;
     padding-bottom: 12px;
-    border-bottom: 3px solid #6366f1;
+    border-bottom: 3px solid #4b0082;
     display: inline-block;
 }
 
@@ -138,8 +137,8 @@ body {
 }
 
 .summary-value.amount {
-    color: #6366f1;
-    font-size: 20px;
+    color: #4b0082;
+    font-size: 1.2rem;
     font-weight: 700;
 }
 
@@ -263,8 +262,8 @@ body {
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    border-color: #4b0082;
+    box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.1);
 }
 
 .radio-group {
@@ -283,7 +282,7 @@ body {
     width: 20px;
     height: 20px;
     cursor: pointer;
-    accent-color: #6366f1;
+    accent-color: #4b0082;
 }
 
 .radio-option label {
@@ -316,8 +315,8 @@ body {
 }
 
 .file-upload-label:hover {
-    border-color: #6366f1;
-    background: #eef2ff;
+    border-color: #4b0082;
+    background: #f5f0fa;
 }
 
 .file-upload-label span {
@@ -328,29 +327,29 @@ body {
 
 .file-name {
     margin-top: 12px;
-    color: #6366f1;
-    font-size: 13px;
+    color: #4b0082;
+    font-size: 0.85rem;
     font-weight: 600;
 }
 
 .btn-submit {
     width: 100%;
-    padding: 16px;
+    padding: 14px;
     background: linear-gradient(135deg, #111 0%, #4b0082 100%);
     color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 16px;
+    border-radius: 10px;
+    font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 15px rgba(75, 0, 130, 0.3);
     letter-spacing: 0.3px;
 }
 
 .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 8px 25px rgba(75, 0, 130, 0.4);
 }
 
 .btn-submit:active {
@@ -365,22 +364,99 @@ body {
 
 @media (max-width: 640px) {
     .container {
-        width: calc(100% - 30px);
-        padding: 25px;
-        margin: 100px auto 40px auto;
+        width: calc(100% - 24px);
+        padding: 1.25rem;
+        margin: 85px auto 40px auto;
+        border-radius: 16px;
+    }
+
+    .header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
     }
 
     .header h1 {
-        font-size: 26px;
+        font-size: 1.4rem;
+    }
+
+    .header p {
+        font-size: 0.85rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+    }
+
+    .card {
+        padding: 1rem;
+        border-radius: 12px;
     }
 
     .summary-row {
         flex-direction: column;
-        gap: 5px;
+        gap: 4px;
+        padding: 10px 12px;
+    }
+
+    .summary-label {
+        font-size: 0.8rem;
     }
 
     .summary-value {
         text-align: left;
+        font-size: 0.85rem;
+    }
+
+    .summary-value.amount {
+        font-size: 1.1rem;
+    }
+
+    .bank-details {
+        padding: 12px;
+    }
+
+    .bank-details p {
+        font-size: 0.8rem;
+    }
+
+    .steps li {
+        font-size: 0.8rem;
+    }
+
+    .notice {
+        padding: 10px 12px;
+    }
+
+    .notice-text {
+        font-size: 0.75rem;
+    }
+
+    .form-group label {
+        font-size: 0.85rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group select {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .file-upload-label {
+        padding: 20px;
+    }
+
+    .file-upload-label span {
+        font-size: 0.8rem;
+    }
+
+    .btn-submit {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+
+    .tab-btn {
+        padding: 8px 14px;
+        font-size: 0.9rem;
     }
 }
 
@@ -407,12 +483,12 @@ body {
 }
 
 .tab-btn.active {
-    color: #6366f1;
-    border-bottom-color: #6366f1;
+    color: #4b0082;
+    border-bottom-color: #4b0082;
 }
 
 .tab-btn:hover {
-    color: #4f46e5;
+    color: #5e2d91;
 }
 
 .tab-content {
@@ -437,11 +513,114 @@ body {
 }
 
 .info-box {
-    background: #eef2ff;
-    border: 1px solid #c7d2fe;
-    color: #3730a3;
+    background: #f5f0fa;
+    border: 1px solid #d4bfea;
+    color: #4b0082;
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 20px;
-    font-size: 14px;
+    font-size: 0.85rem;
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+    .container {
+        width: calc(100% - 16px);
+        padding: 1rem;
+        margin: 75px auto 30px auto;
+    }
+
+    .header h1 {
+        font-size: 1.2rem;
+    }
+
+    .header p {
+        font-size: 0.75rem;
+    }
+
+    .section-title {
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+    }
+
+    .card {
+        padding: 0.75rem;
+    }
+
+    .summary-row {
+        padding: 8px 10px;
+    }
+
+    .summary-label {
+        font-size: 0.7rem;
+    }
+
+    .summary-value {
+        font-size: 0.75rem;
+    }
+
+    .summary-value.amount {
+        font-size: 1rem;
+    }
+
+    .bank-details {
+        padding: 10px;
+    }
+
+    .bank-details p {
+        font-size: 0.7rem;
+    }
+
+    .steps h3 {
+        font-size: 0.85rem;
+    }
+
+    .steps li {
+        font-size: 0.7rem;
+    }
+
+    .notice-text {
+        font-size: 0.7rem;
+    }
+
+    .form-group label {
+        font-size: 0.75rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group select {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+    }
+
+    .file-upload-label {
+        padding: 16px;
+    }
+
+    .file-upload-label span {
+        font-size: 0.7rem;
+    }
+
+    .btn-submit {
+        padding: 10px;
+        font-size: 0.8rem;
+    }
+
+    .tab-btn {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+
+    .payment-tabs {
+        gap: 6px;
+    }
+
+    .info-box {
+        padding: 10px;
+        font-size: 0.75rem;
+    }
+
+    .radio-option label {
+        font-size: 0.75rem;
+    }
 }
