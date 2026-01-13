@@ -17,7 +17,7 @@ class Facility {
 
         $stmt = $this->db->prepare($sql);
 
-        return $stmt->execute([
+        $result = $stmt->execute([
             ':booking_id' => $booking_id,
             ':user_id' => $data['user_id'],
             ':facility_id' => $data['facility_id'],
@@ -25,6 +25,8 @@ class Facility {
             ':slot' => $data['slot'],
             ':purpose' => $data['purpose']
         ]);
+
+        return $result ? $booking_id : false;
     }
 
     /* ---------- CHECK SLOT ALREADY BOOKED ---------- */
@@ -76,7 +78,7 @@ class Facility {
                 FROM `facility-booking` fb
                 INNER JOIN facility_rates f ON fb.facility_id = f.id
                 WHERE fb.user_id = :user_id
-                AND fb.status = 'BOOKED'
+                AND fb.status IN ('BOOKED', 'ACCEPTED')
                 ORDER BY fb.date DESC, fb.slot ASC";
 
         $stmt = $this->db->prepare($sql);

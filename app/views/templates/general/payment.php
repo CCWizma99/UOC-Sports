@@ -78,7 +78,6 @@
             <div class="bottom-section">
                 <div class="section">
                     <div class="card">
-                    <div class="card">
                         <h2 class="section-title">Choose Payment Method</h2>
                         
                         <!-- Tabs -->
@@ -151,7 +150,6 @@
                                 <button type="submit" class="btn-submit">Submit Payment Proof</button>
                             </form>
                         </div>
-                    </div>
                     </div>
                 </div>
             </div>
