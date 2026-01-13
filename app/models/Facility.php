@@ -55,6 +55,12 @@ class Facility {
                     fb.slot,
                     fb.purpose,
                     fb.payment_status,
+                    f.practice_working_hours,
+                    f.practice_other_hours,
+                    f.tournament_full_day_working,
+                    f.tournament_half_day_working,
+                    f.tournament_full_day_other,
+                    f.tournament_half_day_other,
                     CASE 
                         WHEN fb.slot = 'MORNING' THEN '08:00 AM'
                         WHEN fb.slot = 'AFTERNOON' THEN '01:00 PM'
@@ -223,9 +229,16 @@ class Facility {
                     fb.rejection_reason,
                     CONCAT(u.fname, ' ', u.lname) AS user_name,
                     u.email AS user_email,
+                    u.contact_no,
                     u.type AS user_type,
                     fr.facility_name,
                     fr.facility_type,
+                    fr.practice_working_hours,
+                    fr.practice_other_hours,
+                    fr.tournament_full_day_working,
+                    fr.tournament_half_day_working,
+                    fr.tournament_full_day_other,
+                    fr.tournament_half_day_other,
                     CASE 
                         WHEN fb.slot = 'MORNING' THEN '08:00 AM - 12:00 PM'
                         WHEN fb.slot = 'AFTERNOON' THEN '01:00 PM - 05:00 PM'
@@ -242,6 +255,34 @@ class Facility {
         $stmt->execute([':booking_id' => $booking_id]);
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /* ---------- CALCULATE BOOKING RATE ---------- */
+    public function calculateBookingRate($booking) {
+        // Determine if it's a working day (Mon-Fri) or weekend/holiday
+        $dayOfWeek = date('N', strtotime($booking['date'])); // 1=Mon, 7=Sun
+        $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5);
+
+        $slot = $booking['slot'];
+        $rate = 0;
+
+        if ($slot === 'MORNING' || $slot === 'AFTERNOON') {
+            // Half-day slots use practice rates
+            if ($isWorkingDay) {
+                $rate = $booking['practice_working_hours'] ?? $booking['tournament_half_day_working'] ?? 0;
+            } else {
+                $rate = $booking['practice_other_hours'] ?? $booking['tournament_half_day_other'] ?? 0;
+            }
+        } else if ($slot === 'FULL') {
+            // Full-day slots use tournament full-day rates
+            if ($isWorkingDay) {
+                $rate = $booking['tournament_full_day_working'] ?? 0;
+            } else {
+                $rate = $booking['tournament_full_day_other'] ?? 0;
+            }
+        }
+
+        return floatval($rate);
     }
 
     /* ---------- GET WEEK RESERVATIONS ---------- */
@@ -392,6 +433,26 @@ class Facility {
         } catch (PDOException $e) {
             error_log("Get pending reservations count error: " . $e->getMessage());
             return 0;
+        }
+    }
+
+    /* ---------- UPDATE PAYMENT STATUS (for PayHere IPN) ---------- */
+    public function updatePaymentStatus($booking_id, $status, $payment_id = null) {
+        try {
+            $sql = "UPDATE `facility-booking`
+                    SET payment_status = :status,
+                        payment_id = :payment_id
+                    WHERE booking_id = :booking_id";
+
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                ':status' => $status,
+                ':payment_id' => $payment_id,
+                ':booking_id' => $booking_id
+            ]);
+        } catch (PDOException $e) {
+            error_log("Update payment status error: " . $e->getMessage());
+            return false;
         }
     }
 }

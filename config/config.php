@@ -14,3 +14,8 @@ define('APP_ROOT', dirname(__DIR__));
 // Email configuration (Brevo API)
 $smtpKey = env('BREVO_API_KEY', '');
 $senderEmail = env('BREVO_SENDER_EMAIL', '');
+
+// PayHere Payment Gateway configuration
+define('PAYHERE_MERCHANT_ID', env('PAYHERE_MERCHANT_ID', ''));
+define('PAYHERE_MERCHANT_SECRET', env('PAYHERE_MERCHANT_SECRET', ''));
+define('PAYHERE_SANDBOX', env('PAYHERE_SANDBOX', 'true')); // Set to 'false' for production
