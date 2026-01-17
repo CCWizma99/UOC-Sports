@@ -29,7 +29,7 @@
                     echo '<a href="/uoc-sports/public/student/" id="user_type">Student</a>';
                 }
                 else if ($user && $user['type'] === 'CAPTAIN') {
-                    echo '<a href="/uoc-sports/public/captain/" id="user_type">Captain</a>';
+                    echo '<a href="/uoc-sports/public/captain/" id="user_type" class="active-portal">Captain</a>';
                 }
                 else if($user && $user['type'] === 'EQP') {
                     echo '<a href="/uoc-sports/public/equipment-manager/" id="user_type">Eq. Manager</a>';
@@ -56,11 +56,14 @@
         
         </div>
     </div>
-    <nav class="flex">
-        <a href="/uoc-sports/public/captain//" class="active">Home</a>
-        <a href="/uoc-sports/public/captain/add-members">Team</a>
-        <a href="/uoc-sports/public/captain/schedule-practice">Schedule</a>
-        <a href="/uoc-sports/public/captain/mark-attendance">Attendance</a>
-        <a href="/uoc-sports/public/captain/communication">Communication</a>
+    <nav class="secondary-nav flex">
+        <div class="nav-connector"></div>
+        <div class="nav-links">
+            <a href="/uoc-sports/public/captain//" class="active">Home</a>
+            <a href="/uoc-sports/public/captain/add-members">Team</a>
+            <a href="/uoc-sports/public/captain/schedule-practice">Schedule</a>
+            <a href="/uoc-sports/public/captain/mark-attendance">Attendance</a>
+            <a href="/uoc-sports/public/captain/communication">Communication</a>
+        </div>
     </nav>
 </section>
