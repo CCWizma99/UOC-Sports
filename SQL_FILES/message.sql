@@ -1,7 +1,7 @@
 -- ========================================
--- Captain Message Table for UOC Sports
+-- Message Table for UOC Sports
 -- ========================================
--- This table stores messages sent by captains to their sport's coach and manager.
+-- This table stores messages between Captains, Coaches, and Sports Managers.
 -- 
 -- HOW TO USE:
 -- 1. Copy this entire SQL file contents
@@ -11,12 +11,13 @@
 -- 5. Paste the SQL and click 'Go'
 -- ========================================
 
-DROP TABLE IF EXISTS `captain_message`;
-CREATE TABLE IF NOT EXISTS `captain_message` (
+-- Create the generic message table
+DROP TABLE IF EXISTS `message`;
+CREATE TABLE IF NOT EXISTS `message` (
   `message_id` varchar(12) NOT NULL,
-  `sender_id` varchar(12) NOT NULL COMMENT 'Captain user_id',
-  `recipient_id` varchar(12) NOT NULL COMMENT 'Coach or Manager user_id',
-  `recipient_type` enum('COACH','MANAGER') NOT NULL,
+  `sender_id` varchar(12) NOT NULL COMMENT 'User ID of sender',
+  `recipient_id` varchar(12) NOT NULL COMMENT 'User ID of recipient',
+  `recipient_type` enum('COACH','MANAGER','CAPTAIN') NOT NULL,
   `sport_id` varchar(4) NOT NULL,
   `title` varchar(128) NOT NULL,
   `message` text NOT NULL,

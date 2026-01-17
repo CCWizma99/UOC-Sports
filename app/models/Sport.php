@@ -63,7 +63,7 @@ class Sport {
      * Get sport by captain user id
      */
     public function getSportByCaptain($captainId) {
-        $stmt = $this->db->prepare("SELECT sport_id, sport_name, sport_category FROM sport WHERE captain_id = :captain_id LIMIT 1");
+        $stmt = $this->db->prepare("SELECT sport_id, sport_name FROM sport WHERE captain_id = :captain_id LIMIT 1");
         $stmt->execute(['captain_id' => $captainId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
