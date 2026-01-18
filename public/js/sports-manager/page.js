@@ -176,6 +176,12 @@ function renderChats() {
   const container = document.getElementById('messagesContainer');
   if (!container) return;
 
+  // Check if container already has dummy/static content and no backend data
+  if (container.children.length > 0 && (!backendConversations || backendConversations.length === 0)) {
+    // Keep existing static content, don't clear it
+    return;
+  }
+
   container.innerHTML = '';
 
   if (chatsData.length === 0) {

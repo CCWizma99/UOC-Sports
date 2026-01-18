@@ -284,6 +284,7 @@
         padding: 10px;
         bottom: 40px;
         overflow-y: auto;
+        margin-top: 20px;
     }
 
     .team-stat-container,

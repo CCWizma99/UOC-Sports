@@ -97,4 +97,33 @@ class UserHomeController {
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    public function payment() {
+        if (!isset($_GET['booking_id'])) {
+            // Redirect back if no booking ID provided
+            header("Location: /uoc-sports/public/");
+            exit();
+        }
+
+        $booking_id = $_GET['booking_id'];
+        $facilityModel = new Facility();
+        
+        // Fetch booking details
+        $booking = $facilityModel->getReservationDetails($booking_id);
+
+        if (!$booking) {
+            // Handle invalid booking ID
+            echo "Invalid Booking ID";
+            exit();
+        }
+
+        // Add formatted price if needed (assuming it's calculated elsewhere or static for now)
+        // In a real app, you might fetch price from rates table based on time/day
+        $booking['amount'] = 2000; // Default or fetched price
+
+        view('general/payment', ['booking' => $booking]);
+    }
+     
+
+
 }

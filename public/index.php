@@ -22,6 +22,7 @@ $router->get('/reserve-facilities/view-reservations', 'FacilityApiController@vie
 $router->get('/get-reserved-slots', 'FacilityApiController@getReservedSlots');
 $router->get('/reserve-facilities/chart', 'FacilityApiController@getReservationChart');
 $router->post('/create-facility-booking', 'FacilityApiController@createBooking');
+$router->get('/payment', 'UserHomeController@payment');
 
 $router->get('/student', 'StudentController@index');
 $router->get('/student/available-sports', 'StudentController@getAvailableSports');
@@ -46,17 +47,35 @@ $router->get('/api/attendance/last-session/{sport_id}', 'AttendanceApiController
 $router->get('/api/attendance/upcoming-sessions/{sport_id}', 'AttendanceApiController@getUpcomingSessions');
 $router->get('/api/attendance/exists/{practice_id}', 'AttendanceApiController@checkAttendanceExists');
 
-// User Registration Stats API
-$router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
+// Injury API routes
+$router->post('/api/injury/report', 'InjuryApiController@reportInjury');
+$router->get('/api/injury/upcoming-sessions', 'InjuryApiController@getUpcomingSessions');
+$router->get('/api/injury/reports/{sport_id}', 'InjuryApiController@getReportsBySport');
+
+// Captain Message API routes
+$router->get('/api/captain/message/recipients', 'MessageApiController@getRecipients');
+$router->post('/api/captain/message/send', 'MessageApiController@sendMessage');
+$router->get('/api/captain/message/list', 'MessageApiController@getMessages');
+$router->post('/api/captain/message/delete', 'MessageApiController@deleteMessage');
 
 $router->get('/coach//', 'CoachController@TeamSchedules');
 $router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');
 $router->get('/coach/report-injury', 'CoachController@ReportInjury');
 
-$router->get('/registrar/registrar-dashboard', 'RegistrarController@RegistrarDashboard');
+$router->get('/registrar//', 'RegistrarController@RegistrarDashboard');
 $router->get('/registrar/verify-students', 'RegistrarController@VerifyStudents');
 $router->get('/registrar/verify-staff', 'RegistrarController@VerifyStaff');
 $router->get('/registrar/verify-bookings', 'RegistrarController@VerifyBookings');
+
+// Registrar Verification API
+$router->get('/api/registrar/student-details', 'RegistrarController@getStudentDetails');
+$router->post('/api/registrar/verify-student', 'RegistrarController@verifyStudent');
+$router->get('/api/registrar/pending-count', 'RegistrarController@getPendingCount');
+
+// Sport Manager Verification Request API
+$router->post('/api/verification/create-request', 'VerificationApiController@createRequest');
+$router->get('/api/verification/unverified-students', 'VerificationApiController@getUnverifiedStudents');
+$router->get('/api/verification/my-requests', 'VerificationApiController@getMyRequests');
 
 $router->get('/reserve-equipments/search', 'EquipmentApiController@minimalSearch');
 $router->get('/reserve-equipments/get-times', 'EquipmentApiController@getTimes');
@@ -82,12 +101,7 @@ $router->get('/sport-manager//', 'SportManagerController@index');
 $router->get('/sport-manager/schedule', 'SportManagerController@schedule');
 $router->get('/sport-manager/expenses', 'SportManagerController@expenses');
 $router->post('/sport-manager/add-expenses', 'BudgetController@addTransaction');
-$router->get('/sport-manager/messages', 'MessageController@index');
-$router->post('/sport-manager/messages/send', 'MessageController@send');
-$router->get('/sport-manager/messages/conversation', 'MessageController@getConversation');
-$router->post('/sport-manager/messages/delete', 'MessageController@delete');
-$router->get('/sport-manager/messages/all', 'MessageController@getAllMessages');
-$router->get('/sport-manager/messages/details', 'MessageController@getMessageDetails');
+$router->get('/sport-manager/messages', 'SportManagerController@messages');
 $router->get('/sport-manager/schedules', 'SportManagerController@schedules');
 $router->get('/sport-manager/budget/remaining', 'BudgetController@remaining');
 $router->get('/sport-manager/update-transaction', 'BudgetController@updateTransaction');
@@ -98,6 +112,7 @@ $router->get('/sport-manager/competitions', 'SportManagerController@competitions
 $router->get('/sport-manager/add-practice', 'SportManagerController@addPractice');
 $router->get('/sport-manager/add-participants', 'SportManagerController@addParticipants');
 $router->get('/sport-manager/add-expense', 'SportManagerController@addExpense');
+$router->get('/sport-manager/team', 'SportManagerController@team');
 
 
 
@@ -109,5 +124,6 @@ $router->get('/student-sign-up', 'AuthController@showStudentSignupForm');
 $router->post('/sign-up', 'AuthController@handleSignup');
 $router->post('/sign-in', 'AuthController@handleSignin');
 $router->post('sign-up-student', 'AuthController@handleStudentSignup');
+$router->get('/logout', 'AuthController@handleLogout');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

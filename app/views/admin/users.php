@@ -352,7 +352,7 @@ function performSearch() {
                             <td>${user.fname} ${user.lname}</td>
                             <td>${user.type}</td>
                             <td>
-                                <a href="./user.php?id=${user.user_id}" class="action-link" title="View User">
+                                <a href="./admin-user-profile?id=${user.user_id}" class="action-link" title="View User">
                                     <i class="fa-solid fa-circle-arrow-right"></i>
                                 </a>
                             </td>
@@ -699,6 +699,15 @@ function showNotification(message, type = 'info') {
 <script>
     var currentPage = document.getElementById("sidebar-users");
     currentPage.classList.add("active") 
+</script>
+<script src="/uoc-sports/public/js/search-keyboard-nav.js"></script>
+<script>
+    SearchKeyboardNav.init({
+        inputSelector: '#search-user-inp',
+        resultsSelector: '.search-output',
+        itemSelector: 'tbody tr',
+        actionSelector: '.action-link'
+    });
 </script>
 <script src="/uoc-sports/public/js/sidebar-toggle.js"></script>
 </html>

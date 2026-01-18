@@ -29,7 +29,7 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
 
 <div class="page-container">
   <!-- Header -->
-    <div class="page-header">
+    <div class="container-header">
         <h2>Messages</h2>
         <p>Manage important messages among the sport's team members.</p>
       </div>
@@ -101,7 +101,93 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
     </div>
 
     <div class="messages-container" id="messagesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-      <!-- Messages will be loaded dynamically by JavaScript -->
+      <!-- Dummy Conversation 1 -->
+      <div class="message-card" style="background: white; border: 2px solid #7530E1; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+          <div>
+            <h3 style="margin: 0 0 0.25rem 0; color: #7530E1; font-size: 1.1rem;">
+              John Smith
+            </h3>
+            <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
+              Coach
+            </p>
+          </div>
+          <span style="color: #9ca3af; font-size: 0.75rem;">2 hours ago</span>
+        </div>
+        <div style="margin-bottom: 0.5rem;">
+          <strong style="color: #374151; display: block; margin-bottom: 0.25rem;">Practice Session Update</strong>
+          <p style="margin: 0; color: #374151; line-height: 1.5;">
+            The practice session scheduled for tomorrow has been moved to 4:00 PM instead of 3:00 PM. Please inform all team members.
+          </p>
+        </div>
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+          <button onclick="alert('Reply feature coming soon')" style="background: #7530E1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
+            Reply
+          </button>
+          <button onclick="alert('View full conversation')" style="background: white; color: #7530E1; border: 1px solid #7530E1; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
+            View Thread
+          </button>
+        </div>
+      </div>
+
+      
+      <!-- Dummy Conversation 3 -->
+      <div class="message-card" style="background: white; border: 2px solid #7530E1; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+          <div>
+            <h3 style="margin: 0 0 0.25rem 0; color: #7530E1; font-size: 1.1rem;">
+              Michael Chen
+            </h3>
+            <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
+              Captain
+            </p>
+          </div>
+          <span style="color: #9ca3af; font-size: 0.75rem;">1 day ago</span>
+        </div>
+        <div style="margin-bottom: 0.5rem;">
+          <strong style="color: #374151; display: block; margin-bottom: 0.25rem;">Tournament Registration</strong>
+          <p style="margin: 0; color: #374151; line-height: 1.5;">
+            We need to finalize the team roster for the inter-university tournament. Please review the attached list and confirm by end of week.
+          </p>
+        </div>
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+          <button onclick="alert('Reply feature coming soon')" style="background: #7530E1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
+            Reply
+          </button>
+          <button onclick="alert('View full conversation')" style="background: white; color: #7530E1; border: 1px solid #7530E1; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
+            View Thread
+          </button>
+        </div>
+      </div>
+
+      <!-- Dummy Conversation 4 -->
+      <div class="message-card" style="background: white; border: 2px solid #7530E1; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+          <div>
+            <h3 style="margin: 0 0 0.25rem 0; color: #7530E1; font-size: 1.1rem;">
+              Emma Davis
+            </h3>
+            <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
+              Team Member
+            </p>
+          </div>
+          <span style="color: #9ca3af; font-size: 0.75rem;">2 days ago</span>
+        </div>
+        <div style="margin-bottom: 0.5rem;">
+          <strong style="color: #374151; display: block; margin-bottom: 0.25rem;">Injury Report</strong>
+          <p style="margin: 0; color: #374151; line-height: 1.5;">
+            I injured my ankle during yesterday's practice. Medical report attached. I'll need to sit out for the next two weeks per doctor's recommendation.
+          </p>
+        </div>
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+          <button onclick="alert('Reply feature coming soon')" style="background: #7530E1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
+            Reply
+          </button>
+          <button onclick="alert('View full conversation')" style="background: white; color: #7530E1; border: 1px solid #7530E1; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
+            View Thread
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

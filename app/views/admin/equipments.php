@@ -285,5 +285,14 @@ document.getElementById("add-equipment-type-form").addEventListener("submit", as
     var currentPage = document.getElementById("sidebar-equipments");
     currentPage.classList.add("active") 
 </script>
+<script src="/uoc-sports/public/js/search-keyboard-nav.js"></script>
+<script>
+    SearchKeyboardNav.init({
+        inputSelector: '#equipment-search',
+        resultsSelector: '#search-results',
+        itemSelector: 'li',
+        actionSelector: 'li' // Click on the list item itself
+    });
+</script>
 <script src="/uoc-sports/public/js/sidebar-toggle.js"></script>
 </html>

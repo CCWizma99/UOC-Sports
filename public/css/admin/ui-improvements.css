@@ -286,3 +286,30 @@ button:disabled,
     height: 80px;
     margin-bottom: 10px;
 }
+
+/* ====================================
+   10. KEYBOARD NAVIGATION HIGHLIGHT
+   ==================================== */
+.kb-highlighted {
+    background: linear-gradient(135deg, rgba(75, 0, 130, 0.12), rgba(138, 43, 226, 0.08)) !important;
+    outline: 2px solid #6c5ce7;
+    outline-offset: -2px;
+    transition: background 0.15s ease, outline 0.15s ease;
+}
+
+/* Ensure highlight is visible on table rows */
+.user-table tbody tr.kb-highlighted {
+    background: linear-gradient(135deg, rgba(75, 0, 130, 0.12), rgba(138, 43, 226, 0.08)) !important;
+}
+
+/* Highlight for list items */
+#search-results li.kb-highlighted {
+    background: linear-gradient(135deg, rgba(75, 0, 130, 0.12), rgba(138, 43, 226, 0.08)) !important;
+    border-radius: 8px;
+}
+
+/* Highlight for post cards */
+.post-card.kb-highlighted {
+    outline: 2px solid #6c5ce7;
+    outline-offset: 2px;
+}

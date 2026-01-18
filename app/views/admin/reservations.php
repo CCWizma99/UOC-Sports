@@ -17,6 +17,7 @@
         @import url(/uoc-sports/public/css/admin/reservations-page.css);
         @import url(/uoc-sports/public/css/admin/search-user.css);
         @import url(/uoc-sports/public/css/admin/user-stat.css);
+        @import url(/uoc-sports/public/css/admin/ui-improvements.css);
     </style>
 </head>
 <body>
@@ -514,6 +515,15 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
     var currentPage = document.getElementById("sidebar-reservations");
     currentPage.classList.add("active") 
+</script>
+<script src="/uoc-sports/public/js/search-keyboard-nav.js"></script>
+<script>
+    SearchKeyboardNav.init({
+        inputSelector: '#search-reservation-inp',
+        resultsSelector: '.search-output',
+        itemSelector: 'tbody tr',
+        actionSelector: '.action-link'
+    });
 </script>
 <script src="/uoc-sports/public/js/sidebar-toggle.js"></script>
 </html>

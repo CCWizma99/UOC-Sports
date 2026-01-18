@@ -56,6 +56,12 @@ class User {
         $stmt->execute([$email]);
         return $stmt->fetch(PDO::FETCH_ASSOC); // Returns associative array or false if not found
     }
+
+    public function findByStudentId($studentId) {
+        $stmt = $this->db->prepare("SELECT * FROM user WHERE student_id = ? LIMIT 1");
+        $stmt->execute([$studentId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
         
     public function storeRememberToken($user_id, $token, $expiry) {
         $stmt = $this->db->prepare("INSERT INTO remember_tokens (user_id, token, expires_at) VALUES (?, ?, ?)");
@@ -284,6 +290,67 @@ class User {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch(PDOException $e) {
             return null;
+        }
+    }
+
+    /**
+     * Update user information
+     * @param string $userId
+     * @param array $data - array with keys: fname, lname, email, contact_no, type
+     * @return bool
+     */
+    public function updateUser($userId, $data) {
+        $fields = [];
+        $params = ['user_id' => $userId];
+        
+        $allowedFields = ['fname', 'lname', 'email', 'contact_no', 'type', 'student_id', 'faculty_id', 'sport_id'];
+        
+        foreach ($allowedFields as $field) {
+            if (isset($data[$field])) {
+                $fields[] = "$field = :$field";
+                $params[$field] = $data[$field];
+            }
+        }
+        
+        if (empty($fields)) {
+            return false;
+        }
+        
+        $sql = "UPDATE user SET " . implode(', ', $fields) . " WHERE user_id = :user_id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    /**
+     * Update user status (ACTIVE/INACTIVE)
+     * @param string $userId
+     * @param string $status - 'ACTIVE' or 'INACTIVE'
+     * @return bool
+     */
+    public function updateUserStatus($userId, $status) {
+        if (!in_array($status, ['ACTIVE', 'INACTIVE'])) {
+            return false;
+        }
+        
+        $stmt = $this->db->prepare("UPDATE user SET status = :status WHERE user_id = :user_id");
+        return $stmt->execute([
+            'status' => $status,
+            'user_id' => $userId
+        ]);
+    }
+
+    /**
+     * Get total count of active users for dashboard stats
+     * @return int
+     */
+    public function getTotalUsersCount() {
+        try {
+            $sql = "SELECT COUNT(*) as total FROM `user` WHERE status = 'ACTIVE'";
+            $stmt = $this->db->query($sql);
+            return $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        } catch (PDOException $e) {
+            error_log("Get total users count error: " . $e->getMessage());
+            return 0;
         }
     }
     

@@ -49,7 +49,7 @@
             <input type="hidden" name="lostItem_id" value="<?php echo htmlspecialchars($editData['lostItem_id']); ?>">
             <input type="hidden" name="image" value="<?php echo htmlspecialchars($editData['image'] ?? ''); ?>">
         <?php endif; ?>
-        
+         <div class="form-row">
         <div class="form-group">
             <label for="item_name">Item Name *</label>
             <input type="text" id="item_name" name="itemName" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['itemName']) : ''; ?>" required>    
@@ -106,6 +106,7 @@
             <button type="submit" class="btn-add"><?php echo $isEdit ? 'Update Item' : 'Add Item'; ?></button>
             <a href="/uoc-sports/public/equipment-manager/lostitem" class="btn-add">Back</a>
         </div>
+            </div>
     </form>
 </div>
 

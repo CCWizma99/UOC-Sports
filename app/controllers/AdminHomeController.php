@@ -5,9 +5,21 @@ class AdminHomeController {
         $budgetModel = new Budget();
         $budgetSummary = $budgetModel->getBudgetSummary();
         
+        // Fetch dashboard statistics
+        $userModel = new User();
+        $facilityModel = new Facility();
+        $tournamentModel = new Tournament();
+        
+        $dashboardStats = [
+            'total_users' => $userModel->getTotalUsersCount(),
+            'pending_reservations' => $facilityModel->getPendingReservationsCount(),
+            'active_events' => $tournamentModel->getActiveEventsCount()
+        ];
+        
         view('admin-home', [
             'title' => 'Home',
-            'budget_summary' => $budgetSummary
+            'budget_summary' => $budgetSummary,
+            'dashboard_stats' => $dashboardStats
         ]);
     }
     public function users() {
@@ -21,6 +33,28 @@ class AdminHomeController {
             'title' => 'Users',
             'sport_data' => $sports,
             'faculty_data' => $faculties
+        ]);
+    }
+    public function userProfile() {
+        $userId = $_GET['id'] ?? null;
+        if (!$userId) {
+            header('Location: ./admin-users');
+            exit;
+        }
+        
+        $userModel = new User();
+        $userData = $userModel->getUserProfile($userId);
+        
+        // Get enrolled sports if user is a student or captain
+        $enrolledSports = [];
+        if ($userData && in_array($userData['type'], ['STUDENT', 'CAPTAIN'])) {
+            $enrolledSports = $userModel->getEnrolledSports($userId);
+        }
+        
+        view('admin/user-profile', [
+            'title' => 'User Profile',
+            'user_data' => $userData,
+            'enrolled_sports' => $enrolledSports
         ]);
     }
     public function reservations() {

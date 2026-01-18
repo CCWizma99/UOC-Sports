@@ -54,12 +54,16 @@
                             echo '<a href="/uoc-sports/public/sport-manager/" id="user_type" class="user-type btn-primary">Sp. Manager</a>';
                             break;
 
-                        case 'REGISTRAR':
-                            echo '<a href="/uoc-sports/public/student/" id="user_type" class="user-type btn-primary">Registrar</a>';
+                        case 'REG':
+                            echo '<a href="/uoc-sports/public/registrar//" id="user_type" class="user-type btn-primary">Registrar</a>';
                             break;
 
                         case 'INSTAFF':
                             echo '<a href="/uoc-sports/public/student/" id="user_type" class="user-type btn-primary">Staff</a>';
+                            break;
+
+                        case 'ADMIN':
+                            echo '<a href="/uoc-sports/public/admin-index" id="user_type" class="user-type btn-primary">Admin Dashboard</a>';
                             break;
                     }
 
