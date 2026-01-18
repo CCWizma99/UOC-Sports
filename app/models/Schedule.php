@@ -19,6 +19,20 @@ class Schedule {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getPastSessions($sport_id, $limit = 5) {
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM practice_sessions 
+            WHERE sport_id = :sport_id 
+            AND (session_date < CURDATE() OR (session_date = CURDATE() AND session_time < CURTIME()))
+            ORDER BY session_date DESC, session_time DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':sport_id', $sport_id, PDO::PARAM_STR);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getById($id) {
         $stmt = $this->pdo->prepare("SELECT * FROM practice_sessions WHERE id = ?");
         $stmt->execute([(int)$id]);
@@ -135,6 +149,18 @@ class Schedule {
             ORDER BY session_date ASC, session_time ASC
         ");
         $stmt->execute(['sport_id' => $sportId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    public function getRecentAndUpcomingSessions($sport_id, $limit = 10) {
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM practice_sessions 
+            WHERE sport_id = :sport_id
+            ORDER BY session_date DESC, session_time DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':sport_id', $sport_id, PDO::PARAM_STR);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

@@ -1,9 +1,12 @@
 <div class="container">
         <!-- Page Header -->
         <div class="page-header">
-            <h1>Welcome Back,<?php echo isset($username) ? htmlspecialchars($username) : 'Coach'; ?></h1>
+            <h1>Welcome Back, Suresh Kumara</h1>
             <p>Manage your team schedules and members</p>
+            <br>
+            <h3>Sport: Volleyball</h3>
         </div>
+        
 
         <!-- Summary Section -->
         <div class="summary-section">
@@ -26,7 +29,9 @@
 
         <!-- Team Schedule Table -->
         <div class="table-section">
-            <h2 class="section-title">Team Schedules</h2>
+            <div class="table-header">
+                <h2>Team Schedules</h2>
+            </div>
             <div class="search-container">
                 <input type="text" class="search-bar" placeholder="Search schedule..." id="scheduleSearch">
             </div>
@@ -60,8 +65,11 @@
         </div>
 
         <!-- Team Members Table -->
+        <!-- DEBUG: Members Count: <?= isset($members) ? count($members) : 'Not Set' ?> -->
         <div class="table-section">
-            <h2 class="section-title">Team Members</h2>
+            <div class="table-header">
+                <h2>Team Members</h2>
+            </div>
             <div class="search-container">
                 <input type="text" class="search-bar" placeholder="Search member..." id="memberSearch">
             </div>
@@ -76,24 +84,18 @@
                         </tr>
                     </thead>
                     <tbody id="memberTableBody">
-                        <tr>
-                            <td>P001</td>
-                            <td>John Silva</td>
-                           
-                            <td><button class="remove-btn" onclick="confirmRemove('John Silva')">Remove</button></td>
+                        <?php if (isset($members) && !empty($members)): ?>
+                            <?php foreach ($members as $member): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($member['student_id'] ?? $member['user_id']) ?></td>
+                                <td><?= htmlspecialchars($member['fname'] . ' ' . $member['lname']) ?></td>
+                                
+                                <td><button class="remove-btn" onclick="confirmRemove('<?= htmlspecialchars(addslashes($member['fname'] . ' ' . $member['lname'])) ?>')">Remove</button></td>
                             </tr>
-                        <tr>
-                            <td>P002</td>
-                            <td>Akila Perera</td>
-                            
-                            <td><button class="remove-btn" onclick="confirmRemove('Akila Perera')">Remove</button></td>
-                        </tr>
-                        <tr>
-                            <td>P003</td>
-                            <td>Kavindu Fernando</td>
-                           
-                            <td><button class="remove-btn" onclick="confirmRemove('Kavindu Fernando')">Remove</button></td>
-                        </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr><td colspan="3" style="text-align:center;">No team members found</td></tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

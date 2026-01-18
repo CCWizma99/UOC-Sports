@@ -75,9 +75,16 @@ if (empty($coachSportId) && isset($_SESSION['user_id'])) {
             </form>
         </div>
     
+        
+            <br>
+            <br>
+
         <!-- Injury Records Table -->
-        <div class="table-wrapper" style="margin-top: 30px;">
-            <table>
+        <div class="table-header">
+            <h2>Recent Injury Reports</h2>
+        </div>
+        <div class="table-wrapper">
+            <table class="practice-table">
                 <thead>
                     <tr>
                         <th>Player</th>
@@ -86,6 +93,7 @@ if (empty($coachSportId) && isset($_SESSION['user_id'])) {
                         <th>Date</th>
                         <th>Severity</th>
                         <th>Substitute</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="injuryTableBody">
@@ -95,6 +103,104 @@ if (empty($coachSportId) && isset($_SESSION['user_id'])) {
         </div>
     </div>
 </div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Injury Report</h3>
+            <button class="modal-close" onclick="closeEditModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editForm">
+                <input type="hidden" id="edit-reportId">
+                <input type="hidden" id="edit-userId">
+
+                <div class="form-group">
+                    <label>Player</label>
+                    <input type="text" id="edit-display-player" class="form-input" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-selectPractice">Practice Session</label>
+                    <select id="edit-selectPractice" class="form-input">
+                        <!-- Populated via JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-injuryType">Injury Type</label>
+                    <input type="text" id="edit-injuryType" class="form-input">
+                </div>
+
+                <div class="datetime">
+                    <div class="form-group">
+                        <label for="edit-injuryDate">Date</label>
+                        <input type="date" id="edit-injuryDate" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-injurySeverity">Severity</label>
+                        <select id="edit-injurySeverity" class="form-input">
+                            <option value="Minor">Minor</option>
+                            <option value="Moderate">Moderate</option>
+                            <option value="Severe">Severe</option>
+                        </select>
+                    </div>
+                </div>
+
+                 <div class="form-group">
+                    <label for="edit-subPlayer">Substitute</label>
+                    <select id="edit-subPlayer" class="form-input">
+                        <option value="">Select substitute...</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal btn-cancel" onclick="closeEditModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button type="submit" form="editForm" class="btn-modal btn-confirm">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-overlay delete-modal" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h3>
+            <button class="modal-close" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-confirmation">
+                <div class="delete-icon">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <h4>Delete Injury Report?</h4>
+                <p>Are you sure you want to delete this injury report?</p>
+                <p>This action cannot be undone.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal btn-cancel" onclick="closeDeleteModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button class="btn-modal btn-confirm-delete" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete Report
+            </button>
+        </div>
+    </div>
+</div>
+
+
 <script>
     // Example team players (you will replace with actual data later)
 const players = [
@@ -103,10 +209,14 @@ const players = [
     { id: "P003", name: "Kavindu Fernando" }
 ];
 
+let globalPracticeSessions = [];
+let currentDeleteId = null;
+
 // Fill injured player + substitute selects
 function populatePlayerDropdowns() {
     const injuredSelect = document.getElementById("injuredPlayer");
     const subSelect = document.getElementById("subPlayer");
+    const editSubSelect = document.getElementById("edit-subPlayer");
 
     players.forEach(p => {
         const opt = document.createElement("option");
@@ -118,6 +228,9 @@ function populatePlayerDropdowns() {
         subOpt.value = p.id;
         subOpt.textContent = p.name;
         subSelect.appendChild(subOpt);
+        
+        const editSubOpt = subOpt.cloneNode(true);
+        editSubSelect.appendChild(editSubOpt);
     });
 }
 
@@ -129,16 +242,22 @@ const SPORT_ID = <?php echo json_encode($coachSportId ?? ''); ?>;
 // Fetch upcoming practice sessions for coach's sport and populate dropdown
 async function loadPracticeSessions() {
     try {
-        const url = '/uoc-sports/public/api/injury/upcoming-sessions' + (SPORT_ID ? ('?sport_id=' + encodeURIComponent(SPORT_ID)) : '');
+        const url = '/uoc-sports/public/api/injury/past-sessions' + (SPORT_ID ? ('?sport_id=' + encodeURIComponent(SPORT_ID)) : '');
         const res = await fetch(url);
         const data = await res.json();
         if (data.status === 'success') {
+            globalPracticeSessions = data.sessions;
             const select = document.getElementById('selectPractice');
+            const editSelect = document.getElementById('edit-selectPractice');
+            
             data.sessions.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s.id;
                 opt.textContent = `${s.facility} - ${s.session_date} ${s.session_time}`;
                 select.appendChild(opt);
+                
+                const editOpt = opt.cloneNode(true);
+                editSelect.appendChild(editOpt);
             });
         }
     } catch (err) {
@@ -160,14 +279,27 @@ async function loadInjuryReports() {
             data.data.forEach(r => {
                 const playerName = r.fname ? (r.fname + ' ' + (r.lname || '')) : r.user_id;
                 const practiceText = `${r.facility || ''} - ${r.session_date || ''} ${r.session_time || ''}`.trim();
+                
+                // Extract severity from description (assuming format "Type (Severity)")
+                let severity = '-';
+                if(r.description.includes('Minor')) severity = 'Minor';
+                else if(r.description.includes('Moderate')) severity = 'Moderate';
+                else if(r.description.includes('Severe')) severity = 'Severe';
+
                 const row = `
                     <tr>
                         <td>${playerName}</td>
                         <td>${practiceText}</td>
-                        <td>${r.description}</td>
+                        <td>${r.description.split('(')[0].trim()}</td>
                         <td>${r.date}</td>
-                        <td>${r.description.includes('Minor') ? 'Minor' : (r.description.includes('Moderate') ? 'Moderate' : (r.description.includes('Severe') ? 'Severe' : '-'))}</td>
+                        <td>${severity}</td>
                         <td>${r.substitude_id || '-'}</td>
+                         <td>
+                            <div class="actions-cell" style="display: flex; gap: 10px;">
+                                <button class="btn-action btn-edit" onclick='openEditModal(${JSON.stringify(r).replace(/'/g, "&#39;")})' title="Edit" style="background: none; border: none; cursor: pointer; color: #007bff;"><i class="fas fa-edit"></i></button>
+                                <button class="btn-action btn-delete" onclick="openDeleteModal('${r.report_id}')" title="Delete" style="background: none; border: none; cursor: pointer; color: #dc3545;"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </td>
                     </tr>
                 `;
                 tbody.innerHTML += row;
@@ -217,11 +349,6 @@ document.getElementById("injuryForm").addEventListener("submit", function (e) {
     const injurySeverity = document.getElementById("injurySeverity").value;
     const substituteId = document.getElementById("subPlayer").value;
 
-    const player = players.find(p => p.id === playerId);
-    const subPlayer = players.find(p => p.id === substituteId);
-
-    const tableBody = document.getElementById("injuryTableBody");
-
     // POST to API
     (async () => {
         try {
@@ -244,7 +371,6 @@ document.getElementById("injuryForm").addEventListener("submit", function (e) {
             if (result.status === 'success') {
                 document.getElementById('injuryForm').reset();
                 document.getElementById('substitutionSection').style.display = 'none';
-                // reload reports table
                 loadInjuryReports();
             } else {
                 alert('Failed to save injury: ' + (result.message || 'Unknown error'));
@@ -256,4 +382,122 @@ document.getElementById("injuryForm").addEventListener("submit", function (e) {
     })();
 });
 
+// Edit & Delete Logic
+function openEditModal(report) {
+    document.getElementById('edit-reportId').value = report.report_id;
+    document.getElementById('edit-userId').value = report.user_id; // Keep original user
+    
+    // Display player name
+    const playerName = report.fname ? (report.fname + ' ' + (report.lname || '')) : report.user_id;
+    document.getElementById('edit-display-player').value = playerName;
+
+    document.getElementById('edit-selectPractice').value = report.practice_id;
+    
+    // Parse description for type and severity
+    const descParts = report.description.split('(');
+    const type = descParts[0].trim();
+    let severity = 'Minor';
+    if(report.description.includes('Moderate')) severity = 'Moderate';
+    if(report.description.includes('Severe')) severity = 'Severe';
+
+    document.getElementById('edit-injuryType').value = type;
+    document.getElementById('edit-injurySeverity').value = severity;
+    document.getElementById('edit-injuryDate').value = report.date;
+    document.getElementById('edit-subPlayer').value = report.substitude_id || '';
+
+    // Filter substitutes in edit modal
+    const editSubSelect = document.getElementById("edit-subPlayer");
+     // Reset options
+    editSubSelect.innerHTML = '<option value="">Select substitute...</option>';
+    players
+        .filter(p => p.id !== report.user_id)
+        .forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.id;
+            opt.textContent = p.name;
+            editSubSelect.appendChild(opt);
+        });
+     // Set value again after repopulating
+    editSubSelect.value = report.substitude_id || '';
+
+    document.getElementById('editModal').classList.add('active');
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('active');
+}
+
+function openDeleteModal(id) {
+    currentDeleteId = id;
+    document.getElementById('deleteModal').classList.add('active');
+}
+
+function closeDeleteModal() {
+    currentDeleteId = null;
+    document.getElementById('deleteModal').classList.remove('active');
+}
+
+// Handle Update
+document.getElementById('editForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const reportId = document.getElementById('edit-reportId').value;
+    const userId = document.getElementById('edit-userId').value;
+    const practiceId = document.getElementById('edit-selectPractice').value;
+    const type = document.getElementById('edit-injuryType').value;
+    const severity = document.getElementById('edit-injurySeverity').value;
+    const date = document.getElementById('edit-injuryDate').value;
+    const subId = document.getElementById('edit-subPlayer').value;
+
+    const payload = {
+        report_id: reportId,
+        user_id: userId,
+        practice_id: practiceId,
+        date: date,
+        description: `${type} (${severity})`,
+        need_substitude: subId ? 'YES' : 'NO',
+        substitude_id: subId
+    };
+
+    try {
+        const resp = await fetch('/uoc-sports/public/api/injury/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await resp.json();
+        if(result.status === 'success') {
+            closeEditModal();
+            loadInjuryReports();
+        } else {
+            alert('Failed to update: ' + result.message);
+        }
+    } catch(err) {
+        console.error(err);
+        alert('Error updating report');
+    }
+});
+
+// Handle Delete
+async function confirmDelete() {
+    if(!currentDeleteId) return;
+    
+    try {
+        const resp = await fetch('/uoc-sports/public/api/injury/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ report_id: currentDeleteId })
+        });
+        const result = await resp.json();
+        if(result.status === 'success') {
+            closeDeleteModal();
+            loadInjuryReports();
+        } else {
+            alert('Failed to delete: ' + result.message);
+        }
+    } catch(err) {
+        console.error(err);
+        alert('Error deleting report');
+    }
+}
 </script>
