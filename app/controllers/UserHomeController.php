@@ -60,10 +60,10 @@ class UserHomeController {
         // Get facility bookings
         $bookings = $facilityModel->getMyReservations($user_id);
 
-        // Calculate prices for bookings (simplified - you may need to enhance this)
+        // Calculate prices for bookings based on facility rates
         foreach ($bookings as &$booking) {
-            // Add a default price - in a real scenario, you'd calculate this based on facility rates
-            $booking['price'] = 2000; // Default price
+            // Calculate price based on facility rates, slot type, and booking date
+            $booking['price'] = $facilityModel->calculateBookingRate($booking);
             
             // Determine booking status for display
             $bookingDate = strtotime($booking['date']);
@@ -117,11 +117,42 @@ class UserHomeController {
             exit();
         }
 
-        // Add formatted price if needed (assuming it's calculated elsewhere or static for now)
-        // In a real app, you might fetch price from rates table based on time/day
-        $booking['amount'] = 2000; // Default or fetched price
+        // Calculate the amount based on facility rates, slot type, and booking date
+        $booking['amount'] = $facilityModel->calculateBookingRate($booking);
 
-        view('general/payment', ['booking' => $booking]);
+        // Generate PayHere hash for secure payment
+        $merchant_id = PAYHERE_MERCHANT_ID;
+        $merchant_secret = PAYHERE_MERCHANT_SECRET;
+        $order_id = $booking['booking_id'];
+        $amount = number_format($booking['amount'], 2, '.', '');
+        $currency = 'LKR';
+
+        // PayHere hash formula: strtoupper(md5(merchant_id + order_id + amount + currency + strtoupper(md5(merchant_secret))))
+        $hash = strtoupper(
+            md5(
+                $merchant_id . 
+                $order_id . 
+                $amount . 
+                $currency . 
+                strtoupper(md5($merchant_secret))
+            )
+        );
+
+        // Determine PayHere endpoint (sandbox or live)
+        $payhere_url = (PAYHERE_SANDBOX === 'true') 
+            ? 'https://sandbox.payhere.lk/pay/checkout' 
+            : 'https://www.payhere.lk/pay/checkout';
+
+        // Pass data to view
+        view('general/payment', [
+            'booking' => $booking,
+            'payhere' => [
+                'merchant_id' => $merchant_id,
+                'hash' => $hash,
+                'amount_formatted' => $amount,
+                'url' => $payhere_url
+            ]
+        ]);
     }
      
 

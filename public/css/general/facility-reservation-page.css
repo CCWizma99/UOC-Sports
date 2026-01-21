@@ -413,7 +413,8 @@
     gap: 0.5rem;
 }
 
-.btn {
+/* Scoped to facility page to avoid header button conflicts */
+.facility-page-wrapper .btn {
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 6px;
@@ -427,12 +428,12 @@
     gap: 0.4rem;
 }
 
-.btn-primary {
+.facility-page-wrapper .btn-primary {
     background: linear-gradient(135deg, #111 0%, #4b0082 100%);
     color: white;
 }
 
-.btn-primary:hover {
+.facility-page-wrapper .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(75, 0, 130, 0.3);
 }
@@ -568,6 +569,8 @@
     padding: 1.5rem;
     border-radius: 16px;
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    max-width: 100%;
 }
 
 .facility-reservation-container h3 {
@@ -582,6 +585,8 @@
     flex-direction: column;
     gap: 1rem;
     margin-bottom: 1.5rem;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .form-row {
@@ -633,6 +638,11 @@
     border-radius: 10px;
     border: 2px solid rgba(75, 0, 130, 0.2);
     margin: 1rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: calc(100vw - 48px);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .reservation-chart-container.hidden {
@@ -646,14 +656,43 @@
     font-size: 0.8rem;
 }
 
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #555;
+}
+
+.legend-box {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    display: inline-block;
+    border: 1px solid transparent;
+}
+
+.legend-box.available {
+    background-color: #e8f5e9;
+    border-color: #4caf50;
+}
+
+.legend-box.taken,
+.legend-box.reserved {
+    background-color: #ffcdd2;
+    border-color: #f44336;
+}
+
 .reservation-chart {
     overflow-x: auto;
+    overflow-y: hidden;
     padding: 0.5rem 0;
+    -webkit-overflow-scrolling: touch;
 }
 
 .chart-grid {
     display: flex;
     gap: 0.3rem;
+    width: max-content;
     min-width: 100%;
 }
 
@@ -673,6 +712,7 @@
 .date-columns {
     display: flex;
     gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .date-column {
@@ -680,6 +720,7 @@
     flex-direction: column;
     gap: 0.3rem;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .date-label {
@@ -687,9 +728,11 @@
     font-weight: 600;
     color: #4b0082;
     text-align: center;
-    min-width: 40px;
+    min-width: 45px;
+    width: 45px;
     padding-bottom: 0.3rem;
     border-bottom: 2px solid #4b0082;
+    white-space: nowrap;
 }
 
 .slot {
@@ -826,10 +869,12 @@
 }
 
 /* Responsive Adjustments */
+
+/* Tablet and below */
 @media (max-width: 900px) {
     .facility-page-wrapper {
         grid-template-columns: 1fr;
-        margin: 100px 1rem 2rem 1rem;
+        margin: 90px 1rem 2rem 1rem;
         gap: 1rem;
     }
 
@@ -840,5 +885,347 @@
 
     .my-reservations {
         max-height: none;
+    }
+
+    .rate-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .suggestions {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+    .facility-page-wrapper {
+        margin: 80px 0.75rem 2rem 0.75rem;
+        gap: 0.75rem;
+    }
+
+    .my-reservations-calendar,
+    .facility-search,
+    .facility-reservation-container {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .my-reservations-calendar .calendar-header h2,
+    .facility-search h3,
+    .facility-reservation-container h3 {
+        font-size: 1.15rem;
+    }
+
+    /* Calendar table adjustments */
+    .user-booking-calendar th {
+        padding: 0.4rem 0.2rem;
+        font-size: 0.65rem;
+    }
+
+    .user-booking-calendar td {
+        padding: 0.4rem;
+        font-size: 0.8rem;
+        height: 36px;
+    }
+
+    .user-booking-calendar .dot {
+        width: 5px;
+        height: 5px;
+        bottom: 3px;
+    }
+
+    .calendar-nav span {
+        font-size: 1rem;
+        min-width: 120px;
+    }
+
+    .cal-nav-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    /* Reservation details panel */
+    .reservation-details {
+        padding: 0.75rem;
+    }
+
+    .reservation-cards {
+        max-height: 180px;
+    }
+
+    .reservation-card .card-header {
+        padding: 0.5rem 0.6rem;
+    }
+
+    .reservation-card .facility-name {
+        font-size: 0.85rem;
+    }
+
+    .reservation-card .card-body {
+        padding: 0.5rem 0.6rem;
+    }
+
+    .reservation-card .time-info {
+        font-size: 0.8rem;
+    }
+
+    .reservation-card .purpose-info {
+        font-size: 0.75rem;
+    }
+
+    .reservation-card .card-actions {
+        flex-direction: column;
+        padding: 0.4rem 0.6rem;
+    }
+
+    .reservation-card .card-actions .btn {
+        font-size: 0.7rem;
+        padding: 0.35rem 0.5rem;
+    }
+
+    /* Form adjustments */
+    .form-row label {
+        font-size: 0.85rem;
+    }
+
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .form-row textarea {
+        min-height: 70px;
+    }
+
+    .price-display {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    /* Reservation chart */
+    .reservation-chart-container {
+        padding: 0.75rem;
+    }
+
+    .chart-header h4 {
+        font-size: 0.9rem;
+    }
+
+    .chart-legend {
+        font-size: 0.7rem;
+        gap: 0.5rem;
+    }
+
+    .date-label {
+        font-size: 0.55rem;
+        min-width: 36px;
+        white-space: nowrap;
+        padding: 0.2rem 0.1rem 0.3rem;
+    }
+
+    .slot {
+        width: 20px;
+        height: 20px;
+    }
+
+    .time-label {
+        height: 20px;
+        font-size: 0.5rem;
+        white-space: nowrap;
+        text-align: right;
+        padding-right: 0.2rem;
+    }
+
+    .time-labels {
+        min-width: 50px;
+    }
+
+    .date-columns {
+        gap: 0.3rem;
+    }
+
+    .date-column {
+        gap: 0.2rem;
+    }
+
+    /* Facility search */
+    .facility-search input {
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .suggestions {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .facility-card {
+        padding: 0.75rem;
+    }
+
+    .facility-card h4 {
+        font-size: 0.9rem;
+    }
+
+    .facility-card .type {
+        font-size: 0.75rem;
+    }
+
+    /* Button adjustments */
+    .btn {
+        padding: 0.45rem 0.8rem;
+        font-size: 0.75rem;
+    }
+
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+        padding: 0.7rem 1rem;
+    }
+
+    /* Floating messages */
+    .floating-msg {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    /* Modal adjustments */
+    .rates-modal-content {
+        padding: 1.5rem;
+        width: 95%;
+        max-height: 85vh;
+    }
+
+    .rates-modal-content .facility-info h3 {
+        font-size: 1.2rem;
+    }
+
+    .rates-modal-close {
+        width: 32px;
+        height: 32px;
+        font-size: 1.3rem;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .facility-page-wrapper {
+        margin: 75px 0.5rem 1.5rem 0.5rem;
+    }
+
+    .my-reservations-calendar,
+    .facility-search,
+    .facility-reservation-container {
+        padding: 0.75rem;
+        border-radius: 10px;
+    }
+
+    .my-reservations-calendar .calendar-header h2,
+    .facility-search h3,
+    .facility-reservation-container h3 {
+        font-size: 1.05rem;
+    }
+
+    /* Calendar more compact */
+    .user-booking-calendar th {
+        padding: 0.3rem 0.15rem;
+        font-size: 0.6rem;
+    }
+
+    .user-booking-calendar td {
+        padding: 0.3rem;
+        font-size: 0.75rem;
+        height: 32px;
+    }
+
+    .calendar-nav span {
+        font-size: 0.9rem;
+        min-width: 100px;
+    }
+
+    .calendar-nav {
+        gap: 0.5rem;
+    }
+
+    /* Details panel compact */
+    .details-header .booking-date {
+        font-size: 0.85rem;
+    }
+
+    .select-date-msg {
+        font-size: 0.8rem;
+        min-height: 60px;
+    }
+
+    .select-date-msg i {
+        font-size: 1.2rem;
+    }
+
+    /* Suggestions single column */
+    .suggestions {
+        grid-template-columns: 1fr;
+    }
+
+    /* Form compact */
+    .form-row label {
+        font-size: 0.8rem;
+    }
+
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+        padding: 0.55rem 0.7rem;
+        font-size: 0.8rem;
+    }
+
+    /* Chart labels for very small screens */
+    .time-labels {
+        min-width: 45px;
+    }
+
+    .time-label {
+        font-size: 0.45rem;
+        text-transform: uppercase;
+    }
+
+    .date-label {
+        font-size: 0.5rem;
+        min-width: 30px;
+    }
+
+    .slot {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Chart scroll hint */
+    .reservation-chart {
+        position: relative;
+    }
+
+    .reservation-chart::after {
+        content: "← Scroll →";
+        display: block;
+        text-align: center;
+        font-size: 0.65rem;
+        color: #888;
+        padding-top: 0.5rem;
+    }
+
+    /* Button full width */
+    .btn-primary {
+        font-size: 0.85rem;
+        padding: 0.65rem 0.8rem;
+    }
+
+    /* Reservation card compact */
+    .reservation-card .card-actions .btn {
+        font-size: 0.65rem;
     }
 }
