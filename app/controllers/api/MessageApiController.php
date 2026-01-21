@@ -28,6 +28,21 @@ class MessageApiController {
             $messageModel = new Message();
             $recipients = $messageModel->getRecipientsBySport($sport['sport_id']);
 
+            // Fetch Admins
+            $pdo = Database::getConnection();
+            $stmt = $pdo->prepare("SELECT user_id, fname, lname FROM user WHERE type = 'ADMIN'");
+            $stmt->execute();
+            $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($admins as $admin) {
+                 $recipients[] = [
+                    'user_id' => $admin['user_id'],
+                    'name' => trim($admin['fname'] . ' ' . $admin['lname']) ?: 'Admin',
+                    'type' => 'ADMIN',
+                    'label' => 'Admin - ' . (trim($admin['fname'] . ' ' . $admin['lname']) ?: 'System Administrator')
+                ];
+            }
+
             if (empty($recipients)) {
                 echo json_encode([
                     'status' => 'empty', 
@@ -71,7 +86,7 @@ class MessageApiController {
             }
 
             // Validate recipient type
-            if (!in_array($recipientType, ['COACH', 'MANAGER'])) {
+            if (!in_array($recipientType, ['COACH', 'MANAGER', 'ADMIN'])) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid recipient type']);
                 return;
             }
@@ -285,6 +300,20 @@ class MessageApiController {
                 ];
             }
 
+            // Fetch Admins
+            $stmt = $pdo->prepare("SELECT user_id, fname, lname FROM user WHERE type = 'ADMIN'");
+            $stmt->execute();
+            $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($admins as $admin) {
+                 $recipients[] = [
+                    'user_id' => $admin['user_id'],
+                    'name' => trim($admin['fname'] . ' ' . $admin['lname']) ?: 'Admin',
+                    'type' => 'ADMIN',
+                    'label' => 'Admin - ' . (trim($admin['fname'] . ' ' . $admin['lname']) ?: 'System Administrator')
+                ];
+            }
+
             if (empty($recipients)) {
                 echo json_encode([
                     'status' => 'empty', 
@@ -328,7 +357,7 @@ class MessageApiController {
             }
 
             // Validate recipient type
-            if (!in_array($recipientType, ['CAPTAIN', 'MANAGER'])) {
+            if (!in_array($recipientType, ['CAPTAIN', 'MANAGER', 'ADMIN'])) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid recipient type']);
                 return;
             }

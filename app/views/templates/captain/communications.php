@@ -390,6 +390,7 @@
       let targetRole = '';
       if (currentMessageSender.sender_role === 'Coach' || currentMessageSender.sender === 'Coach') targetRole = 'COACH';
       if (currentMessageSender.sender_role === 'Sports Manager' || currentMessageSender.sender === 'Sports Manager') targetRole = 'MANAGER';
+      if (currentMessageSender.sender_role === 'Admin' || currentMessageSender.sender === 'Admin') targetRole = 'ADMIN';
       
       // Better: use sender_id if available? 
       // API for captain recipients returns list of coach/manager.

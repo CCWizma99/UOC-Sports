@@ -265,7 +265,130 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
     opacity: 0.6;
     cursor: not-allowed;
 }
-</style>
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background: white;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
+.modal.show .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    color: #2d3748;
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #a0aec0;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: #2d3748;
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.session-record-group {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.modal-date-header {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.attendance-table th {
+    text-align: left;
+    padding: 8px;
+    color: #718096;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.attendance-table td {
+    padding: 8px;
+    border-top: 1px solid #edf2f7;
+    font-size: 14px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-present {
+    background: #e6fffa;
+    color: #22543d;
+}
+
+.status-absent {
+    background: #fff5f5;
+    color: #c53030;
+}</style>
 
 <script>
     const SPORT_ID = '<?php echo $captainSportId; ?>';
@@ -519,14 +642,29 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
                 let html = '';
                 data.data.forEach(session => {
                     html += `
-                        <div class="modal-date">📅 ${session.session_date} | ${session.facility}</div>
-                        ${session.attendance.map(att => `
-                            <div class="attendance-item ${att.status === 'ABSENT' ? 'absent' : ''}">
-                                <span class="attendance-item-name">${att.fname} ${att.lname}</span>
-                                <span class="attendance-item-status">${att.status === 'PRESENT' ? 'Present' : 'Absent'}</span>
-                            </div>
-                        `).join('')}
-                        <div style="margin-top: 20px; border-top: 2px solid #e2e8f0; padding-top: 20px;"></div>
+                        <div class="session-record-group">
+                            <div class="modal-date-header">📅 ${session.session_date} | ${session.facility}</div>
+                            <table class="attendance-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${session.attendance.map(att => `
+                                        <tr>
+                                            <td>${att.fname} ${att.lname}</td>
+                                            <td>
+                                                <span class="status-badge ${att.status === 'ABSENT' ? 'status-absent' : 'status-present'}">
+                                                    ${att.status === 'PRESENT' ? 'Present' : 'Absent'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     `;
                 });
                 modalBody.innerHTML = html;
@@ -551,13 +689,29 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
             if (data.status === 'success') {
                 const session = data.data;
                 let html = `
-                    <div class="modal-date">📅 ${session.session_date} | ${session.facility}</div>
-                    ${session.attendance.map(att => `
-                        <div class="attendance-item ${att.status === 'ABSENT' ? 'absent' : ''}">
-                            <span class="attendance-item-name">${att.fname} ${att.lname}</span>
-                            <span class="attendance-item-status">${att.status === 'PRESENT' ? 'Present' : 'Absent'}</span>
-                        </div>
-                    `).join('')}
+                    <div class="session-record-group">
+                        <div class="modal-date-header">📅 ${session.session_date} | ${session.facility}</div>
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${session.attendance.map(att => `
+                                    <tr>
+                                        <td>${att.fname} ${att.lname}</td>
+                                        <td>
+                                            <span class="status-badge ${att.status === 'ABSENT' ? 'status-absent' : 'status-present'}">
+                                                ${att.status === 'PRESENT' ? 'Present' : 'Absent'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
                 `;
                 modalBody.innerHTML = html;
             } else {
