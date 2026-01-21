@@ -23,8 +23,8 @@
     require "../app/views/equipment-manager/header-subnav.php";
 ?>
 
-        
-        <div class="form-container">
+<div class="main-wrapper">        
+    <div class="page-form-container">
 
             
             <!-- Add practice Form -->
@@ -103,15 +103,16 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="view-all-link" onclick="window.location.href='/uoc-sports/public/equipment-manager/practiceschedule/'">
+                    <button type="button" class="btn-add" onclick="window.location.href='/uoc-sports/public/equipment-manager/practiceschedule/'" >
                        Cancel
                     </button>
-                    <button type="submit" class="view-all-link">
+                    <button type="submit" class="btn-add" >
                        Add Booking
                     </button>
                 </div>
             </form>
         </div>
+    </div>
 
 <script>
 // Equipment data organized by sport

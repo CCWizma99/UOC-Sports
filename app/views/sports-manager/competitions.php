@@ -15,7 +15,7 @@
 
     @import url("/uoc-sports/public/css/sports-manager/report.css");
   </style>
-  <script src="/uoc-sports/public/js/sports-manager/page.js"></script>
+  <script src="/uoc-sports/public/js/sports-manager/competitions.js" defer></script>
 </head>
 <body>
 <?php
@@ -83,8 +83,8 @@
 
                <!-- <div class="form-group full-width"> -->
                 <div class="form-group">
-                    <label for="participants">Participant Image</label>
-                    <input type="file" id="participants" name="participants">
+                    <label for="participants">Participant Document (PDF)</label>
+                    <input type="file" id="participants" name="participants" accept=".pdf">
                 </div>
                    
                 <div class="form-group">

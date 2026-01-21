@@ -22,9 +22,9 @@
     require "../app/views/templates/general/header.php";
     require "../app/views/equipment-manager/header-subnav.php";
 ?>
-
+<div class="main-wrapper">
         
-<div class="form-container">
+<div class="page-form-container">
     <div class="page-header">
         <div>
             <h2><?php echo $isEdit ? 'Edit Lost Item' : 'Add Lost Item'; ?></h2>
@@ -108,6 +108,7 @@
         </div>
             </div>
     </form>
+</div>
 </div>
 
 

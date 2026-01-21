@@ -50,7 +50,7 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
  
   <div class="form-container" id="messageFormSection" style="display: none;">
     <div class="page-header" style="margin-bottom: 1.5rem;">
-      <h2 style="color: #7530E1; margin: 0 0 0.5rem 0;">Send a Message</h2>
+      <h2 style="color: #5e2d91; margin: 0 0 0.5rem 0;">Send a Message</h2>
       <p style="color: rgba(0,0,0,0.6); margin: 0;">Compose a new message to team members</p>
     </div>
     <form class="form" id="messageForm" method="POST" action="/uoc-sports/public/sport-manager/messages/send" style="padding: 0;">
@@ -59,6 +59,12 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
         <label for="recipient">To</label>
         <select name="receiver_id" id="recipient" required>
           <option value="" disabled selected>Select Recipient</option>
+          <option value="all">T S Silva - women's Cricket Captain</option>
+          <option value="all">T S Silva - Men'sCricket Captain</option>
+          <option value="coaches">A A Perera - Women's Vice Captain</option>
+          <option value="coaches">D M Fernando - Men's Vice Captain</option>
+          <option value="coaches">M K Silva - Cricket Coach</option>
+          <option value="players">Equipment Manager</option>
           <?php if (!empty($recipients)): ?>
             <?php foreach ($recipients as $recipient): ?>
               <option value="<?= htmlspecialchars($recipient['user_id']) ?>">
@@ -83,7 +89,7 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
 
       <div class="form-actions">
         <button type="button" class="view-all-link" onclick="toggleMessageForm()" style="width: fit-content; cursor: pointer;">Cancel</button>
-        <button type="submit" class="view-all-link" style="width: fit-content; cursor: pointer; background-color: #7530E1; color: white;">Send</button>
+        <button type="submit" class="view-all-link">Send</button>
       </div>
     </form>
   </div>
@@ -102,10 +108,10 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
 
     <div class="messages-container" id="messagesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
       <!-- Dummy Conversation 1 -->
-      <div class="message-card" style="background: white; border: 2px solid #7530E1; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
+      <div class="message-card" style="background: white; border: 2px solid #5e2d91; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
           <div>
-            <h3 style="margin: 0 0 0.25rem 0; color: #7530E1; font-size: 1.1rem;">
+            <h3 style="margin: 0 0 0.25rem 0; color: #5e2d91; font-size: 1.1rem;">
               John Smith
             </h3>
             <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
@@ -121,10 +127,10 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
           </p>
         </div>
         <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-          <button onclick="alert('Reply feature coming soon')" style="background: #7530E1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
+          <button onclick="alert('Reply feature coming soon')" style="background: #2b0c4d; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
             Reply
           </button>
-          <button onclick="alert('View full conversation')" style="background: white; color: #7530E1; border: 1px solid #7530E1; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
+          <button onclick="alert('View full conversation')" style="background: white; color: #5e2d91; border: 1px solid #5e2d91; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
             View Thread
           </button>
         </div>
@@ -132,10 +138,10 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
 
       
       <!-- Dummy Conversation 3 -->
-      <div class="message-card" style="background: white; border: 2px solid #7530E1; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
+      <div class="message-card" style="background: white; border: 2px solid #5e2d91; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
           <div>
-            <h3 style="margin: 0 0 0.25rem 0; color: #7530E1; font-size: 1.1rem;">
+            <h3 style="margin: 0 0 0.25rem 0; color: #5e2d91; font-size: 1.1rem;">
               Michael Chen
             </h3>
             <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
@@ -151,20 +157,20 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
           </p>
         </div>
         <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-          <button onclick="alert('Reply feature coming soon')" style="background: #7530E1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
+          <button onclick="alert('Reply feature coming soon')" style="background: #2b0c4d; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
             Reply
           </button>
-          <button onclick="alert('View full conversation')" style="background: white; color: #7530E1; border: 1px solid #7530E1; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
+          <button onclick="alert('View full conversation')" style="background: white; color: #5e2d91; border: 1px solid #5e2d91; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
             View Thread
           </button>
         </div>
       </div>
 
       <!-- Dummy Conversation 4 -->
-      <div class="message-card" style="background: white; border: 2px solid #7530E1; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
+      <div class="message-card" style="background: white; border: 2px solid #5e2d91; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
           <div>
-            <h3 style="margin: 0 0 0.25rem 0; color: #7530E1; font-size: 1.1rem;">
+            <h3 style="margin: 0 0 0.25rem 0; color: #5e2d91; font-size: 1.1rem;">
               Emma Davis
             </h3>
             <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
@@ -180,10 +186,10 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
           </p>
         </div>
         <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-          <button onclick="alert('Reply feature coming soon')" style="background: #7530E1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
+          <button onclick="alert('Reply feature coming soon')" style="background: #2b0c4d; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
             Reply
           </button>
-          <button onclick="alert('View full conversation')" style="background: white; color: #7530E1; border: 1px solid #7530E1; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
+          <button onclick="alert('View full conversation')" style="background: white; color: #5e2d91; border: 1px solid #5e2d91; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
             View Thread
           </button>
         </div>
@@ -256,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
     cards.forEach(card => {
         card.addEventListener('mouseenter', function() {
             this.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-            this.style.borderColor = '#7530E1';
+            this.style.borderColor = '#5e2d91';
         });
         card.addEventListener('mouseleave', function() {
             this.style.boxShadow = 'none';

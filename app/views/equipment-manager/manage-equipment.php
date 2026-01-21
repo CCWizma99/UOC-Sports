@@ -40,7 +40,7 @@
         <table>
             <thead>
                 <tr>
-                    <th onclick="sortTable(0)">Equipment ID<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(0)">Equipment Category ID<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(1)">Equipment Name<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(2)">Usable Equipment Count<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Available Equipment Count<span class="sort-indicator"></span></th>
@@ -54,11 +54,12 @@
                 // Sample data based on sport
                 $equipmentData = [
                     'Athletics' => [
-                        ['id' => 'ATH-001', 'name' => 'Running Shoes', 'usable' => 50, 'available' => 42, 'locations' => 'Equipment Room A, Storage 1'],
-                        ['id' => 'ATH-002', 'name' => 'Starting Blocks', 'usable' => 12, 'available' => 10, 'locations' => 'Track Field Storage'],
+                        ['id' => 'ATH-001', 'name' => 'Trail Running Shoes', 'usable' => 50, 'available' => 42, 'locations' => 'Equipment Room A, Storage 1'],
+                        ['id' => 'ATH-002', 'name' => 'Road Race Shoes', 'usable' => 12, 'available' => 10, 'locations' => 'Track Field Storage'],
                         ['id' => 'ATH-003', 'name' => 'Hurdles', 'usable' => 20, 'available' => 18, 'locations' => 'Track Field Storage'],
                         ['id' => 'ATH-004', 'name' => 'Javelin', 'usable' => 15, 'available' => 13, 'locations' => 'Equipment Room B'],
                         ['id' => 'ATH-005', 'name' => 'Shot Put', 'usable' => 10, 'available' => 8, 'locations' => 'Equipment Room B'],
+                       
                     ],
                     'Rugby' => [
                         ['id' => 'RUG-001', 'name' => 'Rugby Ball', 'usable' => 40, 'available' => 32, 'locations' => 'Rugby Field Storage, Locker Room 2'],

@@ -73,7 +73,7 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                     </div>
 
                      <a href="/uoc-sports/public/equipment-manager/practiceschedule" class="view-all-link">
-                        View All Found Items
+                        View All Booking Requests
                     </a>
 
                 </div>
@@ -88,28 +88,30 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                 <p>Manage your equipment bookings and reservations</p>
             </div>
 
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">                  
-                    <div class="stat-info">
-                        <h4>Pending Requests</h4>
-                        <p class="stat-number">12</p>
+            <!-- Two Column Layout: Stats and Calendar -->
+            <div class="stats-calendar-wrapper">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">                  
+                        <div class="stat-info">
+                            <h4>Pending Requests</h4>
+                            <p class="stat-number">12</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                      
+                        <div class="stat-info">
+                            <h4>Approved Today</h4>
+                            <p class="stat-number">8</p>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-card">
-                  
-                    <div class="stat-info">
-                        <h4>Approved Today</h4>
-                        <p class="stat-number">8</p>
-                    </div>
-                </div>
-                
-            </div>
 
-            <!-- Calendar Section (Compact) -->
-            <div class="calendar-section-compact">
-                <h3>Equipment Reservations Calendar</h3>
-                <div id="calendar"></div>
+                <!-- Calendar Section (Compact) -->
+                <div class="calendar-section-compact">
+                    <h3>Equipment Reservations Calendar</h3>
+                    <div id="calendar"></div>
+                </div>
             </div>
         </div>
 

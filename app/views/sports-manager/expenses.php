@@ -28,6 +28,20 @@
         <p>Manage expenses of the sport</p>
       </div>
 
+      <?php if (isset($_SESSION['success_message'])): ?>
+        <div style="background-color: #d1fae5; color: #065f46; padding: 1rem; border-radius: 8px; margin: 1rem 2rem; border-left: 4px solid #10b981;">
+            <strong>Success!</strong> <?php echo htmlspecialchars($_SESSION['success_message']); ?>
+        </div>
+        <?php unset($_SESSION['success_message']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error_message'])): ?>
+        <div style="background-color: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; margin: 1rem 2rem; border-left: 4px solid #dc2626;">
+            <strong>Error!</strong> <?php echo htmlspecialchars($_SESSION['error_message']); ?>
+        </div>
+        <?php unset($_SESSION['error_message']); ?>
+    <?php endif; ?>
+
      
        <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search Expenses...">
@@ -48,8 +62,9 @@
                     <th onclick="sortTable(0)">Expense ID<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(1)">Sport's Manger<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(2)">Sport<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(3)">Date<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(4)">Amount<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(3)">Expense Title<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(3)">Date & Time<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(4)">Amount (Rs) <span class="sort-indicator"></span></th>
                     <th onclick="sortTable(5)">Receipt<span class="sort-indicator"></span></th>
 
 
@@ -58,16 +73,26 @@
             </thead>
 
             <tbody id="tableBody">
-            <?php if(!empty($Schedules)): ?>
-                <?php foreach($Schedules as $sch): ?>
+            <?php if(!empty($expenses)): ?>
+                <?php foreach($expenses as $expense): ?>
                     <tr>
-                        <td><?= $sch['expense_id'] ?></td>
-                        <td><?= $sch['sports_manager'] ?></td>
-                        <td><?= $sch['sport'] ?></td> 
-                        <td><?= $sch['date'] ?></td>
-                        <td><?= $sch['amount'] ?></td>
-                        <td><?= $sch['receipt'] ?></td>
-                       
+                        <td><?= htmlspecialchars($expense['expense_id']) ?></td>
+                        <td><?= htmlspecialchars($expense['submitted_by']) ?></td>
+                        <td><?= htmlspecialchars($expense['sport']) ?></td> 
+                        <td><?= htmlspecialchars($expense['expense_title']) ?></td>
+                        <td><?= htmlspecialchars($expense['expense_date']) ?></td>
+                        <td>Rs <?= number_format($expense['amount'], 2) ?></td>
+
+                        <td>
+                            <?php if (!empty($expense['receipt'])): ?>
+                                <a href="/uoc-sports/app/internal/sport_exp_receipt/<?= htmlspecialchars($expense['receipt']) ?>" target="_blank" class="btn-view">
+                                    
+                                    View Receipt
+                                </a>
+                            <?php else: ?>
+                                <span>No receipt</span>
+                            <?php endif; ?>
+                        </td>
                      </tr>
                   <?php endforeach; ?>
 
@@ -82,24 +107,7 @@
                                 <td>1200.00</td>
                                 <td>receipt1.jpg</td>
                             </tr>
-                            <tr>
-                                <td>C002</td>
-                                <td>K P Silva</td>
-                                <td>Football</td>
-                                <td>2025-12-25</td>
-                                <td>1200.00</td>
-                                <td>receipt2.jpg</td>
-                                
-                            </tr>
-                            <tr>
-                                <td>C003</td>
-                                <td>K P Silva</td>
-                                <td>Tennis</td>
-                                <td>2026-01-05</td>
-                                <td>5000.00</td>
-                                <td>receipt3.jpg</td>
-                               
-                            </tr>
+              
                            
                         <?php endif; ?>
 

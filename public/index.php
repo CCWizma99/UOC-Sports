@@ -130,6 +130,7 @@ $router->get('/sport-manager/competitions', 'SportManagerController@competitions
 $router->get('/sport-manager/add-practice', 'SportManagerController@addPractice');
 $router->get('/sport-manager/add-participants', 'SportManagerController@addParticipants');
 $router->get('/sport-manager/add-expense', 'SportManagerController@addExpense');
+$router->post('/sport-manager/add-expense', 'SportExpensesController@store');
 $router->get('/sport-manager/team', 'SportManagerController@team');
 
 

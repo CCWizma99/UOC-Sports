@@ -14,7 +14,9 @@ class SportManagerController {
     }
 
     public function expenses() {
-        view('sports-manager/expenses');
+        $expenseModel = new SportExpense(Database::getConnection());
+        $expenses = $expenseModel->getAll();
+        view('sports-manager/expenses', ['expenses' => $expenses]);
     }
 
     public function messages() {
