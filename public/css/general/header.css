@@ -1,6 +1,7 @@
-body{
+body {
     margin-top: 80px !important;
 }
+
 /* Header */
 header {
     position: fixed;
@@ -84,13 +85,35 @@ nav {
     cursor: pointer;
 }
 
-.btn-primary::after{
+.btn-primary::after {
     display: none;
 }
 
 .btn-primary:hover {
     background: #5e2d91;
     transform: translateY(-2px);
+}
+
+/* Active portal button - when user is on their specific portal page */
+/* Simple highlight effect - same rounded style as Profile button */
+.btn-primary.active-portal {
+    background: #5e2d91;
+    box-shadow: 0 4px 15px rgba(94, 45, 145, 0.4);
+}
+
+.btn-primary.active-portal:hover {
+    background: #7b3fa0;
+}
+
+/* Active state for regular nav links (News, Contact Us) */
+.nav-links a.active {
+    color: #5e2d91;
+    font-weight: 600;
+}
+
+.nav-links a.active::after {
+    width: 100%;
+    background: #5e2d91;
 }
 
 .btn-secondary {
@@ -105,13 +128,20 @@ nav {
     border: 1px solid #e0e0e0;
 }
 
-.btn-secondary::after{
+.btn-secondary::after {
     display: none;
 }
 
 .btn-secondary:hover {
     border-color: #5e2d91;
     color: #5e2d91;
+}
+
+/* Active state for secondary button (Facility Reservation) */
+.btn-secondary.active {
+    border-color: #5e2d91;
+    color: #5e2d91;
+    background: rgba(94, 45, 145, 0.08);
 }
 
 /* Mobile Menu Button */

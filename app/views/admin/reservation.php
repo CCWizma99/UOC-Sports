@@ -85,11 +85,8 @@ require '../app/views/templates/admin/sidebar.php';
             </div>
 
             <div class="action-buttons" id="action-buttons">
-                <button class="btn-accept" id="accept-btn">
-                    <i class="fa-solid fa-check"></i> Accept Reservation
-                </button>
-                <button class="btn-reject" id="reject-btn">
-                    <i class="fa-solid fa-times"></i> Reject Reservation
+                <button class="btn-message" id="message-btn">
+                    <i class="fa-solid fa-envelope"></i> Send Message to Customer
                 </button>
             </div>
         </div>
@@ -121,23 +118,101 @@ require '../app/views/templates/admin/sidebar.php';
     </div>
 </section>
 
-<!-- Reject Modal -->
-<div id="reject-modal" class="modal">
+<!-- Message Modal -->
+<div id="message-modal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Reject Reservation</h3>
+            <h3><i class="fa-solid fa-envelope"></i> Send Message to Customer</h3>
             <span class="close-modal">&times;</span>
         </div>
         <div class="modal-body">
-            <label for="rejection-reason-input">Rejection Reason:</label>
-            <textarea id="rejection-reason-input" rows="4" placeholder="Enter the reason for rejecting this reservation..."></textarea>
+            <div class="recipient-info">
+                <p><strong>To:</strong> <span id="recipient-name"></span> (<span id="recipient-email"></span>)</p>
+                <p><strong>Regarding:</strong> Booking <span id="modal-booking-id"></span></p>
+            </div>
+            <label for="message-subject">Subject:</label>
+            <input type="text" id="message-subject" placeholder="Enter message subject..." />
+            <label for="message-body">Message:</label>
+            <textarea id="message-body" rows="6" placeholder="Type your message to the customer..."></textarea>
         </div>
         <div class="modal-footer">
-            <button class="btn-cancel" id="cancel-reject">Cancel</button>
-            <button class="btn-confirm-reject" id="confirm-reject">Confirm Rejection</button>
+            <button class="btn-cancel" id="cancel-message">Cancel</button>
+            <button class="btn-send" id="send-message"><i class="fa-solid fa-paper-plane"></i> Send Message</button>
         </div>
     </div>
 </div>
+
+<style>
+.btn-message {
+    background: linear-gradient(135deg, #5e2d91 0%, #7b3fa0 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-message:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(94, 45, 145, 0.3);
+}
+
+.recipient-info {
+    background: #f5f5f5;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.recipient-info p {
+    margin: 4px 0;
+    color: #555;
+}
+
+#message-subject {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+#message-body {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 120px;
+}
+
+.btn-send {
+    background: linear-gradient(135deg, #5e2d91 0%, #7b3fa0 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-send:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(94, 45, 145, 0.3);
+}
+</style>
 
 <?php require '../app/views/templates/admin/footer.php'; ?>
 
@@ -187,12 +262,11 @@ function loadReservationDetails() {
                 document.getElementById('rejection-reason').textContent = data.rejection_reason;
             }
 
-            // Show/hide action buttons based on status
-            if (data.status === 'BOOKED') {
-                document.getElementById('action-buttons').style.display = 'flex';
-            } else {
-                document.getElementById('action-buttons').style.display = 'none';
-            }
+            // Store data for message modal
+            currentReservationData = data;
+
+            // Always show action buttons (message button available for all statuses)
+            document.getElementById('action-buttons').style.display = 'flex';
 
             // Load weekly reservations
             loadWeeklyReservations(data.date);
@@ -242,71 +316,50 @@ function loadWeeklyReservations(date) {
         });
 }
 
-// Accept button
-document.getElementById('accept-btn').addEventListener('click', () => {
-    if (!confirm('Are you sure you want to accept this reservation?')) {
-        return;
+// Store reservation data for message modal
+let currentReservationData = null;
+
+// Message button - open modal
+document.getElementById('message-btn').addEventListener('click', () => {
+    if (currentReservationData) {
+        document.getElementById('recipient-name').textContent = currentReservationData.user_name;
+        document.getElementById('recipient-email').textContent = currentReservationData.user_email;
+        document.getElementById('modal-booking-id').textContent = currentReservationData.booking_id;
+        document.getElementById('message-subject').value = `Regarding your facility booking ${currentReservationData.booking_id}`;
     }
-
-    fetch('/uoc-sports/public/api/accept-reservation.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ booking_id: bookingId })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert('Reservation accepted successfully!');
-            location.reload();
-        } else {
-            alert(data.error || 'Failed to accept reservation.');
-        }
-    })
-    .catch(err => {
-        alert('An error occurred: ' + err.message);
-    });
-});
-
-// Reject button - open modal
-document.getElementById('reject-btn').addEventListener('click', () => {
-    document.getElementById('reject-modal').style.display = 'flex';
+    document.getElementById('message-modal').style.display = 'flex';
 });
 
 // Close modal
 document.querySelector('.close-modal').addEventListener('click', () => {
-    document.getElementById('reject-modal').style.display = 'none';
+    document.getElementById('message-modal').style.display = 'none';
 });
 
-document.getElementById('cancel-reject').addEventListener('click', () => {
-    document.getElementById('reject-modal').style.display = 'none';
+document.getElementById('cancel-message').addEventListener('click', () => {
+    document.getElementById('message-modal').style.display = 'none';
 });
 
-// Confirm rejection
-document.getElementById('confirm-reject').addEventListener('click', () => {
-    const reason = document.getElementById('rejection-reason-input').value.trim();
+// Send message (placeholder - just shows confirmation for now)
+document.getElementById('send-message').addEventListener('click', () => {
+    const subject = document.getElementById('message-subject').value.trim();
+    const message = document.getElementById('message-body').value.trim();
 
-    if (!reason) {
-        alert('Please enter a rejection reason.');
+    if (!subject) {
+        alert('Please enter a subject.');
         return;
     }
 
-    fetch('/uoc-sports/public/api/reject-reservation.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ booking_id: bookingId, reason: reason })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert('Reservation rejected successfully!');
-            location.reload();
-        } else {
-            alert(data.error || 'Failed to reject reservation.');
-        }
-    })
-    .catch(err => {
-        alert('An error occurred: ' + err.message);
-    });
+    if (!message) {
+        alert('Please enter a message.');
+        return;
+    }
+
+    // For now, just show confirmation - will be connected to DB later
+    alert(`Message queued for sending!\n\nTo: ${currentReservationData.user_email}\nSubject: ${subject}\n\nNote: Message storage will be implemented with upcoming DB changes.`);
+    
+    document.getElementById('message-modal').style.display = 'none';
+    document.getElementById('message-subject').value = '';
+    document.getElementById('message-body').value = '';
 });
 
 // Set active sidebar item

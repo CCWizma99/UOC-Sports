@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="page-header">
     <h1>Communicate with Captain and Sports Manager</h1>
-    <p>Send messages to your coach and sports manager, and view previous communications.</p>
+    <p>Send and view messages.</p>
   </div>
 
   <!-- Content Wrapper -->
@@ -14,10 +14,7 @@
         <div class="form-group">
           <label for="recipient">Recipient</label>
           <select id="recipient" name="recipient" required>
-            <option value="" disabled selected>-- Select Recipient --</option>
-            <option value="Coach Kasun">Coach Kasun</option>
-            <option value="Coach Ratnayaka">Coach Ratnayaka</option>
-            <option value="Sports Manager">Sports Manager</option>
+            <option value="" disabled selected>-- Loading Recipients --</option>
           </select>
         </div>
 
@@ -40,46 +37,238 @@
       </form>
     </div>
 
-    <!-- Messages List -->
+    <!-- Messages List (Inbox) -->
     <div class="messages-section">
       <div class="messages-header">
         <h2>
-          Previous Messages
+          All Messages
           <span class="message-count" id="messageCount">0</span>
         </h2>
       </div>
       <div class="messages-container" id="messagesContainer">
         <!-- Messages will be dynamically inserted here -->
+        <div class="loading-state">
+          <p>Loading messages...</p>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Message Modal -->
+<div id="messageModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">Message</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <span class="modal-sender" id="modalSender"></span>
+        <span class="modal-sport" id="modalSport"></span>
+        <span class="modal-date" id="modalDate"></span>
+      </div>
+      <div class="modal-message" id="modalMessage"></div>
+      <button class="reply-btn" id="replyBtn" onclick="replyToMessage()">Reply</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Modal Styles */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    padding: 20px 25px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+  }
+  
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  
+  .modal-body {
+    padding: 25px;
+  }
+  
+  .modal-meta {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .modal-meta span {
+    padding: 6px 12px;
+    background: #f7fafc;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #4a5568;
+  }
+  
+  .modal-sender {
+    font-weight: 600;
+    color: #2b0c4d !important;
+  }
+  
+  .modal-message {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #2d3748;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+  }
+  
+  .reply-btn {
+    background: linear-gradient(135deg, #6b3fa0 0%, #8e5fb8 100%);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .reply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(107, 63, 160, 0.3);
+  }
+  
+  /* Unread message styling */
+  .message-item.unread {
+    background: #f0ebf7;
+    border-left: 3px solid #6b3fa0;
+  }
+  
+  .message-item.unread .message-sender {
+    font-weight: 700;
+  }
+  
+  /* Clickable message */
+  .message-item {
+    cursor: pointer;
+  }
+  
+  .loading-state {
+    text-align: center;
+    padding: 40px;
+    color: #718096;
+  }
+</style>
+
 <script>
-  // Sample messages data
-  const messagesData = [
-    {
-      id: 1,
-      sender: 'Coach Kasun',
-      title: 'Schedule Update',
-      text: 'Check the schedule..',
-      date: '27 Jul'
-    },
-    {
-      id: 2,
-      sender: 'Coach Ratnayaka',
-      title: 'Cancellation',
-      text: 'Cancel the schedule..',
-      date: '27 Jul'
-    },
-    {
-      id: 3,
-      sender: 'Sports Manager',
-      title: 'Equipment',
-      text: 'Equipment ready for tomorrow\'s training',
-      date: '26 Jul'
+  let messagesData = [];
+  let recipientsData = [];
+  let currentMessageSender = null;
+
+  // Load recipients for sending
+  async function loadRecipients() {
+    try {
+      const response = await fetch('/uoc-sports/public/api/coach/message/recipients');
+      const result = await response.json();
+      
+      const select = document.getElementById('recipient');
+      select.innerHTML = '<option value="" disabled selected>-- Select Recipient --</option>';
+      
+      if (result.status === 'success' && result.data.length > 0) {
+        recipientsData = result.data;
+        result.data.forEach(recipient => {
+          const option = document.createElement('option');
+          option.value = JSON.stringify({id: recipient.user_id, type: recipient.type});
+          option.textContent = recipient.label;
+          select.appendChild(option);
+        });
+      } else if (result.status === 'empty') {
+        select.innerHTML = '<option value="" disabled selected>-- No Recipients Available --</option>';
+        showStatus(result.message || 'No captain or manager assigned', 'error');
+      } else {
+        select.innerHTML = '<option value="" disabled selected>-- Error Loading --</option>';
+      }
+    } catch (error) {
+      console.error('Error loading recipients:', error);
+      const select = document.getElementById('recipient');
+      select.innerHTML = '<option value="" disabled selected>-- Error Loading --</option>';
     }
-  ];
+  }
+
+  // Load inbox messages
+  // Load messages (both inbox and sent)
+  async function loadMessages() {
+    try {
+      const [inboxRes, sentRes] = await Promise.all([
+        fetch('/uoc-sports/public/api/inbox/messages'),
+        fetch('/uoc-sports/public/api/coach/message/list')
+      ]);
+
+      const inboxResult = await inboxRes.json();
+      const sentResult = await sentRes.json();
+      
+      let allMessages = [];
+
+      if (inboxResult.status === 'success') {
+        allMessages = allMessages.concat(inboxResult.data.map(m => ({...m, type: 'received'})));
+      }
+
+      if (sentResult.status === 'success') {
+        // Map sent messages to common structure if needed
+        allMessages = allMessages.concat(sentResult.data.map(m => ({
+          ...m, 
+          type: 'sent', 
+          is_read: true, // Sent messages considered read
+          sport: 'Sent' // Or we could put recipient name here
+        })));
+      }
+
+      // Sort by timestamp descending
+      allMessages.sort((a, b) => {
+        return new Date(b.timestamp) - new Date(a.timestamp);
+      });
+
+      messagesData = allMessages;
+      renderMessages();
+
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      messagesData = [];
+      renderMessages();
+    }
+  }
 
   // Group messages by title
   function groupMessagesByTitle() {
@@ -105,7 +294,7 @@
       empty.innerHTML = `
         <div class="empty-state-icon">📭</div>
         <h3>No Messages</h3>
-        <p>Send your first message to get started</p>
+        <p>You haven't received any messages yet</p>
       `;
       container.appendChild(empty);
     } else {
@@ -124,12 +313,21 @@
 
         grouped[title].forEach(msg => {
           const item = document.createElement('div');
-          item.className = 'message-item';
+          item.className = 'message-item' + (msg.is_read ? '' : ' unread');
+          item.onclick = () => openMessage(msg);
+          
+          let senderDisplay = '';
+          if (msg.type === 'sent') {
+            senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.recipient_name}</span>`;
+          } else {
+            senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender} (${msg.sport})</span>`;
+          }
+
           item.innerHTML = `
-            <div class="message-sender">${msg.sender}</div>
+            <div class="message-sender">${senderDisplay}</div>
             <div class="message-text">${msg.text}</div>
             <div class="message-date">${msg.date}</div>
-            <button class="message-delete" title="Delete" onclick="deleteMessage(${msg.id})">×</button>
+            <div></div>
           `;
           titleGroup.appendChild(item);
         });
@@ -141,17 +339,81 @@
     document.getElementById('messageCount').textContent = messagesData.length;
   }
 
-  // Delete message
-  function deleteMessage(id) {
-    if (confirm('Are you sure you want to delete this message?')) {
-      const index = messagesData.findIndex(msg => msg.id === id);
-      if (index > -1) {
-        messagesData.splice(index, 1);
+  // Open message modal
+  async function openMessage(msg) {
+    currentMessageSender = msg;
+    document.getElementById('modalTitle').textContent = msg.title;
+    if (msg.type === 'sent') {
+       document.getElementById('modalSender').innerHTML = '↗ To: ' + msg.recipient_name;
+       document.getElementById('modalSport').style.display = 'none'; // Hide sport for sent items
+    } else {
+       document.getElementById('modalSender').textContent = '👤 ' + msg.sender;
+       document.getElementById('modalSport').textContent = '🏅 ' + msg.sport;
+       document.getElementById('modalSport').style.display = 'block';
+    }
+    document.getElementById('modalDate').textContent = '📅 ' + msg.date;
+    document.getElementById('modalMessage').textContent = msg.full_message;
+    document.getElementById('messageModal').style.display = 'flex';
+    
+    // Mark as read
+    if (!msg.is_read) {
+      try {
+        const formData = new FormData();
+        formData.append('message_id', msg.id);
+        
+        await fetch('/uoc-sports/public/api/inbox/mark-read', {
+          method: 'POST',
+          body: formData
+        });
+        
+        msg.is_read = true;
         renderMessages();
-        showStatus('Message deleted successfully', 'success');
+      } catch (error) {
+        console.error('Error marking message as read:', error);
       }
     }
   }
+
+  // Reply to message - pre-fill form
+  function replyToMessage() {
+    if (currentMessageSender) {
+      // Set title as "Re: original title"
+      document.getElementById('title').value = 'Re: ' + currentMessageSender.title;
+      
+      // Try to select the captain in the dropdown
+      const select = document.getElementById('recipient');
+      for (let i = 0; i < select.options.length; i++) {
+        try {
+          const optVal = JSON.parse(select.options[i].value);
+          if (optVal.type === 'CAPTAIN') {
+            select.selectedIndex = i;
+            break;
+          }
+        } catch(e) {}
+      }
+      
+      // Focus on message textarea
+      document.getElementById('message').focus();
+      
+      closeModal();
+      
+      // Scroll to form
+      document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  // Close modal
+  function closeModal() {
+    document.getElementById('messageModal').style.display = 'none';
+    currentMessageSender = null;
+  }
+
+  // Close modal on outside click
+  document.getElementById('messageModal').addEventListener('click', (e) => {
+    if (e.target.id === 'messageModal') {
+      closeModal();
+    }
+  });
 
   // Show status message
   function showStatus(message, type) {
@@ -165,35 +427,51 @@
   }
 
   // Handle form submission
-  document.getElementById('messageForm').addEventListener('submit', (e) => {
+  document.getElementById('messageForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const recipient = document.getElementById('recipient').value;
-    const title = document.getElementById('title').value;
-    const message = document.getElementById('message').value;
+    const recipientSelect = document.getElementById('recipient');
+    const titleInput = document.getElementById('title');
+    const messageInput = document.getElementById('message');
 
-    if (!recipient || !title || !message) {
+    if (!recipientSelect.value || !titleInput.value || !messageInput.value) {
       showStatus('Please fill all fields', 'error');
       return;
     }
 
-    // Add new message
-    const newMessage = {
-      id: Date.now(),
-      sender: recipient,
-      title: title,
-      text: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    };
+    try {
+      const recipientData = JSON.parse(recipientSelect.value);
+      
+      const formData = new FormData();
+      formData.append('recipient_id', recipientData.id);
+      formData.append('recipient_type', recipientData.type);
+      formData.append('title', titleInput.value);
+      formData.append('message', messageInput.value);
 
-    messagesData.unshift(newMessage);
-    renderMessages();
-    e.target.reset();
-    showStatus('Message sent successfully!', 'success');
+      const response = await fetch('/uoc-sports/public/api/coach/message/send', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        showStatus('Message sent successfully!', 'success');
+        e.target.reset();
+      } else {
+        showStatus(result.message || 'Failed to send message', 'error');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      showStatus('Error sending message', 'error');
+    }
   });
 
-  // Initial render
-  renderMessages();
+  // Initialize
+  document.addEventListener('DOMContentLoaded', () => {
+    loadRecipients();
+    loadMessages();
+  });
 
   // Highlight active page
   const currentPage = document.getElementById('sub-messages');

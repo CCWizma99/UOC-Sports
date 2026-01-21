@@ -1,8 +1,8 @@
 <div class="container">
   <!-- Header -->
   <div class="page-header">
-    <h1>Communicate with Coach and Sports Manager</h1>
-    <p>Send messages to your coach and sports manager, and view previous communications.</p>
+    <h1>Communicate</h1>
+    <p>Send and view messages.</p>
   </div>
 
   <!-- Content Wrapper -->
@@ -41,7 +41,7 @@
     <div class="messages-section">
       <div class="messages-header">
         <h2>
-          Previous Messages
+          All Messages
           <span class="message-count" id="messageCount">0</span>
         </h2>
       </div>
@@ -55,15 +55,146 @@
   </div>
 </div>
 
+<!-- Message Modal -->
+<div id="messageModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">Message</h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <span class="modal-sender" id="modalSender"></span>
+        <span class="modal-sport" id="modalSport"></span>
+        <span class="modal-date" id="modalDate"></span>
+      </div>
+      <div class="modal-message" id="modalMessage"></div>
+      <button class="reply-btn" id="replyBtn" onclick="replyToMessage()">Reply</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Modal Styles */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+  
+  .modal-header {
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    padding: 20px 25px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+  }
+  
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  
+  .modal-body {
+    padding: 25px;
+  }
+  
+  .modal-meta {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .modal-meta span {
+    padding: 6px 12px;
+    background: #f7fafc;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #4a5568;
+  }
+  
+  .modal-sender {
+    font-weight: 600;
+    color: #2b0c4d !important;
+  }
+  
+  .modal-message {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #2d3748;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+  }
+  
+  .reply-btn {
+    background: linear-gradient(135deg, #6b3fa0 0%, #8e5fb8 100%);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .reply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(107, 63, 160, 0.3);
+  }
+  
+  /* Unread message styling */
+  .message-item.unread {
+    background: #f0ebf7;
+    border-left: 3px solid #6b3fa0;
+  }
+  
+  .message-item.unread .message-sender {
+    font-weight: 700;
+  }
+  
+  /* Clickable message */
+  .message-item {
+    cursor: pointer;
+  }
+</style>
+
 <script>
-  const API_BASE = '/uoc-sports/public/api/captain/message';
   let recipientsData = [];
   let messagesData = [];
+  let currentMessageSender = null;
 
   // Load recipients on page load
   async function loadRecipients() {
     try {
-      const response = await fetch(`${API_BASE}/recipients`);
+      const response = await fetch('/uoc-sports/public/api/captain/message/recipients');
       const result = await response.json();
       
       const select = document.getElementById('recipient');
@@ -91,19 +222,39 @@
   }
 
   // Load messages from API
+  // Load messages (both inbox and sent)
   async function loadMessages() {
     try {
-      const response = await fetch(`${API_BASE}/list`);
-      const result = await response.json();
+      const [inboxRes, sentRes] = await Promise.all([
+        fetch('/uoc-sports/public/api/inbox/messages'),
+        fetch('/uoc-sports/public/api/captain/message/list')
+      ]);
+
+      const inboxResult = await inboxRes.json();
+      const sentResult = await sentRes.json();
       
-      if (result.status === 'success') {
-        messagesData = result.data;
-        renderMessages();
-      } else {
-        console.error('Error loading messages:', result.message);
-        messagesData = [];
-        renderMessages();
+      let allMessages = [];
+
+      if (inboxResult.status === 'success') {
+        allMessages = allMessages.concat(inboxResult.data.map(m => ({...m, type: 'received'})));
       }
+
+      if (sentResult.status === 'success') {
+        allMessages = allMessages.concat(sentResult.data.map(m => ({
+          ...m, 
+          type: 'sent',
+          sport: 'Sent' 
+        })));
+      }
+
+      // Sort by timestamp descending
+      allMessages.sort((a, b) => {
+        return new Date(b.timestamp) - new Date(a.timestamp);
+      });
+
+      messagesData = allMessages;
+      renderMessages();
+
     } catch (error) {
       console.error('Error loading messages:', error);
       messagesData = [];
@@ -135,7 +286,7 @@
       empty.innerHTML = `
         <div class="empty-state-icon">📭</div>
         <h3>No Messages</h3>
-        <p>Send your first message to get started</p>
+        <p>You haven't sent or received any messages yet</p>
       `;
       container.appendChild(empty);
     } else {
@@ -155,11 +306,24 @@
         grouped[title].forEach(msg => {
           const item = document.createElement('div');
           item.className = 'message-item';
+          item.onclick = () => openMessage(msg);
+          
+          let senderDisplay = '';
+          let actions = '';
+          
+          if (msg.type === 'sent') {
+            senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.recipient_name}</span>`;
+            actions = `<button class="message-delete" title="Delete" onclick="event.stopPropagation(); deleteMessage('${msg.id}')">×</button>`;
+          } else {
+            senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender}</span>`;
+            // No delete action for received messages
+          }
+
           item.innerHTML = `
-            <div class="message-sender">${msg.sender}</div>
+            <div class="message-sender">${senderDisplay}</div>
             <div class="message-text">${msg.text}</div>
             <div class="message-date">${msg.date}</div>
-            <button class="message-delete" title="Delete" onclick="deleteMessage('${msg.id}')">×</button>
+            ${actions}
           `;
           titleGroup.appendChild(item);
         });
@@ -171,6 +335,100 @@
     document.getElementById('messageCount').textContent = messagesData.length;
   }
 
+  // Open message modal
+  async function openMessage(msg) {
+    currentMessageSender = msg;
+    document.getElementById('modalTitle').textContent = msg.title;
+    
+    if (msg.type === 'sent') {
+       document.getElementById('modalSender').innerHTML = '↗ To: ' + (msg.recipient_name || msg.recipient || 'Recipient');
+       document.getElementById('modalSport').style.display = 'none'; // Hide sport for sent items? Or show my sport
+       document.getElementById('replyBtn').style.display = 'none'; // Can't reply to sent message (unless follow up)
+    } else {
+       document.getElementById('modalSender').textContent = '👤 ' + msg.sender;
+       document.getElementById('modalSport').textContent = '🏅 ' + (msg.sport || 'General'); // Sport might not be in captain inbox msg
+       document.getElementById('modalSport').style.display = 'block';
+       document.getElementById('replyBtn').style.display = 'inline-block';
+    }
+    
+    document.getElementById('modalDate').textContent = '📅 ' + msg.date;
+    document.getElementById('modalMessage').textContent = msg.full_message;
+    document.getElementById('messageModal').style.display = 'flex';
+    
+    // Mark as read if it's a received message
+    if (msg.type === 'received' && !msg.is_read) {
+      try {
+        const formData = new FormData();
+        formData.append('message_id', msg.id);
+        
+        await fetch('/uoc-sports/public/api/inbox/mark-read', {
+          method: 'POST',
+          body: formData
+        });
+        
+        msg.is_read = true;
+        // renderMessages(); // creating a loop or jump? No need to re-render immediately just for read status in list if list doesn't show read status strongly
+      } catch (error) {
+        console.error('Error marking message as read:', error);
+      }
+    }
+  }
+
+  // Reply to message - pre-fill form
+  function replyToMessage() {
+    if (currentMessageSender) {
+      // Set title as "Re: original title"
+      document.getElementById('title').value = 'Re: ' + currentMessageSender.title;
+      
+      // Try to select the sender in the dropdown
+      const select = document.getElementById('recipient');
+      // Logic to find recipient by ID or Role
+      // Captains send to "COACH" or "MANAGER"
+      
+      // If received from Coach, set recipient to COACH
+      // If received from Manager, set recipient to MANAGER
+      let targetRole = '';
+      if (currentMessageSender.sender_role === 'Coach' || currentMessageSender.sender === 'Coach') targetRole = 'COACH';
+      if (currentMessageSender.sender_role === 'Sports Manager' || currentMessageSender.sender === 'Sports Manager') targetRole = 'MANAGER';
+      
+      // Better: use sender_id if available? 
+      // API for captain recipients returns list of coach/manager.
+      
+      for (let i = 0; i < select.options.length; i++) {
+        try {
+          const optVal = JSON.parse(select.options[i].value);
+          // Match by ID if we have it (we added sender_id to message model!)
+          if (currentMessageSender.sender_id && optVal.id === currentMessageSender.sender_id) {
+             select.selectedIndex = i;
+             break;
+          }
+          // Fallback to role matching
+          if (targetRole && optVal.type === targetRole) {
+            select.selectedIndex = i;
+            break;
+          }
+        } catch(e) {}
+      }
+      
+      document.getElementById('message').focus();
+      closeModal();
+      document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  // Close modal
+  function closeModal() {
+    document.getElementById('messageModal').style.display = 'none';
+    currentMessageSender = null;
+  }
+
+  // Close modal on outside click
+  document.getElementById('messageModal').addEventListener('click', (e) => {
+    if (e.target.id === 'messageModal') {
+      closeModal();
+    }
+  });
+
   // Delete message via API
   async function deleteMessage(id) {
     if (!confirm('Are you sure you want to delete this message?')) {
@@ -181,7 +439,7 @@
       const formData = new FormData();
       formData.append('message_id', id);
 
-      const response = await fetch(`${API_BASE}/delete`, {
+      const response = await fetch('/uoc-sports/public/api/captain/message/delete', {
         method: 'POST',
         body: formData
       });
@@ -238,7 +496,7 @@
       formData.append('title', titleInput.value);
       formData.append('message', messageInput.value);
 
-      const response = await fetch(`${API_BASE}/send`, {
+      const response = await fetch('/uoc-sports/public/api/captain/message/send', {
         method: 'POST',
         body: formData
       });

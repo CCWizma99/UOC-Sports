@@ -96,7 +96,7 @@
                             <h4>Current Reservations</h4>
                             <div class="chart-legend">
                                 <span class="legend-item"><span class="legend-box available"></span>Available</span>
-                                <span class="legend-item"><span class="legend-box taken"></span>Taken</span>
+                                <span class="legend-item"><span class="legend-box reserved"></span>Reserved</span>
                             </div>
                         </div>
                         <div class="reservation-chart" id="reservationChart"></div>
@@ -113,7 +113,7 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-check-circle"></i> Submit Reservation
+                        <i class="fas fa-credit-card"></i> Reserve & Pay Now
                     </button>
                 </form>
                 
@@ -710,19 +710,9 @@ async function submitReservation(e) {
         const result = await response.json();
 
         if (result.success) {
-            msg.innerHTML = `<div class="success">✔ ${result.message}</div>`;
-            msg.style.display = "block";
-            showFloatingMessage("Reservation successful!", "success");
-            
-            // Reset form
-            form.reset();
-            document.getElementById("priceDisplay").textContent = "Rs. 0.00";
-            document.getElementById("facility_id").disabled = true;
-            document.getElementById("reservationChartContainer").classList.add("hidden");
-            
-            // Reload reservations
-            loadMyReservations();
-            
+            // Redirect to payment page immediately
+            showFloatingMessage("Reservation created! Redirecting to payment...", "success");
+            window.location.href = `/uoc-sports/public/payment?booking_id=${result.booking_id}`;
         } else {
             // Check if user needs to login
             if (result.redirect) {

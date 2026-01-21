@@ -23,6 +23,15 @@ $router->get('/get-reserved-slots', 'FacilityApiController@getReservedSlots');
 $router->get('/reserve-facilities/chart', 'FacilityApiController@getReservationChart');
 $router->post('/create-facility-booking', 'FacilityApiController@createBooking');
 $router->get('/payment', 'UserHomeController@payment');
+$router->get('/payment/success', 'PaymentController@success');
+$router->get('/payment/cancel', 'PaymentController@cancel');
+$router->post('/payment/notify', 'PaymentController@notify');
+
+// User Registration Stats API
+$router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
+
+// Reservation Stats API
+$router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
 
 $router->get('/student', 'StudentController@index');
 $router->get('/student/available-sports', 'StudentController@getAvailableSports');
@@ -57,6 +66,15 @@ $router->get('/api/captain/message/recipients', 'MessageApiController@getRecipie
 $router->post('/api/captain/message/send', 'MessageApiController@sendMessage');
 $router->get('/api/captain/message/list', 'MessageApiController@getMessages');
 $router->post('/api/captain/message/delete', 'MessageApiController@deleteMessage');
+
+// Coach/Manager Inbox API routes
+$router->get('/api/inbox/messages', 'MessageApiController@getInbox');
+$router->post('/api/inbox/mark-read', 'MessageApiController@markRead');
+
+// Coach Message API routes
+$router->get('/api/coach/message/recipients', 'MessageApiController@getCoachRecipients');
+$router->post('/api/coach/message/send', 'MessageApiController@sendCoachMessage');
+$router->get('/api/coach/message/list', 'MessageApiController@getMessages');
 
 $router->get('/coach//', 'CoachController@TeamSchedules');
 $router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');

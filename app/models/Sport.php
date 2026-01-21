@@ -11,7 +11,7 @@ class Sport {
      */
     public function getTournaments() {
         $stmt = $this->db->query("
-            SELECT t.tournament_id, t.tournament_name, t.sport_id, s.sport_name, s.sport_category
+            SELECT t.tournament_id, t.tournament_name, t.sport_id, s.sport_name
             FROM tournament t
             JOIN sport s ON t.sport_id = s.sport_id
             WHERE t.status = 'INCOMPLETE' 
@@ -24,7 +24,7 @@ class Sport {
      * Get all sports with category
      */
     public function getSports() {
-        $stmt = $this->db->query("SELECT sport_id, sport_name, sport_category FROM sport ORDER BY sport_name");
+        $stmt = $this->db->query("SELECT sport_id, sport_name FROM sport ORDER BY sport_name");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
@@ -32,7 +32,7 @@ class Sport {
      * Get sport by ID with category
      */
     public function getSportById($sportId) {
-        $stmt = $this->db->prepare("SELECT sport_id, sport_name, sport_category FROM sport WHERE sport_id = :sport_id");
+        $stmt = $this->db->prepare("SELECT sport_id, sport_name FROM sport WHERE sport_id = :sport_id");
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -63,7 +63,7 @@ class Sport {
      * Get sport by captain user id
      */
     public function getSportByCaptain($captainId) {
-        $stmt = $this->db->prepare("SELECT sport_id, sport_name, sport_category FROM sport WHERE captain_id = :captain_id LIMIT 1");
+        $stmt = $this->db->prepare("SELECT sport_id, sport_name FROM sport WHERE captain_id = :captain_id LIMIT 1");
         $stmt->execute(['captain_id' => $captainId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
