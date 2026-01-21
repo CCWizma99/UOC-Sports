@@ -13,6 +13,8 @@ $router->get('/', 'UserHomeController@index');
 $router->get('/news', 'UserHomeController@news');
 $router->get('/facility-reservation', 'UserHomeController@facilityReservation');
 $router->get('/contact-us', 'UserHomeController@contactUs');
+$router->get('/services', 'UserHomeController@services');
+$router->get('/stories', 'UserHomeController@stories');
 $router->get('/profile', 'UserHomeController@profile');
 $router->get('/post/{id}', 'PostController@viewPost');
 $router->post('/post/add-comment', 'PostController@addComment');

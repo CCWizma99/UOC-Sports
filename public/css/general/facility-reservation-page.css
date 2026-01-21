@@ -1,6 +1,10 @@
 /* Unified CSS for Facility Reservation Page */
 /* Based on facility-reservations.css with single-page layout modifications */
 
+body {
+    background-color: #f8f9fa;
+}
+
 /* Main Layout Container */
 .facility-page-wrapper {
     display: grid;

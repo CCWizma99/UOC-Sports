@@ -1,0 +1,171 @@
+/* Services Page Styles */
+.services-hero {
+    margin-top: 80px;
+    background: linear-gradient(135deg, #111 0%, #4b0082 100%);
+    padding: 8rem 5% 6rem;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.services-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2070&auto=format&fit=crop') center/cover;
+    opacity: 0.15;
+    mix-blend-mode: overlay;
+}
+
+.services-hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.services-hero h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    letter-spacing: -1px;
+    background: linear-gradient(120deg, #fff, #a29bfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.services-hero p {
+    font-size: 1.25rem;
+    color: #e0e0e0;
+    line-height: 1.6;
+}
+
+/* Service Sections */
+.service-section {
+    padding: 6rem 5%;
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    border-bottom: 1px solid #eee;
+}
+
+.service-section:nth-child(even) {
+    flex-direction: row-reverse;
+    background-color: #f8f9fa;
+    /* Slight background for alternating sections */
+}
+
+/* Ensure full width background for even sections requires a different structure or pseudo-elements
+   For simplicity, keeping strictly contained or we'd need a wrapper.
+   To make background full width, we might need to wrap each section in a container.
+   Let's adjust: .service-wrapper { width: 100%; }.
+*/
+
+.service-wrapper {
+    width: 100%;
+}
+
+.service-wrapper:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.service-image-container {
+    flex: 1;
+    position: relative;
+}
+
+.service-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    /* Enforce consistent aspect ratio */
+    object-fit: cover;
+    /* Ensure image covers area without distortion */
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.service-image:hover {
+    transform: scale(1.02);
+}
+
+.service-content {
+    flex: 1;
+}
+
+.service-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.service-icon i {
+    font-size: 1.8rem;
+    color: white;
+}
+
+.service-content h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 1.5rem;
+}
+
+.service-content p {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.service-features {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.service-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.service-features li i {
+    color: #5e2d91;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .service-section {
+        flex-direction: column;
+        text-align: left;
+        /* Keep text aligned left for better reading on mobile */
+        padding: 4rem 5%;
+        gap: 3rem;
+    }
+
+    .service-section:nth-child(even) {
+        flex-direction: column;
+    }
+
+    .services-hero h1 {
+        font-size: 2.8rem;
+    }
+}
