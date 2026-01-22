@@ -349,6 +349,212 @@ class Equipment {
         ]);
     }
 
+    /**
+     * Get actionable equipment inventory analytics
+     * @return array Analytics data with meaningful insights
+     */
+    public function getAnalytics() {
+        $analytics = [];
+
+        // 1. EQUIPMENT UTILIZATION RATE - How much each equipment is being used
+        // Calculates: (Active Reservations / Total Usable Stock) * 100 per equipment
+        $utilizationSQL = "
+            SELECT 
+                e.equipment_id,
+                e.equipment_name,
+                s.sport_name,
+                COALESCE(SUM(ei.usable), 0) as total_stock,
+                COALESCE(active_res.active_count, 0) as active_reservations,
+                CASE 
+                    WHEN COALESCE(SUM(ei.usable), 0) > 0 
+                    THEN ROUND((COALESCE(active_res.active_count, 0) / SUM(ei.usable)) * 100, 1)
+                    ELSE 0 
+                END as utilization_rate
+            FROM equipment e
+            LEFT JOIN sport s ON e.sport_id = s.sport_id
+            LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
+            LEFT JOIN (
+                SELECT equipment_id, COUNT(*) as active_count
+                FROM `equipment-requests`
+                WHERE status = 'ACTIVE'
+                GROUP BY equipment_id
+            ) active_res ON e.equipment_id = active_res.equipment_id
+            GROUP BY e.equipment_id, e.equipment_name, s.sport_name
+            HAVING total_stock > 0
+            ORDER BY utilization_rate DESC
+            LIMIT 10
+        ";
+        $stmt = $this->db->query($utilizationSQL);
+        $analytics['utilization'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 2. HIGH DEMAND EQUIPMENT - Items that are frequently fully booked or nearly full
+        // These need more stock
+        $highDemandSQL = "
+            SELECT 
+                e.equipment_id,
+                e.equipment_name,
+                s.sport_name,
+                COALESCE(SUM(ei.usable), 0) as available_stock,
+                COUNT(DISTINCT er.request_id) as total_bookings_last_30_days,
+                COALESCE(active_res.active_count, 0) as current_active,
+                CASE 
+                    WHEN COALESCE(SUM(ei.usable), 0) > 0 
+                    THEN ROUND((COALESCE(active_res.active_count, 0) / SUM(ei.usable)) * 100, 1)
+                    ELSE 0 
+                END as demand_pressure
+            FROM equipment e
+            LEFT JOIN sport s ON e.sport_id = s.sport_id
+            LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
+            LEFT JOIN `equipment-requests` er ON e.equipment_id = er.equipment_id 
+                AND er.request_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            LEFT JOIN (
+                SELECT equipment_id, COUNT(*) as active_count
+                FROM `equipment-requests`
+                WHERE status = 'ACTIVE'
+                GROUP BY equipment_id
+            ) active_res ON e.equipment_id = active_res.equipment_id
+            GROUP BY e.equipment_id, e.equipment_name, s.sport_name
+            HAVING demand_pressure >= 50 OR total_bookings_last_30_days >= 5
+            ORDER BY demand_pressure DESC, total_bookings_last_30_days DESC
+            LIMIT 8
+        ";
+        $stmt = $this->db->query($highDemandSQL);
+        $analytics['high_demand'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 3. UNDERUTILIZED EQUIPMENT - Items rarely borrowed (waste of budget)
+        $underutilizedSQL = "
+            SELECT 
+                e.equipment_id,
+                e.equipment_name,
+                s.sport_name,
+                COALESCE(SUM(ei.usable), 0) as available_stock,
+                COUNT(DISTINCT er.request_id) as total_bookings_last_90_days,
+                DATEDIFF(CURDATE(), MAX(er.request_date)) as days_since_last_booking
+            FROM equipment e
+            LEFT JOIN sport s ON e.sport_id = s.sport_id
+            LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
+            LEFT JOIN `equipment-requests` er ON e.equipment_id = er.equipment_id
+            GROUP BY e.equipment_id, e.equipment_name, s.sport_name
+            HAVING available_stock > 0 AND (total_bookings_last_90_days <= 2 OR days_since_last_booking > 30 OR days_since_last_booking IS NULL)
+            ORDER BY total_bookings_last_90_days ASC, days_since_last_booking DESC
+            LIMIT 8
+        ";
+        $stmt = $this->db->query($underutilizedSQL);
+        $analytics['underutilized'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 4. PEAK BOOKING HOURS - When do students book most?
+        $peakHoursSQL = "
+            SELECT 
+                HOUR(start_time) as hour,
+                COUNT(*) as booking_count,
+                ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM `equipment-requests`), 1) as percentage
+            FROM `equipment-requests`
+            GROUP BY HOUR(start_time)
+            ORDER BY booking_count DESC
+            LIMIT 6
+        ";
+        $stmt = $this->db->query($peakHoursSQL);
+        $analytics['peak_hours'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 5. PEAK BOOKING DAYS - Which days are busiest?
+        $peakDaysSQL = "
+            SELECT 
+                DAYNAME(request_date) as day_name,
+                DAYOFWEEK(request_date) as day_num,
+                COUNT(*) as booking_count
+            FROM `equipment-requests`
+            GROUP BY DAYNAME(request_date), DAYOFWEEK(request_date)
+            ORDER BY booking_count DESC
+        ";
+        $stmt = $this->db->query($peakDaysSQL);
+        $analytics['peak_days'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 6. EQUIPMENT CONDITION ALERTS - Items with high damage rate
+        $conditionSQL = "
+            SELECT 
+                e.equipment_id,
+                e.equipment_name,
+                s.sport_name,
+                SUM(ei.quantity) as total_stock,
+                SUM(ei.usable) as usable_stock,
+                (SUM(ei.quantity) - SUM(ei.usable)) as damaged_count,
+                ROUND(((SUM(ei.quantity) - SUM(ei.usable)) / NULLIF(SUM(ei.quantity), 0)) * 100, 1) as damage_rate
+            FROM equipment e
+            LEFT JOIN sport s ON e.sport_id = s.sport_id
+            LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
+            GROUP BY e.equipment_id, e.equipment_name, s.sport_name
+            HAVING total_stock > 0 AND damage_rate > 10
+            ORDER BY damage_rate DESC
+            LIMIT 8
+        ";
+        $stmt = $this->db->query($conditionSQL);
+        $analytics['condition_alerts'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 7. SPORT-WISE DEMAND - Which sports have most equipment requests?
+        $sportDemandSQL = "
+            SELECT 
+                s.sport_id,
+                s.sport_name,
+                COUNT(DISTINCT er.request_id) as total_requests,
+                COUNT(DISTINCT er.student_id) as unique_students,
+                COUNT(DISTINCT e.equipment_id) as equipment_types
+            FROM sport s
+            LEFT JOIN equipment e ON s.sport_id = e.sport_id
+            LEFT JOIN `equipment-requests` er ON e.equipment_id = er.equipment_id
+            GROUP BY s.sport_id, s.sport_name
+            HAVING total_requests > 0
+            ORDER BY total_requests DESC
+            LIMIT 8
+        ";
+        $stmt = $this->db->query($sportDemandSQL);
+        $analytics['sport_demand'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 8. AVERAGE BOOKING DURATION per equipment type
+        $durationSQL = "
+            SELECT 
+                e.equipment_name,
+                s.sport_name,
+                ROUND(AVG(TIMESTAMPDIFF(MINUTE, er.start_time, er.end_time)), 0) as avg_duration_mins,
+                COUNT(*) as sample_size
+            FROM `equipment-requests` er
+            LEFT JOIN equipment e ON er.equipment_id = e.equipment_id
+            LEFT JOIN sport s ON e.sport_id = s.sport_id
+            GROUP BY e.equipment_id, e.equipment_name, s.sport_name
+            HAVING sample_size >= 2
+            ORDER BY avg_duration_mins DESC
+            LIMIT 8
+        ";
+        $stmt = $this->db->query($durationSQL);
+        $analytics['booking_duration'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 9. MOST ACTIVE STUDENTS - Frequent borrowers
+        $activeStudentsSQL = "
+            SELECT 
+                er.student_id,
+                COUNT(*) as total_bookings,
+                COUNT(DISTINCT er.equipment_id) as unique_equipment_borrowed
+            FROM `equipment-requests` er
+            GROUP BY er.student_id
+            ORDER BY total_bookings DESC
+            LIMIT 5
+        ";
+        $stmt = $this->db->query($activeStudentsSQL);
+        $analytics['active_students'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 10. QUICK SUMMARY STATS
+        $summarySQL = "
+            SELECT 
+                (SELECT COUNT(*) FROM `equipment-requests` WHERE status = 'ACTIVE') as active_reservations,
+                (SELECT COUNT(DISTINCT student_id) FROM `equipment-requests` WHERE status = 'ACTIVE') as students_with_active,
+                (SELECT COUNT(DISTINCT equipment_id) FROM equipment) as total_equipment_types,
+                (SELECT COUNT(DISTINCT sport_id) FROM equipment) as sports_covered
+        ";
+        $stmt = $this->db->query($summarySQL);
+        $analytics['summary'] = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $analytics;
+    }
+
     public function getAllBookingRequests() {
         $sql = "
             SELECT 
@@ -374,6 +580,58 @@ class Equipment {
         ";
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get equipment inventory data for PDF report
+     * @return array Report data with summary and detailed equipment list
+     */
+    public function getInventoryReport() {
+        $report = [];
+
+        // Summary stats
+        $summarySQL = "
+            SELECT 
+                COUNT(DISTINCT e.equipment_id) as total_equipment_types,
+                COALESCE(SUM(ei.quantity), 0) as total_stock,
+                COALESCE(SUM(ei.usable), 0) as total_usable,
+                (COALESCE(SUM(ei.quantity), 0) - COALESCE(SUM(ei.usable), 0)) as total_damaged,
+                COUNT(DISTINCT e.sport_id) as sports_covered,
+                CASE 
+                    WHEN COALESCE(SUM(ei.quantity), 0) > 0 
+                    THEN ROUND((COALESCE(SUM(ei.usable), 0) / SUM(ei.quantity)) * 100, 1)
+                    ELSE 100 
+                END as overall_condition
+            FROM equipment e
+            LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
+        ";
+        $stmt = $this->db->query($summarySQL);
+        $report['summary'] = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Detailed equipment list
+        $detailSQL = "
+            SELECT 
+                s.sport_name,
+                e.equipment_name,
+                COALESCE(SUM(ei.quantity), 0) as total_stock,
+                COALESCE(SUM(ei.usable), 0) as usable,
+                (COALESCE(SUM(ei.quantity), 0) - COALESCE(SUM(ei.usable), 0)) as damaged,
+                CASE 
+                    WHEN COALESCE(SUM(ei.quantity), 0) > 0 
+                    THEN ROUND((COALESCE(SUM(ei.usable), 0) / SUM(ei.quantity)) * 100, 0)
+                    ELSE 100 
+                END as condition_percent
+            FROM equipment e
+            LEFT JOIN sport s ON e.sport_id = s.sport_id
+            LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
+            GROUP BY e.equipment_id, e.equipment_name, s.sport_name
+            HAVING total_stock > 0
+            ORDER BY s.sport_name ASC, e.equipment_name ASC
+        ";
+        $stmt = $this->db->query($detailSQL);
+        $report['equipment'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $report;
     }
 }
 
