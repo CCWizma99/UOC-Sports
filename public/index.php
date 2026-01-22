@@ -56,10 +56,7 @@ $router->get('/api/attendance/last-session/{sport_id}', 'AttendanceApiController
 $router->get('/api/attendance/upcoming-sessions/{sport_id}', 'AttendanceApiController@getUpcomingSessions');
 $router->get('/api/attendance/exists/{practice_id}', 'AttendanceApiController@checkAttendanceExists');
 
-// Injury API routes
-$router->post('/api/injury/report', 'InjuryApiController@reportInjury');
-$router->get('/api/injury/upcoming-sessions', 'InjuryApiController@getUpcomingSessions');
-$router->get('/api/injury/reports/{sport_id}', 'InjuryApiController@getReportsBySport');
+
 
 // Captain Message API routes
 $router->get('/api/captain/message/recipients', 'MessageApiController@getRecipients');
@@ -134,6 +131,12 @@ $router->post('/sport-manager/add-expense', 'SportExpensesController@store');
 $router->get('/sport-manager/team', 'SportManagerController@team');
 
 
+
+$router->get('/api/injury/past-sessions', 'InjuryApiController@getPastSessions');
+$router->get('/api/injury/reports/{id}', 'InjuryApiController@getReports');
+$router->post('/api/injury/report', 'InjuryApiController@createReport');
+$router->post('/api/injury/delete', 'InjuryApiController@deleteReport');
+$router->post('/api/injury/update', 'InjuryApiController@updateReport');
 
 $router->post('/profile/upload-image', 'ProfileController@uploadProfileImage');
 

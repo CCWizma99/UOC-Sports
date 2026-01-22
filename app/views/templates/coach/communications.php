@@ -380,16 +380,36 @@
       // Set title as "Re: original title"
       document.getElementById('title').value = 'Re: ' + currentMessageSender.title;
       
-      // Try to select the captain in the dropdown
+      // Identify target role based on sender
+      let targetRole = '';
+      if (currentMessageSender.sender_role === 'Captain' || currentMessageSender.sender === 'Captain') targetRole = 'CAPTAIN';
+      if (currentMessageSender.sender_role === 'Sports Manager' || currentMessageSender.sender === 'Sports Manager') targetRole = 'MANAGER';
+      if (currentMessageSender.sender_role === 'Admin' || currentMessageSender.sender === 'Admin') targetRole = 'ADMIN';
+
+      // Try to select the sender in the dropdown
       const select = document.getElementById('recipient');
+      let roleMatchIndex = -1;
+
       for (let i = 0; i < select.options.length; i++) {
         try {
           const optVal = JSON.parse(select.options[i].value);
-          if (optVal.type === 'CAPTAIN') {
-            select.selectedIndex = i;
-            break;
+          
+          // Match by ID if available
+          if (currentMessageSender.sender_id && optVal.id === currentMessageSender.sender_id) {
+             select.selectedIndex = i;
+             roleMatchIndex = -2; // Found exact match
+             break;
+          }
+          
+          // Match by Role fallback
+          if (targetRole && optVal.type === targetRole && roleMatchIndex === -1) {
+            roleMatchIndex = i;
           }
         } catch(e) {}
+      }
+      
+      if (roleMatchIndex > -1) {
+         select.selectedIndex = roleMatchIndex;
       }
       
       // Focus on message textarea

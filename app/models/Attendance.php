@@ -188,10 +188,9 @@ class Attendance {
                 u.lname,
                 u.student_id
             FROM practice_sessions ps
-            LEFT JOIN attendance a ON ps.id = a.practice_id
+            INNER JOIN attendance a ON ps.id = a.practice_id
             LEFT JOIN user u ON a.user_id = u.user_id
             WHERE ps.sport_id = :sport_id
-            AND ps.session_date <= CURDATE()
             ORDER BY ps.session_date DESC, ps.session_time DESC
             LIMIT :limit
         ");

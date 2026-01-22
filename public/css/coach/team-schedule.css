@@ -100,11 +100,17 @@
   margin-bottom: 40px;
 }
 
-.table-section .section-title {
+/* Table Header */
+.table-header {
+  background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+  padding: 25px 30px;
+  color: white;
+}
+
+.table-header h2 {
+  font-size: 20px;
+  font-weight: 700;
   margin: 0;
-  padding: 30px 30px 24px 30px;
-  border: none;
-  border-bottom: 2px solid #e2e8f0;
 }
 
 .search-container {
@@ -232,7 +238,7 @@ table tbody td:first-child {
 /* Action Button */
 .remove-btn {
   padding: 8px 16px;
-  background: linear-gradient(135deg, #f57c00 0%, #ffb74d 100%);
+  background: #b40f1d;
   color: white;
   border: none;
   border-radius: 6px;
@@ -246,7 +252,7 @@ table tbody td:first-child {
 
 .remove-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(245, 124, 0, 0.3);
+  box-shadow: #b40f1d;
 }
 
 .remove-btn:active {
@@ -275,150 +281,150 @@ table tbody td:first-child {
 /* Responsive */
 @media (max-width: 1024px) {
   .summary-cards {
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
   }
 
   .table-wrapper {
-      max-height: 450px;
+    max-height: 450px;
   }
 }
 
 @media (max-width: 768px) {
   .container {
-      padding: 25px 16px;
+    padding: 25px 16px;
   }
 
   .page-header h1 {
-      font-size: 28px;
+    font-size: 28px;
   }
 
   .section-title {
-      font-size: 20px;
+    font-size: 20px;
   }
 
   .summary-cards {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
 
   .card {
-      padding: 20px;
+    padding: 20px;
   }
 
   .card p {
-      font-size: 32px;
+    font-size: 32px;
   }
 
   .card h3 {
-      font-size: 11px;
+    font-size: 11px;
   }
 
   table {
-      font-size: 12px;
+    font-size: 12px;
   }
 
   table thead th {
-      padding: 12px 14px;
-      font-size: 11px;
+    padding: 12px 14px;
+    font-size: 11px;
   }
 
   table tbody td {
-      padding: 12px 14px;
+    padding: 12px 14px;
   }
 
   .table-section .section-title {
-      padding: 20px 16px 16px 16px;
+    padding: 20px 16px 16px 16px;
   }
 
   .search-container {
-      padding: 16px;
+    padding: 16px;
   }
 
   .remove-btn {
-      padding: 6px 12px;
-      font-size: 11px;
+    padding: 6px 12px;
+    font-size: 11px;
   }
 
   .table-wrapper {
-      max-height: 350px;
+    max-height: 350px;
   }
 }
 
 @media (max-width: 480px) {
   .container {
-      padding: 16px 12px;
+    padding: 16px 12px;
   }
 
   .page-header h1 {
-      font-size: 24px;
+    font-size: 24px;
   }
 
   .page-header p {
-      font-size: 14px;
+    font-size: 14px;
   }
 
   .section-title {
-      font-size: 18px;
-      margin-bottom: 16px;
+    font-size: 18px;
+    margin-bottom: 16px;
   }
 
   .summary-cards {
-      grid-template-columns: 1fr;
-      gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .card {
-      padding: 16px;
+    padding: 16px;
   }
 
   .card h3 {
-      font-size: 10px;
-      margin-bottom: 8px;
+    font-size: 10px;
+    margin-bottom: 8px;
   }
 
   .card p {
-      font-size: 28px;
+    font-size: 28px;
   }
 
   .table-section .section-title {
-      padding: 16px;
-      margin-bottom: 0;
+    padding: 16px;
+    margin-bottom: 0;
   }
 
   .search-container {
-      padding: 12px;
+    padding: 12px;
   }
 
   .search-bar {
-      font-size: 13px;
-      padding: 10px 12px;
+    font-size: 13px;
+    padding: 10px 12px;
   }
 
   table {
-      font-size: 11px;
+    font-size: 11px;
   }
 
   table thead th {
-      padding: 10px 12px;
-      font-size: 10px;
+    padding: 10px 12px;
+    font-size: 10px;
   }
 
   table tbody td {
-      padding: 10px 12px;
+    padding: 10px 12px;
   }
 
   .remove-btn {
-      padding: 5px 10px;
-      font-size: 10px;
+    padding: 5px 10px;
+    font-size: 10px;
   }
 
   .table-wrapper {
-      max-height: 300px;
+    max-height: 300px;
   }
 
   .position-cell {
-      padding: 4px 8px;
-      font-size: 10px;
+    padding: 4px 8px;
+    font-size: 10px;
   }
 }
