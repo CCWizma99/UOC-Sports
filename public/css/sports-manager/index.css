@@ -279,8 +279,8 @@ body {
 }
 
 .calendar-day.today {
-    background-color: var(--primary-purple);
-    color: black;
+    
+
     border-color: var(--primary-purple);
     font-weight: 700;
 }

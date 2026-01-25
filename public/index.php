@@ -111,9 +111,24 @@ $router->post('/equipment-manager/add-lostitem', 'LostItemController@store');
 $router->post('/equipment-manager/update-lostitem-status', 'LostItemController@updateStatus');
 $router->post('/equipment-manager/delete-lostitem', 'LostItemController@delete');
 $router->get('/equipment-manager/add-booking', 'EquipmentManagerController@addBooking');
+$router->post('/equipment-manager/save-booking', 'EquipmentManagerController@saveBooking');
 $router->post('/post/delete-comment', 'PostController@deleteComment');
-$router->get('/equipment-manager/bookingrequests', 'EquipmentManagerController@bookingRequests');
+$router->get('/equipment-manager/bookingrequests', 'EquipmentBookingRequestController@index');
+$router->get('/equipment-manager/booking-request-details', 'EquipmentBookingRequestController@getDetails');
+$router->post('/equipment-manager/create-booking-request', 'EquipmentBookingRequestController@create');
+$router->post('/equipment-manager/update-booking-request', 'EquipmentBookingRequestController@update');
+$router->post('/equipment-manager/update-booking-status', 'EquipmentBookingRequestController@updateStatus');
+$router->post('/equipment-manager/delete-booking-request', 'EquipmentBookingRequestController@delete');
+$router->post('/equipment-manager/approve-booking', 'EquipmentBookingRequestController@approve');
+$router->post('/equipment-manager/reject-booking', 'EquipmentBookingRequestController@reject');
+$router->post('/equipment-manager/complete-booking', 'EquipmentBookingRequestController@complete');
 $router->get('/equipment-manager/manage-equipment', 'EquipmentManagerController@manageEquipment');
+$router->post('/equipment-manager/update-equipment', 'SportEquipmentController@update');
+$router->post('/equipment-manager/delete-equipment', 'SportEquipmentController@delete');
+$router->get('/equipment-manager/equipment-details', 'SportEquipmentController@getDetails');
+
+// Student equipment requests
+$router->get('/student/equipment-requests', 'EquipmentBookingRequestController@myRequests');
 
 $router->get('/sport-manager//', 'SportManagerController@index');
 $router->get('/sport-manager/schedule', 'SportManagerController@schedule');
