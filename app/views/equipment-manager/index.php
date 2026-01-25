@@ -33,46 +33,64 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
         <aside class="left-sidebar">
             <!-- Today's Reservations -->
             <div class="sidebar-section">
-                <h3>Today's Reservations</h3>
+                <h3>Today's Reservations (<?= $todayDate ?? date('Y-m-d') ?>)</h3>
+                
+                <!-- Debug Info -->
+                <?php if (isset($_GET['debug'])): ?>
+                    <div style="background: #fff3cd; padding: 0.5rem; margin: 0.5rem 0; border-radius: 4px; font-size: 0.75rem;">
+                        <strong>Debug:</strong><br>
+                        Today's Date: <?= $todayDate ?? 'Not set' ?><br>
+                        Reservations Count: <?= count($todayReservations ?? []) ?><br>
+                        <?php if (!empty($todayReservations)): ?>
+                            <pre style="font-size: 0.7rem;"><?= print_r($todayReservations[0], true) ?></pre>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                
                 <div class="reservations-list" id="todayReservations">
-
-                    <div class="reservation-item">                      
-                        <div class="reservation-header">
-                            <span class="reservation-time">09:00 AM - 11:00 AM</span>
-                            <span class="status-badge pending">Pending</span>
+                    <?php if (!empty($todayReservations)): ?>
+                        <?php foreach ($todayReservations as $reservation): 
+                            $statusClass = match($reservation['status']) {
+                                'PENDING' => 'pending',
+                                'ACTIVE' => 'approved',
+                                'COMPLETED' => 'completed',
+                                'REJECTED' => 'rejected',
+                                default => 'pending'
+                            };
+                        ?>
+                            <div class="reservation-item">                      
+                                <div class="reservation-header">
+                                    <span class="reservation-time">
+                                        <?= date('h:i A', strtotime($reservation['start_time'])) ?> - 
+                                        <?= date('h:i A', strtotime($reservation['end_time'])) ?>
+                                    </span>
+                                    <span class="status-badge <?= $statusClass ?>">
+                                        <?= htmlspecialchars($reservation['status']) ?>
+                                    </span>
+                                </div>
+                                <p class="reservation-equipment">
+                                    <?= htmlspecialchars($reservation['category_name'] ?? 'Equipment') ?>
+                                    <?php if (!empty($reservation['sport_name'])): ?>
+                                        (<?= htmlspecialchars($reservation['sport_name']) ?>)
+                                    <?php endif; ?>
+                                </p>
+                                <p class="reservation-user">
+                                    User: <?= htmlspecialchars($reservation['student_name'] ?? $reservation['requester_name'] ?? 'N/A') ?>
+                                </p>
+                                <?php if (!empty($reservation['reserved_location'])): ?>
+                                    <p class="reservation-location">
+                                        <i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($reservation['reserved_location']) ?>
+                                    </p>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="no-reservations">
+                            <p>No reservations for today</p>
                         </div>
-                        <p class="reservation-equipment">Basketball Court A</p>
-                        <p class="reservation-user">User: Sarah Johnson</p>
-                    </div>
+                    <?php endif; ?>
 
-                    <div class="reservation-item">
-                        <div class="reservation-header">
-                            <span class="reservation-time">11:30 AM - 01:00 PM</span>
-                            <span class="status-badge approved">Approved</span>
-                        </div>
-                        <p class="reservation-equipment">Tennis Rackets (x4)</p>
-                        <p class="reservation-user">User: Mike Chen</p>
-                    </div>
-
-                    <div class="reservation-item">
-                        <div class="reservation-header">
-                            <span class="reservation-time">02:00 PM - 04:00 PM</span>
-                            <span class="status-badge approved">Approved</span>
-                        </div>
-                        <p class="reservation-equipment">Swimming Pool Lane 3</p>
-                        <p class="reservation-user">User: Emma Davis</p>
-                    </div>
-
-                    <div class="reservation-item">
-                        <div class="reservation-header">
-                            <span class="reservation-time">04:30 PM - 06:00 PM</span>
-                            <span class="status-badge pending">Pending</span>
-                        </div>
-                        <p class="reservation-equipment">Volleyball Net & Balls</p>
-                        <p class="reservation-user">User: James Wilson</p>
-                    </div>
-
-                     <a href="/uoc-sports/public/equipment-manager/practiceschedule" class="view-all-link">
+                     <a href="/uoc-sports/public/equipment-manager/bookingrequests" class="view-all-link">
                         View All Booking Requests
                     </a>
 
@@ -95,14 +113,14 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                     <div class="stat-card">                  
                         <div class="stat-info">
                             <h4>Pending Requests</h4>
-                            <p class="stat-number">12</p>
+                            <p class="stat-number"><?= $statistics['pending_count'] ?? 0 ?></p>
                         </div>
                     </div>
                     <div class="stat-card">
                       
                         <div class="stat-info">
-                            <h4>Approved Today</h4>
-                            <p class="stat-number">8</p>
+                            <h4>Active Bookings</h4>
+                            <p class="stat-number"><?= $statistics['active_count'] ?? 0 ?></p>
                         </div>
                     </div>
                 </div>

@@ -1,40 +1,4 @@
-<?php
-$allEquipments = [
-    [
-        "equipment_id" => 101,
-        "equipment_category" => "Badminton",
-        "code" => "BDM-001",
-        "availability_status" => "Reserved",
-        "reserved_person_name" => "K S Silva",
-        "reserved_person_id" => "20231001",
-        "reserved_date" => "2025-01-12",
-        "reserved_time" => "10:00 - 12:00",
-        "return_time" => "Pending"
-    ],
-    [
-        "equipment_id" => 102,
-        "equipment_category" => "Cricket",
-        "code" => "CRT-006",
-        "availability_status" => "Available",
-        "reserved_person_name" => null,
-        "reserved_person_id" => null,
-        "reserved_date" => null,
-        "reserved_time" => null,
-        "return_time" => null
-    ],
-    [
-        "equipment_id" => 103,
-        "equipment_category" => "Football",
-        "code" => "FTB-088",
-        "availability_status" => "Reserved",
-        "reserved_person_name" => "N D Perera",
-        "reserved_person_id" => "20222045",
-        "reserved_date" => "2025-01-11",
-        "reserved_time" => "14:00 - 16:00",
-        "return_time" => "Pending"
-    ],
-];
-?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -73,7 +37,7 @@ $allEquipments = [
             <thead>
                 <tr>
                     <th onclick="sortTable(0)">Equipment ID<span class="sort-indicator">↕</span></th>
-                    <th onclick="sortTable(1)">Category<span class="sort-indicator">↕</span></th>
+                    <th onclick="sortTable(1)">Euipment Category<span class="sort-indicator">↕</span></th>
                     <th onclick="sortTable(2)">Code<span class="sort-indicator">↕</span></th>
                     <th onclick="sortTable(3)">Status<span class="sort-indicator">↕</span></th>
                     <th onclick="sortTable(4)">Reserved Person<span class="sort-indicator">↕</span></th>

@@ -187,14 +187,13 @@ INSERT INTO `equipment` (`equipment_id`, `sport_id`, `equipment_name`, `max_allo
 DROP TABLE IF EXISTS `equipment-requests`;
 CREATE TABLE IF NOT EXISTS `equipment-requests` (
   `request_id` varchar(12) NOT NULL,
-  `student_id` varchar(12) NOT NULL,
-  `equipment_id` varchar(12) NOT NULL,
+  `student_id` varchar(12) DEFAULT NULL,
+  `category_name` varchar(100) NOT NULL,
   `request_date` date NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `purpose` varchar(64) NOT NULL,
+  `notes` varchar(255) DEFAULT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'ACTIVE',
-  `notes` varchar(64) NOT NULL,
   PRIMARY KEY (`request_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -202,9 +201,9 @@ CREATE TABLE IF NOT EXISTS `equipment-requests` (
 -- Dumping data for table `equipment-requests`
 --
 
-INSERT INTO `equipment-requests` (`request_id`, `student_id`, `equipment_id`, `request_date`, `start_time`, `end_time`, `purpose`, `status`, `notes`) VALUES
-('req_6937e152', '23000000', 'EQ69354316b1', '2025-12-29', '08:00:00', '10:00:00', 'For the Taekwondo Provincial matches practices', 'ACTIVE', '-'),
-('req_693a734e', '23020342', 'EQ6937e28ddf', '2026-01-01', '13:00:00', '15:00:00', 'Foot work practice', 'ACTIVE', '-');
+INSERT INTO `equipment-requests` (`request_id`, `student_id`, `category_name`, `request_date`, `start_time`, `end_time`, `notes`, `status`) VALUES
+('req_6937e152', '23000000', 'Badminton Racket', '2025-12-29', '08:00:00', '10:00:00', 'For the Taekwondo Provincial matches practices', 'ACTIVE'),
+('req_693a734e', '23020342', 'Tennis Ball', '2026-01-01', '13:00:00', '15:00:00', 'Foot work practice', 'ACTIVE');
 
 -- --------------------------------------------------------
 
