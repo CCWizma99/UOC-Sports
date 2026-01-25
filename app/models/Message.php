@@ -120,12 +120,12 @@ class Message {
             if ($check && $check['sender_id'] === $senderId) {
                 $recipientName = trim($msg['fname'] . ' ' . $msg['lname']);
                 if (empty($recipientName)) {
-                    $recipientName = $msg['recipient_type'] === 'COACH' ? 'Coach' : ($msg['recipient_type'] === 'CAPTAIN' ? 'Captain' : 'Sports Manager');
+                    $recipientName = $msg['recipient_type'] === 'COACH' ? 'Coach' : ($msg['recipient_type'] === 'CAPTAIN' ? 'Captain' : ($msg['recipient_type'] === 'ADMIN' ? 'Admin' : 'Sports Manager'));
                 }
                 
                 $result[] = [
                     'id' => $msg['message_id'],
-                    'sender' => $msg['recipient_type'] === 'COACH' ? 'Coach' : ($msg['recipient_type'] === 'CAPTAIN' ? 'Captain' : 'Sports Manager'),
+                    'sender' => $msg['recipient_type'] === 'COACH' ? 'Coach' : ($msg['recipient_type'] === 'CAPTAIN' ? 'Captain' : ($msg['recipient_type'] === 'ADMIN' ? 'Admin' : 'Sports Manager')),
                     'recipient_id' => $msg['recipient_id'],
                     'recipient_name' => $recipientName,
                     'title' => $msg['title'],
@@ -179,7 +179,7 @@ class Message {
     public function getMessagesByRecipient($recipientId) {
         $stmt = $this->db->prepare("
             SELECT m.message_id, m.title, m.message, m.recipient_type, m.sender_id, m.sent_at, m.is_read,
-                   u.fname, u.lname, s.sport_name
+                   u.fname, u.lname, u.type as user_type, s.sport_name
             FROM message m
             LEFT JOIN user u ON m.sender_id = u.user_id
             LEFT JOIN sport s ON m.sport_id = s.sport_id
@@ -197,7 +197,7 @@ class Message {
                 'id' => $msg['message_id'],
                 'sender' => $senderName,
                 'sender_id' => $msg['sender_id'],
-                'sender_role' => 'Sender',
+                'sender_role' => $msg['user_type'] === 'COACH' ? 'Coach' : ($msg['user_type'] === 'CAPTAIN' ? 'Captain' : ($msg['user_type'] === 'ADMIN' ? 'Admin' : 'Sports Manager')),
                 'sport' => $msg['sport_name'] ?? 'Unknown Sport',
                 'title' => $msg['title'],
                 'text' => substr($msg['message'], 0, 50) . (strlen($msg['message']) > 50 ? '...' : ''),

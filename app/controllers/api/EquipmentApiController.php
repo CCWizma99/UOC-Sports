@@ -325,4 +325,26 @@ class EquipmentApiController {
             'message' => $success ? 'Reservation cancelled successfully.' : 'Failed to cancel reservation.'
         ]);
     }
+
+    /**
+     * Get equipment analytics data for admin dashboard
+     */
+    public function getAnalytics() {
+        header('Content-Type: application/json');
+        
+        try {
+            $model = new Equipment();
+            $analytics = $model->getAnalytics();
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $analytics
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Failed to load analytics data'
+            ]);
+        }
+    }
 }

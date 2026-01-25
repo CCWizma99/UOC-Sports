@@ -28,6 +28,12 @@ require '../app/views/templates/admin/sidebar.php';
 <div class="main-content-wrapper">
     <div class="equipments-grid-container">
         <div class="equipments-grid-left">
+            <div class="analytics-link-box">
+                <a href="./admin-equipment-analytics" class="btn-analytics">
+                    <i class="fas fa-chart-line"></i>
+                    View Analytics
+                </a>
+            </div>
             <div id="Search-equipment">
                 <h2>Search Equipment</h2>
                 <input type="text" id="equipment-search" placeholder="Type equipment name, ID, or category">

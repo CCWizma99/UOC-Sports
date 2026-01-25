@@ -9,7 +9,7 @@
 .table-section {
     background: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     padding-bottom: 30px;
 }
 
@@ -38,6 +38,12 @@
     margin-bottom: 24px;
 }
 
+.datetime {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
 /* Labels + inputs */
 .form-group {
     display: flex;
@@ -64,7 +70,7 @@
 
 .form-input:focus {
     border-color: #6b3fa0;
-    box-shadow: 0 0 0 3px rgba(107,63,160,0.1);
+    box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.1);
     outline: none;
 }
 
@@ -100,49 +106,385 @@
 
 .main-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(107,63,160,0.3);
+    box-shadow: 0 5px 20px rgba(107, 63, 160, 0.3);
 }
 
 /* ====== TABLE ====== */
-.table-wrapper {
-    padding: 20px 30px;
-    overflow-x: auto;
+.table-section {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    /* Important for header radius */
+    padding-bottom: 0;
+    /* Override previous padding */
 }
 
-table {
+/* Table Header */
+.table-header {
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    padding: 25px 30px;
+    color: white;
+}
+
+.table-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.table-wrapper {
+    padding: 0;
+    /* Reset padding for full width table */
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+.practice-table {
+    /* Using specific class for specificity */
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    border-radius: 10px;
+    font-size: 14px;
+}
+
+.practice-table thead {
+    background-color: #f7fafc;
+    position: sticky;
+    top: 0;
+}
+
+.practice-table thead th {
+    padding: 18px 20px;
+    text-align: left;
+    font-weight: 600;
+    color: #2d3748;
+    border-bottom: 2px solid #e2e8f0;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.practice-table tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.practice-table tbody tr:hover {
+    background-color: #f7fafc;
+}
+
+.practice-table tbody td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #4a5568;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Action Buttons - Enhanced Visibility */
+.btn-action {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    position: relative;
     overflow: hidden;
 }
 
-thead {
-    background: #f1f2f8;
+.btn-action::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s, height 0.4s;
 }
 
-thead th {
-    padding: 14px;
-    font-size: 14px;
+.btn-action:hover::before {
+    width: 100px;
+    height: 100px;
+}
+
+.btn-action i {
+    position: relative;
+    z-index: 1;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-edit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.btn-edit:active {
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.btn-delete:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.btn-delete:active {
+    transform: translateY(-1px);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Modal Container */
+.modal {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    /* Fixed Header/Footer, scrollable body */
+    animation: slideUp 0.3s ease;
+    position: relative;
+    padding: 0;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Modal Header */
+.modal-header {
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    color: white;
+    padding: 16px 24px;
+    /* Reduced padding */
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    /* Slightly smaller */
     font-weight: 700;
-    text-align: left;
-    color: #2d3748;
-    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-tbody td {
-    padding: 14px;
+.modal-header h3 i {
+    font-size: 20px;
+}
+
+.modal-close {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    width: 28px;
+    /* Smaller close btn */
+    height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 20px 24px;
+    /* Reduced padding */
+    overflow-y: auto;
+    /* Scroll only body if needed */
+}
+
+.modal-body .form-group {
+    margin-bottom: 12px;
+    /* Reduced margin */
+}
+
+/* Delete Confirmation Modal */
+.delete-modal .modal-header {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.delete-confirmation {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.delete-icon {
+    width: 60px;
+    /* Smaller icon */
+    height: 60px;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 28px;
+    color: #dc2626;
+}
+
+.delete-confirmation h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 8px;
+}
+
+.delete-confirmation p {
     font-size: 14px;
+    color: #718096;
+    margin-bottom: 6px;
+}
+
+/* Modal Footer */
+.modal-footer {
+    padding: 16px 24px;
+    /* Reduced padding */
+    background: #f7fafc;
+    border-radius: 0 0 16px 16px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.btn-modal {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-cancel {
+    background: #e2e8f0;
     color: #4a5568;
-    border-bottom: 1px solid #edf2f7;
 }
 
-/* last row no border */
-tbody tr:last-child td {
-    border-bottom: none;
+.btn-cancel:hover {
+    background: #cbd5e0;
+    transform: translateY(-2px);
 }
 
-/* hover rows */
-tbody tr:hover {
-    background: #fafbff;
+.btn-confirm {
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    color: white;
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(107, 63, 160, 0.3);
+}
+
+.btn-confirm-delete {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.btn-confirm-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
 }

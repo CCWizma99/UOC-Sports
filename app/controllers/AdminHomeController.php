@@ -71,6 +71,9 @@ class AdminHomeController {
     public function equipments() {
         view('admin/equipments', ['title' => 'Equipment Inventory']);
     }
+    public function equipmentAnalytics() {
+        view('admin/equipment-analytics', ['title' => 'Equipment Analytics']);
+    }
     public function events() {
         view('admin/events', ['title' => 'Sports Events']);
     }

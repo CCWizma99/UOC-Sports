@@ -35,7 +35,7 @@ class CoachController {
             // Get Schedules
             require_once __DIR__ . '/../models/Schedule.php';
             $scheduleModel = new Schedule();
-            $data['schedules'] = $scheduleModel->getAll($sportId); // Using getAll to debug date filter issue
+            $data['schedules'] = $scheduleModel->getRecentAndUpcomingSessions($sportId, 10);
 
             // Get Team Members
             require_once __DIR__ . '/../models/SportTeam.php';

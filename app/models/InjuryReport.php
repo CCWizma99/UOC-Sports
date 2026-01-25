@@ -31,7 +31,7 @@ class InjuryReport {
                 'date' => $data['date'] ?? date('Y-m-d'),
                 'description' => $data['description'] ?? '',
                 'need_substitude' => $data['need_substitude'] ?? 'NO',
-                'substitude_id' => $data['substitude_id'] ?? ''
+                'substitude_id' => !empty($data['substitude_id']) ? $data['substitude_id'] : null
             ]);
 
             return ['status' => 'success', 'message' => 'Injury report saved', 'report_id' => $reportId];
@@ -56,5 +56,37 @@ class InjuryReport {
         );
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function deleteReport($reportId) {
+        $stmt = $this->db->prepare("DELETE FROM injury_report WHERE report_id = :id");
+        return $stmt->execute(['id' => $reportId]);
+    }
+
+    public function updateReport($reportId, $data) {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE injury_report 
+                SET user_id = :user_id, 
+                    practice_id = :practice_id, 
+                    date = :date, 
+                    description = :description, 
+                    need_substitude = :need_substitude, 
+                    substitude_id = :substitude_id
+                WHERE report_id = :report_id
+            ");
+
+            return $stmt->execute([
+                'user_id' => $data['user_id'],
+                'practice_id' => $data['practice_id'],
+                'date' => $data['date'],
+                'description' => $data['description'],
+                'need_substitude' => $data['need_substitude'],
+                'substitude_id' => !empty($data['substitude_id']) ? $data['substitude_id'] : null,
+                'report_id' => $reportId
+            ]);
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }
