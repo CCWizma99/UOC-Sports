@@ -16,6 +16,7 @@ $router->get('/admin-users', 'AdminHomeController@users');
 $router->get('/admin-user-profile', 'AdminHomeController@userProfile');
 $router->get('/admin-reservations', 'AdminHomeController@reservations');
 $router->get('/admin-reservation', 'AdminHomeController@reservationDetails');
+$router->get('/admin-reservation-analytics', 'AdminHomeController@reservationAnalytics');
 $router->get('/admin-players', 'AdminHomeController@players');
 $router->get('/admin-equipments', 'AdminHomeController@equipments');
 $router->get('/admin-equipment-analytics', 'AdminHomeController@equipmentAnalytics');
@@ -62,6 +63,7 @@ $router->post('/api/user/toggle-status', 'UserApiController@toggleStatus');
 
 // Reservation Stats API
 $router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
+$router->get('/admin-reservations/analytics', 'ReservationApiController@getAnalytics');
 
 // Tournament routes
 $router->post('/admin-tournament/create', 'TournamentController@createTournament');

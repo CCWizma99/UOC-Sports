@@ -30,4 +30,22 @@ class ReservationApiController extends BaseController {
             'selected_year' => $year
         ]);
     }
+
+    public function getAnalytics() {
+        header('Content-Type: application/json');
+        
+        try {
+            $analytics = $this->facilityModel->getAnalytics();
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $analytics
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Failed to load analytics data'
+            ]);
+        }
+    }
 }

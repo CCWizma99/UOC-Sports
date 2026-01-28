@@ -457,4 +457,138 @@ class Facility {
             return false;
         }
     }
+
+    /* ---------- GET FACILITY RESERVATION ANALYTICS ---------- */
+    public function getAnalytics() {
+        $analytics = [];
+
+        // 1. FACILITY UTILIZATION - How often each facility is booked
+        $utilizationSQL = "
+            SELECT 
+                fr.id as facility_id,
+                fr.facility_name,
+                fr.facility_type,
+                COUNT(fb.booking_id) as total_bookings,
+                SUM(CASE WHEN fb.status IN ('BOOKED', 'ACCEPTED') THEN 1 ELSE 0 END) as active_bookings,
+                ROUND(COUNT(fb.booking_id) * 100.0 / NULLIF((SELECT COUNT(*) FROM `facility-booking`), 0), 1) as utilization_rate
+            FROM facility_rates fr
+            LEFT JOIN `facility-booking` fb ON fr.id = fb.facility_id
+            GROUP BY fr.id, fr.facility_name, fr.facility_type
+            HAVING total_bookings > 0
+            ORDER BY total_bookings DESC
+            LIMIT 10
+        ";
+        $stmt = $this->db->query($utilizationSQL);
+        $analytics['utilization'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 2. HIGH DEMAND FACILITIES - Facilities with most bookings in last 30 days
+        $highDemandSQL = "
+            SELECT 
+                fr.id as facility_id,
+                fr.facility_name,
+                fr.facility_type,
+                COUNT(fb.booking_id) as bookings_last_30_days,
+                SUM(CASE WHEN fb.status = 'BOOKED' THEN 1 ELSE 0 END) as pending_count,
+                ROUND(COUNT(fb.booking_id) * 100.0 / 30, 1) as daily_demand_rate
+            FROM facility_rates fr
+            INNER JOIN `facility-booking` fb ON fr.id = fb.facility_id
+            WHERE fb.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY fr.id, fr.facility_name, fr.facility_type
+            HAVING bookings_last_30_days >= 3
+            ORDER BY bookings_last_30_days DESC
+            LIMIT 8
+        ";
+        $stmt = $this->db->query($highDemandSQL);
+        $analytics['high_demand'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 3. UNDERUTILIZED FACILITIES - Rarely booked or never booked
+        $underutilizedSQL = "
+            SELECT 
+                fr.id as facility_id,
+                fr.facility_name,
+                fr.facility_type,
+                COUNT(fb.booking_id) as total_bookings,
+                DATEDIFF(CURDATE(), MAX(fb.date)) as days_since_last_booking
+            FROM facility_rates fr
+            LEFT JOIN `facility-booking` fb ON fr.id = fb.facility_id
+            GROUP BY fr.id, fr.facility_name, fr.facility_type
+            HAVING total_bookings <= 2 OR days_since_last_booking > 30 OR days_since_last_booking IS NULL
+            ORDER BY total_bookings ASC, days_since_last_booking DESC
+            LIMIT 8
+        ";
+        $stmt = $this->db->query($underutilizedSQL);
+        $analytics['underutilized'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 4. PEAK BOOKING DAYS - Which days are busiest
+        $peakDaysSQL = "
+            SELECT 
+                DAYNAME(date) as day_name,
+                DAYOFWEEK(date) as day_num,
+                COUNT(*) as booking_count
+            FROM `facility-booking`
+            GROUP BY DAYNAME(date), DAYOFWEEK(date)
+            ORDER BY booking_count DESC
+        ";
+        $stmt = $this->db->query($peakDaysSQL);
+        $analytics['peak_days'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 5. BOOKING BY USER TYPE - Internal vs Public distribution
+        $userTypeSQL = "
+            SELECT 
+                u.type as user_type,
+                COUNT(*) as booking_count,
+                ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM `facility-booking`), 1) as percentage
+            FROM `facility-booking` fb
+            INNER JOIN user u ON fb.user_id = u.user_id
+            GROUP BY u.type
+            ORDER BY booking_count DESC
+        ";
+        $stmt = $this->db->query($userTypeSQL);
+        $analytics['user_type'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 8. FACILITY TYPE DISTRIBUTION - Indoor vs Ground bookings
+        $facilityTypeSQL = "
+            SELECT 
+                fr.facility_type,
+                COUNT(fb.booking_id) as booking_count,
+                ROUND(COUNT(fb.booking_id) * 100.0 / (SELECT COUNT(*) FROM `facility-booking`), 1) as percentage
+            FROM facility_rates fr
+            INNER JOIN `facility-booking` fb ON fr.id = fb.facility_id
+            GROUP BY fr.facility_type
+            ORDER BY booking_count DESC
+        ";
+        $stmt = $this->db->query($facilityTypeSQL);
+        $analytics['facility_type'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 9. MOST ACTIVE USERS - Frequent bookers
+        $activeUsersSQL = "
+            SELECT 
+                fb.user_id,
+                CONCAT(u.fname, ' ', u.lname) as user_name,
+                u.type as user_type,
+                COUNT(*) as total_bookings,
+                COUNT(DISTINCT fb.facility_id) as unique_facilities
+            FROM `facility-booking` fb
+            INNER JOIN user u ON fb.user_id = u.user_id
+            GROUP BY fb.user_id
+            ORDER BY total_bookings DESC
+            LIMIT 5
+        ";
+        $stmt = $this->db->query($activeUsersSQL);
+        $analytics['active_users'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 10. QUICK SUMMARY STATS
+        $summarySQL = "
+            SELECT 
+                (SELECT COUNT(*) FROM `facility-booking` WHERE status = 'BOOKED') as pending_reservations,
+                (SELECT COUNT(*) FROM `facility-booking` WHERE status = 'ACCEPTED') as accepted_reservations,
+                (SELECT COUNT(*) FROM `facility-booking` WHERE status = 'REJECTED') as rejected_reservations,
+                (SELECT COUNT(DISTINCT facility_id) FROM `facility-booking`) as facilities_used,
+                (SELECT COUNT(DISTINCT user_id) FROM `facility-booking`) as unique_users
+        ";
+        $stmt = $this->db->query($summarySQL);
+        $analytics['summary'] = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $analytics;
+    }
 }

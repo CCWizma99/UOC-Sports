@@ -65,6 +65,9 @@ class AdminHomeController {
             'reservations' => $reservations
         ]);
     }
+    public function reservationAnalytics() {
+        view('admin/reservation-analytics', ['title' => 'Reservation Analytics']);
+    }
     public function players() {
         view('admin/players', ['title' => 'Player Records']);
     }
