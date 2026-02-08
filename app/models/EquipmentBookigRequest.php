@@ -203,6 +203,40 @@ class EquipmentBookigRequest {
     }
 
     /**
+     * Check if user has any active or accepted reservations
+     */
+    public function hasActiveReservation($studentId = null, $requesterName = null) {
+        if (empty($studentId) && empty($requesterName)) {
+            return false;
+        }
+
+        $query = "SELECT COUNT(*) as active_count
+                  FROM `equipment-requests`
+                  WHERE status IN ('ACTIVE', 'ACCEPTED')";
+        
+        $params = [];
+        
+        // Check by student_id OR requester_name
+        if (!empty($studentId) && !empty($requesterName)) {
+            $query .= " AND (student_id = ? OR requester_name = ?)";
+            $params[] = $studentId;
+            $params[] = $requesterName;
+        } elseif (!empty($studentId)) {
+            $query .= " AND student_id = ?";
+            $params[] = $studentId;
+        } else {
+            $query .= " AND requester_name = ?";
+            $params[] = $requesterName;
+        }
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $result['active_count'] > 0;
+    }
+
+    /**
      * Check for time conflicts
      */
     public function checkTimeConflict($categoryName, $date, $startTime, $endTime, $excludeRequestId = null) {
@@ -210,7 +244,7 @@ class EquipmentBookigRequest {
                   FROM `equipment-requests`
                   WHERE category_name = ?
                   AND request_date = ?
-                  AND status IN ('ACTIVE', 'PENDING')
+                  AND status IN ('ACTIVE', 'ACCEPTED', 'PENDING')
                   AND (
                       (start_time < ? AND end_time > ?) OR
                       (start_time >= ? AND start_time < ?) OR
@@ -245,6 +279,7 @@ class EquipmentBookigRequest {
         $query = "SELECT 
                     COUNT(*) as total_requests,
                     SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) as pending_count,
+                    SUM(CASE WHEN status = 'ACCEPTED' THEN 1 ELSE 0 END) as accepted_count,
                     SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) as active_count,
                     SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_count,
                     SUM(CASE WHEN status = 'REJECTED' THEN 1 ELSE 0 END) as rejected_count

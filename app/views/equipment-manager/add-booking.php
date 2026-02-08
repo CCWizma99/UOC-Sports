@@ -35,6 +35,19 @@
                 </div>
                
             </div>
+
+            <?php if (isset($_SESSION['success_message'])): ?>
+                <div style="padding: 0.75rem; background: #d1fae5; color: #065f46; border-radius: 8px; margin-bottom: 1rem; font-weight: 500;">
+                    <i class="fas fa-check-circle"></i> <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['error_message'])): ?>
+                <div style="padding: 0.75rem; background: #fee2e2; color: #991b1b; border-radius: 8px; margin-bottom: 1rem; font-weight: 500;">
+                    <i class="fas fa-exclamation-circle"></i> <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
+                </div>
+            <?php endif; ?>
+
             <form id="addBookingForm" class="form" method="POST" action="/uoc-sports/public/equipment-manager/save-booking">
                 <div class="form-row">
                     <div class="form-group">
@@ -132,7 +145,7 @@
                        Cancel
                     </button>
                     <button type="submit" class="btn-add">
-                       <i class="fas fa-save"></i> Save Booking
+                        Save Booking
                     </button>
                 </div>
             </form>

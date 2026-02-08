@@ -239,8 +239,13 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
     const tableRows = document.querySelectorAll('#tableBody tr');
     
     tableRows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchValue) ? '' : 'none';
+        const cells = row.getElementsByTagName('td');
+        if (cells.length > 0) {
+            const equipmentName = cells[0].textContent.toLowerCase();
+            const categoryName = cells[1].textContent.toLowerCase();
+            const matches = equipmentName.includes(searchValue) || categoryName.includes(searchValue);
+            row.style.display = matches ? '' : 'none';
+        }
     });
 });
 

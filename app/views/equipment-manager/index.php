@@ -20,6 +20,37 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
     @import url("/uoc-sports/public/css/general/footer.css");
     @import url("/uoc-sports/public/css/general/header.css");
 
+    /* Status-based reservation item colors */
+    .reservation-item {
+        border-left: 4px solid #d1d5db;
+        transition: all 0.3s ease;
+    }
+
+    .reservation-item:has(.status-badge.pending) {
+        border-left-color: #f59e0b;
+        
+    }
+
+    .reservation-item:has(.status-badge.accepted) {
+        border-left-color: #10b981;
+        
+    }
+
+    .reservation-item:has(.status-badge.approved) {
+        border-left-color: #3b82f6;
+        
+    }
+
+    .reservation-item:has(.status-badge.completed) {
+        border-left-color: #6b7280;
+        
+    }
+
+    .reservation-item:has(.status-badge.rejected) {
+        border-left-color: #ef4444;
+        
+    }
+
   </style>
 </head>
 
@@ -52,6 +83,7 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                         <?php foreach ($todayReservations as $reservation): 
                             $statusClass = match($reservation['status']) {
                                 'PENDING' => 'pending',
+                                'ACCEPTED' => 'accepted',
                                 'ACTIVE' => 'approved',
                                 'COMPLETED' => 'completed',
                                 'REJECTED' => 'rejected',

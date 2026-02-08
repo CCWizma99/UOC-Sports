@@ -46,7 +46,7 @@
        <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search Expenses...">
   
-                <a href="/uoc-sports/public/sport-manager/add-expense">
+                <a href="/uoc-sports/public/sport-manager/add-expense<?= isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '' ?>">
             <button class="view-all-link">
               
             Add New Expense 
@@ -59,9 +59,8 @@
         <table>
             <thead>
                 <tr>
-                    <th onclick="sortTable(0)">Expense ID<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(1)">Sport's Manger<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(2)">Sport<span class="sort-indicator"></span></th>
+                    
+                    
                     <th onclick="sortTable(3)">Expense Title<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Date & Time<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(4)">Amount (Rs) <span class="sort-indicator"></span></th>
@@ -76,9 +75,8 @@
             <?php if(!empty($expenses)): ?>
                 <?php foreach($expenses as $expense): ?>
                     <tr>
-                        <td><?= htmlspecialchars($expense['expense_id']) ?></td>
-                        <td><?= htmlspecialchars($expense['submitted_by']) ?></td>
-                        <td><?= htmlspecialchars($expense['sport']) ?></td> 
+
+                       
                         <td><?= htmlspecialchars($expense['expense_title']) ?></td>
                         <td><?= htmlspecialchars($expense['expense_date']) ?></td>
                         <td>Rs <?= number_format($expense['amount'], 2) ?></td>
@@ -95,21 +93,11 @@
                         </td>
                      </tr>
                   <?php endforeach; ?>
-
-                    <?php else: ?>
-                            <!-- Dummy Data Rows -->
-                            <tr>
-                                <td>C001</td>
-                                <td>K P Silva</td>
-                              
-                                <td>Basketball</td>
-                                <td>2025-12-20</td>
-                                <td>1200.00</td>
-                                <td>receipt1.jpg</td>
-                            </tr>
-              
-                           
-                        <?php endif; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: #6b7280;">No expenses found.</td>
+                    </tr>
+                <?php endif; ?>
 
                     </tbody>
                 </table>
@@ -118,6 +106,33 @@
             </div>
 
 </body>
+
+<script>
+// Search functionality - case insensitive, searches by expense title
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase(); // Convert to lowercase for case-insensitive search
+    const tableBody = document.getElementById('tableBody');
+    const rows = tableBody.getElementsByTagName('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.getElementsByTagName('td');
+        
+        if (cells.length > 0) {
+            // Get the expense title (3rd column, index 1)
+            const expenseTitle = cells[1].textContent || cells[1].innerText;
+            
+            // Check if expense title includes the search term (case-insensitive)
+            if (expenseTitle.toLowerCase().includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    }
+});
+</script>
+
 </html>
 
             <?php

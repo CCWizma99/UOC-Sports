@@ -84,6 +84,17 @@ class EquipmentManagerController {
             require_once '../app/models/EquipmentBookigRequest.php';
             $model = new EquipmentBookigRequest();
 
+            // Get user identification
+            $studentId = !empty($_POST['student_id']) ? $_POST['student_id'] : null;
+            $requesterName = $_POST['requester_name'] ?? '';
+
+            // Check if user already has an active or accepted reservation
+            if ($model->hasActiveReservation($studentId, $requesterName)) {
+                $_SESSION['error_message'] = 'This user already has an active or accepted equipment reservation. Please complete or cancel the existing reservation before creating a new one.';
+                header('Location: /uoc-sports/public/equipment-manager/add-booking');
+                exit();
+            }
+
             // Get selected equipment items
             $selectedEquipment = $_POST['equipment'] ?? [];
             $quantities = $_POST['quantity'] ?? [];
@@ -97,7 +108,7 @@ class EquipmentManagerController {
 
             // Common data for all requests
             $commonData = [
-                'student_id' => !empty($_POST['student_id']) ? $_POST['student_id'] : null,
+                'student_id' => $studentId,
                 'sport_id' => $_POST['sport'] ?? '',
                 'request_date' => $_POST['request_date'] ?? '',
                 'start_time' => $_POST['start_time'] ?? '',

@@ -34,36 +34,61 @@
                 </div>
                
             </div>
-            <form id="addPracticeForm" class="form" method="POST" enctype="multipart/form-data">
+            <?php
+            // Get selected sport name from URL parameter
+            $selectedSportFromUrl = null;
+            if (isset($_GET['sport'])) {
+                $db = Database::getConnection();
+                $stmt = $db->prepare("SELECT sport_name FROM sport WHERE sport_id = ?");
+                $stmt->execute([$_GET['sport']]);
+                $sportResult = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($sportResult) {
+                    $selectedSportFromUrl = $sportResult['sport_name'];
+                }
+            }
+            ?>
+            <form id="addPracticeForm" class="form" method="POST" action="/uoc-sports/public/sport-manager/store-practice<?= isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '' ?>">
+                <?php if (isset($_GET['sport'])): ?>
+                    <input type="hidden" name="sport_param" value="<?php echo htmlspecialchars($_GET['sport']); ?>">
+                <?php endif; ?>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="Sport name">Sport *</label>
                         <select id="sport" name="sport" required>
                             <option value="">Select Sport</option>
-                            <option value="Athletics">Athletics</option>
-                            <option value="Rugby">Rugby</option>
-                            <option value="Tennis">Tennis</option>
-                            <option value="Weightlifting">Weightlifting</option>
-                            <option value="Basketball">Basketball</option>
-                            <option value="Carrom">Carrom</option>
-                            <option value="Scrabble">Scrabble</option>
-                            <option value="Chess">Chess</option>
-                            <option value="Football">Football</option>
-                            <option value="Baseball">Baseball</option>
-                            <option value="Rowing">Rowing</option>
-                            <option value="Netball">Netball</option>
-                            <option value="Teakwondo">Teakwondo</option>
-                            <option value="Hockey">Hockey</option>
-                            <option value="Elle">Elle</option>
-                            <option value="Cricket">Cricket</option>
-                            <option value="Kabaddi">Kabaddi</option>
-                            <option value="Wrestling">Wrestling</option>
-                            <option value="Badminton">Badminton</option>
-                            <option value="Table Tennis">Table Tennis</option>
-                            <option value="Volleyball">Volleyball</option>
-                            <option value="Boxing">Boxing</option>
-                            <option value="Karate">Karate</option>
-                            <option value="Swimming">Swimming</option>
+                            <?php if (!empty($sports)): ?>
+                                <?php foreach ($sports as $sport): ?>
+                                    <option value="<?= htmlspecialchars($sport['sport_name']) ?>"
+                                            <?= (isset($selectedSportFromUrl) && $selectedSportFromUrl === $sport['sport_name']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($sport['sport_name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="Athletics">Athletics</option>
+                                <option value="Rugby">Rugby</option>
+                                <option value="Tennis">Tennis</option>
+                                <option value="Weightlifting">Weightlifting</option>
+                                <option value="Basketball">Basketball</option>
+                                <option value="Carrom">Carrom</option>
+                                <option value="Scrabble">Scrabble</option>
+                                <option value="Chess">Chess</option>
+                                <option value="Football">Football</option>
+                                <option value="Baseball">Baseball</option>
+                                <option value="Rowing">Rowing</option>
+                                <option value="Netball">Netball</option>
+                                <option value="Taekwondo">Taekwondo</option>
+                                <option value="Hockey">Hockey</option>
+                                <option value="Elle">Elle</option>
+                                <option value="Cricket">Cricket</option>
+                                <option value="Kabaddi">Kabaddi</option>
+                                <option value="Wrestling">Wrestling</option>
+                                <option value="Badminton">Badminton</option>
+                                <option value="Table Tennis">Table Tennis</option>
+                                <option value="Volleyball">Volleyball</option>
+                                <option value="Boxing">Boxing</option>
+                                <option value="Karate">Karate</option>
+                                <option value="Swimming">Swimming</option>
+                            <?php endif; ?>
                         </select>
                     </div>
 
@@ -84,9 +109,9 @@
 
                     <div class="form-group">
                         <label for="needEquipment">Need Equipment *</label>
-                        <select id="equipment" name="equipment" required>
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
+                        <select id="needEquipment" name="need_equipment" required>
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
                         </select>
                     </div>
 

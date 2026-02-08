@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Equipment Report</title>
+  <title>Add a New Lost Item</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
@@ -15,6 +15,13 @@
 
     @import url("/uoc-sports/public/css/equipment-manager/report.css");
     @import url("/uoc-sports/public/css/equipment-manager/page.css");
+    .lostitem-actions {
+        display: flex;
+        justify-content: center !important;
+        gap: 2rem;
+        padding-top: 2rem;
+        margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -102,9 +109,10 @@
             <?php endif; ?>
         </div>
         
-        <div class="form-actions full-width">
+        <div class="lostitem-actions">
             <button type="submit" class="btn-add"><?php echo $isEdit ? 'Update Item' : 'Add Item'; ?></button>
-            <a href="/uoc-sports/public/equipment-manager/lostitem" class="btn-add">Back</a>
+            <button type="button" class="btn-add" onclick="window.location.href='/uoc-sports/public/equipment-manager/lostitem'">
+            Back</button>
         </div>
             </div>
     </form>

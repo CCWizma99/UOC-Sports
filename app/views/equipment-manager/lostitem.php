@@ -48,7 +48,7 @@
         <table>
             <thead>
                 <tr>
-                    <th onclick="sortTable(0)">Item ID<span class="sort-indicator"></span></th>
+                    
                     <th onclick="sortTable(1)">Item Name<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(2)">Found Date<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Description<span class="sort-indicator"></span></th>
@@ -65,7 +65,7 @@
             <?php if(!empty($lostitems)): ?>
                 <?php foreach($lostitems as $lst): ?>
                     <tr>
-                        <td><?= $lst['lostItem_id'] ?></td>
+                        
                         <td><?= $lst['itemName'] ?></td>
                         <td><?= $lst['foundDate'] ?></td>
                         <td><?= $lst['description'] ?></td>

@@ -12,6 +12,18 @@ class SportExpensesController {
     public function create() {
         $editData = null;
         $isEdit = false;
+        $selectedSportName = null;
+        
+        // Get sport name from sport_id parameter
+        if (isset($_GET['sport'])) {
+            $db = Database::getConnection();
+            $stmt = $db->prepare("SELECT sport_name FROM sport WHERE sport_id = ?");
+            $stmt->execute([$_GET['sport']]);
+            $sport = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($sport) {
+                $selectedSportName = $sport['sport_name'];
+            }
+        }
         
         if (isset($_GET['id'])) {
             $expenseModel = new SportExpense(Database::getConnection());
@@ -19,7 +31,11 @@ class SportExpensesController {
             $isEdit = true;
         }
         
-        view('sports-manager/add-expense', ['editData' => $editData, 'isEdit' => $isEdit]);
+        view('sports-manager/add-expense', [
+            'editData' => $editData, 
+            'isEdit' => $isEdit,
+            'selectedSportName' => $selectedSportName
+        ]);
     }
 
     public function store() {
@@ -40,6 +56,9 @@ class SportExpensesController {
         
         $file = isset($_FILES['receipt']) ? $_FILES['receipt'] : null;
         
+        // Get sport parameter to preserve in redirect
+        $sportParam = isset($_POST['sport_param']) ? '?sport=' . urlencode($_POST['sport_param']) : (isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '');
+        
         try {
             if (isset($_POST['expense_id']) && !empty($_POST['expense_id'])) {
                 $result = $expenseModel->updateExpense($_POST['expense_id'], $data, $file);
@@ -49,11 +68,11 @@ class SportExpensesController {
                 $_SESSION['success_message'] = 'Expense added successfully!';
             }
             
-            header('Location: /uoc-sports/public/sport-manager/expenses');
+            header('Location: /uoc-sports/public/sport-manager/expenses' . $sportParam);
             exit();
         } catch (Exception $e) {
             $_SESSION['error_message'] = 'Error saving expense: ' . $e->getMessage();
-            header('Location: /uoc-sports/public/sport-manager/add-expense');
+            header('Location: /uoc-sports/public/sport-manager/add-expense' . $sportParam);
             exit();
         }
     }

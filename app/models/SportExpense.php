@@ -126,7 +126,7 @@ class SportExpense {
         $params = [];
         
         if (isset($filters['sport'])) {
-            $conditions[] = "sport = :sport";
+            $conditions[] = "LOWER(sport) = LOWER(:sport)";
             $params[':sport'] = $filters['sport'];
         }
         
@@ -298,5 +298,108 @@ class SportExpense {
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$limit]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Get monthly expenses grouped by month for a specific sport and year
+     * @param string $sportId - Sport ID (optional, null for all sports)
+     * @param int $year - Year (default: current year)
+     * @return array - Array with month names as keys and total amounts as values
+     */
+    public function getMonthlyExpenses($sportId = null, $year = null) {
+        if ($year === null) {
+            $year = date('Y');
+        }
+        
+        $sql = "SELECT 
+                    MONTH(se.expense_date) as month_num,
+                    MONTHNAME(se.expense_date) as month_name,
+                    SUM(se.amount) as total_amount
+                FROM sport_expenses se";
+        
+        $params = [$year];
+        
+        if ($sportId !== null && $sportId !== '') {
+            $sql .= " INNER JOIN sport s ON se.sport COLLATE utf8mb4_unicode_ci = s.sport_name COLLATE utf8mb4_unicode_ci
+                      WHERE YEAR(se.expense_date) = ? AND s.sport_id = ?";
+            $params[] = $sportId;
+        } else {
+            $sql .= " WHERE YEAR(se.expense_date) = ?";
+        }
+        
+        $sql .= " GROUP BY MONTH(se.expense_date), MONTHNAME(se.expense_date)
+                  ORDER BY MONTH(se.expense_date)";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Create array with all 12 months initialized to 0
+        $months = [
+            "January" => 0, "February" => 0, "March" => 0, "April" => 0,
+            "May" => 0, "June" => 0, "July" => 0, "August" => 0,
+            "September" => 0, "October" => 0, "November" => 0, "December" => 0
+        ];
+        
+        // Fill in actual expense data
+        foreach ($results as $row) {
+            $months[$row['month_name']] = (float)$row['total_amount'];
+        }
+        
+        return $months;
+    }
+    
+    /**
+     * Get cumulative expenses over time for line chart
+     * @param string $sportId - Sport ID (optional, null for all sports)
+     * @param int $year - Year (default: current year)
+     * @return array - Array of expense entries with cumulative totals
+     */
+    public function getCumulativeExpenses($sportId = null, $year = null) {
+        if ($year === null) {
+            $year = date('Y');
+        }
+        
+        $sql = "SELECT 
+                    se.expense_id,
+                    se.expense_title,
+                    se.amount,
+                    se.expense_date,
+                    DATE_FORMAT(se.expense_date, '%Y-%m-%d') as date_only,
+                    DATE_FORMAT(se.expense_date, '%b %d') as label
+                FROM sport_expenses se";
+        
+        $params = [$year];
+        
+        if ($sportId !== null && $sportId !== '') {
+            $sql .= " INNER JOIN sport s ON se.sport COLLATE utf8mb4_unicode_ci = s.sport_name COLLATE utf8mb4_unicode_ci
+                      WHERE YEAR(se.expense_date) = ? AND s.sport_id = ?";
+            $params[] = $sportId;
+        } else {
+            $sql .= " WHERE YEAR(se.expense_date) = ?";
+        }
+        
+        $sql .= " ORDER BY se.expense_date ASC";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        $expenses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Calculate cumulative totals
+        $cumulative = 0;
+        $result = [];
+        
+        foreach ($expenses as $expense) {
+            $cumulative += (float)$expense['amount'];
+            $result[] = [
+                'date' => $expense['date_only'],
+                'label' => $expense['label'],
+                'expense_title' => $expense['expense_title'],
+                'amount' => (float)$expense['amount'],
+                'cumulative' => $cumulative
+            ];
+        }
+        
+        return $result;
     }
 }

@@ -95,6 +95,15 @@ class EquipmentBookingRequestController {
         
         $model = new EquipmentBookigRequest();
         
+        // Check if user already has an active or accepted reservation
+        $studentId = $data['student_id'] ?? null;
+        $requesterName = $data['requester_name'] ?? null;
+        
+        if ($model->hasActiveReservation($studentId, $requesterName)) {
+            echo json_encode(['success' => false, 'message' => 'This user already has an active or accepted equipment reservation. Please complete or cancel the existing reservation before creating a new one.']);
+            exit();
+        }
+        
         // Check for time conflicts
         $hasConflict = $model->checkTimeConflict(
             $data['category_id'],

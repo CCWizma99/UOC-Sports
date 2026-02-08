@@ -27,6 +27,18 @@
         <h2>Equipment Booking Requests</h2>
         <p>Manage equipment booking requests</p>
         
+        <?php if (isset($_SESSION['success_message'])): ?>
+            <div style="padding: 0.75rem; background: #d1fae5; color: #065f46; border-radius: 8px; margin: 1rem 0; font-weight: 500; border-left: 4px solid #10b981;">
+                <i class="fas fa-check-circle"></i> <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error_message'])): ?>
+            <div style="padding: 0.75rem; background: #fee2e2; color: #991b1b; border-radius: 8px; margin: 1rem 0; font-weight: 500; border-left: 4px solid #ef4444;">
+                <i class="fas fa-exclamation-circle"></i> <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
+            </div>
+        <?php endif; ?>
+        
         <!-- Debug Info (Remove in production) -->
         <?php if (isset($_GET['debug'])): ?>
         <div style="background: #f3f4f6; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.8rem;">
@@ -44,7 +56,8 @@
         <div style="display: flex; gap: 2rem; margin-top: 1rem; font-size: 0.9rem;">
             <span><strong>Total:</strong> <?= $statistics['total_requests'] ?? 0 ?></span>
             <span style="color: #f59e0b;"><strong>Pending:</strong> <?= $statistics['pending_count'] ?? 0 ?></span>
-            <span style="color: #10b981;"><strong>Active:</strong> <?= $statistics['active_count'] ?? 0 ?></span>
+            <span style="color: #10b981;"><strong>Accepted:</strong> <?= $statistics['accepted_count'] ?? 0 ?></span>
+            <span style="color: #0ea5e9;"><strong>Active:</strong> <?= $statistics['active_count'] ?? 0 ?></span>
             <span style="color: #6b7280;"><strong>Completed:</strong> <?= $statistics['completed_count'] ?? 0 ?></span>
             <span style="color: #ef4444;"><strong>Rejected:</strong> <?= $statistics['rejected_count'] ?? 0 ?></span>
         </div>
@@ -59,6 +72,7 @@
         <select id="statusFilter" onchange="filterRequests()">
             <option value="">All Status</option>
             <option value="PENDING" <?= ($filters['status'] ?? '') === 'PENDING' ? 'selected' : '' ?>>Pending</option>
+            <option value="ACCEPTED" <?= ($filters['status'] ?? '') === 'ACCEPTED' ? 'selected' : '' ?>>Accepted</option>
             <option value="ACTIVE" <?= ($filters['status'] ?? '') === 'ACTIVE' ? 'selected' : '' ?>>Active</option>
             <option value="COMPLETED" <?= ($filters['status'] ?? '') === 'COMPLETED' ? 'selected' : '' ?>>Completed</option>
             <option value="REJECTED" <?= ($filters['status'] ?? '') === 'REJECTED' ? 'selected' : '' ?>>Rejected</option>
@@ -118,6 +132,7 @@
                 <?php foreach($requests as $request): 
                     $statusClass = match($request['status']) {
                         'PENDING' => 'status-pending',
+                        'ACCEPTED' => 'status-accepted',
                         'ACTIVE' => 'status-active',
                         'COMPLETED' => 'status-completed',
                         'REJECTED' => 'status-rejected',
@@ -156,11 +171,12 @@
                         <td><?= htmlspecialchars($request['reserved_location'] ?? 'N/A') ?></td>
                         <td><?= htmlspecialchars($request['notes'] ?? 'N/A') ?></td>
                         <td>
-                            <select class="status-dropdown" 
+                            <select class="status-dropdown status-<?= strtolower($request['status']) ?>" 
                                     data-request-id="<?= $request['request_id'] ?>" 
                                     data-original-status="<?= $request['status'] ?>"
                                     onchange="updateStatus('<?= $request['request_id'] ?>', this.value, this)">
                                 <option value="PENDING" <?= $request['status'] === 'PENDING' ? 'selected' : '' ?>>PENDING</option>
+                                <option value="ACCEPTED" <?= $request['status'] === 'ACCEPTED' ? 'selected' : '' ?>>ACCEPTED</option>
                                 <option value="ACTIVE" <?= $request['status'] === 'ACTIVE' ? 'selected' : '' ?>>ACTIVE</option>
                                 <option value="COMPLETED" <?= $request['status'] === 'COMPLETED' ? 'selected' : '' ?>>COMPLETED</option>
                                 <option value="REJECTED" <?= $request['status'] === 'REJECTED' ? 'selected' : '' ?>>REJECTED</option>
@@ -221,6 +237,8 @@ function updateStatus(requestId, newStatus, dropdownElement) {
             alert('Status updated successfully!');
             // Update the original status data attribute
             dropdownElement.setAttribute('data-original-status', newStatus);
+            // Update dropdown color class
+            dropdownElement.className = 'status-dropdown status-' + newStatus.toLowerCase();
         } else {
             alert('Error: ' + data.message);
             // Reset dropdown to original value
@@ -406,12 +424,14 @@ function sortTable(columnIndex) {
 
 #statusFilter, #sportFilter, .status-dropdown {
     padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
+    border: 3px solid #d1d5db;
     border-radius: 6px;
     font-size: 0.875rem;
     cursor: pointer;
     background: white;
     pointer-events: auto;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .status-dropdown:hover {
@@ -422,6 +442,37 @@ function sortTable(columnIndex) {
     outline: none;
     border-color: #5e2d91;
     box-shadow: 0 0 0 3px rgba(94, 45, 145, 0.1);
+}
+
+/* Status color classes */
+.status-dropdown.status-pending {
+
+    color: #92400e;
+    border: 2px solid #f59e0b;
+}
+
+.status-dropdown.status-accepted {
+
+    color: #065f46;
+    border: 2px solid #10b981;
+}
+
+.status-dropdown.status-active {
+ 
+    color: #1e40af;
+    border: 2px solid #3b82f6;
+}
+
+.status-dropdown.status-completed {
+
+    color: #374151;
+    border: 2px solid #6b7280;
+}
+
+.status-dropdown.status-rejected {
+   
+    color: #991b1b;
+    border: 2px solid #ef4444;
 }
 </style>
 
