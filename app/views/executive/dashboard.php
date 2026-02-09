@@ -1,3 +1,16 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Authorization check: Only EXECUTIVE or ADMIN
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_type'], ['EXECUTIVE', 'ADMIN'])) {
+    header("Location: /uoc-sports/public/sign-in");
+    exit;
+}
+
+$userName = $_SESSION['user_name'] ?? 'Executive';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,9 +37,10 @@
         </div>
     </div>
     <div class="header-actions">
+        <span class="user-welcome">Hello, <?php echo htmlspecialchars($userName); ?></span>
         <span class="current-date" id="current-date"></span>
-        <a href="./admin-index" class="btn-admin">
-            <i class="fas fa-cog"></i> Admin Portal
+        <a href="/uoc-sports/public/logout" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Log Out
         </a>
     </div>
 </header>
