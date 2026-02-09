@@ -68,6 +68,9 @@ class AdminHomeController {
     public function reservationAnalytics() {
         view('admin/reservation-analytics', ['title' => 'Reservation Analytics']);
     }
+    public function executiveDashboard() {
+        view('admin/executive-dashboard', ['title' => 'Executive Dashboard']);
+    }
     public function players() {
         view('admin/players', ['title' => 'Player Records']);
     }
