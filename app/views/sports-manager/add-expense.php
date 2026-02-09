@@ -33,39 +33,61 @@
                 </div>
                
             </div>
-            <form id="addPracticeForm" class="form" method="POST" action="/uoc-sports/public/sport-manager/add-expense" enctype="multipart/form-data">
+            <?php
+            // Get selected sport name from URL parameter
+            $selectedSportFromUrl = null;
+            if (isset($_GET['sport'])) {
+                $db = Database::getConnection();
+                $stmt = $db->prepare("SELECT sport_name FROM sport WHERE sport_id = ?");
+                $stmt->execute([$_GET['sport']]);
+                $sportResult = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($sportResult) {
+                    $selectedSportFromUrl = $sportResult['sport_name'];
+                }
+            }
+            ?>
+            <form id="addPracticeForm" class="form" method="POST" action="/uoc-sports/public/sport-manager/add-expense<?= isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '' ?>" enctype="multipart/form-data">
                 <?php if (isset($isEdit) && $isEdit && isset($editData)): ?>
                     <input type="hidden" name="expense_id" value="<?php echo htmlspecialchars($editData['expense_id']); ?>">
+                <?php endif; ?>
+                <?php if (isset($_GET['sport'])): ?>
+                    <input type="hidden" name="sport_param" value="<?php echo htmlspecialchars($_GET['sport']); ?>">
                 <?php endif; ?>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="Sport name">Sport *</label>
+                        <?php 
+                        // Priority: editData > selectedSportFromUrl > selectedSportName
+                        $sportToSelect = isset($editData['sport']) ? $editData['sport'] : 
+                                       (isset($selectedSportFromUrl) ? $selectedSportFromUrl : 
+                                       (isset($selectedSportName) ? $selectedSportName : ''));
+                        ?>
                         <select id="sport" name="sport" required>
                             <option value="">Select Sport</option>
-                            <option value="Athletics" <?php echo (isset($editData) && $editData['sport'] == 'Athletics') ? 'selected' : ''; ?>>Athletics</option>
-                            <option value="Rugby" <?php echo (isset($editData) && $editData['sport'] == 'Rugby') ? 'selected' : ''; ?>>Rugby</option>
-                            <option value="Tennis" <?php echo (isset($editData) && $editData['sport'] == 'Tennis') ? 'selected' : ''; ?>>Tennis</option>
-                            <option value="Weightlifting" <?php echo (isset($editData) && $editData['sport'] == 'Weightlifting') ? 'selected' : ''; ?>>Weightlifting</option>
-                            <option value="Basketball" <?php echo (isset($editData) && $editData['sport'] == 'Basketball') ? 'selected' : ''; ?>>Basketball</option>
-                            <option value="Carrom" <?php echo (isset($editData) && $editData['sport'] == 'Carrom') ? 'selected' : ''; ?>>Carrom</option>
-                            <option value="Scrabble" <?php echo (isset($editData) && $editData['sport'] == 'Scrabble') ? 'selected' : ''; ?>>Scrabble</option>
-                            <option value="Chess" <?php echo (isset($editData) && $editData['sport'] == 'Chess') ? 'selected' : ''; ?>>Chess</option>
-                            <option value="Football" <?php echo (isset($editData) && $editData['sport'] == 'Football') ? 'selected' : ''; ?>>Football</option>
-                            <option value="Baseball" <?php echo (isset($editData) && $editData['sport'] == 'Baseball') ? 'selected' : ''; ?>>Baseball</option>
-                            <option value="Rowing" <?php echo (isset($editData) && $editData['sport'] == 'Rowing') ? 'selected' : ''; ?>>Rowing</option>
-                            <option value="Netball" <?php echo (isset($editData) && $editData['sport'] == 'Netball') ? 'selected' : ''; ?>>Netball</option>
-                            <option value="Teakwondo" <?php echo (isset($editData) && $editData['sport'] == 'Teakwondo') ? 'selected' : ''; ?>>Teakwondo</option>
-                            <option value="Hockey" <?php echo (isset($editData) && $editData['sport'] == 'Hockey') ? 'selected' : ''; ?>>Hockey</option>
-                            <option value="Elle" <?php echo (isset($editData) && $editData['sport'] == 'Elle') ? 'selected' : ''; ?>>Elle</option>
-                            <option value="Cricket" <?php echo (isset($editData) && $editData['sport'] == 'Cricket') ? 'selected' : ''; ?>>Cricket</option>
-                            <option value="Kabaddi" <?php echo (isset($editData) && $editData['sport'] == 'Kabaddi') ? 'selected' : ''; ?>>Kabaddi</option>
-                            <option value="Wrestling" <?php echo (isset($editData) && $editData['sport'] == 'Wrestling') ? 'selected' : ''; ?>>Wrestling</option>
-                            <option value="Badminton" <?php echo (isset($editData) && $editData['sport'] == 'Badminton') ? 'selected' : ''; ?>>Badminton</option>
-                            <option value="Table Tennis" <?php echo (isset($editData) && $editData['sport'] == 'Table Tennis') ? 'selected' : ''; ?>>Table Tennis</option>
-                            <option value="Volleyball" <?php echo (isset($editData) && $editData['sport'] == 'Volleyball') ? 'selected' : ''; ?>>Volleyball</option>
-                            <option value="Boxing" <?php echo (isset($editData) && $editData['sport'] == 'Boxing') ? 'selected' : ''; ?>>Boxing</option>
-                            <option value="Karate" <?php echo (isset($editData) && $editData['sport'] == 'Karate') ? 'selected' : ''; ?>>Karate</option>
-                            <option value="Swimming" <?php echo (isset($editData) && $editData['sport'] == 'Swimming') ? 'selected' : ''; ?>>Swimming</option>
+                            <option value="Athletics" <?php echo $sportToSelect == 'Athletics' ? 'selected' : ''; ?>>Athletics</option>
+                            <option value="Rugby" <?php echo $sportToSelect == 'Rugby' ? 'selected' : ''; ?>>Rugby</option>
+                            <option value="Tennis" <?php echo $sportToSelect == 'Tennis' ? 'selected' : ''; ?>>Tennis</option>
+                            <option value="Weightlifting" <?php echo $sportToSelect == 'Weightlifting' ? 'selected' : ''; ?>>Weightlifting</option>
+                            <option value="Basketball" <?php echo $sportToSelect == 'Basketball' ? 'selected' : ''; ?>>Basketball</option>
+                            <option value="Carrom" <?php echo $sportToSelect == 'Carrom' ? 'selected' : ''; ?>>Carrom</option>
+                            <option value="Scrabble" <?php echo $sportToSelect == 'Scrabble' ? 'selected' : ''; ?>>Scrabble</option>
+                            <option value="Chess" <?php echo $sportToSelect == 'Chess' ? 'selected' : ''; ?>>Chess</option>
+                            <option value="Football" <?php echo $sportToSelect == 'Football' ? 'selected' : ''; ?>>Football</option>
+                            <option value="Baseball" <?php echo $sportToSelect == 'Baseball' ? 'selected' : ''; ?>>Baseball</option>
+                            <option value="Rowing" <?php echo $sportToSelect == 'Rowing' ? 'selected' : ''; ?>>Rowing</option>
+                            <option value="Netball" <?php echo $sportToSelect == 'Netball' ? 'selected' : ''; ?>>Netball</option>
+                            <option value="Teakwondo" <?php echo $sportToSelect == 'Teakwondo' ? 'selected' : ''; ?>>Teakwondo</option>
+                            <option value="Hockey" <?php echo $sportToSelect == 'Hockey' ? 'selected' : ''; ?>>Hockey</option>
+                            <option value="Elle" <?php echo $sportToSelect == 'Elle' ? 'selected' : ''; ?>>Elle</option>
+                            <option value="Cricket" <?php echo $sportToSelect == 'Cricket' ? 'selected' : ''; ?>>Cricket</option>
+                            <option value="Kabaddi" <?php echo $sportToSelect == 'Kabaddi' ? 'selected' : ''; ?>>Kabaddi</option>
+                            <option value="Wrestling" <?php echo $sportToSelect == 'Wrestling' ? 'selected' : ''; ?>>Wrestling</option>
+                            <option value="Badminton" <?php echo $sportToSelect == 'Badminton' ? 'selected' : ''; ?>>Badminton</option>
+                            <option value="Table Tennis" <?php echo $sportToSelect == 'Table Tennis' ? 'selected' : ''; ?>>Table Tennis</option>
+                            <option value="Volleyball" <?php echo $sportToSelect == 'Volleyball' ? 'selected' : ''; ?>>Volleyball</option>
+                            <option value="Boxing" <?php echo $sportToSelect == 'Boxing' ? 'selected' : ''; ?>>Boxing</option>
+                            <option value="Karate" <?php echo $sportToSelect == 'Karate' ? 'selected' : ''; ?>>Karate</option>
+                            <option value="Swimming" <?php echo $sportToSelect == 'Swimming' ? 'selected' : ''; ?>>Swimming</option>
                         </select>
                     </div>
 
@@ -99,7 +121,7 @@
                 </div>
                         
                 <div class="form-actions">
-                    <button type="button" class="view-all-link" onclick="window.location.href='/uoc-sports/public/sport-manager/expenses/'">
+                    <button type="button" class="view-all-link" onclick="window.location.href='/uoc-sports/public/sport-manager/expenses/<?= isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '' ?>'">
                        Cancel
                     </button>
                     <button type="submit" class="view-all-link">

@@ -6,7 +6,34 @@ class EquipmentManagerController {
         $lostitemModel = new Lostitem(Database::getConnection());
         $lostitem = $lostitemModel->getUnclaimedItemsCurrentMonth();
         
-        view('equipment-manager/index', ['lostitem' => $lostitem]);
+        // Get today's reservations
+        require_once '../app/models/EquipmentBookigRequest.php';
+        $bookingModel = new EquipmentBookigRequest();
+        
+        // Get today's date
+        $today = date('Y-m-d');
+        
+        // Debug: Log today's date
+        error_log("Fetching reservations for date: " . $today);
+        
+        // Fetch today's reservations
+        $todayReservations = $bookingModel->getAllRequests(['date_from' => $today, 'date_to' => $today]);
+        
+        // Debug: Log count of reservations
+        error_log("Today's reservations count: " . count($todayReservations));
+        if (!empty($todayReservations)) {
+            error_log("First reservation: " . print_r($todayReservations[0], true));
+        }
+        
+        // Get statistics
+        $statistics = $bookingModel->getStatistics();
+        
+        view('equipment-manager/index', [
+            'lostitem' => $lostitem,
+            'todayReservations' => $todayReservations,
+            'statistics' => $statistics,
+            'todayDate' => $today
+        ]);
     }
 
     public function equipmentReport() {
@@ -46,6 +73,100 @@ class EquipmentManagerController {
         view('equipment-manager/add-booking');
     }
 
+    public function saveBooking() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $_SESSION['error_message'] = 'Invalid request method';
+            header('Location: /uoc-sports/public/equipment-manager/add-booking');
+            exit();
+        }
+
+        try {
+            require_once '../app/models/EquipmentBookigRequest.php';
+            $model = new EquipmentBookigRequest();
+
+            // Get user identification
+            $studentId = !empty($_POST['student_id']) ? $_POST['student_id'] : null;
+            $requesterName = $_POST['requester_name'] ?? '';
+
+            // Check if user already has an active or accepted reservation
+            if ($model->hasActiveReservation($studentId, $requesterName)) {
+                $_SESSION['error_message'] = 'This user already has an active or accepted equipment reservation. Please complete or cancel the existing reservation before creating a new one.';
+                header('Location: /uoc-sports/public/equipment-manager/add-booking');
+                exit();
+            }
+
+            // Get selected equipment items
+            $selectedEquipment = $_POST['equipment'] ?? [];
+            $quantities = $_POST['quantity'] ?? [];
+
+            // Validate that at least one equipment is selected
+            if (empty($selectedEquipment)) {
+                $_SESSION['error_message'] = 'Please select at least one equipment item';
+                header('Location: /uoc-sports/public/equipment-manager/add-booking');
+                exit();
+            }
+
+            // Common data for all requests
+            $commonData = [
+                'student_id' => $studentId,
+                'sport_id' => $_POST['sport'] ?? '',
+                'request_date' => $_POST['request_date'] ?? '',
+                'start_time' => $_POST['start_time'] ?? '',
+                'end_time' => $_POST['end_time'] ?? '',
+                'reserved_location' => $_POST['reserved_location'] ?? '',
+                'requester_name' => $_POST['requester_name'] ?? '',
+                'status' => 'PENDING'
+            ];
+
+            // Validate required fields
+            if (empty($commonData['requester_name']) || empty($commonData['request_date']) || 
+                empty($commonData['start_time']) || empty($commonData['end_time'])) {
+                $_SESSION['error_message'] = 'Please fill in all required fields';
+                header('Location: /uoc-sports/public/equipment-manager/add-booking');
+                exit();
+            }
+
+            // Prepare equipment items array with quantities
+            $equipmentItems = [];
+            foreach ($selectedEquipment as $equipmentName) {
+                $quantity = isset($quantities[$equipmentName]) ? intval($quantities[$equipmentName]) : 1;
+                $equipmentItems[] = [
+                    'equipment_name' => $equipmentName,
+                    'quantity' => $quantity
+                ];
+            }
+
+            // Create summary for category_name field (for backward compatibility)
+            $categoryNameSummary = implode(', ', array_map(function($item) {
+                return $item['equipment_name'] . ' (x' . $item['quantity'] . ')';
+            }, $equipmentItems));
+
+            // Prepare single request data with multiple equipment items
+            $data = array_merge($commonData, [
+                'category_name' => $categoryNameSummary,
+                'equipment_items' => $equipmentItems,
+                'notes' => $_POST['notes'] ?? ''
+            ]);
+
+            // Create the booking request
+            $requestId = $model->createRequest($data);
+
+            if ($requestId) {
+                $_SESSION['success_message'] = 'Booking request created successfully with ' . count($equipmentItems) . ' equipment item(s)!';
+                header('Location: /uoc-sports/public/equipment-manager/bookingrequests');
+            } else {
+                $_SESSION['error_message'] = 'Failed to create booking request';
+                header('Location: /uoc-sports/public/equipment-manager/add-booking');
+            }
+
+        } catch (Exception $e) {
+            error_log("Error creating booking: " . $e->getMessage());
+            $_SESSION['error_message'] = 'An error occurred while creating the booking';
+            header('Location: /uoc-sports/public/equipment-manager/add-booking');
+        }
+        exit();
+    }
+
     public function bookingRequests() {
         // Mock data for frontend display
         $bookingRequests = [];
@@ -54,8 +175,34 @@ class EquipmentManagerController {
     }
 
     public function manageEquipment() {
-        $sport = $_GET['sport'] ?? 'General';
+        $sportId = $_GET['sport_id'] ?? null;
         
-        view('equipment-manager/manage-equipment', ['sport' => $sport]);
+        if (!$sportId) {
+            $_SESSION['error_message'] = 'Sport ID is required';
+            header('Location: /uoc-sports/public/equipment-manager/equipments');
+            exit();
+        }
+
+        $equipmentModel = new SportEquipment();
+        
+        // Get equipment data
+        $equipment = $equipmentModel->getEquipmentBySport($sportId);
+        
+        // Get sport name
+        $sportQuery = "SELECT sport_name FROM sport WHERE sport_id = ?";
+        $stmt = Database::getConnection()->prepare($sportQuery);
+        $stmt->execute([$sportId]);
+        $sportData = $stmt->fetch(PDO::FETCH_ASSOC);
+        $sportName = $sportData['sport_name'] ?? 'Unknown Sport';
+        
+        // Get summary
+        $summary = $equipmentModel->getSportSummary($sportId);
+        
+        view('equipment-manager/manage-equipment', [
+            'sport' => $sportName,
+            'sportId' => $sportId,
+            'equipment' => $equipment,
+            'summary' => $summary
+        ]);
     }
 }

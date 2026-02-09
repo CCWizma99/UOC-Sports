@@ -29,7 +29,7 @@
        <img src="/uoc-sports/public/images/equipment/athletic.jpg" class="image">
        <div class="card-content">
            <h3>Athletics</h3>
-           <p class="card-id">ID: SP-01</p>
+           <p class="card-id">ID: ATH</p>
        </div>     
     </div>
 
@@ -37,7 +37,7 @@
        <img src="/uoc-sports/public/images/equipment/rugby.jpg" class="image">
        <div class="card-content">
            <h3>Rugby</h3>
-           <p class="card-id">ID: SP-02</p>
+           <p class="card-id">ID: RUG</p>
        </div>     
     </div>
 
@@ -45,7 +45,7 @@
        <img src="/uoc-sports/public/images/equipment/tennis.jpg" class="image">
        <div class="card-content">
            <h3>Tennis</h3>
-           <p class="card-id">ID: SP-03</p>
+           <p class="card-id">ID: TNS</p>
        </div>     
     </div>
 
@@ -53,7 +53,7 @@
        <img src="/uoc-sports/public/images/equipment/weightlifting.jpg" class="image">
        <div class="card-content">
            <h3>Weightlifting</h3>
-           <p class="card-id">ID: SP-04</p>
+           <p class="card-id">ID: WL</p>
        </div>     
     </div>
 
@@ -61,7 +61,7 @@
        <img src="/uoc-sports/public/images/equipment/basketball" class="image">
        <div class="card-content">
            <h3>Basketball</h3>
-           <p class="card-id">ID: SP-05</p>
+           <p class="card-id">ID: BAS</p>
        </div>     
     </div>
 
@@ -69,7 +69,7 @@
        <img src="/uoc-sports/public/images/equipment/carrom.jpg" class="image">
        <div class="card-content">
            <h3>Carrom</h3>
-           <p class="card-id">ID: SP-06</p>
+           <p class="card-id">ID: CRM</p>
        </div>     
     </div>
 
@@ -85,7 +85,7 @@
        <img src="/uoc-sports/public/images/equipment/chess.jpg" class="image">
        <div class="card-content">
            <h3>Chess</h3>
-           <p class="card-id">ID: SP-08</p>
+           <p class="card-id">ID: SCR</p>
        </div>     
     </div>
 
@@ -93,7 +93,7 @@
        <img src="/uoc-sports/public/images/equipment/football.jpg" class="image">
        <div class="card-content">
            <h3>Football</h3>
-           <p class="card-id">ID: SP-09</p>
+           <p class="card-id">ID: FOO</p>
        </div>     
     </div>
 
@@ -101,7 +101,7 @@
        <img src="/uoc-sports/public/images/equipment/baseball.jpg" class="image">
        <div class="card-content">
            <h3>Baseball</h3>
-           <p class="card-id">ID: SP-10</p>
+           <p class="card-id">ID: BB</p>
        </div>     
     </div>
 
@@ -109,7 +109,7 @@
        <img src="/uoc-sports/public/images/equipment/rowing.jpg" class="image">
        <div class="card-content">
            <h3>Rowing</h3>
-           <p class="card-id">ID: SP-11</p>
+           <p class="card-id">ID: ROW</p>
        </div>     
     </div>
 
@@ -117,7 +117,7 @@
        <img src="/uoc-sports/public/images/equipment/netball.jpg" class="image">
        <div class="card-content">
            <h3>Netball</h3>
-           <p class="card-id">ID: SP-12</p>
+           <p class="card-id">ID: NET</p>
        </div>     
     </div>
 
@@ -125,7 +125,7 @@
        <img src="/uoc-sports/public/images/equipment/taekwondo.jpg" class="image">
        <div class="card-content">
            <h3>Taekwondo</h3>
-           <p class="card-id">ID: SP-13</p>
+           <p class="card-id">ID: TKD</p>
        </div>     
     </div>
 
@@ -133,15 +133,15 @@
        <img src="/uoc-sports/public/images/equipment/hockey.jpg" class="image">
        <div class="card-content">
            <h3>Hockey</h3>
-           <p class="card-id">ID: SP-14</p>
+           <p class="card-id">ID: HOC</p>
        </div>     
     </div>
 
     <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Swimming&sport_id=SWI'">
-       <img src="/uoc-sports/public/images/equipment/swimming.jpg" class="image">
+       <img src="/uoc-sports/public/images/equipment/swimming.jpg" class="image" alt="Swimming">
        <div class="card-content">
            <h3>Swimming</h3>
-           <p class="card-id">ID: SP-15</p>
+           <p class="card-id">ID: SWI</p>
        </div>     
     </div>
 
@@ -149,7 +149,7 @@
        <img src="/uoc-sports/public/images/equipment/elle.jpg" class="image">
        <div class="card-content">
            <h3>Elle</h3>
-           <p class="card-id">ID: SP-16</p>
+           <p class="card-id">ID: ELL</p>
        </div>     
     </div>
 
@@ -157,7 +157,7 @@
        <img src="/uoc-sports/public/images/equipment/cricket.jpg" class="image">
        <div class="card-content">
            <h3>Cricket</h3>
-           <p class="card-id">ID: SP-17</p>
+           <p class="card-id">ID: CRI</p>
        </div>     
     </div>
 
@@ -165,7 +165,7 @@
        <img src="/uoc-sports/public/images/equipment/kabaddi.jpg" class="image">
        <div class="card-content">
            <h3>Kabaddi</h3>
-           <p class="card-id">ID: SP-18</p>
+           <p class="card-id">ID: KBD</p>
        </div>     
     </div>
 
@@ -173,15 +173,15 @@
        <img src="/uoc-sports/public/images/equipment/wrestling.jpg" class="image">
        <div class="card-content">
            <h3>Wrestling</h3>
-           <p class="card-id">ID: SP-19</p>
+           <p class="card-id">ID: WRE</p>
        </div>     
     </div>
 
     <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Badminton&sport_id=BAD'">
-       <img src="/uoc-sports/public/images/equipment/badminton.jpg" class="image">
+       <img src="/uoc-sports/public/images/equipment/badminton.jpg" class="image" alt="Badminton">
        <div class="card-content">
            <h3>Badminton</h3>
-           <p class="card-id">ID: SP-20</p>
+           <p class="card-id">ID: BAD</p>
        </div>     
     </div>
 
@@ -189,7 +189,7 @@
        <img src="/uoc-sports/public/images/equipment/table_tennis.jpg" class="image">
        <div class="card-content">
            <h3>Table Tennis</h3>
-           <p class="card-id">ID: SP-21</p>
+           <p class="card-id">ID: TT</p>
        </div>     
     </div>
 
@@ -197,7 +197,7 @@
        <img src="/uoc-sports/public/images/equipment/volleyball.jpg" class="image">
        <div class="card-content">
            <h3>Volleyball</h3>
-           <p class="card-id">ID: SP-22</p>
+           <p class="card-id">ID: VOL</p>
        </div>     
     </div>
 
@@ -205,7 +205,7 @@
        <img src="/uoc-sports/public/images/equipment/boxing.jpg" class="image">
        <div class="card-content">
            <h3>Boxing</h3>
-           <p class="card-id">ID: SP-23</p>
+           <p class="card-id">ID: BOX</p>
        </div>     
     </div>
 
@@ -213,7 +213,7 @@
        <img src="/uoc-sports/public/images/equipment/karate.jpg" class="image">
        <div class="card-content">
            <h3>Karate</h3>
-           <p class="card-id">ID: SP-24</p>
+           <p class="card-id">ID: KRT</p>
        </div>     
     </div>
 

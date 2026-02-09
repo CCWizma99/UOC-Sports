@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Equipment Report</title>
+  <title>Equipment Requests</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
@@ -35,12 +35,30 @@
                 </div>
                
             </div>
-            <form id="addPracticeForm" class="form" method="POST" enctype="multipart/form-data">
+
+            <?php if (isset($_SESSION['success_message'])): ?>
+                <div style="padding: 0.75rem; background: #d1fae5; color: #065f46; border-radius: 8px; margin-bottom: 1rem; font-weight: 500;">
+                    <i class="fas fa-check-circle"></i> <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['error_message'])): ?>
+                <div style="padding: 0.75rem; background: #fee2e2; color: #991b1b; border-radius: 8px; margin-bottom: 1rem; font-weight: 500;">
+                    <i class="fas fa-exclamation-circle"></i> <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
+                </div>
+            <?php endif; ?>
+
+            <form id="addBookingForm" class="form" method="POST" action="/uoc-sports/public/equipment-manager/save-booking">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="user_id">User ID *</label>
-                        <input type="text" id="user_id" name="userId" placeholder="Enter user ID" required>    
-                    </div>  
+                        <label for="user_id">User ID </label>
+                        <input type="text" id="user_id" name="student_id" placeholder="Enter user ID" >    
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="requester_name">Requester Name *</label>
+                        <input type="text" id="requester_name" name="requester_name" placeholder="Enter requester name" required>    
+                    </div>
 
                     <div class="form-group">
                         <label for="sport">Sport *</label>
@@ -73,41 +91,61 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="equipment">Equipment Type *</label>
-                        <select id="equipment" name="equipmentId" required disabled>
-                            <option value="">Select Sport First</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="quantity">Quantity </label>
-                        <input type="number" id="quantity" name="quantity" min="1" placeholder="Enter quantity" >
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Equipment Selection *</label>
+                        <div id="equipment-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;">
+                            <p style="grid-column: 1 / -1; color: #666; margin: 0;">Select a sport first to see available equipment</p>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="reservation_date">Reservation Date *</label>
-                        <input type="date" id="reservation_date" name="reservationDate" required>
+                        <input type="date" id="reservation_date" name="request_date" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="start_time">Reservation Start Time *</label>
-                        <input type="time" id="start_time" name="startTime" required>
+                        <label for="start_time">Start Time *</label>
+                        <input type="time" id="start_time" name="start_time" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="end_time">Reservation End Time *</label>
-                        <input type="time" id="end_time" name="endTime" required>      
+                        <label for="end_time">End Time *</label>
+                        <input type="time" id="end_time" name="end_time" required>      
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reserved_location">Reserved Location</label>
+                        <select id="reserved_location" name="reserved_location">
+                            <option value="">Select Location</option>
+                            <option value="Badminton Court">Badminton Court</option>
+                            <option value="Tennis Court">Tennis Court</option>
+                            <option value="Baseball Pitch">Baseball Pitch</option>
+                            <option value="Cricket Pitch">Cricket Pitch</option>
+                            <option value="Football Ground">Football Ground</option>
+                            <option value="Basketball Court">Basketball Court</option>
+                            <option value="Volleyball Court">Volleyball Court</option>
+                            <option value="Swimming Pool">Swimming Pool</option>
+                            <option value="Gym">Gym</option>
+                            <option value="Ground">Ground</option>
+                        </select>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Additional notes"></textarea>
+   
                     </div>
                     
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn-add" onclick="window.location.href='/uoc-sports/public/equipment-manager/practiceschedule/'" >
+                    <button type="button" class="btn-add" onclick="window.location.href='/uoc-sports/public/equipment-manager/bookingrequests'">
                        Cancel
                     </button>
-                    <button type="submit" class="btn-add" >
-                       Add Booking
+                    <button type="submit" class="btn-add">
+                        Save Booking
                     </button>
                 </div>
             </form>
@@ -115,78 +153,97 @@
     </div>
 
 <script>
-// Equipment data organized by sport
-const equipmentBySport = {
-    'FOO': [
-        { id: 'EQ007', name: 'Football' }
-    ],
-    'BAS': [
-        { id: 'EQ014', name: 'Basketball' },
-        { id: 'EQ015', name: 'Basketball Hoop' }
-    ],
-    'CRI': [
-        { id: 'EQ022', name: 'Cricket Bat' },
-        { id: 'EQ023', name: 'Cricket Ball' }
-    ],
-    'TEN': [
-        { id: 'EQ001', name: 'Tennis Racket' },
-        { id: 'EQ002', name: 'Tennis Ball' }
-    ],
-    'BAD': [
-        { id: 'EQ003', name: 'Badminton Racket' },
-        { id: 'EQ004', name: 'Shuttlecock' }
-    ],
-    'TBT': [
-        { id: 'EQ005', name: 'Table Tennis Bat' },
-        { id: 'EQ006', name: 'Table Tennis Ball' }
-    ],
-    'VOL': [
-        { id: 'EQ008', name: 'Volleyball' },
-        { id: 'EQ009', name: 'Volleyball Net' }
-    ],
-    'NET': [
-        { id: 'EQ010', name: 'Netball' },
-        { id: 'EQ011', name: 'Netball Post' }
-    ],
-    'RUG': [
-        { id: 'EQ012', name: 'Rugby Ball' }
-    ],
-    'HOC': [
-        { id: 'EQ016', name: 'Hockey Stick' },
-        { id: 'EQ017', name: 'Hockey Ball' }
-    ],
-    'ATH': [
-        { id: 'EQ018', name: 'Javelin' },
-        { id: 'EQ019', name: 'Shot Put' },
-        { id: 'EQ020', name: 'Discus' }
-    ],
-    'SWI': [
-        { id: 'EQ021', name: 'Swimming Goggles' }
-    ]
-};
-
 document.getElementById('sport').addEventListener('change', function() {
     const sportId = this.value;
-    const equipmentSelect = document.getElementById('equipment');
+    const equipmentContainer = document.getElementById('equipment-checkboxes');
     
-    // Clear existing options
-    equipmentSelect.innerHTML = '<option value="">Select Equipment</option>';
+    // Clear existing content
+    equipmentContainer.innerHTML = '<p style="color: #666; margin: 0;">Loading equipment...</p>';
     
-    if (sportId && equipmentBySport[sportId]) {
-        // Enable the dropdown
-        equipmentSelect.disabled = false;
-        
-        // Populate with equipment for selected sport
-        equipmentBySport[sportId].forEach(equipment => {
-            const option = document.createElement('option');
-            option.value = equipment.id;
-            option.textContent = equipment.name;
-            equipmentSelect.appendChild(option);
+    if (!sportId) {
+        equipmentContainer.innerHTML = '<p style="grid-column: 1 / -1; color: #666; margin: 0;">Select a sport first to see available equipment</p>';
+        return;
+    }
+    
+    // Fetch equipment from the database
+    fetch('/uoc-sports/public/api/get-equipment-by-sport.php?sport_id=' + sportId)
+        .then(response => response.json())
+        .then(data => {
+            equipmentContainer.innerHTML = '';
+            
+            if (data.success && data.equipment && data.equipment.length > 0) {
+                // Populate with equipment from database
+                data.equipment.forEach(equipment => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px; background-color: white;';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = 'eq_' + equipment.equipment_id;
+                    checkbox.name = 'equipment[]';
+                    checkbox.value = equipment.equipment_name;
+                    checkbox.style.cssText = 'width: 18px; height: 18px; cursor: pointer;';
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = 'eq_' + equipment.equipment_id;
+                    label.textContent = equipment.equipment_name + ' (Available: ' + equipment.available_count + ')';
+                    label.style.cssText = 'flex: 1; cursor: pointer; font-weight: 500;';
+                    
+                    const quantityDiv = document.createElement('div');
+                    quantityDiv.style.cssText = 'display: flex; align-items: center; gap: 5px;';
+                    
+                    const quantityLabel = document.createElement('span');
+                    quantityLabel.textContent = 'Qty:';
+                    quantityLabel.style.cssText = 'font-size: 14px; color: #666;';
+                    
+                    const quantityInput = document.createElement('input');
+                    quantityInput.type = 'number';
+                    quantityInput.id = 'qty_' + equipment.equipment_id;
+                    quantityInput.name = 'quantity[' + equipment.equipment_name + ']';
+                    quantityInput.min = '1';
+                    quantityInput.max = equipment.available_count;
+                    quantityInput.value = '1';
+                    quantityInput.disabled = true;
+                    quantityInput.style.cssText = 'width: 70px; padding: 5px; border: 1px solid #ddd; border-radius: 4px;';
+                    
+                    // Enable/disable quantity input based on checkbox
+                    checkbox.addEventListener('change', function() {
+                        quantityInput.disabled = !this.checked;
+                        if (!this.checked) {
+                            quantityInput.value = '1';
+                        }
+                    });
+                    
+                    quantityDiv.appendChild(quantityLabel);
+                    quantityDiv.appendChild(quantityInput);
+                    
+                    itemDiv.appendChild(checkbox);
+                    itemDiv.appendChild(label);
+                    itemDiv.appendChild(quantityDiv);
+                    
+                    equipmentContainer.appendChild(itemDiv);
+                });
+            } else {
+                // Show message if no equipment available
+                const message = document.createElement('p');
+                message.style.cssText = 'grid-column: 1 / -1; color: #999; margin: 0; font-style: italic;';
+                message.textContent = 'No equipment available for this sport';
+                equipmentContainer.appendChild(message);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching equipment:', error);
+            equipmentContainer.innerHTML = '<p style="color: #d32f2f; margin: 0;">Error loading equipment. Please try again.</p>';
         });
-    } else {
-        // Disable and reset if no sport or no equipment available
-        equipmentSelect.disabled = true;
-        equipmentSelect.innerHTML = '<option value="">Select Sport First</option>';
+});
+
+// Form validation to ensure at least one equipment is selected
+document.getElementById('addBookingForm').addEventListener('submit', function(e) {
+    const checkboxes = document.querySelectorAll('input[name="equipment[]"]:checked');
+    if (checkboxes.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one equipment item');
+        return false;
     }
 });
 </script>

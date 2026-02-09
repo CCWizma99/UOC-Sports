@@ -1,7 +1,7 @@
 .sub-nav {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   background: #2b0c4d;
   width: 100% !important;
   max-width: 100% !important;
@@ -79,5 +79,87 @@
 
   .sub-nav a {
     font-size: 0.75rem;
+  }
+}
+
+/* Sport selector dropdown styling */
+.sport-selector-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.sport-selector-container label {
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.sport-dropdown {
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #2b0c4d;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 180px;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232b0c4d' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 12px;
+}
+
+.sport-dropdown:hover {
+  background-color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sport-dropdown:focus {
+  outline: none;
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .sport-selector-container {
+    margin-left: 1rem;
+  }
+
+  .sport-selector-container label {
+    font-size: 0.8rem;
+  }
+
+  .sport-dropdown {
+    min-width: 140px;
+    font-size: 0.85rem;
+    padding: 0.4rem 1.5rem 0.4rem 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sub-nav {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .sport-selector-container {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .sport-dropdown {
+    min-width: auto;
+    flex: 1;
+    max-width: 200px;
   }
 }

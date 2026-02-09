@@ -9,8 +9,25 @@
     --gray-300: #d1d5db;
     --gray-600: #4b5563;
     --gray-800: #1f2937;
-    --warning: #a78bfa;
-    --success: #a78bfa;
+    --warning: #f59e0b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    
+    /* Sport Colors */
+    --sport-badminton: #8b5cf6;
+    --sport-football: #06b6d4;
+    --sport-cricket: #f97316;
+    --sport-basketball: #f59e0b;
+    --sport-tennis: #84cc16;
+    --sport-swimming: #0ea5e9;
+    --sport-volleyball: #ec4899;
+    
+    /* Status Colors */
+    --status-pending: #fbbf24;
+    --status-approved: #22c55e;
+    --status-rejected: #ef4444;
+    --status-urgent: #dc2626;
 
 }
 
@@ -76,25 +93,29 @@
 
 .days-grid .day {
   padding: 12px 0;
-  background: #f3f1f7;
+  background: linear-gradient(135deg, #f9f7fc 0%, #f3f1f7 100%);
   border-radius: 8px;
   position: relative;
   cursor: pointer;
-  transition: transform 0.2s, 0.2s;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  border: 2px solid transparent;
 }
 
 .days-grid .day:hover {
   transform: scale(1.05);
-  background: #e6d9f5;
+  background: linear-gradient(135deg, #ede9fe 0%, #e6d9f5 100%);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
 }
 
 .days-grid .day.today {
-  background: var(--primary-purple);
+  background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
   color: white;
+  box-shadow: 0 4px 12px rgba(43, 12, 77, 0.4);
 }
 
 .days-grid .day.scheduled {
-  border: 2px solid var(--primary-purple);
+  border: 2px solid var(--sport-badminton);
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
 }
 
 /* Tooltip */
@@ -233,19 +254,22 @@
 
 /* --- Reservation Card --- */
 .reservation-card {
-  background: #faf9fc;
+  background: linear-gradient(135deg, #faf9fc 0%, #f3f1f7 100%);
   border-radius: 10px;
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  border: 2px solid transparent;
 }
 
 .reservation-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.25);
+  border-color: var(--sport-badminton);
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
 }
 
 /* --- Card Header --- */
@@ -271,9 +295,13 @@
 }
 
 /* Sport colors */
-.sport-badge.badminton { background: var(--primary-purple); }
-.sport-badge.football { background: #12c2e9; }
-.sport-badge.cricket  { background: #f56a00; }
+.sport-badge.badminton { background: linear-gradient(135deg, var(--sport-badminton) 0%, #9333ea 100%); }
+.sport-badge.football { background: linear-gradient(135deg, var(--sport-football) 0%, #0891b2 100%); }
+.sport-badge.cricket  { background: linear-gradient(135deg, var(--sport-cricket) 0%, #ea580c 100%); }
+.sport-badge.basketball { background: linear-gradient(135deg, var(--sport-basketball) 0%, #f97316 100%); }
+.sport-badge.tennis { background: linear-gradient(135deg, var(--sport-tennis) 0%, #65a30d 100%); }
+.sport-badge.swimming { background: linear-gradient(135deg, var(--sport-swimming) 0%, #0284c7 100%); }
+.sport-badge.volleyball { background: linear-gradient(135deg, var(--sport-volleyball) 0%, #db2777 100%); }
 
 /* --- Card Meta --- */
 .reservation-meta {
@@ -311,24 +339,38 @@
   padding: 4px 8px;
   border-radius: 6px;
   font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.status-approved { background: #28a745; color: white; }
-.status-pending  { background: #ffc107; color: white; }
-.status-rejected { background: #dc3545; color: white; }
+.status-approved { 
+  background: linear-gradient(135deg, var(--status-approved) 0%, #16a34a 100%); 
+  color: white; 
+}
+.status-pending  { 
+  background: linear-gradient(135deg, var(--status-pending) 0%, #f59e0b 100%); 
+  color: white; 
+}
+.status-rejected { 
+  background: linear-gradient(135deg, var(--status-rejected) 0%, #dc2626 100%); 
+  color: white; 
+}
 
 .view-btn.action-btn {
-  background: #5e2d91;
+  background: linear-gradient(135deg, #5e2d91 0%, var(--dark-purple) 100%);
   color: white;
   border: none;
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
+  box-shadow: 0 2px 6px rgba(94, 45, 145, 0.3);
+  transition: all 0.3s ease;
 }
 
 .view-btn.action-btn:hover {
-  background: #764ba2;
+  background: linear-gradient(135deg, var(--dark-purple) 0%, #5e2d91 100%);
+  box-shadow: 0 4px 10px rgba(94, 45, 145, 0.5);
+  transform: translateY(-2px);
 }
 
 /* --- Modal --- */
@@ -407,11 +449,37 @@
   margin-top: 20px;
 }
 
-.approve-btn { background: #28a745; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
-.reject-btn { background: #dc3545; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+.approve-btn { 
+  background: linear-gradient(135deg, var(--success) 0%, #059669 100%); 
+  color: white; 
+  border: none; 
+  padding: 8px 14px; 
+  border-radius: 6px; 
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+  transition: all 0.3s ease;
+}
+.reject-btn { 
+  background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%); 
+  color: white; 
+  border: none; 
+  padding: 8px 14px; 
+  border-radius: 6px; 
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+  transition: all 0.3s ease;
+}
 
-.approve-btn:hover { background: #218838; }
-.reject-btn:hover { background: #c82333; }
+.approve-btn:hover { 
+  background: linear-gradient(135deg, #059669 0%, #047857 100%); 
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+  transform: translateY(-2px);
+}
+.reject-btn:hover { 
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); 
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+  transform: translateY(-2px);
+}
 
 /* --- Responsive --- */
 @media (max-width: 720px) {
@@ -587,14 +655,27 @@ body {
 }
 
 .welcome-section {
-    background-color: white;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(43, 12, 77, 0.08) 100%);
     color: var(--primary-purple);
     padding: 2rem 1.5rem;
     border-radius: 12px;
-    border: 0.5px solid var(--primary-purple);
+    border: 2px solid var(--primary-purple);
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
     min-height: 120px;
     margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+    pointer-events: none;
 }
 
 .welcome-section h1 {
@@ -692,7 +773,7 @@ body {
 }
 
 .calendar-day {
-    background-color: var(--white);
+    background: linear-gradient(135deg, var(--white) 0%, #fafafa 100%);
     border: 2px solid var(--gray-200);
     border-radius: 6px;
     padding: 0.3rem;
@@ -709,19 +790,23 @@ body {
 }
 
 .calendar-day:hover {
-    border-color: var(--primary-purple);
+    border-color: var(--sport-badminton);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(124, 58, 237, 0.2);
+    box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
+    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
 }
 
 .calendar-day.today {
-    background-color: var(--primary-purple);
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
     color: var(--white);
     border-color: var(--primary-purple);
+    box-shadow: 0 4px 12px rgba(43, 12, 77, 0.4);
+    font-weight: 700;
 }
 
 .calendar-day.has-reservation {
-    border-color: var(--light-purple);
+    border-color: var(--sport-football);
+    background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
 }
 
 .calendar-day.has-reservation::after {
@@ -730,12 +815,14 @@ body {
     bottom: 5px;
     width: 6px;
     height: 6px;
-    background-color: var(--primary-purple);
+    background: linear-gradient(135deg, var(--sport-football) 0%, #0891b2 100%);
     border-radius: 50%;
+    box-shadow: 0 0 4px rgba(6, 182, 212, 0.6);
 }
 
 .calendar-day.today.has-reservation::after {
-    background-color: var(--white);
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    box-shadow: 0 0 6px rgba(251, 191, 36, 0.8);
 }
 
 .calendar-day.other-month {
@@ -756,25 +843,98 @@ body {
     background: white;
     color: var(--primary-purple);
     padding: 1.75rem 2rem;
-    border-radius: 12px;
+    border-radius: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 6px var(--primary-purple);
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
     min-height: 160px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(74, 35, 112, 0.08) 100%);
+    z-index: 0;
+    transition: all 0.4s ease;
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+    z-index: 0;
+    transition: transform 0.6s ease;
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.25);
+    border-color: var(--sport-badminton);
+}
+
+.stat-card:hover::before {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(74, 35, 112, 0.15) 100%);
+}
+
+.stat-card:hover::after {
+    transform: translate(-10%, -10%) scale(1.1);
+}
+
+.stat-card:nth-child(1) {
+    border-left: 4px solid #f59e0b;
+}
+
+.stat-card:nth-child(1)::before {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(217, 119, 6, 0.08) 100%);
+}
+
+.stat-card:nth-child(1)::after {
+    background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.15) 0%, transparent 60%);
+}
+
+.stat-card:nth-child(1):hover {
+    border-color: #f59e0b;
+    box-shadow: 0 12px 30px rgba(245, 158, 11, 0.25);
+}
+
+.stat-card:nth-child(2) {
+    border-left: 4px solid #10b981;
+}
+
+.stat-card:nth-child(2)::before {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.08) 100%);
+}
+
+.stat-card:nth-child(2)::after {
+    background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.15) 0%, transparent 60%);
+}
+
+.stat-card:nth-child(2):hover {
+    border-color: #10b981;
+    box-shadow: 0 12px 30px rgba(16, 185, 129, 0.25);
 }
 
 .stat-card i {
     font-size: 2.5rem;
     opacity: 0.9;
     margin-bottom: 0.75rem;
+    position: relative;
+    z-index: 1;
 }
 
 .stat-info {
@@ -782,19 +942,40 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 0.35rem;
+    position: relative;
+    z-index: 1;
 }
 
 .stat-info h4 {
     font-size: 0.85rem;
-    opacity: 0.9;
+    opacity: 1;
     margin: 0;
     font-weight: 600;
+    color: var(--gray-700);
 }
 
 .stat-number {
     font-size: 2.25rem;
     font-weight: 700;
     margin: 0;
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--sport-badminton) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-card:nth-child(1) .stat-number {
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-card:nth-child(2) .stat-number {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 /* Right Sidebar */
@@ -820,11 +1001,13 @@ body {
     font-size: 1rem;
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--lightest-purple);
+    border-bottom: 3px solid transparent;
+    border-image: linear-gradient(90deg, var(--sport-badminton) 0%, var(--sport-football) 100%);
+    border-image-slice: 1;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    
+    font-weight: 700;
 }
 
 .reservations-list {
@@ -834,16 +1017,19 @@ body {
 }
 
 .reservation-item {
-    background-color: var(--gray-100);
+    background: linear-gradient(135deg, #faf9fc 0%, var(--gray-100) 100%);
     padding: 0.875rem;
     border-radius: 8px;
     border-left: 4px solid var(--primary-purple);
     transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .reservation-item:hover {
-    background-color: var(--lightest-purple);
+    background: linear-gradient(135deg, var(--lightest-purple) 0%, #e9ddfa 100%);
     transform: translateX(4px);
+    box-shadow: 0 4px 8px rgba(139, 92, 246, 0.2);
+    border-left-color: var(--sport-badminton);
 }
 
 .reservation-header {
@@ -866,16 +1052,54 @@ body {
     font-size: 0.75rem;
     font-weight: 600;
     margin-top: 0.5rem;
+    border: 2px solid transparent;
 }
 
 .status-badge.pending {
-    background-color:  var(--primary-purple);
-    color: var(--white);
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #f59e0b;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+}
+
+.status-badge.accepted {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #10b981;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
 }
 
 .status-badge.approved {
-    background-color:  var(--primary-purple);
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #3b82f6;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+.status-badge.completed {
+    background: #e5e7eb;
+    color: #374151;
+    border-color: #6b7280;
+    box-shadow: 0 2px 6px rgba(107, 114, 128, 0.3);
+}
+
+.status-badge.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #ef4444;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+}
+
+.status-badge.urgent {
+    background: linear-gradient(135deg, var(--status-urgent) 0%, #b91c1c 100%);
     color: var(--white);
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
 }
 
 .reservation-equipment {
@@ -899,16 +1123,19 @@ body {
 }
 
 .found-item {
-    background-color: var(--gray-100);
+    background: var(--white);
     padding: 0.875rem;
     border-radius: 8px;
-    border-left: 4px solid var(--primary-purple);
+    border-left: 4px solid var(--sport-basketball);
     transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .found-item:hover {
-    background-color: var(--lightest-purple);
+    background: var(--gray-100);
     transform: translateX(4px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-left-color: var(--sport-cricket);
 }
 
 .found-item-header {
@@ -928,10 +1155,12 @@ body {
 .days-ago {
     font-size: 0.8rem;
     color: white;
-    background-color:  var(--primary-purple);
+    background: linear-gradient(135deg, var(--sport-cricket) 0%, #ea580c 100%);
     padding: 0.2rem 0.5rem;
     border-radius: 10px;
     white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3);
+    font-weight: 600;
 }
 
 .found-item-desc {
@@ -955,18 +1184,22 @@ body {
     font-weight: 600;
     font-size: 0.8rem;
     padding: 0.625rem;
-    background-color: var(--lightest-purple);
+    background: linear-gradient(135deg, var(--lightest-purple) 0%, #e9ddfa 100%);
     border-radius: 8px;
     text-decoration: none !important;
     transition: all 0.3s ease;
     margin-top: 0.5rem;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 4px rgba(139, 92, 246, 0.1);
 }
 
 .view-all-link:hover {
-    background-color: var(--primary-purple);
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
     color: var(--white);
     text-decoration: none !important;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(43, 12, 77, 0.4);
+    transform: translateY(-2px);
 }
 
 /* Modal */
@@ -1091,10 +1324,18 @@ body {
 
 .btn-page {
     padding: 10px;
-    background-color: var(--primary-purple);
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--dark-purple) 100%);
     display: flex;
     color: white;
     border: none;
     border-radius: 6px;
-  
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(43, 12, 77, 0.3);
+    cursor: pointer;
+}
+
+.btn-page:hover {
+    background: linear-gradient(135deg, var(--dark-purple) 0%, var(--primary-purple) 100%);
+    box-shadow: 0 4px 12px rgba(43, 12, 77, 0.5);
+    transform: translateY(-2px);
 }

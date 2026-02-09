@@ -226,30 +226,26 @@ function clearUploadedFile() {
 
 // Form submission
 document.getElementById('addParticipantsForm').addEventListener('submit', (e) => {
-    const uploadTabActive = document.getElementById('uploadTab').classList.contains('active');
-    const selectTabActive = document.getElementById('selectTab').classList.contains('active');
+    // Allow form submission - validation is now optional since both file and participants are optional
+    // At least one of them should be provided (validated on backend)
     
-    if (uploadTabActive) {
-        // Validate file upload
-        if (!fileInput.files.length) {
-            e.preventDefault();
-            alert('Please upload a participant list file');
-            return;
-        }
-    } else if (selectTabActive) {
-        // Validate student selection
-        if (selectedStudents.length === 0) {
-            e.preventDefault();
-            alert('Please select at least one participant');
-            return;
-        }
+    // Optional: Check if at least something is provided
+    const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+    const hasParticipants = document.querySelectorAll('input[name="selectedParticipants[]"]:checked').length > 0;
+    
+    if (!hasFile && !hasParticipants) {
+        e.preventDefault();
+        alert('Please either upload a file or select at least one participant');
+        return;
     }
     
-    // Form will submit naturally with either file or selected student IDs
+    // Form will submit naturally with either file or selected participants or both
 });
 
-// Initialize
-renderStudentList();
+// Initialize (only if elements exist)
+if (document.getElementById('studentList')) {
+    renderStudentList();
+}
 
 // Highlight active page in subnav
 document.addEventListener('DOMContentLoaded', function() {

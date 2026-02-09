@@ -30,102 +30,101 @@
             <!-- Add Participants Form -->
              <div class="page-header">
                 <div>
-                    <h2>Add Participants</h2>
-                    <p>Add participants to the competition by uploading a file or selecting from students</p>
+                    <h2><?= isset($competition) ? 'Add More Participants' : 'Add Participants' ?></h2>
+                    <p><?= isset($competition) ? 'Add more participants to "' . htmlspecialchars($competition['competition_name']) . '"' : 'Add participants to the competition by uploading a file or selecting from students' ?></p>
                 </div>
             </div>
 
-            <!-- Selection Tabs -->
-            <div class="selection-tabs">
-                <button class="tab-button active" onclick="switchTab('upload')">Upload File</button>
-                <button class="tab-button" onclick="switchTab('select')">Select Students</button>
-            </div>
-
-            <form id="addParticipantsForm" class="form" method="POST" enctype="multipart/form-data">
+            <form id="addParticipantsForm" class="form" method="POST" action="/uoc-sports/public/sport-manager/store-competition<?= isset($selectedSport) ? '?sport=' . urlencode($selectedSport) : '' ?>" enctype="multipart/form-data">
                 <div class="form-grid">
+                    <?php if (!isset($competition)): ?>
                     <div class="form-group">
-                        <label for="sport">Sport *</label>
+                        <label for="sport">Sport </label>
                         <select id="sport" name="sport" required>
                             <option value="">Select Sport</option>
-                            <option value="Athletics">Athletics</option>
-                            <option value="Rugby">Rugby</option>
-                            <option value="Tennis">Tennis</option>
-                            <option value="Weightlifting">Weightlifting</option>
-                            <option value="Basketball">Basketball</option>
-                            <option value="Carrom">Carrom</option>
-                            <option value="Scrabble">Scrabble</option>
-                            <option value="Chess">Chess</option>
-                            <option value="Football">Football</option>
-                            <option value="Baseball">Baseball</option>
-                            <option value="Rowing">Rowing</option>
-                            <option value="Netball">Netball</option>
-                            <option value="Teakwondo">Teakwondo</option>
-                            <option value="Hockey">Hockey</option>
-                            <option value="Elle">Elle</option>
-                            <option value="Cricket">Cricket</option>
-                            <option value="Kabaddi">Kabaddi</option>
-                            <option value="Wrestling">Wrestling</option>
-                            <option value="Badminton">Badminton</option>
-                            <option value="Table Tennis">Table Tennis</option>
-                            <option value="Volleyball">Volleyball</option>
-                            <option value="Boxing">Boxing</option>
-                            <option value="Karate">Karate</option>
-                            <option value="Swimming">Swimming</option>
+                            <?php if (!empty($sports)): ?>
+                                <?php foreach ($sports as $sport): ?>
+                                    <option value="<?= htmlspecialchars($sport['sport_name']) ?>"
+                                            <?php 
+                                            // Select if it's from URL parameter
+                                            $isSelected = (isset($selectedSport) && $selectedSport === $sport['sport_id']);
+                                            echo $isSelected ? 'selected' : '';
+                                            ?>>
+                                        <?= htmlspecialchars($sport['sport_name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                            
+                            <?php endif; ?>
                         </select>
                     </div>
+                    <?php else: ?>
+                        <!-- Hidden field for sport when editing existing competition -->
+                        <input type="hidden" name="sport" value="<?= htmlspecialchars($competition['sport_name']) ?>">
+                    <?php endif; ?>
 
                     <div class="form-group">
                         <label for="competitionName">Competition Name *</label>
-                        <input type="text" id="competitionName" name="competitionName" placeholder="Enter competition name" required>
+                        <input type="text" 
+                               id="competitionName" 
+                               name="competitionName" 
+                               placeholder="Enter competition name" 
+                               value="<?= isset($competition) ? htmlspecialchars($competition['competition_name']) : '' ?>" 
+                               <?= isset($competition) ? 'readonly style="background-color: #f3f4f6; cursor: not-allowed;"' : '' ?>
+                               required>
+                        <?php if (isset($competition)): ?>
+                            <input type="hidden" name="competition_id" value="<?= $competition['competition_id'] ?>">
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Upload Participant List -->
+                    <div class="form-group">
+                        <label for="participantsFile">Upload Participant List (Optional)</label>
+                        <input type="file" 
+                               id="participantsFile" 
+                               name="participantsFile" 
+                               accept=".pdf,application/pdf"
+                               style="width: 100%; padding: 10px; border: 2px solid #d1d5db; border-radius: 8px; font-size: 14px; cursor: pointer; background: white;">
+                        <p style="font-size: 12px; color: #6b7280; margin-top: 8px;">
+                            <i class="fas fa-info-circle"></i> Only PDF files allowed (Max 5MB)
+                        </p>
                     </div>
                 </div>
 
-                <!-- Upload File Tab -->
-                <div id="uploadTab" class="tab-content active">
-                    <div class="form-group full-width">
-                        <label for="participantsFile">Upload Participant List</label>
-                        <div class="file-upload-area" id="fileUploadArea">
-                            <div class="upload-icon">
-                                <i class="fas fa-cloud-upload-alt"></i>
+                <!-- Select Participants Checkboxes -->
+                <div class="form-group full-width">
+                    <label>Select Participants</label>
+                    <div style="max-height: 400px; overflow-y: auto; border: 2px solid #d1d5db; border-radius: 8px; padding: 15px; background-color: #f9fafb;">
+                        <?php if (!empty($students)): ?>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px;">
+                                <?php foreach ($students as $student): ?>
+                                    <label style="display: flex; align-items: center; padding: 10px; background: white; border: 2px solid #e5e7eb; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;" 
+                                           onmouseover="this.style.borderColor='#7c3aed'; this.style.backgroundColor='#faf5ff';" 
+                                           onmouseout="this.style.borderColor='#e5e7eb'; this.style.backgroundColor='white';">
+                                        <input type="checkbox" 
+                                               name="selectedParticipants[]" 
+                                               value="<?= htmlspecialchars($student['first_name'] . ' ' . $student['last_name']) ?>"
+                                               style="width: 18px; height: 18px; margin-right: 10px; cursor: pointer; accent-color: #7c3aed;">
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 600; color: #374151; font-size: 14px;">
+                                                <?= htmlspecialchars($student['first_name'] . ' ' . $student['last_name']) ?>
+                                            </div>
+                                            <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">
+                                                ID: <?= htmlspecialchars($student['student_id']) ?> | <?= htmlspecialchars($student['email']) ?>
+                                            </div>
+                                        </div>
+                                    </label>
+                                <?php endforeach; ?>
                             </div>
-                            <div class="upload-text">
-                                <h3>Drag & Drop or Click to Upload</h3>
-                                <p>Supported formats: JPG, PNG, PDF (Max 5MB)</p>
-                            </div>
-                            <input type="file" id="participantsFile" name="participantsFile" class="file-input-hidden" accept="image/jpeg,image/jpg,image/png,application/pdf">
-                        </div>
-                        <div class="file-info" id="fileInfo">
-                            <div class="file-details">
-                                <i class="fas fa-file file-icon"></i>
-                                <span class="file-name" id="fileName"></span>
-                            </div>
-                            <button type="button" class="remove-file-btn" id="removeFileBtn">Remove</button>
-                        </div>
+                        <?php else: ?>
+                            <p style="text-align: center; color: #9ca3af; padding: 20px;">
+                                <i class="fas fa-info-circle"></i> No students available for this sport
+                            </p>
+                        <?php endif; ?>
                     </div>
-                </div>
-
-                <!-- Select Students Tab -->
-                <div id="selectTab" class="tab-content">
-                    <div class="form-group full-width">
-                        <label for="participants">Select Participants *</label>
-                        <div class="multi-select-container">
-                            <div class="multi-select-display" id="multiSelectDisplay">
-                                <div class="selected-items" id="selectedItems">
-                                    <span class="placeholder-text" id="placeholderText">Click to select students...</span>
-                                </div>
-                                <span class="dropdown-arrow">▼</span>
-                            </div>
-                            <div class="multi-select-dropdown" id="multiSelectDropdown">
-                                <div class="search-box">
-                                    <input type="text" id="studentSearch" placeholder="Search by name or student ID...">
-                                </div>
-                                <div class="student-list" id="studentList">
-                                    <!-- Students will be populated by JavaScript -->
-                                </div>
-                            </div>
-                            <input type="hidden" name="selectedStudents" id="selectedStudents">
-                        </div>
-                    </div>
+                    <p style="font-size: 12px; color: #6b7280; margin-top: 8px;">
+                        <i class="fas fa-info-circle"></i> Select all participants you want to add to the competition
+                    </p>
                 </div>
                         
                 <div class="form-actions">

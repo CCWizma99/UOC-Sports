@@ -24,6 +24,14 @@
 
     <div class="report-header">
         <h2><?= htmlspecialchars($sport ?? 'Equipment') ?> Equipment Management</h2>
+        <?php if (isset($summary)): ?>
+        <div style="display: flex; gap: 2rem; margin-top: 1rem; font-size: 0.9rem;">
+            <span><strong>Total Equipment Types:</strong> <?= $summary['total_equipment'] ?? 0 ?></span>
+            <span><strong>Total Items:</strong> <?= $summary['total_items'] ?? 0 ?></span>
+            <span><strong>Usable:</strong> <?= $summary['usable_items'] ?? 0 ?></span>
+            <span><strong>Active Reservations:</strong> <?= $summary['active_reservations'] ?? 0 ?></span>
+        </div>
+        <?php endif; ?>
       </div>
 
      
@@ -31,7 +39,7 @@
         <input type="text" id="searchInput" placeholder="Search Equipment...">
   
         <button class="btn-add" onclick="window.location.href='/uoc-sports/public/equipment-manager/equipments'">
-            <i class="fas fa-arrow-left"></i> Back to Sports
+ Back to Sports
         </button>
     </div>
 
@@ -40,101 +48,65 @@
         <table>
             <thead>
                 <tr>
-                    <th onclick="sortTable(0)">Equipment Category ID<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(1)">Equipment Name<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(2)">Usable Equipment Count<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(3)">Available Equipment Count<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(4)">Reserved Equipment Locations<span class="sort-indicator"></span></th>
+                                        <th onclick="sortTable(2)">Equipment Name<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(1)">Category<span class="sort-indicator"></span></th>
+
+                    <th onclick="sortTable(3)">Usable Count<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(4)">Available Count<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(5)">Reserved Locations<span class="sort-indicator"></span></th>
                     <th>Action</th>
                 </tr>
             </thead>
 
             <tbody id="tableBody">
                 <?php
-                // Sample data based on sport
-                $equipmentData = [
-                    'Athletics' => [
-                        ['id' => 'ATH-001', 'name' => 'Trail Running Shoes', 'usable' => 50, 'available' => 42, 'locations' => 'Equipment Room A, Storage 1'],
-                        ['id' => 'ATH-002', 'name' => 'Road Race Shoes', 'usable' => 12, 'available' => 10, 'locations' => 'Track Field Storage'],
-                        ['id' => 'ATH-003', 'name' => 'Hurdles', 'usable' => 20, 'available' => 18, 'locations' => 'Track Field Storage'],
-                        ['id' => 'ATH-004', 'name' => 'Javelin', 'usable' => 15, 'available' => 13, 'locations' => 'Equipment Room B'],
-                        ['id' => 'ATH-005', 'name' => 'Shot Put', 'usable' => 10, 'available' => 8, 'locations' => 'Equipment Room B'],
-                       
-                    ],
-                    'Rugby' => [
-                        ['id' => 'RUG-001', 'name' => 'Rugby Ball', 'usable' => 40, 'available' => 32, 'locations' => 'Rugby Field Storage, Locker Room 2'],
-                        ['id' => 'RUG-002', 'name' => 'Tackle Bags', 'usable' => 15, 'available' => 12, 'locations' => 'Rugby Field Storage'],
-                        ['id' => 'RUG-003', 'name' => 'Scrum Machine', 'usable' => 2, 'available' => 2, 'locations' => 'Rugby Practice Field'],
-                        ['id' => 'RUG-004', 'name' => 'Training Cones', 'usable' => 60, 'available' => 58, 'locations' => 'Equipment Room C'],
-                        ['id' => 'RUG-005', 'name' => 'Kicking Tee', 'usable' => 20, 'available' => 16, 'locations' => 'Rugby Field Storage'],
-                    ],
-                    'Tennis' => [
-                        ['id' => 'TEN-001', 'name' => 'Tennis Racket', 'usable' => 40, 'available' => 32, 'locations' => 'Tennis Court Office, Storage Shed'],
-                        ['id' => 'TEN-002', 'name' => 'Tennis Ball (Can)', 'usable' => 100, 'available' => 85, 'locations' => 'Tennis Court Office'],
-                        ['id' => 'TEN-003', 'name' => 'Ball Machine', 'usable' => 3, 'available' => 3, 'locations' => 'Tennis Court 1, Court 3'],
-                        ['id' => 'TEN-004', 'name' => 'Court Net', 'usable' => 6, 'available' => 6, 'locations' => 'All 6 Courts'],
-                        ['id' => 'TEN-005', 'name' => 'Ball Hopper', 'usable' => 12, 'available' => 10, 'locations' => 'Tennis Court Office'],
-                    ],
-                    'Cricket' => [
-                        ['id' => 'CRI-001', 'name' => 'Cricket Bat', 'usable' => 25, 'available' => 18, 'locations' => 'Cricket Pavilion, Equipment Room'],
-                        ['id' => 'CRI-002', 'name' => 'Cricket Ball (Red)', 'usable' => 50, 'available' => 42, 'locations' => 'Cricket Pavilion'],
-                        ['id' => 'CRI-003', 'name' => 'Wicket Set', 'usable' => 10, 'available' => 10, 'locations' => 'Cricket Ground Storage'],
-                        ['id' => 'CRI-004', 'name' => 'Batting Gloves', 'usable' => 30, 'available' => 22, 'locations' => 'Cricket Pavilion Lockers'],
-                        ['id' => 'CRI-005', 'name' => 'Helmet', 'usable' => 20, 'available' => 15, 'locations' => 'Cricket Pavilion'],
-                    ],
-                    'Basketball' => [
-                        ['id' => 'BKT-001', 'name' => 'Basketball', 'usable' => 30, 'available' => 25, 'locations' => 'Gymnasium Storage, Court Side'],
-                        ['id' => 'BKT-002', 'name' => 'Basketball Hoop', 'usable' => 4, 'available' => 4, 'locations' => 'Main Court, Practice Court'],
-                        ['id' => 'BKT-003', 'name' => 'Jersey Set', 'usable' => 40, 'available' => 35, 'locations' => 'Gymnasium Locker Room'],
-                        ['id' => 'BKT-004', 'name' => 'Training Cones', 'usable' => 50, 'available' => 50, 'locations' => 'Gymnasium Storage'],
-                        ['id' => 'BKT-005', 'name' => 'Ball Cart', 'usable' => 5, 'available' => 4, 'locations' => 'Gymnasium Storage'],
-                    ],
-                    'Football' => [
-                        ['id' => 'FTB-001', 'name' => 'Football', 'usable' => 35, 'available' => 28, 'locations' => 'Football Field Storage, Locker Room'],
-                        ['id' => 'FTB-002', 'name' => 'Goal Net', 'usable' => 4, 'available' => 4, 'locations' => 'Main Field, Practice Field'],
-                        ['id' => 'FTB-003', 'name' => 'Shin Guards', 'usable' => 50, 'available' => 40, 'locations' => 'Equipment Room D'],
-                        ['id' => 'FTB-004', 'name' => 'Training Bibs', 'usable' => 60, 'available' => 58, 'locations' => 'Football Field Storage'],
-                        ['id' => 'FTB-005', 'name' => 'Agility Ladder', 'usable' => 10, 'available' => 9, 'locations' => 'Practice Field Storage'],
-                    ],
-                    'Badminton' => [
-                        ['id' => 'BDM-001', 'name' => 'Badminton Racket', 'usable' => 45, 'available' => 38, 'locations' => 'Indoor Court Storage, Equipment Desk'],
-                        ['id' => 'BDM-002', 'name' => 'Shuttlecock (Tube)', 'usable' => 200, 'available' => 175, 'locations' => 'Indoor Court Storage'],
-                        ['id' => 'BDM-003', 'name' => 'Badminton Net', 'usable' => 8, 'available' => 8, 'locations' => 'Courts 1-8'],                        ['id' => 'BDM-005', 'name' => 'Score Board', 'usable' => 8, 'available' => 8, 'locations' => 'All Indoor Courts'],
-                    ],
-                    'Volleyball' => [
-                        ['id' => 'VLB-001', 'name' => 'Volleyball', 'usable' => 30, 'available' => 26, 'locations' => 'Beach Court Storage, Indoor Court'],
-                        ['id' => 'VLB-002', 'name' => 'Volleyball Net', 'usable' => 6, 'available' => 6, 'locations' => 'Beach Courts, Indoor Courts'],
-                        ['id' => 'VLB-003', 'name' => 'Knee Pads', 'usable' => 40, 'available' => 32, 'locations' => 'Equipment Room F'],
-                        ['id' => 'VLB-004', 'name' => 'Antenna Set', 'usable' => 12, 'available' => 12, 'locations' => 'Court Storage'],
-                        ['id' => 'VLB-005', 'name' => 'Ball Cart', 'usable' => 4, 'available' => 4, 'locations' => 'Indoor Court Storage'],
-                    ]
-                ];
-                
-                $currentSport = $sport ?? '';
-                $equipment = $equipmentData[$currentSport] ?? [
-                    ['id' => 'GEN-001', 'name' => 'Sample Equipment', 'usable' => 10, 'available' => 8, 'locations' => 'General Storage']
-                ];
-                
-                foreach($equipment as $item):
+                if (isset($equipment) && count($equipment) > 0):
+                    foreach($equipment as $item):
+                        $availableCount = $item['available_count'] ?? 0;
+                        $statusClass = $availableCount > 5 ? 'excellent' : ($availableCount > 0 ? 'good' : 'poor');
                 ?>
                     <tr>
-                        <td><?= htmlspecialchars($item['id']) ?></td>
-                        <td><?= htmlspecialchars($item['name']) ?></td>
-                        <td><?= htmlspecialchars($item['usable']) ?></td>
-                        <td><?= htmlspecialchars($item['available']) ?></td>
-                        <td><?= htmlspecialchars($item['locations']) ?></td>
+                                               <td><?= htmlspecialchars($item['equipment_name']) ?></td>
+                        <td><span style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 0.25rem 0.75rem; border-radius: 8px; font-weight: 600; color: #5b21b6; font-size: 0.8rem;"><?= htmlspecialchars($item['category_name'] ?? 'Uncategorized') ?></span></td>
+
+                        <td><?= htmlspecialchars($item['usable_count']) ?></td>
+                        <td>
+                            <span class="condition-badge <?= $statusClass ?>">
+                                <?= htmlspecialchars($availableCount) ?>
+                            </span>
+                        </td>
+                        <td>
+                            <?php if ($item['reserved_count'] > 0): ?>
+                                <strong><?= $item['reserved_count'] ?> active reservation(s)</strong><br>
+                                <small><?= htmlspecialchars($item['reserved_times'] ?? 'No times listed') ?></small>
+                            <?php else: ?>
+                                <span style="color: #6b7280;">No active reservations</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
-                                <button class="btn-edit" onclick="editEquipment('<?= $item['id'] ?>')">
+                                <button class="btn-edit" onclick="editEquipment('<?= $item['equipment_id'] ?>', '<?= htmlspecialchars($item['equipment_name']) ?>', <?= $item['usable_count'] ?>, <?= $item['max_allow'] ?>)">
                                     Edit
                                 </button>
-                                <button class="btn-delete" onclick="deleteEquipment('<?= $item['id'] ?>', '<?= $item['name'] ?>')">
+                                <button class="btn-delete" onclick="deleteEquipment('<?= $item['equipment_id'] ?>', '<?= htmlspecialchars($item['equipment_name']) ?>')">
                                     Delete
+                                </button>
+                                <button class="btn-view" onclick="viewDetails('<?= $item['equipment_id'] ?>')">
+                                    Details
                                 </button>
                             </div>
                         </td>
                     </tr>
-                <?php endforeach; ?>
+                <?php 
+                    endforeach;
+                else:
+                ?>
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 2rem; color: #6b7280;">
+                            No equipment found for this sport.
+                        </td>
+                    </tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
@@ -142,14 +114,123 @@
 </div>
 
 <script>
-function editEquipment(equipmentId) {
-    alert('Edit functionality for ' + equipmentId + ' coming soon');
+function editEquipment(equipmentId, equipmentName, usableCount, maxAllow) {
+    const newName = prompt('Edit Equipment Name:', equipmentName);
+    const newUsable = prompt('Edit Usable Count:', usableCount);
+    const newMaxAllow = prompt('Edit Max Allow per Request:', maxAllow);
+    
+    if (newName && newUsable !== null && newMaxAllow !== null) {
+        fetch('/uoc-sports/public/equipment-manager/update-equipment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                equipmentId: equipmentId,
+                equipment_name: newName,
+                usable_count: parseInt(newUsable),
+                max_allow: parseInt(newMaxAllow)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Equipment updated successfully!');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error updating equipment');
+            console.error('Error:', error);
+        });
+    }
 }
 
 function deleteEquipment(equipmentId, equipmentName) {
-    if (confirm('Are you sure you want to delete ' + equipmentName + '?')) {
-        alert('Delete functionality for ' + equipmentId + ' coming soon');
+    if (confirm('Are you sure you want to delete "' + equipmentName + '"?\n\nNote: Cannot delete if there are active reservations.')) {
+        fetch('/uoc-sports/public/equipment-manager/delete-equipment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                equipmentId: equipmentId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Equipment deleted successfully!');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error deleting equipment');
+            console.error('Error:', error);
+        });
     }
+}
+
+function viewDetails(equipmentId) {
+    fetch('/uoc-sports/public/equipment-manager/equipment-details?id=' + equipmentId)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const equipment = data.equipment;
+                const reservations = data.reservations || [];
+                
+                let reservationsHtml = '<h4>Active Reservations:</h4>';
+                if (reservations.length > 0) {
+                    reservationsHtml += '<table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">';
+                    reservationsHtml += '<thead><tr style="background: #f3f4f6;"><th style="padding: 0.5rem; border: 1px solid #e5e7eb;">Date</th><th style="padding: 0.5rem; border: 1px solid #e5e7eb;">Time</th><th style="padding: 0.5rem; border: 1px solid #e5e7eb;">Student</th><th style="padding: 0.5rem; border: 1px solid #e5e7eb;">Purpose</th></tr></thead><tbody>';
+                    reservations.forEach(res => {
+                        reservationsHtml += `<tr>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">${res.request_date}</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">${res.start_time} - ${res.end_time}</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">${res.student_name} (${res.student_id})</td>
+                            <td style="padding: 0.5rem; border: 1px solid #e5e7eb;">${res.purpose}</td>
+                        </tr>`;
+                    });
+                    reservationsHtml += '</tbody></table>';
+                } else {
+                    reservationsHtml += '<p style="color: #6b7280; margin-top: 0.5rem;">No active reservations</p>';
+                }
+                
+                const detailsHtml = `
+                    <h3 style="margin-top: 0; color: #5e2d91;">${equipment.equipment_name}</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1rem 0;">
+                        <p><strong>Equipment ID:</strong> ${equipment.equipment_id}</p>
+                        <p><strong>Sport ID:</strong> ${equipment.sport_id}</p>
+                        <p><strong>Total Quantity:</strong> ${equipment.total_quantity || 0}</p>
+                        <p><strong>Usable Count:</strong> ${equipment.usable_count || 0}</p>
+                        <p><strong>Max Allow:</strong> ${equipment.max_allow || 1} per request</p>
+                    </div>
+                    ${reservationsHtml}
+                `;
+                
+                const modal = document.createElement('div');
+                modal.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 1000; max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto;';
+                modal.innerHTML = detailsHtml + '<button onclick="this.parentElement.remove(); document.getElementById(\'modal-overlay\').remove();" style="margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #5e2d91, #4a2370); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Close</button>';
+                
+                const overlay = document.createElement('div');
+                overlay.id = 'modal-overlay';
+                overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999;';
+                overlay.onclick = () => { modal.remove(); overlay.remove(); };
+                
+                document.body.appendChild(overlay);
+                document.body.appendChild(modal);
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error fetching equipment details');
+            console.error('Error:', error);
+        });
 }
 
 // Search functionality
@@ -158,8 +239,13 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
     const tableRows = document.querySelectorAll('#tableBody tr');
     
     tableRows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchValue) ? '' : 'none';
+        const cells = row.getElementsByTagName('td');
+        if (cells.length > 0) {
+            const equipmentName = cells[0].textContent.toLowerCase();
+            const categoryName = cells[1].textContent.toLowerCase();
+            const matches = equipmentName.includes(searchValue) || categoryName.includes(searchValue);
+            row.style.display = matches ? '' : 'none';
+        }
     });
 });
 
@@ -193,31 +279,54 @@ function sortTable(columnIndex) {
 
 <style>
 .condition-badge {
-    padding: 0.35rem 0.75rem;
+    padding: 0.4rem 0.85rem;
     border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     display: inline-block;
 }
 
 .condition-badge.excellent {
-    background-color: #d1fae5;
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
     color: #065f46;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
 }
 
 .condition-badge.good {
-    background-color: #dbeafe;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
     color: #1e40af;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
 }
 
 .condition-badge.fair {
-    background-color: #fef3c7;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     color: #92400e;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
 }
 
 .condition-badge.poor {
-    background-color: #fee2e2;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
     color: #991b1b;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+.btn-view:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+    transform: translateY(-2px);
 }
 </style>
 

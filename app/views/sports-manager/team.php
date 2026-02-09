@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+`<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sports Manager - Student Achievements</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
     @import url("/uoc-sports/public/css/global.css");
@@ -13,7 +14,14 @@
     @import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
     @import url("/uoc-sports/public/css/general/footer.css");
     @import url("/uoc-sports/public/css/sports-manager/report.css");
+    @import url("/uoc-sports/public/css/sports-manager/dynamic-background.css");
   </style>
+  <script>
+    // Pass PHP data to JavaScript
+    const initialRankings = <?= json_encode($rankings ?? []) ?>;
+    window.selectedSportName = '<?= htmlspecialchars($sportName ?? '') ?>';
+  </script>
+  <script src="/uoc-sports/public/js/sports-manager/dynamic-background.js"></script>
   <script src="/uoc-sports/public/js/sports-manager/team.js" defer></script>
 </head>
 <body>
@@ -36,7 +44,7 @@
     </div>
 
     <!-- Achievements Display Area (Top of Page) -->
-    <div id="achievementsDisplay" style="display: none; margin: 1.5rem auto 0 auto; background: #f9f7ff; padding: 1.5rem; border-radius: 8px; border: 2px solid #5e2d91; max-width: 800px;">
+    <div id="achievementsDisplay" style="display: none; margin: 1.5rem auto 0 auto; background: #f9f7ff; padding: 1.5rem; border-radius: 8px; border: 2px solid #5e2d91; max-width: 1000px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3 id="achievementsStudentName" style="color: #5e2d91; margin: 0; font-size: 1.25rem;"></h3>
             <button onclick="closeAchievementsDisplay()" style="display: inline-block;
@@ -56,7 +64,31 @@
                 Close
             </button>
         </div>
-        <div id="achievementsContent"></div>
+        
+        <!-- Performance Analysis and Achievements Layout -->
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+            <!-- Performance Analysis Chart (Left Side) -->
+            <div style="flex: 1; min-width: 400px; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h4 style="color: #2b0c4d; margin: 0 0 1rem 0; font-size: 1.1rem;">Performance Analysis</h4>
+                <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 1rem;">
+                    Track student performance across competitions (Max possible: 12 points for 1st place + Best performer)
+</br><p style="color: #6b7280; font-size: 0.7rem; margin-bottom: 1rem;"> 5 points for 1st place,
+ 3 points for 2nd place,
+ 2 points for 3rd place</p>
+                
+                <div style="position: relative; height: 350px;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Achievements List (Right Side) -->
+            <div style="flex: 0 0 350px; min-width: 300px;">
+                <h4 style="color: #2b0c4d; margin: 0 0 1rem 0; font-size: 1.1rem;">All Achievements</h4>
+                <div id="achievementsContent" style="max-height: 450px; overflow-y: auto; padding-right: 0.5rem;">
+                    <!-- Achievements will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Students Grid -->
