@@ -202,42 +202,60 @@ if (empty($coachSportId) && isset($_SESSION['user_id'])) {
 
 
 <script>
-    // Example team players (you will replace with actual data later)
-const players = [
-    { id: "P001", name: "John Silva" },
-    { id: "P002", name: "Akila Perera" },
-    { id: "P003", name: "Kavindu Fernando" }
-];
+    // Get coach sport id and members from backend
+    const SPORT_ID = <?php echo json_encode($coachSportId ?? ''); ?>;
+    const membersData = <?php echo json_encode($members ?? []); ?>;
+    
+    let allPlayers = [];
+    let globalPracticeSessions = [];
+    let currentDeleteId = null;
 
-let globalPracticeSessions = [];
-let currentDeleteId = null;
-
-// Fill injured player + substitute selects
-function populatePlayerDropdowns() {
-    const injuredSelect = document.getElementById("injuredPlayer");
-    const subSelect = document.getElementById("subPlayer");
-    const editSubSelect = document.getElementById("edit-subPlayer");
-
-    players.forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p.id;
-        opt.textContent = p.name;
-        injuredSelect.appendChild(opt);
-
-        const subOpt = document.createElement("option");
-        subOpt.value = p.id;
-        subOpt.textContent = p.name;
-        subSelect.appendChild(subOpt);
+    // Populate players from backend data
+    function loadTeamPlayers() {
+        if (!Array.isArray(membersData) || membersData.length === 0) {
+            console.warn('No team members available');
+            return;
+        }
         
-        const editSubOpt = subOpt.cloneNode(true);
-        editSubSelect.appendChild(editSubOpt);
-    });
-}
+        allPlayers = membersData.map(m => ({
+            user_id: m.user_id || m.student_id,
+            fname: m.fname || '',
+            lname: m.lname || ''
+        }));
+        
+        console.log('Loaded players:', allPlayers);
+        populatePlayerDropdowns();
+    }
 
-populatePlayerDropdowns();
+    // Fill injured player + substitute selects
+    function populatePlayerDropdowns() {
+        const injuredSelect = document.getElementById("injuredPlayer");
+        const subSelect = document.getElementById("subPlayer");
+        const editSubSelect = document.getElementById("edit-subPlayer");
 
-// Provide sport id to JS
-const SPORT_ID = <?php echo json_encode($coachSportId ?? ''); ?>;
+        // Clear existing options (keep the default one)
+        injuredSelect.innerHTML = '<option value="">Select player...</option>';
+        subSelect.innerHTML = '<option value="">Select substitute...</option>';
+        editSubSelect.innerHTML = '<option value="">Select substitute...</option>';
+
+        allPlayers.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.user_id;
+            opt.textContent = p.fname + ' ' + p.lname;
+            injuredSelect.appendChild(opt);
+
+            const subOpt = document.createElement("option");
+            subOpt.value = p.user_id;
+            subOpt.textContent = p.fname + ' ' + p.lname;
+            subSelect.appendChild(subOpt);
+            
+            const editSubOpt = subOpt.cloneNode(true);
+            editSubSelect.appendChild(editSubOpt);
+        });
+    }
+
+    // Load on page ready
+    loadTeamPlayers();
 
 // Fetch upcoming practice sessions for coach's sport and populate dropdown
 async function loadPracticeSessions() {
@@ -286,6 +304,15 @@ async function loadInjuryReports() {
                 else if(r.description.includes('Moderate')) severity = 'Moderate';
                 else if(r.description.includes('Severe')) severity = 'Severe';
 
+                // Get substitute player name from allPlayers array
+                let substituteName = '-';
+                if (r.substitude_id) {
+                    const subPlayer = allPlayers.find(p => p.user_id === r.substitude_id);
+                    if (subPlayer) {
+                        substituteName = subPlayer.fname + ' ' + subPlayer.lname;
+                    }
+                }
+
                 const row = `
                     <tr>
                         <td>${playerName}</td>
@@ -293,7 +320,7 @@ async function loadInjuryReports() {
                         <td>${r.description.split('(')[0].trim()}</td>
                         <td>${r.date}</td>
                         <td>${severity}</td>
-                        <td>${r.substitude_id || '-'}</td>
+                        <td>${substituteName}</td>
                          <td>
                             <div class="actions-cell" style="display: flex; gap: 10px;">
                                 <button class="btn-action btn-edit" onclick='openEditModal(${JSON.stringify(r).replace(/'/g, "&#39;")})' title="Edit" style="background: none; border: none; cursor: pointer; color: #007bff;"><i class="fas fa-edit"></i></button>
@@ -324,12 +351,12 @@ document.getElementById("injuredPlayer").addEventListener("change", function () 
         const subSelect = document.getElementById("subPlayer");
         subSelect.innerHTML = '<option value="">Select substitute...</option>';
 
-        players
-            .filter(p => p.id !== selected)
+        allPlayers
+            .filter(p => p.user_id !== selected)
             .forEach(p => {
                 const opt = document.createElement("option");
-                opt.value = p.id;
-                opt.textContent = p.name;
+                opt.value = p.user_id;
+                opt.textContent = p.fname + ' ' + p.lname;
                 subSelect.appendChild(opt);
             });
 
@@ -409,12 +436,12 @@ function openEditModal(report) {
     const editSubSelect = document.getElementById("edit-subPlayer");
      // Reset options
     editSubSelect.innerHTML = '<option value="">Select substitute...</option>';
-    players
-        .filter(p => p.id !== report.user_id)
+    allPlayers
+        .filter(p => p.user_id !== report.user_id)
         .forEach(p => {
             const opt = document.createElement("option");
-            opt.value = p.id;
-            opt.textContent = p.name;
+            opt.value = p.user_id;
+            opt.textContent = p.fname + ' ' + p.lname;
             editSubSelect.appendChild(opt);
         });
      // Set value again after repopulating
