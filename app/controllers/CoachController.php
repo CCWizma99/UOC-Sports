@@ -23,10 +23,32 @@ class CoachController {
             $_SESSION['coach_sport_id'] = $sportId; // Update session just in case
         }
 
+        // Get coach name and sport name
+        $coachName = '';
+        $sportName = '';
+        
+        $userStmt = $pdo->prepare("SELECT fname, lname FROM user WHERE user_id = ?");
+        $userStmt->execute([$userId]);
+        $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
+        if ($userData) {
+            $coachName = htmlspecialchars($userData['fname'] . ' ' . $userData['lname']);
+        }
+
+        if ($sportId) {
+            $sportStmt = $pdo->prepare("SELECT sport_name FROM sport WHERE sport_id = ?");
+            $sportStmt->execute([$sportId]);
+            $sportData = $sportStmt->fetch(PDO::FETCH_ASSOC);
+            if ($sportData) {
+                $sportName = htmlspecialchars($sportData['sport_name']);
+            }
+        }
+
         $data = [
             'schedules' => [],
             'members' => [],
             'upcoming_matches_count' => 0,
+            'coach_name' => $coachName,
+            'sport_name' => $sportName,
             'debug_sport_id' => $sportId,
             'debug_user_id' => $userId
         ];
