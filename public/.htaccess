@@ -4,6 +4,10 @@ RewriteEngine On
 RewriteCond %{REQUEST_URI} ^/uoc-sports/public/admin-
 RewriteRule ^ admin-index.php [L]
 
+# Executive routes go to executive-index.php
+RewriteCond %{REQUEST_URI} ^/uoc-sports/public/executive-
+RewriteRule ^ executive-index.php [L]
+
 # Everything else goes to index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

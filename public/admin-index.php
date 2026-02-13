@@ -12,6 +12,7 @@ require_once '../core/helpers.php';
 $router = new Router();
 
 $router->get('/admin-index', 'AdminHomeController@index');
+$router->get('/admin-executive-dashboard', 'AdminHomeController@executiveDashboard');
 $router->get('/admin-users', 'AdminHomeController@users');
 $router->get('/admin-user-profile', 'AdminHomeController@userProfile');
 $router->get('/admin-reservations', 'AdminHomeController@reservations');
@@ -64,6 +65,9 @@ $router->post('/api/user/toggle-status', 'UserApiController@toggleStatus');
 // Reservation Stats API
 $router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
 $router->get('/admin-reservations/analytics', 'ReservationApiController@getAnalytics');
+
+// Dashboard API
+$router->get('/admin-dashboard/analytics', 'DashboardApiController@getExecutiveSummary');
 
 // Tournament routes
 $router->post('/admin-tournament/create', 'TournamentController@createTournament');

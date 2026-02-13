@@ -157,23 +157,26 @@ class AuthController extends BaseController {
                     case "ADMIN":
                         $_SESSION['redirectURL'] = "/uoc-sports/public/admin-index";
                         break;
+                    case "EXECUTIVE":
+                        $_SESSION['redirectURL'] = "/uoc-sports/public/executive-dashboard";
+                        break;
                     case "REG":
-                        $_SESSION['redirectURL'] = "/uoc-sports/public/registrar//";
+                        $_SESSION['redirectURL'] = "/uoc-sports/public/registrar";
                         break;
                     case "SPT":
-                        $_SESSION['redirectURL'] = "/uoc-sports/public/sport-manager//";
+                        $_SESSION['redirectURL'] = "/uoc-sports/public/sport-manager";
                         break;
                     case "EQP":
-                        $_SESSION['redirectURL'] = "/uoc-sports/public/equipment-manager//";
+                        $_SESSION['redirectURL'] = "/uoc-sports/public/equipment-manager";
                         break;
                     case "STUDENT":
                         $_SESSION['redirectURL'] = "/uoc-sports/public/student";
                         break;
                     case "CAPTAIN":
-                        $_SESSION['redirectURL'] = "/uoc-sports/public/captain//";
+                        $_SESSION['redirectURL'] = "/uoc-sports/public/captain";
                         break;
                     case "COACH":
-                        $_SESSION['redirectURL'] = "/uoc-sports/public/coach//";
+                        $_SESSION['redirectURL'] = "/uoc-sports/public/coach";
                         break;
                     default:
                         $_SESSION['redirectURL'] = "/uoc-sports/public/";
