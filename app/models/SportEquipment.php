@@ -11,28 +11,102 @@ class SportEquipment {
      * Get all equipment for a sport with availability details
      */
     public function getEquipmentBySport($sportId) {
+        // First get all equipment for the sport with inventory data
         $query = "SELECT 
                     e.equipment_id,
                     e.equipment_name,
                     e.sport_id,
                     e.max_allow,
-                    e.category_id,
+                    ec.category_id,
                     COALESCE(ec.category_name, 'Uncategorized') as category_name,
-                    COALESCE(SUM(ei.usable), 0) as usable_count,
-                    COALESCE(COUNT(DISTINCT CASE WHEN er.status = 'ACTIVE' THEN er.request_id END), 0) as reserved_count,
-                    (COALESCE(SUM(ei.usable), 0) - (COALESCE(COUNT(DISTINCT CASE WHEN er.status = 'ACTIVE' THEN er.request_id END), 0) * e.max_allow)) as available_count,
-                    GROUP_CONCAT(DISTINCT CONCAT(er.request_date, ' ', er.start_time, '-', er.end_time, ' @ ', COALESCE(er.reserved_location, 'N/A')) SEPARATOR ', ') as reserved_times
+                    COALESCE(SUM(ei.quantity), 0) as quantity,
+                    COALESCE(SUM(ei.usable), 0) as usable_count
                 FROM equipment e
-                LEFT JOIN equipment_categories ec ON e.category_id = ec.category_id
+                LEFT JOIN equipment_categories ec ON e.equipment_id = ec.equipment_id
                 LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
-                LEFT JOIN `equipment-requests` er ON e.equipment_name = er.category_name AND er.status = 'ACTIVE'
                 WHERE e.sport_id = ?
-                GROUP BY e.equipment_id, e.equipment_name, e.sport_id, e.max_allow, e.category_id, ec.category_name
+                GROUP BY e.equipment_id, e.equipment_name, e.sport_id, e.max_allow, ec.category_id, ec.category_name
                 ORDER BY ec.category_name, e.equipment_name";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute([$sportId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $equipment = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Now get active booking requests for this sport
+        // Match by sport_id (for new requests) OR by equipment name (for legacy requests)
+        $requestQuery = "SELECT DISTINCT
+                            er.request_id,
+                            er.equipment_items,
+                            er.category_name,
+                            er.request_date,
+                            er.start_time,
+                            er.end_time,
+                            er.reserved_location
+                        FROM `equipment-requests` er
+                        WHERE er.status = 'ACTIVE' 
+                        AND (er.sport_id = ? OR er.category_name IN (
+                            SELECT e.equipment_name 
+                            FROM equipment e 
+                            WHERE e.sport_id = ?
+                        ))";
+        
+        $requestStmt = $this->db->prepare($requestQuery);
+        $requestStmt->execute([$sportId, $sportId]);
+        $activeRequests = $requestStmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Calculate reserved quantities and locations for each equipment
+        foreach ($equipment as &$item) {
+            $reservedQuantity = 0;
+            $reservedCount = 0;
+            $reservedTimes = [];
+            
+            foreach ($activeRequests as $request) {
+                $matchFound = false;
+                $qty = 1; // Default quantity
+                
+                // Try to parse equipment_items JSON first (new format)
+                if (!empty($request['equipment_items'])) {
+                    $items = json_decode($request['equipment_items'], true);
+                    if (is_array($items)) {
+                        foreach ($items as $equipmentItem) {
+                            if (isset($equipmentItem['equipment_name']) && 
+                                $equipmentItem['equipment_name'] === $item['equipment_name']) {
+                                $qty = isset($equipmentItem['quantity']) ? (int)$equipmentItem['quantity'] : 1;
+                                $matchFound = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Fallback to category_name for old/legacy requests
+                if (!$matchFound && !empty($request['category_name'])) {
+                    if ($request['category_name'] === $item['equipment_name']) {
+                        $qty = 1; // Legacy requests don't have quantity info
+                        $matchFound = true;
+                    }
+                }
+                
+                // If this request matches the equipment, add to reservations
+                if ($matchFound) {
+                    $reservedQuantity += $qty;
+                    $reservedCount++;
+                    
+                    $location = !empty($request['reserved_location']) ? $request['reserved_location'] : 'N/A';
+                    $reservedTimes[] = $request['request_date'] . ' ' . 
+                                       substr($request['start_time'], 0, 5) . '-' . 
+                                       substr($request['end_time'], 0, 5) . ' @ ' . 
+                                       $location . ' (Qty: ' . $qty . ')';
+                }
+            }
+            
+            $item['reserved_count'] = $reservedCount;
+            $item['reserved_quantity'] = $reservedQuantity;
+            $item['available_count'] = max(0, $item['usable_count'] - $reservedQuantity);
+            $item['reserved_times'] = !empty($reservedTimes) ? implode('; ', $reservedTimes) : '';
+        }
+        
+        return $equipment;
     }
 
     /**
@@ -118,17 +192,17 @@ class SportEquipment {
      * Delete equipment (with validation)
      */
     public function deleteEquipment($equipmentId) {
-        // Get category_id for this equipment
-        $catQuery = "SELECT category_id FROM equipment WHERE equipment_id = ?";
-        $catStmt = $this->db->prepare($catQuery);
-        $catStmt->execute([$equipmentId]);
-        $categoryId = $catStmt->fetchColumn();
+        // Get equipment name for this equipment
+        $nameQuery = "SELECT equipment_name FROM equipment WHERE equipment_id = ?";
+        $nameStmt = $this->db->prepare($nameQuery);
+        $nameStmt->execute([$equipmentId]);
+        $equipmentName = $nameStmt->fetchColumn();
         
-        // Check if equipment has active requests for this category
+        // Check if equipment has active requests
         $checkQuery = "SELECT COUNT(*) FROM `equipment-requests` 
-                      WHERE category_id = ? AND status = 'ACTIVE'";
+                      WHERE category_name = ? AND status = 'ACTIVE'";
         $stmt = $this->db->prepare($checkQuery);
-        $stmt->execute([$categoryId]);
+        $stmt->execute([$equipmentName]);
         
         if ($stmt->fetchColumn() > 0) {
             throw new Exception("Cannot delete equipment with active reservations");
@@ -166,18 +240,30 @@ class SportEquipment {
      * Get sport summary statistics
      */
     public function getSportSummary($sportId) {
+        // Get basic equipment stats
         $query = "SELECT 
                     COUNT(DISTINCT e.equipment_id) as total_equipment,
                     COALESCE(SUM(ei.quantity), 0) as total_items,
-                    COALESCE(SUM(ei.usable), 0) as usable_items,
-                    COUNT(DISTINCT CASE WHEN er.status = 'ACTIVE' THEN er.request_id END) as active_reservations
+                    COALESCE(SUM(ei.usable), 0) as usable_items
                 FROM equipment e
                 LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
-                LEFT JOIN `equipment-requests` er ON e.equipment_name = er.category_name
                 WHERE e.sport_id = ?";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute([$sportId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $summary = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Get active reservations count for this sport  
+        $reservationQuery = "SELECT COUNT(*) as active_reservations 
+                            FROM `equipment-requests` 
+                            WHERE status = 'ACTIVE' AND sport_id = ?";
+        
+        $reservationStmt = $this->db->prepare($reservationQuery);
+        $reservationStmt->execute([$sportId]);
+        $reservationData = $reservationStmt->fetch(PDO::FETCH_ASSOC);
+        
+        $summary['active_reservations'] = $reservationData['active_reservations'] ?? 0;
+        
+        return $summary;
     }
 }

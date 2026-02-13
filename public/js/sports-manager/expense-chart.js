@@ -227,17 +227,17 @@ function createLineChart(expenses, sportId, year) {
             datasets: [{
                 label: 'Cumulative Expenses (Rs)',
                 data: cumulativeData,
-                borderColor: '#a855f7',
+                borderColor: '#7e22ce',
                 backgroundColor: 'rgba(124, 58, 237, 0.1)',
                 borderWidth: 3,
                 fill: true,
                 tension: 0.4,
                 pointRadius: 5,
                 pointHoverRadius: 7,
-                pointBackgroundColor: '#a855f7',
+                pointBackgroundColor: '#7e22ce',
                 pointBorderColor: '#fff',
                 pointBorderWidth: 2,
-                pointHoverBackgroundColor: '#a855f7',
+                pointHoverBackgroundColor: '#7e22ce',
                 pointHoverBorderWidth: 3
             }]
         },
@@ -261,27 +261,107 @@ function createLineChart(expenses, sportId, year) {
                     }
                 },
                 tooltip: {
-                    callbacks: {
-                        title: function(context) {
-                            const index = context[0].dataIndex;
-                            return expenses[index].expense_title;
-                        },
-                        label: function(context) {
-                            const index = context.dataIndex;
-                            return [
-                                'Amount: Rs ' + amounts[index].toLocaleString('en-IN', {minimumFractionDigits: 2}),
-                                'Total: Rs ' + cumulativeData[index].toLocaleString('en-IN', {minimumFractionDigits: 2})
-                            ];
+                    enabled: false,
+                    external: function(context) {
+                        // Get or create tooltip element
+                        let tooltipEl = document.getElementById('chartjs-tooltip');
+
+                        if (!tooltipEl) {
+                            tooltipEl = document.createElement('div');
+                            tooltipEl.id = 'chartjs-tooltip';
+                            tooltipEl.className = 'chart-tooltip';
+                            document.body.appendChild(tooltipEl);
                         }
-                    },
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
-                    titleFont: {
-                        size: 14,
-                        weight: 'bold'
-                    },
-                    bodyFont: {
-                        size: 12
+
+                        // Hide if no tooltip
+                        const tooltipModel = context.tooltip;
+                        if (tooltipModel.opacity === 0) {
+                            tooltipEl.style.opacity = '0';
+                            return;
+                        }
+
+                        // Set Text
+                        if (tooltipModel.body) {
+                            const dataIndex = tooltipModel.dataPoints[0].dataIndex;
+                            const expense = expenses[dataIndex];
+                            const amount = amounts[dataIndex];
+                            const cumulative = cumulativeData[dataIndex];
+                            const date = expense.expense_date;
+
+                            const titleLines = tooltipModel.title || [];
+                            
+                            let innerHtml = '<div class="tooltip-header">';
+                            innerHtml += expense.expense_title || 'Expense Details';
+                            innerHtml += '</div>';
+                            
+                            innerHtml += '<div class="tooltip-content">';
+                            
+                            innerHtml += '<div class="tooltip-row">';
+                            innerHtml += '<div class="expense-detail">';
+                            innerHtml += '<i class="fas fa-calendar tooltip-icon icon-month"></i>';
+                            innerHtml += '<span class="tooltip-label">Date:</span>';
+                            innerHtml += '</div>';
+                            innerHtml += '<span class="tooltip-value">' + new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</span>';
+                            innerHtml += '</div>';
+                            
+                            innerHtml += '<div class="tooltip-row">';
+                            innerHtml += '<div class="expense-detail">';
+                            innerHtml += '<i class="fas fa-money-bill-wave tooltip-icon icon-amount"></i>';
+                            innerHtml += '<span class="tooltip-label">Amount:</span>';
+                            innerHtml += '</div>';
+                            innerHtml += '<span class="tooltip-value">Rs ' + amount.toLocaleString('en-IN', {minimumFractionDigits: 2}) + '</span>';
+                            innerHtml += '</div>';
+                            
+                            innerHtml += '<div class="tooltip-row">';
+                            innerHtml += '<div class="expense-detail">';
+                            innerHtml += '<i class="fas fa-coins tooltip-icon icon-percent"></i>';
+                            innerHtml += '<span class="tooltip-label">Cumulative:</span>';
+                            innerHtml += '</div>';
+                            innerHtml += '<span class="tooltip-value">Rs ' + cumulative.toLocaleString('en-IN', {minimumFractionDigits: 2}) + '</span>';
+                            innerHtml += '</div>';
+
+                            if (expense.category) {
+                                innerHtml += '<div class="tooltip-row">';
+                                innerHtml += '<div class="expense-detail">';
+                                innerHtml += '<i class="fas fa-tag tooltip-icon icon-category"></i>';
+                                innerHtml += '<span class="tooltip-label">Category:</span>';
+                                innerHtml += '</div>';
+                                innerHtml += '<span class="tooltip-value">' + expense.category + '</span>';
+                                innerHtml += '</div>';
+                            }
+                            
+                            innerHtml += '</div>';
+
+                            tooltipEl.innerHTML = innerHtml;
+                        }
+
+                        const position = context.chart.canvas.getBoundingClientRect();
+                        
+                        // Display, position, and set styles for font
+                        tooltipEl.style.opacity = '1';
+                        tooltipEl.style.position = 'fixed';
+                        
+                        // Position tooltip near the data point with offset
+                        const tooltipWidth = tooltipEl.offsetWidth;
+                        const tooltipHeight = tooltipEl.offsetHeight;
+                        
+                        let left = position.left + window.scrollX + tooltipModel.caretX + 15;
+                        let top = position.top + window.scrollY + tooltipModel.caretY - tooltipHeight / 2;
+                        
+                        // Adjust if tooltip goes off screen
+                        if (left + tooltipWidth > window.innerWidth) {
+                            left = position.left + window.scrollX + tooltipModel.caretX - tooltipWidth - 15;
+                        }
+                        
+                        if (top < 0) {
+                            top = 10;
+                        } else if (top + tooltipHeight > window.innerHeight) {
+                            top = window.innerHeight - tooltipHeight - 10;
+                        }
+                        
+                        tooltipEl.style.left = left + 'px';
+                        tooltipEl.style.top = top + 'px';
+                        tooltipEl.style.pointerEvents = 'none';
                     }
                 }
             },
@@ -403,160 +483,3 @@ function updateBalanceDisplay(remaining, allocated, spent, percentage) {
     
     console.log('Balance updated:', { remaining, allocated, spent, percentage });
 }
-
-// Legacy bar chart function - deprecated, using line chart now
-/*
-function initExpenseChart(monthlyData) {
-    const months = [
-        "January","February","March","April","May","June",
-        "July","August","September","October","November","December"
-    ];
-
-    const expenses = months.map(m => monthlyData[m] || 0);
-
-    const chartBox = document.getElementById("chartBox");
-    const yAxis = document.getElementById("yAxis");
-    
-    if (!chartBox || !yAxis) {
-        console.error("Chart elements not found");
-        return;
-    }
-
-    // Clear only yAxis, not chartBox (it contains yAxis)
-    yAxis.innerHTML = "";
-
-    const chartHeight = 280;
-    const maxExpense = Math.max(...expenses);
-
-    // Y-axis
-    const step = Math.ceil(maxExpense / 6) || 1000;
-    for (let i = 0; i <= 6; i++) {
-        const label = document.createElement("div");
-        label.textContent = (step * i).toLocaleString("en-IN");
-        yAxis.appendChild(label);
-    }
-
-    // Create or get bars container
-    let barsContainer = chartBox.querySelector('.bars-container');
-    if (!barsContainer) {
-        barsContainer = document.createElement('div');
-        barsContainer.className = 'bars-container';
-        barsContainer.style.cssText = 'flex: 1; display: flex; justify-content: space-around; align-items: flex-end; gap: 0.5rem; height: 280px;';
-        // Insert after yAxis
-        const yAxisElement = chartBox.querySelector('.y-axis');
-        if (yAxisElement && yAxisElement.nextSibling) {
-            chartBox.insertBefore(barsContainer, yAxisElement.nextSibling);
-        } else {
-            chartBox.appendChild(barsContainer);
-        }
-    } else {
-        barsContainer.innerHTML = '';
-    }
-
-    // Bars
-    expenses.forEach((value, i) => {
-        const height = maxExpense === 0 ? 0 : (value / maxExpense) * chartHeight;
-
-        const bar = document.createElement("div");
-        bar.classList.add("bar");
-        bar.style.cssText = `
-            flex: 1;
-            height: ${height}px;
-            background: #2b0c4d;
-            border-radius: 4px 4px 0 0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-          
-            min-height: ${height > 0 ? '0px' : '0'};
-            width:15px;
-            
-        `;
-
-        const valLabel = document.createElement("div");
-        valLabel.classList.add("value-label");
-        valLabel.style.cssText = 'font-size: 0.7rem; font-weight: 600; color: white; text-align: center;';
-        valLabel.textContent = value > 0 ? value.toLocaleString("en-IN") : '';
-
-        const monthLabel = document.createElement("div");
-        monthLabel.classList.add("month-label");
-        monthLabel.style.cssText = 'font-size: 0.7rem; color: #4b5563; font-weight: 500; position: absolute; bottom: -20px;';
-        monthLabel.textContent = months[i].substring(0, 3);
-
-        bar.appendChild(valLabel);
-        bar.appendChild(monthLabel);
-        barsContainer.appendChild(bar);
-    });
-}
-
-// Load budget balance data
-function loadBalanceData() {
-    const yearSelect = document.getElementById("year");
-    const selectedYear = yearSelect ? yearSelect.value : new Date().getFullYear();
-    
-    // Get sport ID from URL parameter or window.selectedSportId
-    const urlParams = new URLSearchParams(window.location.search);
-    const sportId = urlParams.get('sport') || window.selectedSportId || '';
-    
-    if (!sportId) {
-        console.warn('No sport ID available for balance data');
-        updateBalanceDisplay(100000, 100000, 0, 0);
-        return;
-    }
-    
-    console.log('Loading balance data:', { sportId, selectedYear });
-    
-    // Fetch balance data from backend
-    fetch(`/uoc-sports/public/api/get-budget-balance.php?sport_id=${sportId}&year=${selectedYear}`)
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            return res.json();
-        })
-        .then(response => {
-            console.log('Balance data response:', response);
-            if (response.success && response.data) {
-                const { allocated_amount, spent_amount, remaining_amount, spent_percentage } = response.data;
-                updateBalanceDisplay(
-                    parseFloat(remaining_amount) || 0,
-                    parseFloat(allocated_amount) || 100000,
-                    parseFloat(spent_amount) || 0,
-                    parseFloat(spent_percentage) || 0
-                );
-            } else {
-                console.warn('No balance data:', response.message);
-                updateBalanceDisplay(100000, 100000, 0, 0);
-            }
-        })
-        .catch(err => {
-            console.error('Error loading balance data:', err);
-            updateBalanceDisplay(100000, 100000, 0, 0);
-        });
-}
-
-// Update balance display
-function updateBalanceDisplay(remaining, allocated, spent, percentage) {
-    const balanceElement = document.getElementById('balance');
-    const progressElement = document.getElementById('progress');
-    const percentElement = document.getElementById('percent');
-    
-    if (balanceElement) {
-        balanceElement.innerHTML = `Rs ${spent.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span style="font-size: 0.9rem; color: #6b7280;">/ Rs ${allocated.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>`;
-    }
-    
-    if (progressElement) {
-        progressElement.style.width = `${Math.min(percentage, 100)}%`;
-    }
-    
-    if (percentElement) {
-        percentElement.textContent = `${percentage.toFixed(1)}% of Budget Spent`;
-    }
-    
-    console.log('Balance updated:', { remaining, allocated, spent, percentage });
-}
-*/
