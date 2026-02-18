@@ -21,6 +21,12 @@ $roleMap = [
     'REG'     => ['name' => 'Registrar', 'url' => '/uoc-sports/public/registrar/'],
 ];
 
+// Check if the current page belongs to the user's specific portal
+$userPortalUrl = $roleMap[$userType]['url'] ?? '';
+if (strpos($currentPage, $userPortalUrl) === false) {
+    return;
+}
+
 $roleInfo = $roleMap[$userType] ?? ['name' => 'User Portal', 'url' => '#'];
 
 // Define navigation links for each role

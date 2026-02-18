@@ -480,42 +480,107 @@ class Facility {
     }
 
     /**
-     * Update heartbeat for parallel booking check.
-     */
-    public function updateHeartbeat($sessionId, $facilityId) {
-        $sql = "INSERT INTO parallel_checker (session_id, facility_id, last_heartbeat)
-                VALUES (:session_id, :facility_id, CURRENT_TIMESTAMP)
-                ON DUPLICATE KEY UPDATE last_heartbeat = CURRENT_TIMESTAMP";
+ * Update heartbeat for parallel booking check.
+ */
+public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = null) {
+    $sql = "INSERT INTO parallel_checker (session_id, facility_id, selected_date, selected_slot, last_heartbeat)
+            VALUES (:session_id, :facility_id, :selected_date, :selected_slot, CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE last_heartbeat = CURRENT_TIMESTAMP, selected_date = :selected_date2, selected_slot = :selected_slot2";
 
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([
-            ':session_id' => $sessionId,
-            ':facility_id' => $facilityId
-        ]);
-    }
+    $stmt = $this->db->prepare($sql);
+    return $stmt->execute([
+        ':session_id' => $sessionId,
+        ':facility_id' => $facilityId,
+        ':selected_date' => $date,
+        ':selected_slot' => $slot,
+        ':selected_date2' => $date,
+        ':selected_slot2' => $slot
+    ]);
+}
 
     /**
-     * Check if other users are booking the same facility.
-     */
-    public function checkParallelStatus($sessionId, $facilityId) {
-        // Cleanup old heartbeats (older than 10 seconds)
-        $this->db->query("DELETE FROM parallel_checker WHERE last_heartbeat < (CURRENT_TIMESTAMP - INTERVAL 10 SECOND)");
+ * Check if other users are booking the same facility.
+ */
+public function checkParallelStatus($sessionId, $facilityId) {
+    // Cleanup old heartbeats (older than 5 seconds)
+    $this->db->query("DELETE FROM parallel_checker WHERE last_heartbeat < (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)");
 
-        $sql = "SELECT COUNT(*) as count 
-                FROM parallel_checker 
-                WHERE facility_id = :facility_id 
-                AND session_id != :session_id 
-                AND last_heartbeat >= (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)";
+    $sql = "SELECT COUNT(*) as count 
+            FROM parallel_checker 
+            WHERE facility_id = :facility_id 
+            AND session_id != :session_id 
+            AND last_heartbeat >= (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)";
 
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([
-            ':facility_id' => $facilityId,
-            ':session_id' => $sessionId
-        ]);
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([
+        ':facility_id' => $facilityId,
+        ':session_id' => $sessionId
+    ]);
 
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return (int)$row['count'] > 0;
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return (int)$row['count'] > 0;
+}
+
+/**
+ * Get slot-level interest from other users for real-time chart updates.
+ * Returns which dates/slots other users have selected (not yet booked).
+ */
+public function getSlotInterest($sessionId, $facilityId) {
+    // Get other users' selected dates/slots from parallel_checker
+    $sql = "SELECT selected_date, selected_slot
+            FROM parallel_checker
+            WHERE facility_id = :facility_id
+            AND session_id != :session_id
+            AND selected_date IS NOT NULL
+            AND last_heartbeat >= (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([
+        ':facility_id' => $facilityId,
+        ':session_id' => $sessionId
+    ]);
+
+    $interest = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $date = $row['selected_date'];
+        if (!isset($interest[$date])) {
+            $interest[$date] = [];
+        }
+        // If slot is specified, track that specific slot
+        if ($row['selected_slot']) {
+            $interest[$date][] = $row['selected_slot'];
+        } else {
+            // User selected date but no slot yet — mark all slots as interested
+            $interest[$date] = array_unique(array_merge($interest[$date], ['MORNING', 'AFTERNOON', 'FULL']));
+        }
     }
+
+    return $interest;
+}
+
+/**
+ * Get confirmed bookings for a facility (for real-time chart red status).
+ */
+public function getBookedSlots($facilityId) {
+    $sql = "SELECT date, slot
+            FROM `facility-booking`
+            WHERE facility_id = :facility_id
+            AND (status = 'BOOKED' OR status = 'RESERVED')";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([':facility_id' => $facilityId]);
+
+    $booked = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $date = $row['date'];
+        if (!isset($booked[$date])) {
+            $booked[$date] = [];
+        }
+        $booked[$date][] = $row['slot'];
+    }
+
+    return $booked;
+}
 
     /* ---------- GET FACILITY RESERVATION ANALYTICS ---------- */
     public function getAnalytics() {

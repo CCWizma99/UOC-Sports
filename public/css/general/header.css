@@ -40,7 +40,8 @@ nav {
 
 .nav-links {
     display: flex;
-    gap: 2.5rem;
+    gap: 1.5rem;
+    /* Reduced from 2.5rem */
     align-items: center;
 }
 
@@ -51,31 +52,20 @@ nav {
     font-size: 0.95rem;
     transition: all 0.3s;
     position: relative;
+    white-space: nowrap;
+    /* Prevent wrapping */
 }
 
-.nav-links a:hover {
-    color: #1a1a1a;
-}
 
-.nav-links a::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: #5e2d91;
-    transition: width 0.3s;
-}
-
-.nav-links a:hover::after {
-    width: 100%;
-}
 
 .btn-primary {
     background: #2b0c4d;
     color: white !important;
-    padding: 0.7rem 1.8rem;
+    height: 45px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.8rem;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
@@ -105,44 +95,51 @@ nav {
     background: #7b3fa0;
 }
 
-/* Active state for regular nav links (News, Contact Us) */
-.nav-links a.active {
-    color: #5e2d91;
-    font-weight: 600;
+.logo,
+.btn-primary,
+.profile-link {
+    white-space: nowrap;
 }
 
-.nav-links a.active::after {
-    width: 100%;
-    background: #5e2d91;
-}
-
-.btn-secondary {
-    background: transparent;
-    color: #4a4a4a;
-    padding: 0.7rem 1.8rem;
+/* Profile Link Styling */
+.profile-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 45px;
+    padding: 0 1.2rem;
     border-radius: 8px;
+    background: #2b0c4d;
+    color: white !important;
     text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.profile-link i {
+    color: inherit;
+    font-size: 1.5rem;
+}
+
+.profile-link:hover {
+    background: #5e2d91;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(94, 45, 145, 0.3);
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    line-height: 1.2;
+}
+
+.profile-name {
     font-weight: 600;
     font-size: 0.9rem;
-    transition: all 0.3s;
-    border: 1px solid #e0e0e0;
 }
 
-.btn-secondary::after {
-    display: none;
-}
 
-.btn-secondary:hover {
-    border-color: #5e2d91;
-    color: #5e2d91;
-}
-
-/* Active state for secondary button (Facility Reservation) */
-.btn-secondary.active {
-    border-color: #5e2d91;
-    color: #5e2d91;
-    background: rgba(94, 45, 145, 0.08);
-}
 
 /* Mobile Menu Button */
 #menu-btn {
@@ -152,39 +149,72 @@ nav {
     color: #1a1a1a;
 }
 
-/* Mobile Styles */
-@media (max-width: 768px) {
+/* Mobile Styles - Trigger at 1024px (Tablet/Laptop) */
+@media (max-width: 1024px) {
     #menu-btn {
         display: block;
     }
 
     .nav-links {
         position: absolute;
-        top: 64px;
+        top: 80px;
         right: 0;
         width: 100%;
         padding: 0;
-
-        background: rgba(255, 255, 255, 0.97);
+        background: rgba(255, 255, 255, 0.98);
         backdrop-filter: blur(10px);
         display: flex;
         flex-direction: column;
-        gap: 1.2rem;
-
-        /* hidden by default */
+        gap: 0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-top: 1px solid #eee;
         max-height: 0;
         overflow: hidden;
-        transition: 0.4s;
+        transition: all 0.4s ease-in-out;
     }
 
     .nav-links.show {
-        max-height: 400px;
-        padding: 1.5rem 5%;
+        max-height: 600px;
+        padding: 0.75rem;
     }
 
-    .btn-primary,
-    .btn-secondary {
+    /* All nav items are buttons in mobile - uniform style */
+    .nav-links a,
+    .nav-links .btn-primary,
+    .nav-links .profile-link {
         width: 100%;
-        text-align: center;
+        margin: 4px 0;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        text-align: left;
+        justify-content: flex-start;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        box-sizing: border-box;
+        border-bottom: none;
+    }
+
+    .nav-links .btn-primary {
+        background: #2b0c4d;
+        color: white !important;
+    }
+
+    .nav-links .btn-primary.active-portal {
+        background: #5e2d91;
+    }
+
+    /* Profile link mobile */
+    .nav-links .profile-link {
+        border-radius: 8px;
+        flex-direction: row;
+        gap: 15px;
+        background: #2b0c4d;
+    }
+
+    .profile-link .profile-info {
+        text-align: left;
+        align-items: flex-start;
     }
 }

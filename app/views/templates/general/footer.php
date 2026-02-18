@@ -15,7 +15,7 @@
             <div class="footer-section">
                 <h4>Platform</h4>
                 <a href="#">Home</a>
-                <a href="#">News & Events</a>
+                <a href="/uoc-sports/public/news">News & Events</a>
                 <a href="#">Facility Booking</a>
                 <a href="#">Training Programs</a>
             </div>
@@ -40,7 +40,7 @@
             <div class="footer-section">
                 <h4>Support</h4>
                 <a href="#">Help Center</a>
-                <a href="#">Contact Us</a>
+                <a href="/uoc-sports/public/#contact">Contact Us</a>
                 <a href="#">FAQs</a>
                 <a href="#">Feedback</a>
             </div>

@@ -1,8 +1,7 @@
 .secondary-header {
     width: 100%;
-    background-color: #ffffff;
-    border-top: 1px solid #d0d7de;
-    border-bottom: 1px solid #d0d7de;
+    background-color: var(--primary-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 999;
     padding: 6px 0;
     /* Slightly tighter padding */
@@ -33,7 +32,9 @@
     margin: 0;
     padding: 0;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    /* Firefox */
     position: relative;
     top: 4px;
     /* Align precisely with bottom border */
@@ -41,12 +42,13 @@
 
 .nav-tabs::-webkit-scrollbar {
     display: none;
+    /* Chrome/Safari/Opera */
 }
 
 .nav-tabs li a {
     display: block;
     padding: 10px 16px;
-    color: #484f58;
+    color: rgba(255, 255, 255, 0.85);
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
@@ -56,14 +58,14 @@
 }
 
 .nav-tabs li a:hover {
-    color: #1f2328;
-    background-color: #f6f8fa;
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 6px;
 }
 
 .nav-tabs li a.active {
-    color: #1f2328;
-    border-bottom-color: var(--primary-color, #5e2d91);
+    color: #ffffff;
+    border-bottom-color: #ffffff;
     font-weight: 600;
 }
 

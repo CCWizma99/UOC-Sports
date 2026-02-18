@@ -69,7 +69,7 @@
 
                 <div id="parallelBookingAlert" class="parallel-booking-alert">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <span>Parallel booking is happening. please refresh in 10 minutes for check availability.</span>
+                    <span>Someone else is booking this facility at the same time. Please be careful when selecting a time slot. Refresh before selecting a date and timeslot.</span>
                 </div>
 
                 <form id="facilityReservationForm" onsubmit="submitReservation(event)">
@@ -96,6 +96,7 @@
                             <h4>Current Reservations</h4>
                             <div class="chart-legend">
                                 <span class="legend-item"><span class="legend-box available"></span>Available</span>
+                                <span class="legend-item"><span class="legend-box interested"></span>Someone Interested</span>
                                 <span class="legend-item"><span class="legend-box disabled"></span>Not Available</span>
                                 <span class="legend-item"><span class="legend-box reserved"></span>Reserved</span>
                             </div>
@@ -174,6 +175,8 @@ const RESERVATIONS_API = "/uoc-sports/public/reserve-facilities/view-reservation
 
 /* -------------------- HEARTBEAT LOGIC ----------------------- */
 let heartbeatInterval = null;
+let slotRefreshInterval = null;
+let currentSelectedSlot = null; // Track which slot the user clicked on the chart
 const HEARTBEAT_API = "/uoc-sports/public/reserve-facilities/heartbeat";
 
 function startHeartbeat(facilityId) {
@@ -184,6 +187,11 @@ function startHeartbeat(facilityId) {
         try {
             const formData = new FormData();
             formData.append("facility_id", facilityId);
+            
+            // Send selected date and slot with heartbeat
+            const selectedDate = document.getElementById("date").value;
+            if (selectedDate) formData.append("date", selectedDate);
+            if (currentSelectedSlot) formData.append("slot", currentSelectedSlot);
 
             const res = await fetch(HEARTBEAT_API, {
                 method: "POST",
@@ -202,11 +210,38 @@ function startHeartbeat(facilityId) {
         }
     };
 
-    // Fire immediately
+    // Function to refresh chart slot colors from heartbeat data
+    const refreshSlotColors = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("facility_id", facilityId);
+            
+            const selectedDate = document.getElementById("date").value;
+            if (selectedDate) formData.append("date", selectedDate);
+            if (currentSelectedSlot) formData.append("slot", currentSelectedSlot);
+
+            const res = await fetch(HEARTBEAT_API, {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+
+            // Update chart slot colors in real-time
+            if (data.slot_interest || data.booked_slots) {
+                updateChartSlotColors(data.slot_interest || {}, data.booked_slots || {});
+            }
+        } catch (e) {
+            console.error("Slot refresh error:", e);
+        }
+    };
+
+    // Fire heartbeat immediately, then every 1s
     performHeartbeat();
-    
-    // Then set interval
     heartbeatInterval = setInterval(performHeartbeat, 1000);
+    
+    // Refresh slot colors every 5s
+    refreshSlotColors();
+    slotRefreshInterval = setInterval(refreshSlotColors, 5000);
 }
 
 function stopHeartbeat() {
@@ -214,8 +249,51 @@ function stopHeartbeat() {
         clearInterval(heartbeatInterval);
         heartbeatInterval = null;
     }
+    if (slotRefreshInterval) {
+        clearInterval(slotRefreshInterval);
+        slotRefreshInterval = null;
+    }
     const alertBox = document.getElementById("parallelBookingAlert");
     if (alertBox) alertBox.classList.remove("active");
+}
+
+/* -------------------- UPDATE CHART SLOT COLORS IN REAL-TIME ----------------------- */
+function updateChartSlotColors(slotInterest, bookedSlots) {
+    const slotTypes = ['MORNING', 'AFTERNOON', 'FULL'];
+    const allDateColumns = document.querySelectorAll('.date-column');
+    
+    allDateColumns.forEach(col => {
+        const dateId = col.id.replace('col-', ''); // e.g. "2026-02-20"
+        const slots = col.querySelectorAll('.slot');
+        
+        slots.forEach((slotEl, index) => {
+            const slotType = slotTypes[index];
+            if (!slotType) return;
+            
+            // Skip slots the current user has selected
+            if (slotEl.classList.contains('selected')) return;
+            // Skip disabled slots
+            if (slotEl.classList.contains('disabled')) return;
+            
+            const isBooked = bookedSlots[dateId] && bookedSlots[dateId].includes(slotType);
+            const isInterested = slotInterest[dateId] && slotInterest[dateId].includes(slotType);
+            
+            // Remove previous real-time classes
+            slotEl.classList.remove('interested', 'taken');
+            
+            if (isBooked) {
+                slotEl.classList.add('taken');
+                slotEl.title = 'Reserved';
+                slotEl.removeAttribute('onclick');
+            } else if (isInterested) {
+                slotEl.classList.add('interested');
+                slotEl.title = 'Someone is considering this slot';
+            } else if (!slotEl.classList.contains('taken')) {
+                slotEl.classList.add('available');
+                slotEl.title = 'Available';
+            }
+        });
+    });
 }
 
 /* -------------------- HANDLE FACILITY CHANGE ----------------------- */
@@ -434,6 +512,9 @@ function selectSlot(el, slotId, dateStr) {
         return;
     }
 
+    // Track selected slot for heartbeat
+    currentSelectedSlot = slotId;
+
     // 1. Visual Feedback
     document.querySelectorAll('.slot.selected').forEach(s => s.classList.remove('selected'));
     el.classList.add('selected');
@@ -456,6 +537,7 @@ function selectSlot(el, slotId, dateStr) {
 
 function deselectSlot() {
     document.querySelectorAll('.slot.selected').forEach(s => s.classList.remove('selected'));
+    currentSelectedSlot = null; // Clear slot tracking
     const slotSelect = document.getElementById('slot_id');
     if (slotSelect) {
         slotSelect.value = "";
