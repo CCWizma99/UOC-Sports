@@ -1,5 +1,42 @@
 /* Student Portal Page - Single Screen Layout */
 
+.mesh-sporty {
+    background:
+        linear-gradient(rgba(94, 45, 145, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(94, 45, 145, 0.05) 1px, transparent 1px),
+        linear-gradient(135deg, #faf9fc 0%, #f3f1f7 100%);
+    background-size: 40px 40px, 40px 40px, 100% 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-container {
+    flex: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-container.full-width {
+    max-width: 100%;
+    padding: 20px 40px;
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    height: 100%;
+}
+
+@media (max-width: 1024px) {
+    .grid-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
 .student-portal-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;

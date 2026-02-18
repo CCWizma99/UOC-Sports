@@ -10,7 +10,7 @@
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
-        @import url(/uoc-sports/public/css/general/home.css);
+        @import url(/uoc-sports/public/css/general/home.css?v=1.4);
         @import url(/uoc-sports/public/css/general/footer.css);
         #link-bar{
             width: calc(100vw - 488px);

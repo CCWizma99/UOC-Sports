@@ -9,6 +9,7 @@
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
         @import url(/uoc-sports/public/css/student/student-portal.css);
+        @import url(/uoc-sports/public/css/student/sub-nav.css);
         @import url(/uoc-sports/public/css/general/footer.css);
 
         .mesh-sporty {
@@ -26,6 +27,7 @@
         $userModel = new User();
         $student_id = $userModel->getStudentId($_SESSION['user_id']);
         require '../app/views/templates/general/header.php';
+        require '../app/views/templates/student/sub_header.php';
     ?>
 
     <div class="student-portal-wrapper">

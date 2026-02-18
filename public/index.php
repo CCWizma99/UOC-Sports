@@ -13,6 +13,8 @@ $router->get('/', 'UserHomeController@index');
 $router->get('/news', 'UserHomeController@news');
 $router->get('/facility-reservation', 'UserHomeController@facilityReservation');
 $router->get('/contact-us', 'UserHomeController@contactUs');
+$router->get('/services', 'UserHomeController@services');
+$router->get('/stories', 'UserHomeController@stories');
 $router->get('/profile', 'UserHomeController@profile');
 $router->get('/post/{id}', 'PostController@viewPost');
 $router->post('/post/add-comment', 'PostController@addComment');
@@ -21,6 +23,7 @@ $router->get('/get-faculties', 'UserHomeController@getFaculties');
 $router->get('/reserve-facilities/view-reservations', 'FacilityApiController@viewMyReservations');
 $router->get('/get-reserved-slots', 'FacilityApiController@getReservedSlots');
 $router->get('/reserve-facilities/chart', 'FacilityApiController@getReservationChart');
+$router->post('/reserve-facilities/heartbeat', 'FacilityApiController@heartbeat');
 $router->post('/create-facility-booking', 'FacilityApiController@createBooking');
 $router->get('/payment', 'UserHomeController@payment');
 $router->get('/payment/success', 'PaymentController@success');
@@ -34,6 +37,12 @@ $router->get('/api/user/registration-stats', 'UserApiController@getRegistrationS
 $router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
 
 $router->get('/student', 'StudentController@index');
+$router->get('/student/sports', 'StudentController@sports');
+$router->get('/student/equipment', 'StudentController@equipment');
+$router->get('/student/facilities', 'StudentController@facilities');
+$router->get('/student/bookings', 'StudentController@bookings');
+$router->get('/student/dashboard-stats', 'StudentController@dashboardStats');
+
 $router->get('/student/available-sports', 'StudentController@getAvailableSports');
 $router->get('/student/enrolled-sports', 'StudentController@getEnrolledSports');
 $router->post('/student/enroll-sport', 'StudentController@enrollSport');
@@ -161,6 +170,7 @@ $router->post('/api/injury/delete', 'InjuryApiController@deleteReport');
 $router->post('/api/injury/update', 'InjuryApiController@updateReport');
 
 $router->post('/profile/upload-image', 'ProfileController@uploadProfileImage');
+$router->get('/api/chart/activity-analysis', 'ChartController@getActivityAnalysis');
 
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->get('/sign-in', 'AuthController@showSigninForm');
