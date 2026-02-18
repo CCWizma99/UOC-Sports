@@ -50,6 +50,61 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
         
     }
 
+    /* Equipment Reservation Calendar Tooltip Styles */
+    .calendar-tooltip {
+        position: fixed;
+        background: white;
+        border: 3px solid #a855f7;
+        border-radius: 10px;
+        padding: 14px;
+        box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
+        z-index: 10000;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        max-width: 350px;
+        min-width: 280px;
+        font-size: 0.875rem;
+        display: block;
+    }
+
+    .calendar-day {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    /* Equipment Reservation Status Badges */
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.5rem;
+    }
+
+    .status-badge.accepted {
+        background-color: #10b981;
+        color: white;
+    }
+
+    .status-badge.pending {
+        background-color: #f59e0b;
+        color: white;
+    }
+
+    .status-badge.completed {
+        background-color: #6b7280;
+        color: white;
+    }
+
+    .status-badge.rejected {
+        background-color: #ef4444;
+        color: white;
+    }
+
   </style>
 </head>
 
@@ -104,11 +159,9 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                                         (<?= htmlspecialchars($reservation['sport_name']) ?>)
                                     <?php endif; ?>
                                 </p>
-                                <p class="reservation-user">
-                                    User: <?= htmlspecialchars($reservation['student_name'] ?? $reservation['requester_name'] ?? 'N/A') ?>
-                                </p>
+                                
                                 <?php if (!empty($reservation['reserved_location'])): ?>
-                                    <p class="reservation-location">
+                                    <p class="reservation-location" style="font-size: 0.85rem;">
                                         <i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($reservation['reserved_location']) ?>
                                     </p>
                                 <?php endif; ?>
@@ -158,7 +211,7 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                 <!-- Calendar Section (Compact) -->
                 <div class="calendar-section-compact">
                     <h3>Equipment Reservations Calendar</h3>
-                    <div id="calendar"></div>
+                    <div id="equipmentCalendar"></div>
                 </div>
             </div>
         </div>
@@ -203,7 +256,7 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
         
     </div>
             
-    <script src="/project/uoc-sports/public/js/equipment-manager/calendar.js"></script>
+    <script src="/uoc-sports/public/js/equipment-manager/calendar.js"></script>
 
 <?php
     require "../app/views/templates/general/footer.php";

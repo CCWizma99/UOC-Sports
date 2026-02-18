@@ -103,7 +103,7 @@ class SportPracticeSession {
             $data['end_time'],
             $data['notes'] ?? '',
             $data['need_equipment'] ?? 'No',
-            $data['status'] ?? 'ACTIVE'
+            $data['status'] ?? 'PENDING'
         ]);
         
         return $result ? $this->db->lastInsertId() : false;

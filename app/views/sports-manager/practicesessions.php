@@ -361,8 +361,8 @@
                         
                        
                         <td><?= htmlspecialchars($session['session_date']) ?></td>
-                        <td><?= htmlspecialchars($session['start_time']) ?></td>
-                        <td><?= htmlspecialchars($session['end_time']) ?></td>
+                        <td><?= htmlspecialchars(substr($session['start_time'], 0, 5)) ?></td>
+                        <td><?= htmlspecialchars(substr($session['end_time'], 0, 5)) ?></td>
                         <td><?= htmlspecialchars($session['location']) ?></td>
                         <td><?= htmlspecialchars($session['need_equipment'] ?? 'No') ?></td>
                         <td>
@@ -373,7 +373,6 @@
                                 <option value="ACCEPTED" <?= $session['status'] === 'ACCEPTED' ? 'selected' : '' ?>>ACCEPTED</option>
                                 <option value="CANCELED" <?= $session['status'] === 'CANCELED' ? 'selected' : '' ?>>CANCELED</option>
                                 <option value="ACTIVE" <?= $session['status'] === 'ACTIVE' ? 'selected' : '' ?>>ACTIVE</option>
-
                                 <option value="COMPLETED" <?= $session['status'] === 'COMPLETED' ? 'selected' : '' ?>>COMPLETED</option>
                             </select>
                         </td>

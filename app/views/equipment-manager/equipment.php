@@ -136,7 +136,7 @@
     </div>
 
     <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Swimming&sport_id=SWI'">
-       <img src="/uoc-sports/public/images/equipment/swimming.jpg" class="image" alt="Swimming">
+       <img src="/uoc-sports/public/images/equipment/swimming.jpeg" class="image" alt="Swimming">
        <div class="card-content">
            <h3>Swimming</h3>
            <p class="card-id">ID: SWI</p>
@@ -176,7 +176,7 @@
     </div>
 
     <div class="card" onclick="window.location.href='/uoc-sports/public/equipment-manager/manage-equipment?sport=Badminton&sport_id=BAD'">
-       <img src="/uoc-sports/public/images/equipment/badminton.jpg" class="image" alt="Badminton">
+       <img src="/uoc-sports/public/images/equipment/badminton.jpeg" class="image" alt="Badminton">
        <div class="card-content">
            <h3>Badminton</h3>
            <p class="card-id">ID: BAD</p>

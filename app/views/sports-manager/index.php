@@ -58,6 +58,31 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
         color: white;
     }
 
+    /* Calendar Tooltip Styles */
+    .calendar-tooltip {
+        position: fixed;
+        background: white;
+        border: 2px solid #6b1fa0;
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        max-width: 300px;
+        font-size: 0.875rem;
+    }
+
+    .calendar-day {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .calendar-day:hover {
+        transform: scale(1.05);
+    }
+
     /* Mobile Menu Button */
     .mobile-menu-toggle {
         display: none;
@@ -279,7 +304,7 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
             <div class="content-grid-row">
                 <!-- Left Column: Welcome and Calendar -->
                 <div class="left-column">
-                    <div class="welcome-section">
+                    <div class="welcome-section" style="background:#e9ddfa">
                         <h1>Welcome, <?php echo htmlspecialchars($userName); ?>!</h1>
                         <p>Manage your sports activities and track progress</p>
                     </div>
@@ -368,8 +393,8 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
             <div class="sidebar-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="margin: 0;">Upcoming Competitions</h3>
-                    <select id="competitionMonth" class="btn-select" style="width: auto; padding: 0.25rem; font-size: 0.8rem; margin-bottom: 0.65rem; border:2px solid #a855f7; background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
-    color: #6b21a8; box-shadow:none;">
+                    <select id="competitionMonth" class="btn-select" style="width: auto; padding: 0.25rem; font-size: 0.8rem; margin-bottom: 0.65rem; border:2px solid #7e22ce; background: #e9d5ff;
+    color: #7e22ce; box-shadow:none;">
                         <option value="01">January</option>
                         <option value="02">February</option>
                         <option value="03">March</option>
@@ -445,7 +470,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<script src="/uoc-sports/public/js/equipment-manager/calendar.js"></script>
+<script src="/uoc-sports/public/js/sports-manager/calendar.js"></script>
 <script src="/uoc-sports/public/js/sports-manager/expense-chart.js"></script>
 
 <?php

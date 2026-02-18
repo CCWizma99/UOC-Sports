@@ -71,21 +71,37 @@ class CoachController {
         }
 
         $userId = $_SESSION['user_id'];
+        $sportId = null;
 
         // Get coach's sport_id and store in session if not present
+        require_once __DIR__ . '/../../core/Database.php';
+        $pdo = Database::getConnection();
+        
         if (!isset($_SESSION['coach_sport_id'])) {
-            require_once __DIR__ . '/../../core/Database.php';
-            $pdo = Database::getConnection();
             $stmt = $pdo->prepare("SELECT sport_id FROM sport WHERE coach_id = ?");
             $stmt->execute([$userId]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($result && !empty($result['sport_id'])) {
                 $_SESSION['coach_sport_id'] = $result['sport_id'];
+                $sportId = $result['sport_id'];
             }
+        } else {
+            $sportId = $_SESSION['coach_sport_id'];
         }
 
-        view('coach/injuries');
+        $data = [
+            'members' => []
+        ];
+
+        // Get Team Members for the sport
+        if ($sportId) {
+            require_once __DIR__ . '/../models/SportTeam.php';
+            $teamModel = new SportTeam();
+            $data['members'] = $teamModel->getTeamMembers($sportId);
+        }
+
+        view('coach/injuries', $data);
     }
     public function CoachCommunicate() {
         view('coach/communications');

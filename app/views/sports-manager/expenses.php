@@ -106,9 +106,9 @@
 </body>
 
 <script>
-// Search functionality - case insensitive, searches by expense title
+// Search functionality - case insensitive, searches by first letter of expense title
 document.getElementById('searchInput').addEventListener('keyup', function() {
-    const searchTerm = this.value.toLowerCase(); // Convert to lowercase for case-insensitive search
+    const searchTerm = this.value.toLowerCase(); // Case insensitive
     const tableBody = document.getElementById('tableBody');
     const rows = tableBody.getElementsByTagName('tr');
     
@@ -117,11 +117,11 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
         const cells = row.getElementsByTagName('td');
         
         if (cells.length > 0) {
-            // Get the expense title (3rd column, index 1)
-            const expenseTitle = cells[1].textContent || cells[1].innerText;
+            // Get the expense title (first column, index 0)
+            const expenseTitle = (cells[0].textContent || cells[0].innerText).trim().toLowerCase();
             
-            // Check if expense title includes the search term (case-insensitive)
-            if (expenseTitle.toLowerCase().includes(searchTerm)) {
+            // Check if expense title starts with the search term (case-insensitive)
+            if (expenseTitle.startsWith(searchTerm)) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';

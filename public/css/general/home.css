@@ -99,16 +99,19 @@
 
 .sports-marquee {
     margin-top: 2rem;
-    overflow: hidden;
     position: relative;
-    height: 60px;
+    /* Removed fixed height and overflow hidden to allow text to wrap */
 }
 
 .marquee-content {
     display: flex;
-    gap: 3rem;
-    animation: marquee 30s linear infinite;
-    width: fit-content;
+    gap: 1.5rem;
+    /* Reduced gap slightly for better fit */
+    flex-wrap: wrap;
+    /* Allow items to wrap to next line */
+    justify-content: center;
+    /* Center the items */
+    width: 100%;
 }
 
 .marquee-content span {
@@ -120,21 +123,13 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-bottom: 1rem;
+    /* Add spacing between rows */
 }
 
 .marquee-content span i {
     font-size: 1.3rem;
     color: rgba(255, 255, 255, 0.8);
-}
-
-@keyframes marquee {
-    0% {
-        transform: translateX(0);
-    }
-
-    100% {
-        transform: translateX(-50%);
-    }
 }
 
 /* Feature Section */
@@ -219,7 +214,33 @@
 .feature-card p {
     color: #666;
     line-height: 1.7;
+    margin-bottom: 1.5rem;
 }
+
+.read-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #5e2d91;
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    /* Rounded square shape */
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(94, 45, 145, 0.3);
+}
+
+.read-more-btn:hover {
+    background-color: #764ba2;
+    transform: translateY(-2px);
+    /* Slight lift effect */
+    box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4);
+    color: #fff;
+}
+
 
 /* Showcase Section */
 .showcase {

@@ -46,13 +46,14 @@
         <table>
             <thead>
                 <tr>
-                                        <th onclick="sortTable(2)">Equipment Name<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(0)">Equipment Name<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(1)">Category<span class="sort-indicator"></span></th>
-
+                    <th onclick="sortTable(2)">Total Quantity<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Usable Count<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(4)">Available Count<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(5)">Reserved Locations<span class="sort-indicator"></span></th>
-                    <th>Action</th>
+                    <th onclick="sortTable(4)">Reserved Qty<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(5)">Available Count<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(6)">Active Bookings & Locations<span class="sort-indicator"></span></th>
+                   
                 </tr>
             </thead>
 
@@ -64,10 +65,19 @@
                         $statusClass = $availableCount > 5 ? 'excellent' : ($availableCount > 0 ? 'good' : 'poor');
                 ?>
                     <tr>
-                                               <td><?= htmlspecialchars($item['equipment_name']) ?></td>
+                        <td><?= htmlspecialchars($item['equipment_name']) ?></td>
                         <td><span style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 0.25rem 0.75rem; border-radius: 8px; font-weight: 600; color: #5b21b6; font-size: 0.8rem;"><?= htmlspecialchars($item['category_name'] ?? 'Uncategorized') ?></span></td>
-
-                        <td><?= htmlspecialchars($item['usable_count']) ?></td>
+                        <td><?= htmlspecialchars($item['quantity'] ?? 0) ?></td>
+                        <td><?= htmlspecialchars($item['usable_count'] ?? 0) ?></td>
+                        <td>
+                            <?php if (($item['reserved_quantity'] ?? 0) > 0): ?>
+                                <span style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 0.25rem 0.75rem; border-radius: 8px; font-weight: 600; color: #92400e; font-size: 0.8rem;">
+                                    <?= htmlspecialchars($item['reserved_quantity']) ?>
+                                </span>
+                            <?php else: ?>
+                                <span style="color: #9ca3af;">0</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <span class="condition-badge <?= $statusClass ?>">
                                 <?= htmlspecialchars($availableCount) ?>
@@ -75,25 +85,13 @@
                         </td>
                         <td>
                             <?php if ($item['reserved_count'] > 0): ?>
-                                <strong><?= $item['reserved_count'] ?> active reservation(s)</strong><br>
-                                <small><?= htmlspecialchars($item['reserved_times'] ?? 'No times listed') ?></small>
+                                <strong style="color: #5b21b6;"><?= $item['reserved_count'] ?> active booking(s)</strong><br>
+                                <small style="color: #6b7280; line-height: 1.6;"><?= nl2br(htmlspecialchars(str_replace('; ', "\n", $item['reserved_times'] ?? 'No details'))) ?></small>
                             <?php else: ?>
-                                <span style="color: #6b7280;">No active reservations</span>
+                                <span style="color: #6b7280;">No active bookings</span>
                             <?php endif; ?>
                         </td>
-                        <td>
-                            <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
-                                <button class="btn-edit" onclick="editEquipment('<?= $item['equipment_id'] ?>', '<?= htmlspecialchars($item['equipment_name']) ?>', <?= $item['usable_count'] ?>, <?= $item['max_allow'] ?>)">
-                                    Edit
-                                </button>
-                                <button class="btn-delete" onclick="deleteEquipment('<?= $item['equipment_id'] ?>', '<?= htmlspecialchars($item['equipment_name']) ?>')">
-                                    Delete
-                                </button>
-                                <button class="btn-view" onclick="viewDetails('<?= $item['equipment_id'] ?>')">
-                                    Details
-                                </button>
-                            </div>
-                        </td>
+                        
                     </tr>
                 <?php 
                     endforeach;
