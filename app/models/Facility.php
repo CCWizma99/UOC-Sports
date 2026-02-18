@@ -180,17 +180,20 @@ class Facility {
     }
 
     /* ---------- GET CHART DATA ---------- */
-    public function getReservationChartData($facility_id, $days = 7) {
+    public function getReservationChartData($facility_id, $startDate, $endDate) {
         $chartData = [];
         
-        for ($i = 0; $i < $days; $i++) {
-            $date = date('Y-m-d', strtotime("+$i days"));
+        $current = strtotime($startDate);
+        $end = strtotime($endDate);
+
+        while ($current <= $end) {
+            $date = date('Y-m-d', $current);
             
             // Get bookings for this date
             $sql = "SELECT slot FROM `facility-booking`
                     WHERE facility_id = :facility_id 
                     AND date = :date 
-                    AND status = 'BOOKED'";
+                    AND (status = 'BOOKED' OR status = 'RESERVED')";
             
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
@@ -211,8 +214,10 @@ class Facility {
                 'date' => $date,
                 'slots' => $slots
             ];
+            
+            // Increment day
+            $current = strtotime("+1 day", $current);
         }
-        
         
         return $chartData;
     }
@@ -456,5 +461,59 @@ class Facility {
             error_log("Update payment status error: " . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Track a user's interest in a specific facility and date.
+     */
+    public function trackBookingAttempt($userId, $facilityId, $date) {
+        $sql = "INSERT INTO active_booking_attempts (user_id, facility_id, date, last_active_at)
+                VALUES (:user_id, :facility_id, :date, CURRENT_TIMESTAMP)
+                ON DUPLICATE KEY UPDATE last_active_at = CURRENT_TIMESTAMP";
+
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':user_id' => $userId,
+            ':facility_id' => $facilityId,
+            ':date' => $date
+        ]);
+    }
+
+    /**
+     * Update heartbeat for parallel booking check.
+     */
+    public function updateHeartbeat($sessionId, $facilityId) {
+        $sql = "INSERT INTO parallel_checker (session_id, facility_id, last_heartbeat)
+                VALUES (:session_id, :facility_id, CURRENT_TIMESTAMP)
+                ON DUPLICATE KEY UPDATE last_heartbeat = CURRENT_TIMESTAMP";
+
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':session_id' => $sessionId,
+            ':facility_id' => $facilityId
+        ]);
+    }
+
+    /**
+     * Check if other users are booking the same facility.
+     */
+    public function checkParallelStatus($sessionId, $facilityId) {
+        // Cleanup old heartbeats (older than 10 seconds)
+        $this->db->query("DELETE FROM parallel_checker WHERE last_heartbeat < (CURRENT_TIMESTAMP - INTERVAL 10 SECOND)");
+
+        $sql = "SELECT COUNT(*) as count 
+                FROM parallel_checker 
+                WHERE facility_id = :facility_id 
+                AND session_id != :session_id 
+                AND last_heartbeat >= (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':facility_id' => $facilityId,
+            ':session_id' => $sessionId
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$row['count'] > 0;
     }
 }

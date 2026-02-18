@@ -2,7 +2,91 @@
 
 class StudentController {
     public function index() {
-        view('student/student-portal');
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /uoc-sports/public/sign-in');
+            exit;
+        }
+        
+        $userModel = new User();
+        $user = $userModel->getUserById($_SESSION['user_id']);
+        
+        $data = [
+            'user' => $user
+        ];
+        
+        view('student/overview', $data);
+    }
+
+    public function sports() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /uoc-sports/public/sign-in');
+            exit;
+        }
+        view('student/sports');
+    }
+
+    public function equipment() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /uoc-sports/public/sign-in');
+            exit;
+        }
+        // Get student ID for the view
+        $userModel = new User();
+        $student = $userModel->getStudentId($_SESSION['user_id']);
+        $data = ['student_id' => $student['student_id']];
+        
+        view('student/equipment', $data);
+    }
+
+    public function facilities() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /uoc-sports/public/sign-in');
+            exit;
+        }
+        view('student/facilities');
+    }
+
+    public function bookings() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /uoc-sports/public/sign-in');
+            exit;
+        }
+        view('student/bookings');
+    }
+
+    /**
+     * Get dashboard statistics (API)
+     */
+    public function dashboardStats() {
+        header('Content-Type: application/json');
+        
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Not authenticated']);
+            return;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $studentModel = new Student();
+        
+        // Get Student ID
+        $userModel = new User();
+        $student = $userModel->getStudentId($userId);
+        
+        if (!$student) {
+            echo json_encode(['status' => 'error', 'message' => 'Student not found']);
+            return;
+        }
+        $studentId = $student['student_id'];
+
+        // Fetch Stats
+        $stats = $studentModel->getDashboardStats($userId, $studentId);
+        $upcoming = $studentModel->getUpcomingActivities($userId, $studentId);
+
+        echo json_encode([
+            'status' => 'success', 
+            'stats' => $stats, 
+            'upcoming' => $upcoming
+        ]);
     }
 
     /**
@@ -42,7 +126,23 @@ class StudentController {
         }
 
         $studentModel = new Student();
-        $sports = $studentModel->getEnrolledSports($_SESSION['user_id']);
+        // Needs student_id from user_id first? 
+        // original code passed user_id to getEnrolledSports but query used student_id? 
+        // Let's check original Student model. 
+        // Original Student model getEnrolledSports used :student_id param.
+        // Wait, original controller passed $_SESSION['user_id'] to getEnrolledSports.
+        // If the model expects student_id but controller passed user_id, that would be a bug unless they are same or handled.
+        // I should fix this to be safe.
+        
+        $userModel = new User();
+        $studentData = $userModel->getStudentId($_SESSION['user_id']);
+        
+        if (!$studentData) {
+             echo json_encode(['status' => 'error', 'message' => 'Student not found']);
+             return;
+        }
+
+        $sports = $studentModel->getEnrolledSports($studentData['student_id']);
         
         echo json_encode(['status' => 'success', 'data' => $sports]);
     }
@@ -70,8 +170,11 @@ class StudentController {
             return;
         }
 
+        $userModel = new User();
+        $studentData = $userModel->getStudentId($_SESSION['user_id']);
+
         $studentModel = new Student();
-        $result = $studentModel->enrollInSport($_SESSION['user_id'], $sportId);
+        $result = $studentModel->enrollInSport($studentData['student_id'], $sportId);
         
         if ($result) {
             echo json_encode(['status' => 'success', 'message' => 'Successfully enrolled in sport']);
@@ -103,8 +206,11 @@ class StudentController {
             return;
         }
 
+        $userModel = new User();
+        $studentData = $userModel->getStudentId($_SESSION['user_id']);
+
         $studentModel = new Student();
-        $result = $studentModel->unenrollFromSport($_SESSION['user_id'], $sportId);
+        $result = $studentModel->unenrollFromSport($studentData['student_id'], $sportId);
         
         if ($result) {
             echo json_encode(['status' => 'success', 'message' => 'Successfully unenrolled from sport']);

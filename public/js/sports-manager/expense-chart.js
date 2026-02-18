@@ -17,10 +17,32 @@ function loadExpenseChart() {
     const sportId = sportSelect ? sportSelect.value : "";
     const selectedYear = yearSelect ? yearSelect.value : new Date().getFullYear();
 
+    // Dummy data for demonstration
+    const dummyData = {
+        "January": 1500,
+        "February": 2200,
+        "March": 1800,
+        "April": 2500,
+        "May": 2000,
+        "June": 300,
+        "July": 1200,
+        "August": 2800,
+        "September": 1600,
+        "October": 2400,
+        "November": 1900,
+        "December": 3000
+    };
+
+    // Use dummy data instead of fetch
+    initExpenseChart(dummyData);
+    
+    // Uncomment below when backend is ready
+    /*
     fetch(`/project/uoc-sports/app/views/sports-manager/get-expense.php?sport_id=${sportId}&year=${selectedYear}`)
         .then(res => res.json())
         .then(data => initExpenseChart(data))
         .catch(err => console.error("Error loading chart:", err));
+    */
 }
 
 function initExpenseChart(monthlyData) {
@@ -79,7 +101,7 @@ function initExpenseChart(monthlyData) {
         bar.style.cssText = `
             flex: 1;
             height: ${height}px;
-            background: #772cf1;
+            background: #2b0c4d;
             border-radius: 4px 4px 0 0;
             cursor: pointer;
             transition: all 0.3s ease;

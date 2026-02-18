@@ -1,7 +1,7 @@
 <div class="container">
         <!-- Page Header -->
         <div class="page-header">
-            <h1>Coach Dashboard</h1>
+            <h1>Welcome Back,<?php echo isset($username) ? htmlspecialchars($username) : 'Coach'; ?></h1>
             <p>Manage your team schedules and members</p>
         </div>
 
@@ -11,7 +11,7 @@
             <div class="summary-cards">
                 <div class="card">
                     <h3>Total Schedules</h3>
-                    <p>12</p>
+                    <p><?= isset($schedules) ? count($schedules) : 0 ?></p>
                 </div>
                 <div class="card">
                     <h3>Upcoming Matches</h3>
@@ -31,6 +31,7 @@
                 <input type="text" class="search-bar" placeholder="Search schedule..." id="scheduleSearch">
             </div>
             <div class="table-wrapper">
+                <!-- DEBUG: SportID: <?= $debug_sport_id ?? 'NULL' ?>, UserID: <?= $debug_user_id ?? 'NULL' ?>, ScheduleCount: <?= count($schedules ?? []) ?> -->
                 <table>
                     <thead>
                         <tr>
@@ -41,24 +42,18 @@
                         </tr>
                     </thead>
                     <tbody id="scheduleTableBody">
-                        <tr>
-                            <td class="facility-cell">Sports Complex</td>
-                            <td class="date-cell">2025-08-18</td>
-                            <td class="time-cell">10:00 AM</td>
-                            <td class="description-cell">Football Practice</td>
-                        </tr>
-                        <tr>
-                            <td class="facility-cell">Main Ground</td>
-                            <td class="date-cell">2025-08-20</td>
-                            <td class="time-cell">02:00 PM</td>
-                            <td class="description-cell">Cricket Match</td>
-                        </tr>
-                        <tr>
-                            <td class="facility-cell">Indoor Court</td>
-                            <td class="date-cell">2025-08-22</td>
-                            <td class="time-cell">09:00 AM</td>
-                            <td class="description-cell">Badminton Training</td>
-                        </tr>
+                        <?php if (isset($schedules) && !empty($schedules)): ?>
+                            <?php foreach ($schedules as $schedule): ?>
+                            <tr>
+                                <td class="facility-cell"><?= htmlspecialchars($schedule['facility']) ?></td>
+                                <td class="date-cell"><?= htmlspecialchars($schedule['session_date']) ?></td>
+                                <td class="time-cell"><?= htmlspecialchars($schedule['session_time']) ?></td>
+                                <td class="description-cell"><?= htmlspecialchars($schedule['description']) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr><td colspan="4" style="text-align:center;">No upcoming schedules found</td></tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -76,7 +71,7 @@
                         <tr>
                             <th>Player ID</th>
                             <th>Name</th>
-                            <th>Position</th>
+                            
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -84,19 +79,19 @@
                         <tr>
                             <td>P001</td>
                             <td>John Silva</td>
-                            <td><span class="position-cell">Forward</span></td>
+                           
                             <td><button class="remove-btn" onclick="confirmRemove('John Silva')">Remove</button></td>
-                        </tr>
+                            </tr>
                         <tr>
                             <td>P002</td>
                             <td>Akila Perera</td>
-                            <td><span class="position-cell">Goalkeeper</span></td>
+                            
                             <td><button class="remove-btn" onclick="confirmRemove('Akila Perera')">Remove</button></td>
                         </tr>
                         <tr>
                             <td>P003</td>
                             <td>Kavindu Fernando</td>
-                            <td><span class="position-cell">Defender</span></td>
+                           
                             <td><button class="remove-btn" onclick="confirmRemove('Kavindu Fernando')">Remove</button></td>
                         </tr>
                     </tbody>

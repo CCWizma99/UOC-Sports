@@ -63,7 +63,7 @@ class Message {
      * Create a new message
      * @param string $senderId Captain's user_id
      * @param string $recipientId Coach or Manager user_id
-     * @param string $recipientType 'COACH' or 'MANAGER'
+     * @param string $recipientType 'COACH', 'MANAGER' or 'CAPTAIN'
      * @param string $sportId
      * @param string $title
      * @param string $message
@@ -74,7 +74,7 @@ class Message {
             $messageId = $this->generateMessageId();
             
             $stmt = $this->db->prepare("
-                INSERT INTO captain_message (message_id, sender_id, recipient_id, recipient_type, sport_id, title, message)
+                INSERT INTO message (message_id, sender_id, recipient_id, recipient_type, sport_id, title, message)
                 VALUES (:message_id, :sender_id, :recipient_id, :recipient_type, :sport_id, :title, :message)
             ");
             
@@ -95,15 +95,15 @@ class Message {
     }
 
     /**
-     * Get all messages sent by a captain
+     * Get all messages sent by a sender
      * @param string $senderId
      * @return array
      */
     public function getMessagesBySender($senderId) {
         $stmt = $this->db->prepare("
-            SELECT m.message_id, m.title, m.message, m.recipient_type, m.sent_at,
+            SELECT m.message_id, m.title, m.message, m.recipient_type, m.recipient_id, m.sent_at,
                    u.fname, u.lname
-            FROM captain_message m
+            FROM message m
             LEFT JOIN user u ON m.recipient_id = u.user_id
             ORDER BY m.sent_at DESC
         ");
@@ -113,24 +113,26 @@ class Message {
         // Filter only messages from this sender and format
         $result = [];
         foreach ($messages as $msg) {
-            $stmt2 = $this->db->prepare("SELECT sender_id FROM captain_message WHERE message_id = ?");
+            $stmt2 = $this->db->prepare("SELECT sender_id FROM message WHERE message_id = ?");
             $stmt2->execute([$msg['message_id']]);
             $check = $stmt2->fetch(PDO::FETCH_ASSOC);
             
             if ($check && $check['sender_id'] === $senderId) {
                 $recipientName = trim($msg['fname'] . ' ' . $msg['lname']);
                 if (empty($recipientName)) {
-                    $recipientName = $msg['recipient_type'] === 'COACH' ? 'Coach' : 'Sports Manager';
+                    $recipientName = $msg['recipient_type'] === 'COACH' ? 'Coach' : ($msg['recipient_type'] === 'CAPTAIN' ? 'Captain' : 'Sports Manager');
                 }
                 
                 $result[] = [
                     'id' => $msg['message_id'],
-                    'sender' => $msg['recipient_type'] === 'COACH' ? 'Coach' : 'Sports Manager',
+                    'sender' => $msg['recipient_type'] === 'COACH' ? 'Coach' : ($msg['recipient_type'] === 'CAPTAIN' ? 'Captain' : 'Sports Manager'),
+                    'recipient_id' => $msg['recipient_id'],
                     'recipient_name' => $recipientName,
                     'title' => $msg['title'],
                     'text' => substr($msg['message'], 0, 50) . (strlen($msg['message']) > 50 ? '...' : ''),
                     'full_message' => $msg['message'],
-                    'date' => date('d M', strtotime($msg['sent_at']))
+                    'date' => date('d M', strtotime($msg['sent_at'])),
+                    'timestamp' => $msg['sent_at']
                 ];
             }
         }
@@ -146,7 +148,7 @@ class Message {
      */
     public function deleteMessage($messageId, $senderId) {
         try {
-            $stmt = $this->db->prepare("DELETE FROM captain_message WHERE message_id = :message_id AND sender_id = :sender_id");
+            $stmt = $this->db->prepare("DELETE FROM message WHERE message_id = :message_id AND sender_id = :sender_id");
             $stmt->execute([
                 'message_id' => $messageId,
                 'sender_id' => $senderId
@@ -163,9 +165,68 @@ class Message {
      * @return int
      */
     public function getMessageCount($senderId) {
-        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM captain_message WHERE sender_id = :sender_id");
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM message WHERE sender_id = :sender_id");
         $stmt->execute(['sender_id' => $senderId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ? (int)$result['count'] : 0;
+    }
+
+    /**
+     * Get all messages received by a user (inbox)
+     * @param string $recipientId
+     * @return array
+     */
+    public function getMessagesByRecipient($recipientId) {
+        $stmt = $this->db->prepare("
+            SELECT m.message_id, m.title, m.message, m.recipient_type, m.sender_id, m.sent_at, m.is_read,
+                   u.fname, u.lname, s.sport_name
+            FROM message m
+            LEFT JOIN user u ON m.sender_id = u.user_id
+            LEFT JOIN sport s ON m.sport_id = s.sport_id
+            WHERE m.recipient_id = :recipient_id
+            ORDER BY m.sent_at DESC
+        ");
+        $stmt->execute(['recipient_id' => $recipientId]);
+        $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $result = [];
+        foreach ($messages as $msg) {
+            $senderName = trim($msg['fname'] . ' ' . $msg['lname']) ?: 'Unknown';
+            
+            $result[] = [
+                'id' => $msg['message_id'],
+                'sender' => $senderName,
+                'sender_id' => $msg['sender_id'],
+                'sender_role' => 'Sender',
+                'sport' => $msg['sport_name'] ?? 'Unknown Sport',
+                'title' => $msg['title'],
+                'text' => substr($msg['message'], 0, 50) . (strlen($msg['message']) > 50 ? '...' : ''),
+                'full_message' => $msg['message'],
+                'date' => date('d M', strtotime($msg['sent_at'])),
+                'timestamp' => $msg['sent_at'],
+                'is_read' => (bool)$msg['is_read']
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Mark a message as read
+     * @param string $messageId
+     * @param string $recipientId
+     * @return bool
+     */
+    public function markAsRead($messageId, $recipientId) {
+        try {
+            $stmt = $this->db->prepare("UPDATE message SET is_read = 1 WHERE message_id = :message_id AND recipient_id = :recipient_id");
+            $stmt->execute([
+                'message_id' => $messageId,
+                'recipient_id' => $recipientId
+            ]);
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 }

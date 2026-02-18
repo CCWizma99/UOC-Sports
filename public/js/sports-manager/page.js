@@ -21,57 +21,44 @@ function toggleMessageForm() {
     }
 }
 
-// Sample chat data
-const chatsData = [
-  {
-    id: 1,
-    user: 'K S Silva',
-    role: 'Equipment Manager',
-    title: 'Equipment Ready',
-    preview: 'Yes, I\'ll be there by 10!',
-    timestamp: '2 hours ago',
-    messages: [
-      { type: 'sent', text: 'Hey Saman!' },
-      { type: 'received', text: 'Hey, are you coming tomorrow?' },
-      { type: 'sent', text: 'Yes, I\'ll be there by 10!' }
-    ]
-  },
-  {
-    id: 2,
-    user: 'N S Perera',
-    role: 'Coach',
-    title: 'Practice Session Time',
-    preview: 'Hey Nimal, What is the time of the new practice session?',
-    timestamp: '5 hours ago',
-    messages: [
-      { type: 'received', text: 'Hi! I scheduled a new practice session.' },
-      { type: 'sent', text: 'Hey Nimal, What is the time of the new practice session?' }
-    ]
-  },
-  {
-    id: 3,
-    user: 'Nadith Nemal',
-    role: 'Captain',
-    title: 'Team Meeting',
-    preview: 'Don\'t forget about tomorrow\'s meeting',
-    timestamp: '1 day ago',
-    messages: [
-      { type: 'received', text: 'Team meeting scheduled for tomorrow at 3 PM' },
-      { type: 'sent', text: 'Got it, I\'ll inform the others' }
-    ]
-  }
-];
+// Chat data from backend
+let chatsData = [];
+
+// Initialize chats from backend
+function initializeChatsFromBackend() {
+    if (typeof backendConversations !== 'undefined' && backendConversations.length > 0) {
+        chatsData = backendConversations;
+    }
+}
 
 // Get initials from name
 function getInitials(name) {
   return name.split(' ').map(n => n[0]).join('').toUpperCase();
 }
 
+// Format timestamp
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor(diff / (1000 * 60));
+    
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes} min ago`;
+    if (hours < 24) return `${hours} hours ago`;
+    if (days === 1) return 'yesterday';
+    if (days < 7) return `${days} days ago`;
+    
+    return date.toLocaleDateString();
+}
+
 // Render chat card
 function createChatCard(chat) {
   const div = document.createElement('div');
   div.className = 'chat-card';
-  div.dataset.chatId = chat.id;
+  div.dataset.chatId = chat.partner_id;
 
   const header = document.createElement('div');
   header.className = 'chat-header';
@@ -81,27 +68,29 @@ function createChatCard(chat) {
 
   const avatar = document.createElement('div');
   avatar.className = 'chat-avatar';
-  avatar.textContent = getInitials(chat.user);
+  avatar.textContent = getInitials(chat.partner_name);
 
   const userInfo = document.createElement('div');
   userInfo.className = 'chat-user-info';
 
   const username = document.createElement('div');
   username.className = 'chat-user';
-  username.textContent = chat.user;
+  username.textContent = chat.partner_name;
 
-  const chatTitle = document.createElement('div');
-  chatTitle.className = 'chat-title';
-  chatTitle.textContent = chat.title;
+  const chatRole = document.createElement('div');
+  chatRole.className = 'chat-role';
+  chatRole.textContent = chat.partner_role;
+  chatRole.style.fontSize = '0.85rem';
+  chatRole.style.color = '#6b7280';
 
   userInfo.appendChild(username);
-  userInfo.appendChild(chatTitle);
+  userInfo.appendChild(chatRole);
   headerInfo.appendChild(avatar);
   headerInfo.appendChild(userInfo);
 
   const timestamp = document.createElement('div');
   timestamp.className = 'chat-timestamp';
-  timestamp.textContent = chat.timestamp;
+  timestamp.textContent = formatTimestamp(chat.last_message_time);
 
   const toggleIcon = document.createElement('div');
   toggleIcon.className = 'toggle-icon';
@@ -113,41 +102,85 @@ function createChatCard(chat) {
 
   const preview = document.createElement('div');
   preview.className = 'chat-preview';
-  preview.textContent = chat.preview;
+  preview.textContent = chat.last_message || 'No messages yet';
 
   const messagesContainer = document.createElement('div');
   messagesContainer.className = 'chat-messages';
-
-  if (chat.messages.length === 0) {
-    const noMsg = document.createElement('div');
-    noMsg.className = 'no-messages';
-    noMsg.textContent = 'No messages yet';
-    messagesContainer.appendChild(noMsg);
-  } else {
-    chat.messages.forEach(msg => {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `message ${msg.type}`;
-      msgDiv.textContent = msg.text;
-      messagesContainer.appendChild(msgDiv);
-    });
-  }
+  messagesContainer.innerHTML = '<div style="padding: 1rem; text-align: center; color: #6b7280;">Click to view conversation</div>';
 
   div.appendChild(header);
   div.appendChild(preview);
   div.appendChild(messagesContainer);
 
-  // Toggle chat expansion
+  // Toggle chat expansion and load messages
   header.addEventListener('click', () => {
+    if (!div.classList.contains('active')) {
+        loadConversation(chat.partner_id, messagesContainer);
+    }
     div.classList.toggle('active');
   });
 
   return div;
 }
 
+// Load conversation messages
+function loadConversation(partnerId, container) {
+    container.innerHTML = '<div style="padding: 1rem; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    
+    fetch(`/uoc-sports/public/sport-manager/messages/conversation?partner_id=${partnerId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.messages) {
+                container.innerHTML = '';
+                
+                if (data.messages.length === 0) {
+                    container.innerHTML = '<div style="padding: 1rem; text-align: center; color: #6b7280;">No messages yet</div>';
+                } else {
+                    const currentUserId = parseInt(document.body.dataset.userId) || 0;
+                    data.messages.forEach(msg => {
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = `message ${parseInt(msg.sender_id) === currentUserId ? 'sent' : 'received'}`;
+                        
+                        const msgHeader = document.createElement('div');
+                        msgHeader.style.fontSize = '0.75rem';
+                        msgHeader.style.color = '#6b7280';
+                        msgHeader.style.marginBottom = '0.25rem';
+                        msgHeader.textContent = `${msg.sender_name} - ${new Date(msg.sent_at).toLocaleString()}`;
+                        
+                        const msgTitle = document.createElement('div');
+                        msgTitle.style.fontWeight = '600';
+                        msgTitle.style.marginBottom = '0.25rem';
+                        msgTitle.textContent = msg.title;
+                        
+                        const msgText = document.createElement('div');
+                        msgText.textContent = msg.message;
+                        
+                        msgDiv.appendChild(msgHeader);
+                        msgDiv.appendChild(msgTitle);
+                        msgDiv.appendChild(msgText);
+                        container.appendChild(msgDiv);
+                    });
+                }
+            } else {
+                container.innerHTML = '<div style="padding: 1rem; text-align: center; color: #dc2626;">Failed to load messages</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading conversation:', error);
+            container.innerHTML = '<div style="padding: 1rem; text-align: center; color: #dc2626;">Error loading messages</div>';
+        });
+}
+
 // Render all chats
 function renderChats() {
   const container = document.getElementById('messagesContainer');
   if (!container) return;
+
+  // Check if container already has dummy/static content and no backend data
+  if (container.children.length > 0 && (!backendConversations || backendConversations.length === 0)) {
+    // Keep existing static content, don't clear it
+    return;
+  }
 
   container.innerHTML = '';
 
@@ -173,67 +206,10 @@ function renderChats() {
   }
 }
 
-// Initialize message form handler
-function initializeMessageForm() {
-  const messageForm = document.getElementById('messageForm');
-  if (!messageForm) return;
-
-  messageForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target);
-    const to = formData.get('To');
-    const title = formData.get('Title');
-    const message = formData.get('Message');
-
-    // Find or create chat
-    const recipientMap = {
-      'captain_1': { user: 'Nadith Nemal', role: 'Captain' },
-      'coach_1': { user: 'N S Perera', role: 'Coach' },
-      'equipment_1': { user: 'K S Silva', role: 'Equipment Manager' }
-    };
-
-    const recipient = recipientMap[to];
-    let chatExists = chatsData.find(c => c.user === recipient.user);
-
-    if (!chatExists) {
-      chatExists = {
-        id: chatsData.length + 1,
-        user: recipient.user,
-        role: recipient.role,
-        title: title,
-        preview: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
-        timestamp: 'just now',
-        messages: []
-      };
-      chatsData.unshift(chatExists);
-    }
-
-    // Add message to chat
-    chatExists.messages.push({ type: 'sent', text: message });
-    chatExists.preview = message.substring(0, 50) + (message.length > 50 ? '...' : '');
-    chatExists.timestamp = 'just now';
-    chatExists.title = title;
-
-    // Move chat to top
-    chatsData.splice(chatsData.indexOf(chatExists), 1);
-    chatsData.unshift(chatExists);
-
-    renderChats();
-    e.target.reset();
-
-    // Hide the form after sending
-    toggleMessageForm();
-
-    // Show success feedback
-    alert('Message sent successfully!');
-  });
-}
-
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+  initializeChatsFromBackend();
   renderChats();
-  initializeMessageForm();
 
   // Highlight active page
   const currentPage = document.getElementById("sub-messages");

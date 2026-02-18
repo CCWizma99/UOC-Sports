@@ -14,7 +14,9 @@ class SportManagerController {
     }
 
     public function expenses() {
-        view('sports-manager/expenses');
+        $expenseModel = new SportExpense(Database::getConnection());
+        $expenses = $expenseModel->getAll();
+        view('sports-manager/expenses', ['expenses' => $expenses]);
     }
 
     public function messages() {
@@ -26,7 +28,9 @@ class SportManagerController {
     }
 
     public function competitions() {
-        view('sports-manager/competitions');
+        // TODO: Fetch actual competition data from database
+        $schedules = []; // Empty for now, will show dummy data
+        view('sports-manager/competitions', ['Schedules' => $schedules]);
     }
 
     public function addPractice() {

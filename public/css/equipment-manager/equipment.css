@@ -1,3 +1,7 @@
+:root {
+    --primary-purple: #2b0c4d;
+}
+
 /* --- Main Content Grid --- */
 .content {
   display: grid;
@@ -58,7 +62,7 @@
 .card:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 24px rgba(117, 48, 225, 0.3);
-  border-color: #7530E1;
+  border-color:  var(--primary-purple);
 }
 
 /* Image Container */

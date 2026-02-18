@@ -56,13 +56,16 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                         <h2>Expense Overview</h2>
                 
                     <div class="chart-controls">
-                        <select id="sport" class="btn-primary ">
+                        <select id="sport" class="btn-select ">
                             <option value="">All Sports</option>
                             <option value="basketball">Basketball</option>
                             <option value="football">Football</option>
                             <option value="volleyball">Volleyball</option>
+                            <option value="cricket">Cricket</option>
+                            <option value="hockey">Hockey</option>
+                            <option value="karate">Karate</option>
                         </select>
-                        <select id="year" class="btn-primary ">
+                        <select id="year" class="btn-select ">
                             <option value="2025">2025</option>
                             <option value="2024">2024</option>
                             <option value="2023">2023</option>

@@ -15,7 +15,7 @@
 
     @import url("/uoc-sports/public/css/sports-manager/report.css");
   </style>
-  <script src="/uoc-sports/public/js/sports-manager/page.js"></script>
+  <script src="/uoc-sports/public/js/sports-manager/competitions.js" defer></script>
 </head>
 <body>
 <?php
@@ -48,7 +48,7 @@
                 <div class="form-group">
                     <label for="sport">Sport *</label>
                     <select id="sport" name="sport" required>
-                        <option value="">Select Sport</option>
+                        <option value="">BasketBall</option>
                         <option value="Athletics">Athletics</option>
                         <option value="Rugby">Rugby</option>
                         <option value="Tennis">Tennis</option>
@@ -78,12 +78,23 @@
 
                 <div class="form-group">
                     <label for="competitionName">Competition Name *</label>
-                    <input type="text" id="competitionName" name="competitionName" placeholder="Enter competition name" required>
+                    <input type="text" id="competitionName" name="competitionName" placeholder="Inter university Basketball competition" required>
                 </div>
 
-                <div class="form-group full-width">
-                    <label for="participants">Participant Image *</label>
-                    <input type="file" id="participants" name="participants" required>
+               <!-- <div class="form-group full-width"> -->
+                <div class="form-group">
+                    <label for="participants">Participant Document (PDF)</label>
+                    <input type="file" id="participants" name="participants" accept=".pdf">
+                </div>
+                   
+                <div class="form-group">
+                    <label for="participant">Select From the Team</label>
+                    <select id="participant" name="participant">
+                        <option value="">Select From the Team</option>
+                        <option value="KS Perera">KS Perera</option>
+                        <option value="RS Gamage">RS Gamage</option>
+                        <option value="PMW Jayathunga">PMW Jayathunga</option>
+                    </select>
                 </div>
             </div>
                     
