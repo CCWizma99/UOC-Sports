@@ -46,14 +46,11 @@
         <i class="fa-solid fa-bars" id="menu-btn" onclick="toggleMenu()"></i>
         <div class="nav-links" id="nav-links">
             <?php
-                // Detect active state for regular nav links
-                $isNewsPage = strpos($currentPage, '/news') !== false;
                 $isFacilityPage = strpos($currentPage, '/facility-reservation') !== false;
+                $facilityActiveClass = $isFacilityPage ? ' active-portal' : '';
             ?>
-            <a href="/uoc-sports/public/news"<?php echo $isNewsPage ? ' class="active"' : ''; ?>>News</a>
-            <a href="/uoc-sports/public/#contact">Contact Us</a>
 
-            <a href="/uoc-sports/public/facility-reservation" id="nav-res" class="btn-secondary<?php echo $isFacilityPage ? ' active' : ''; ?>">
+            <a href="/uoc-sports/public/facility-reservation" id="nav-res" class="btn-primary<?php echo $facilityActiveClass; ?>">
                 Facility Reservation
             </a>
 
@@ -117,10 +114,14 @@
                     $isProfilePage = strpos($currentPage, '/profile') !== false;
                     $profileActiveClass = $isProfilePage ? ' active-portal' : '';
                     echo '
-                        <a href="/uoc-sports/public/profile" class="btn-primary" id="nav-pro">
-                            ' . htmlspecialchars(strtoupper(substr($user['fname'], 0, 1)) . '. ' . $user['lname']) . ' <i class="fa-solid fa-circle-user"></i>
+                        <a href="/uoc-sports/public/profile" class="profile-link" id="nav-pro">
+                            <div class="profile-info">
+                                <span class="profile-name">' . htmlspecialchars(strtoupper(substr($user['fname'], 0, 1)) . '. ' . $user['lname']) . '</span>
+                            </div>
+                            <i class="fa-solid fa-circle-user"></i>
                         </a>
                     ';
+
 
                 } else {
                     // Sign in button
@@ -132,8 +133,9 @@
     </nav>
 </header>
 
-<?php 
-if ($pendingBooking): ?>
+<?php require_once APP_ROOT . '/app/views/templates/general/secondary-header.php'; ?>
+
+<?php if ($pendingBooking): ?>
 <!-- Pending Payment Reminder Modal -->
 <div id="pendingPaymentModal" class="pending-payment-modal">
     <div class="pending-payment-content">

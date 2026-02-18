@@ -186,7 +186,7 @@ class FacilityApiController {
     }
 
     /**
-     * HEARTBEAT: Real-time concurrency check
+     * HEARTBEAT: Real-time concurrency check with slot-level tracking
      */
     public function heartbeat() {
         header('Content-Type: application/json');
@@ -204,16 +204,26 @@ class FacilityApiController {
             $model = new Facility();
             $facility_id = $_POST['facility_id'];
             $session_id = session_id();
+            $date = isset($_POST['date']) ? $_POST['date'] : null;
+            $slot = isset($_POST['slot']) ? $_POST['slot'] : null;
 
-            // Update heartbeat
-            $model->updateHeartbeat($session_id, $facility_id);
+            // Update heartbeat with date/slot selection
+            $model->updateHeartbeat($session_id, $facility_id, $date, $slot);
 
             // Check if others are booking
             $isParallel = $model->checkParallelStatus($session_id, $facility_id);
 
+            // Get slot-level interest from other users
+            $slotInterest = $model->getSlotInterest($session_id, $facility_id);
+
+            // Get confirmed bookings
+            $bookedSlots = $model->getBookedSlots($facility_id);
+
             echo json_encode([
                 'success' => true,
-                'parallel_booking' => $isParallel
+                'parallel_booking' => $isParallel,
+                'slot_interest' => (object)$slotInterest,
+                'booked_slots' => (object)$bookedSlots
             ]);
 
         } catch (Exception $e) {
