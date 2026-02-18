@@ -74,7 +74,7 @@ class SportPracticeSessionController {
                 'notes' => $_POST['notes'] ?? '',
                 'need_equipment' => $_POST['need_equipment'] ?? 'No',
                 'added_by' => $_SESSION['user_type'] ?? 'MANAGER',
-                'status' => 'ACTIVE'
+                'status' => 'PENDING'
             ];
 
             // Validate required fields

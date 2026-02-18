@@ -3,48 +3,197 @@ class Calendar {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         this.currentDate = new Date();
-        this.reservations = this.getSampleReservations();
+        this.practiceSessions = {};
+        this.sportId = window.selectedSportId || null;
+        this.tooltip = null;
         this.init();
     }
 
-    init() {
+    async init() {
+        this.createTooltip();
+        await this.fetchPracticeSessions();
         this.render();
+        this.attachEventListeners();
     }
 
-    getSampleReservations() {
-        // Sample reservation data - in production, this would come from API
-        const today = new Date();
-        const reservations = {};
-        
-        // Add some sample reservations for various dates
-        for (let i = -5; i < 15; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i);
-            const dateKey = this.formatDate(date);
+    attachEventListeners() {
+        // Remove old listeners if they exist
+        if (this.container) {
+            const calendarDays = this.container.querySelectorAll('.calendar-day:not(.other-month)');
+            console.log('Attaching event listeners to', calendarDays.length, 'calendar days');
             
-            if (Math.random() > 0.5) { // Random reservations
-                reservations[dateKey] = [
-                    {
-                        time: '09:00 AM - 11:00 AM',
-                        equipment: 'Basketball Court A',
-                        user: 'Sarah Johnson',
-                        status: 'approved'
-                    },
-                    {
-                        time: '02:00 PM - 04:00 PM',
-                        equipment: 'Tennis Rackets (x4)',
-                        user: 'Mike Chen',
-                        status: 'pending'
-                    }
-                ];
-            }
+            calendarDays.forEach((day, index) => {
+                const hasSessions = day.getAttribute('data-sessions');
+                if (hasSessions) {
+                    console.log(`Day ${index + 1} has sessions data`);
+                }
+                
+                day.addEventListener('mouseenter', (e) => this.handleMouseEnter(e));
+                day.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+                day.addEventListener('mouseleave', () => this.handleMouseLeave());
+            });
+            
+            console.log('Event listeners attached successfully');
         }
+    }
+
+    createTooltip() {
+        // Create tooltip element
+        this.tooltip = document.createElement('div');
+        this.tooltip.className = 'calendar-tooltip';
+        this.tooltip.id = 'calendarTooltip';
+        this.tooltip.style.cssText = `
+            position: fixed;
+            background: white;
+            border: 3px solid #a855f7;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            max-width: 350px;
+            min-width: 280px;
+            font-size: 0.875rem;
+            display: block;
+        `;
+        document.body.appendChild(this.tooltip);
+        console.log('Tooltip created and appended to body:', this.tooltip);
+    }
+
+    async fetchPracticeSessions() {
+        const month = String(this.currentDate.getMonth() + 1).padStart(2, '0');
+        const year = this.currentDate.getFullYear();
         
-        return reservations;
+        try {
+            const url = `/uoc-sports/public/api/practice-sessions/calendar.php?month=${month}&year=${year}${this.sportId ? '&sport_id=' + this.sportId : ''}`;
+            console.log('Fetching practice sessions from:', url);
+            
+            const response = await fetch(url);
+            const result = await response.json();
+            
+            if (result.success) {
+                this.practiceSessions = result.data;
+                console.log('Practice sessions loaded successfully:', this.practiceSessions);
+                console.log('Number of dates with sessions:', Object.keys(this.practiceSessions).length);
+            } else {
+                console.error('Error loading practice sessions:', result.message);
+                this.practiceSessions = {};
+            }
+        } catch (error) {
+            console.error('Error fetching practice sessions:', error);
+            this.practiceSessions = {};
+        }
     }
 
     formatDate(date) {
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    formatTime(timeString) {
+        // Convert 24-hour time to 12-hour format
+        const [hours, minutes] = timeString.split(':');
+        const hour = parseInt(hours);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const displayHour = hour % 12 || 12;
+        return `${displayHour}:${minutes} ${ampm}`;
+    }
+
+    showTooltip(event, sessions) {
+        console.log('showTooltip called with sessions:', sessions);
+        console.log('Tooltip element:', this.tooltip);
+        
+        if (!sessions || sessions.length === 0) {
+            console.log('No sessions to show');
+            return;
+        }
+
+        if (!this.tooltip) {
+            console.error('Tooltip element does not exist!');
+            return;
+        }
+
+        // Header with session count
+        let tooltipContent = `
+            <div style="font-weight: 700; color: #2b0c4d; margin-bottom: 8px; border-bottom: 2px solid #a855f7; padding-bottom: 6px; font-size: 0.9rem;">
+                Practice Sessions (${sessions.length})
+            </div>
+        `;
+        
+        sessions.forEach((session, index) => {
+            console.log('Processing session:', session);
+            
+            // Add separator between sessions
+            if (index > 0) {
+                tooltipContent += '<div style="border-top: 1px dashed #d1d5db; margin: 10px 0;"></div>';
+            }
+            
+            tooltipContent += `
+                <div style="margin-bottom: 6px; padding: 6px; background: #f9fafb; border-radius: 6px; border-left: 3px solid #a855f7;">
+                    <div style="color: #6b1fa0; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">
+                        <i class="fas fa-clock" style="margin-right: 6px; color: #a855f7;"></i>
+                        ${this.formatTime(session.start_time)} - ${this.formatTime(session.end_time)}
+                    </div>
+                    <div style="color: #4b5563; margin-bottom: 3px; font-size: 0.8rem;">
+                        <i class="fas fa-map-marker-alt" style="margin-right: 6px; color: #10b981; width: 14px;"></i>
+                        <strong>Location:</strong> ${session.location || 'TBD'}
+                    </div>
+                    ${session.facility ? `
+                        <div style="color: #6b7280; margin-bottom: 3px; font-size: 0.75rem;">
+                            <i class="fas fa-building" style="margin-right: 6px; color: #3b82f6; width: 14px;"></i>
+                            <strong>Facility:</strong> ${session.facility}
+                        </div>
+                    ` : ''}
+                    ${session.sport_name ? `
+                        <div style="color: #6b7280; font-size: 0.75rem; margin-top: 3px;">
+                            <i class="fas fa-trophy" style="margin-right: 6px; color: #f59e0b; width: 14px;"></i>
+                            <strong>Sport:</strong> ${session.sport_name}
+                        </div>
+                    ` : ''}
+                    ${session.notes ? `
+                        <div style="color: #6b7280; font-size: 0.7rem; margin-top: 4px; padding-top: 4px; border-top: 1px solid #e5e7eb; font-style: italic;">
+                            <i class="fas fa-info-circle" style="margin-right: 4px;"></i>
+                            ${session.notes}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+
+        this.tooltip.innerHTML = tooltipContent;
+        this.tooltip.style.opacity = '1';
+        this.tooltip.style.visibility = 'visible';
+        console.log('Tooltip displaying ' + sessions.length + ' session(s)');
+        this.positionTooltip(event);
+    }
+
+    hideTooltip() {
+        if (this.tooltip) {
+            this.tooltip.style.opacity = '0';
+            this.tooltip.style.visibility = 'hidden';
+            console.log('Tooltip hidden');
+        }
+    }
+
+    positionTooltip(event) {
+        const tooltipRect = this.tooltip.getBoundingClientRect();
+        const padding = 10;
+        
+        let left = event.clientX + padding;
+        let top = event.clientY + padding;
+        
+        // Adjust if tooltip goes off-screen
+        if (left + tooltipRect.width > window.innerWidth) {
+            left = event.clientX - tooltipRect.width - padding;
+        }
+        
+        if (top + tooltipRect.height > window.innerHeight) {
+            top = event.clientY - tooltipRect.height - padding;
+        }
+        
+        this.tooltip.style.left = `${left}px`;
+        this.tooltip.style.top = `${top}px`;
     }
 
     render() {
@@ -87,82 +236,94 @@ class Calendar {
         
         // Current month days
         const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time to midnight for accurate comparison
+        
         for (let day = 1; day <= lastDayDate; day++) {
             const date = new Date(year, month, day);
+            date.setHours(0, 0, 0, 0);
+            
             const dateKey = this.formatDate(date);
             const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-            const hasReservation = this.reservations[dateKey] && this.reservations[dateKey].length > 0;
+            const hasSessions = this.practiceSessions[dateKey] && this.practiceSessions[dateKey].length > 0;
+            
+            // Determine if date is past or future
+            const isPast = date < today;
+            const isFuture = date > today;
+            
+            if (hasSessions) {
+                console.log(`Date ${dateKey} has ${this.practiceSessions[dateKey].length} sessions`);
+            }
             
             let classes = 'calendar-day';
             if (isToday) classes += ' today';
-            if (hasReservation) classes += ' has-reservation';
+            if (hasSessions) {
+                classes += ' has-reservation';
+                if (isPast) classes += ' past-date';
+                if (isFuture) classes += ' future-date';
+            }
             
-            calendarHTML += `<div class="${classes}" onclick="calendar.showReservations('${dateKey}')">${day}</div>`;
+            const sessionsData = hasSessions ? JSON.stringify(this.practiceSessions[dateKey]) : '';
+            
+            calendarHTML += `<div class="${classes}" 
+                data-date="${dateKey}" 
+                data-sessions='${sessionsData}'
+                >${day}</div>`;
         }
         
         this.container.innerHTML = calendarHTML + '</div>';
+        this.attachEventListeners();
     }
 
-    prevMonth() {
-        this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-        this.render();
-    }
-
-    nextMonth() {
-        this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-        this.render();
-    }
-
-    showReservations(dateKey) {
-        const modal = document.getElementById('reservationModal');
-        const modalReservations = document.getElementById('modalReservations');
-        const selectedDate = document.getElementById('selectedDate');
+    handleMouseEnter(event) {
+        console.log('Mouse entered calendar day');
+        const target = event.currentTarget;
+        const sessionsData = target.getAttribute('data-sessions');
+        console.log('Sessions data attribute:', sessionsData);
+        console.log('Has sessions:', sessionsData && sessionsData !== '');
         
-        const date = new Date(dateKey);
-        selectedDate.textContent = date.toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        });
-        
-        const reservations = this.reservations[dateKey] || [];
-        
-        if (reservations.length === 0) {
-            modalReservations.innerHTML = '<p style="text-align: center; color: #6b7280;">No reservations for this date.</p>';
+        if (sessionsData && sessionsData !== '') {
+            try {
+                const sessions = JSON.parse(sessionsData);
+                console.log('Parsed sessions:', sessions);
+                console.log('Number of sessions:', sessions.length);
+                this.showTooltip(event, sessions);
+            } catch (e) {
+                console.error('Error parsing sessions data:', e);
+                console.error('Raw sessions data:', sessionsData);
+            }
         } else {
-            modalReservations.innerHTML = reservations.map(res => `
-                <div class="reservation-item">
-                    <div class="reservation-header">
-                        <span class="reservation-time">${res.time}</span>
-                        <span class="status-badge ${res.status}">${res.status}</span>
-                    </div>
-                    <p class="reservation-equipment">${res.equipment}</p>
-                    <p class="reservation-user">User: ${res.user}</p>
-                </div>
-            `).join('');
+            console.log('No sessions data for this date');
         }
-        
-        modal.style.display = 'block';
+    }
+
+    handleMouseMove(event) {
+        if (this.tooltip.style.opacity === '1') {
+            this.positionTooltip(event);
+        }
+    }
+
+    handleMouseLeave() {
+        this.hideTooltip();
+    }
+
+    async prevMonth() {
+        this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+        await this.fetchPracticeSessions();
+        this.render();
+    }
+
+    async nextMonth() {
+        this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+        await this.fetchPracticeSessions();
+        this.render();
     }
 }
 
-// Initialize calendar when DOM is loaded
+// Make calendar global and initialize when DOM is loaded
 let calendar;
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing calendar...');
     calendar = new Calendar('calendar');
-    
-    // Modal close functionality
-    const modal = document.getElementById('reservationModal');
-    const closeBtn = document.querySelector('.close');
-    
-    closeBtn.onclick = function() {
-        modal.style.display = 'none';
-    }
-    
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    }
+    window.calendar = calendar; // Make it globally accessible for debugging
+    console.log('Calendar initialized:', calendar);
 });
