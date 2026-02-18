@@ -179,7 +179,7 @@ class AuthController extends BaseController {
                         $_SESSION['redirectURL'] = "/uoc-sports/public/coach";
                         break;
                     default:
-                        $_SESSION['redirectURL'] = "/uoc-sports/public/";
+                        $_SESSION['redirectURL'] = "/uoc-sports/public/facility-reservation";
                 }
     
                 if ($remember) {

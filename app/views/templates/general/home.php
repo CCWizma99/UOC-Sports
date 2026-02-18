@@ -20,7 +20,7 @@
                 <p>Empowering athletes at Sri Lanka's premier university</p>
                 <div class="sports-marquee">
                     <div class="marquee-content">
-                        <span><i class="fas fa-cricket"></i> Cricket</span>
+                        <span><i class="fas fa-baseball-bat-ball"></i> Cricket</span>
                         <span><i class="fas fa-football"></i> Rugby</span>
                         <span><i class="fas fa-volleyball"></i> Netball</span>
                         <span><i class="fas fa-running"></i> Athletics</span>
@@ -30,26 +30,6 @@
                         <span><i class="fas fa-water"></i> Swimming</span>
                         <span><i class="fas fa-person-swimming"></i> Badminton</span>
                         <span><i class="fas fa-dumbbell"></i> Weightlifting</span>
-                        <span><i class="fas fa-chess"></i> Chess</span>
-                        <span><i class="fas fa-volleyball"></i> Volleyball</span>
-                        <span><i class="fas fa-futbol"></i> Football</span>
-                        <span><i class="fas fa-tennis-ball"></i> Tennis</span>
-                        <span><i class="fas fa-baseball"></i> Baseball</span>
-                        <!-- Duplicate for seamless loop -->
-                        <span><i class="fas fa-football"></i> Rugby</span>
-                        <span><i class="fas fa-volleyball"></i> Netball</span>
-                        <span><i class="fas fa-running"></i> Athletics</span>
-                        <span><i class="fas fa-hand-fist"></i> Karate</span>
-                        <span><i class="fas fa-table-tennis"></i> Table Tennis</span>
-                        <span><i class="fas fa-basketball"></i> Basketball</span>
-                        <span><i class="fas fa-water"></i> Swimming</span>
-                        <span><i class="fas fa-person-swimming"></i> Badminton</span>
-                        <span><i class="fas fa-dumbbell"></i> Weightlifting</span>
-                        <span><i class="fas fa-chess"></i> Chess</span>
-                        <span><i class="fas fa-volleyball"></i> Volleyball</span>
-                        <span><i class="fas fa-futbol"></i> Football</span>
-                        <span><i class="fas fa-tennis-ball"></i> Tennis</span>
-                        <span><i class="fas fa-baseball"></i> Baseball</span>
                     </div>
                 </div>
             </div>
@@ -71,6 +51,7 @@
                     </div>
                     <h3>Facility Booking</h3>
                     <p>Reserve sports facilities with ease. Book courts, fields, and training spaces for practice sessions and events.</p>
+                    <a href="/uoc-sports/public/services#facility-booking" class="read-more-btn">Read More <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -82,6 +63,7 @@
                     </div>
                     <h3>Tournament Management</h3>
                     <p>Participate in inter-university championships, national tournaments, and track your competitive achievements.</p>
+                    <a href="/uoc-sports/public/services#tournament-management" class="read-more-btn">Read More <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -93,6 +75,7 @@
                     </div>
                     <h3>Training Programs</h3>
                     <p>Access structured training programs with professional coaching for various sports disciplines.</p>
+                    <a href="/uoc-sports/public/services#training-programs" class="read-more-btn">Read More <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -104,6 +87,7 @@
                     </div>
                     <h3>Sports News</h3>
                     <p>Stay updated with the latest achievements, events, and announcements from the UOC sports community.</p>
+                    <a href="/uoc-sports/public/services#sports-news" class="read-more-btn">Read More <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -115,6 +99,7 @@
                     </div>
                     <h3>Team Collaboration</h3>
                     <p>Connect with teammates, coordinate practices, and manage team activities efficiently.</p>
+                    <a href="/uoc-sports/public/services#team-collaboration" class="read-more-btn">Read More <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -126,6 +111,7 @@
                     </div>
                     <h3>Performance Tracking</h3>
                     <p>Monitor your athletic progress, view statistics, and set goals for continuous improvement.</p>
+                    <a href="/uoc-sports/public/services#performance-tracking" class="read-more-btn">Read More <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
@@ -176,41 +162,45 @@
         </div>
         
         <div class="stories-grid">
-            <a href="#" class="story-card">
+            <div class="story-card">
                 <div class="story-image" style="background-image: url('https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=800&q=80'); background-size: cover; background-position: center;">
                     <span class="story-tag">Achievement</span>
                 </div>
                 <div class="story-content">
                     <h4>University of Colombo students won medals in SAG 2019</h4>
+                    <a href="/uoc-sports/public/stories#sag-2019" class="read-more-btn" style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.4rem 1rem;">Read More <i class="fas fa-arrow-right"></i></a>
                 </div>
-            </a>
+            </div>
             
-            <a href="#" class="story-card">
+            <div class="story-card">
                 <div class="story-image" style="background-image: url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=800&q=80'); background-size: cover; background-position: center;">
                     <span class="story-tag">Facilities</span>
                 </div>
                 <div class="story-content">
                     <h4>Opening Ceremony of the Refurbished Pavilion</h4>
+                    <a href="/uoc-sports/public/stories#pavilion-opening" class="read-more-btn" style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.4rem 1rem;">Read More <i class="fas fa-arrow-right"></i></a>
                 </div>
-            </a>
+            </div>
             
-            <a href="#" class="story-card">
+            <div class="story-card">
                 <div class="story-image" style="background-image: url('https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80'); background-size: cover; background-position: center;">
                     <span class="story-tag">Karate</span>
                 </div>
                 <div class="story-content">
                     <h4>University Karate (Kata) team shines at the National Karate Championship – 2021</h4>
+                    <a href="/uoc-sports/public/stories#karate-2021" class="read-more-btn" style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.4rem 1rem;">Read More <i class="fas fa-arrow-right"></i></a>
                 </div>
-            </a>
+            </div>
             
-            <a href="#" class="story-card">
+            <div class="story-card">
                 <div class="story-image" style="background-image: url('https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800&q=80'); background-size: cover; background-position: center;">
                     <span class="story-tag">Well-being</span>
                 </div>
                 <div class="story-content">
                     <h4>Change the cycle, Break a sweat!</h4>
+                    <a href="/uoc-sports/public/stories#well-being" class="read-more-btn" style="margin-top: 0.5rem; font-size: 0.8rem; padding: 0.4rem 1rem;">Read More <i class="fas fa-arrow-right"></i></a>
                 </div>
-            </a>
+            </div>
         </div>
     </section>
 
