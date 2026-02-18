@@ -16,7 +16,6 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
   <style>
     @import url("/uoc-sports/public/css/global.css");
     @import url("/uoc-sports/public/css/equipment-manager/index.css");
-    @import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
     @import url("/uoc-sports/public/css/general/footer.css");
     @import url("/uoc-sports/public/css/general/header.css");
 
@@ -57,7 +56,6 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
 <body>
 <?php
     require "../app/views/templates/general/header.php";
-    require "../app/views/equipment-manager/header-subnav.php";
 ?>
         <div class="main-content-wrapper">
         

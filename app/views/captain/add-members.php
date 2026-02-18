@@ -9,7 +9,6 @@
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
         @import url(/uoc-sports/public/css/general/header.css);
-        @import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
         @import url(/uoc-sports/public/css/captain/add-members.css);
         @import url(/uoc-sports/public/css/general/footer.css);
 
@@ -29,7 +28,6 @@
 <body class="mesh-sporty">
     <?php
         require '../app/views/templates/general/header.php';
-        require '../app/views/templates/captain/sub-nav.php';
         require '../app/views/templates/captain/add-memberssheet.php';
         require '../app/views/templates/general/footer.php';
     ?>

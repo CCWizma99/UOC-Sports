@@ -130,6 +130,8 @@
     </nav>
 </header>
 
+<?php require_once APP_ROOT . '/app/views/templates/general/secondary-header.php'; ?>
+
 <?php if ($pendingBooking): ?>
 <!-- Pending Payment Reminder Modal -->
 <div id="pendingPaymentModal" class="pending-payment-modal">

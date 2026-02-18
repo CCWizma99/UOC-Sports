@@ -10,7 +10,6 @@
   <style>
     @import url("/uoc-sports/public/css/global.css");
     @import url("/uoc-sports/public/css/general/header.css");
-    @import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
     @import url("/uoc-sports/public/css/general/footer.css");
 
     @import url("/uoc-sports/public/css/equipment-manager/report.css");
@@ -20,7 +19,6 @@
 <body>
 <?php
     require "../app/views/templates/general/header.php";
-    require "../app/views/equipment-manager/header-subnav.php";
 ?>
 <div class="report-container">
 
