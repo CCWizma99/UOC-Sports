@@ -180,17 +180,20 @@ class Facility {
     }
 
     /* ---------- GET CHART DATA ---------- */
-    public function getReservationChartData($facility_id, $days = 7) {
+    public function getReservationChartData($facility_id, $startDate, $endDate) {
         $chartData = [];
         
-        for ($i = 0; $i < $days; $i++) {
-            $date = date('Y-m-d', strtotime("+$i days"));
+        $current = strtotime($startDate);
+        $end = strtotime($endDate);
+
+        while ($current <= $end) {
+            $date = date('Y-m-d', $current);
             
             // Get bookings for this date
             $sql = "SELECT slot FROM `facility-booking`
                     WHERE facility_id = :facility_id 
                     AND date = :date 
-                    AND status = 'BOOKED'";
+                    AND (status = 'BOOKED' OR status = 'RESERVED')";
             
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
@@ -211,8 +214,10 @@ class Facility {
                 'date' => $date,
                 'slots' => $slots
             ];
+            
+            // Increment day
+            $current = strtotime("+1 day", $current);
         }
-        
         
         return $chartData;
     }
@@ -457,6 +462,125 @@ class Facility {
             return false;
         }
     }
+
+    /**
+     * Track a user's interest in a specific facility and date.
+     */
+    public function trackBookingAttempt($userId, $facilityId, $date) {
+        $sql = "INSERT INTO active_booking_attempts (user_id, facility_id, date, last_active_at)
+                VALUES (:user_id, :facility_id, :date, CURRENT_TIMESTAMP)
+                ON DUPLICATE KEY UPDATE last_active_at = CURRENT_TIMESTAMP";
+
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':user_id' => $userId,
+            ':facility_id' => $facilityId,
+            ':date' => $date
+        ]);
+    }
+
+    /**
+ * Update heartbeat for parallel booking check.
+ */
+public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = null) {
+    $sql = "INSERT INTO parallel_checker (session_id, facility_id, selected_date, selected_slot, last_heartbeat)
+            VALUES (:session_id, :facility_id, :selected_date, :selected_slot, CURRENT_TIMESTAMP)
+            ON DUPLICATE KEY UPDATE last_heartbeat = CURRENT_TIMESTAMP, selected_date = :selected_date2, selected_slot = :selected_slot2";
+
+    $stmt = $this->db->prepare($sql);
+    return $stmt->execute([
+        ':session_id' => $sessionId,
+        ':facility_id' => $facilityId,
+        ':selected_date' => $date,
+        ':selected_slot' => $slot,
+        ':selected_date2' => $date,
+        ':selected_slot2' => $slot
+    ]);
+}
+
+    /**
+ * Check if other users are booking the same facility.
+ */
+public function checkParallelStatus($sessionId, $facilityId) {
+    // Cleanup old heartbeats (older than 5 seconds)
+    $this->db->query("DELETE FROM parallel_checker WHERE last_heartbeat < (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)");
+
+    $sql = "SELECT COUNT(*) as count 
+            FROM parallel_checker 
+            WHERE facility_id = :facility_id 
+            AND session_id != :session_id 
+            AND last_heartbeat >= (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([
+        ':facility_id' => $facilityId,
+        ':session_id' => $sessionId
+    ]);
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return (int)$row['count'] > 0;
+}
+
+/**
+ * Get slot-level interest from other users for real-time chart updates.
+ * Returns which dates/slots other users have selected (not yet booked).
+ */
+public function getSlotInterest($sessionId, $facilityId) {
+    // Get other users' selected dates/slots from parallel_checker
+    $sql = "SELECT selected_date, selected_slot
+            FROM parallel_checker
+            WHERE facility_id = :facility_id
+            AND session_id != :session_id
+            AND selected_date IS NOT NULL
+            AND last_heartbeat >= (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([
+        ':facility_id' => $facilityId,
+        ':session_id' => $sessionId
+    ]);
+
+    $interest = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $date = $row['selected_date'];
+        if (!isset($interest[$date])) {
+            $interest[$date] = [];
+        }
+        // If slot is specified, track that specific slot
+        if ($row['selected_slot']) {
+            $interest[$date][] = $row['selected_slot'];
+        } else {
+            // User selected date but no slot yet — mark all slots as interested
+            $interest[$date] = array_unique(array_merge($interest[$date], ['MORNING', 'AFTERNOON', 'FULL']));
+        }
+    }
+
+    return $interest;
+}
+
+/**
+ * Get confirmed bookings for a facility (for real-time chart red status).
+ */
+public function getBookedSlots($facilityId) {
+    $sql = "SELECT date, slot
+            FROM `facility-booking`
+            WHERE facility_id = :facility_id
+            AND (status = 'BOOKED' OR status = 'RESERVED')";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([':facility_id' => $facilityId]);
+
+    $booked = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $date = $row['date'];
+        if (!isset($booked[$date])) {
+            $booked[$date] = [];
+        }
+        $booked[$date][] = $row['slot'];
+    }
+
+    return $booked;
+}
 
     /* ---------- GET FACILITY RESERVATION ANALYTICS ---------- */
     public function getAnalytics() {

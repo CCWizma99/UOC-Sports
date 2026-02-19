@@ -8,75 +8,151 @@
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
-        @import url(/uoc-sports/public/css/general/profile.css);
+        @import url(/uoc-sports/public/css/general/profile.css?v=1.8);
         @import url(/uoc-sports/public/css/general/footer.css);
 
-        .mesh-sporty {
-            background: 
-                linear-gradient(rgba(94, 45, 145, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(94, 45, 145, 0.05) 1px, transparent 1px),
-                linear-gradient(135deg, #faf9fc 0%, #f3f1f7 100%);
-            background-size: 40px 40px, 40px 40px, 100% 100%;
-        }
     </style>
 </head>
-<body class="mesh-sporty">
+<body>
     <?php
         require '../app/views/templates/general/header.php';
 ?>
 
-<div class="container">
-        <div class="page-header">
-            <h1>My Profile</h1>
-            <p>Manage your account and view your activities</p>
+<div class="profile-layout-container">
+        <!-- Cover Image Section -->
+        <div class="profile-cover">
+            <img src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=2940&auto=format&fit=crop" alt="Cover Image">
+            <button class="btn-edit-cover"><i class="fas fa-camera"></i> Edit Cover</button>
         </div>
 
-        <div class="profile-card">
-            <div class="profile-content">
-                <div class="profile-picture-container">
-                    <img id="profilePicture" src="<?php echo htmlspecialchars($userDetails['profile_image_url'] ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400'); ?>" alt="Profile" class="profile-picture">
-                    <label for="profile-upload" class="change-picture-btn">
-                        <i class="fas fa-camera"></i>
-                    </label>
-                    <input type="file" id="profile-upload" accept="image/jpeg,image/jpg,image/png,image/gif">
-                    <div id="upload-status" style="display: none; margin-top: 10px; text-align: center; font-size: 14px;"></div>
-                </div>
-                <div class="profile-details">
-                    <h2 id="userName">John Doe</h2>
-                    <p class="email" id="userEmail">john.doe@uoc.lk</p>
-                    <div class="profile-badges">
-                        <span class="badge badge-primary"><i class="fas fa-user"></i><span id="accountType">STUDENT</span></span>
-                        <span class="badge badge-secondary"><i class="fas fa-id-card"></i>ID: <span id="userId">STU2024001</span></span>
-                        <span class="badge badge-success"><i class="fas fa-calendar-check"></i>Joined: <span id="joinedDate">Jan 15, 2024</span></span>
+        <div class="profile-grid">
+            <!-- Left Sidebar -->
+            <aside class="profile-sidebar">
+                <div class="sidebar-card user-card">
+                    <div class="profile-picture-wrapper">
+                        <img id="profilePicture" src="<?php echo htmlspecialchars($userDetails['profile_image_url'] ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400'); ?>" alt="Profile" class="profile-picture">
+                        <label for="profile-upload" class="change-picture-btn" title="Change Profile Picture">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <input type="file" id="profile-upload" accept="image/jpeg,image/jpg,image/png,image/gif">
+                        <div id="upload-status" style="display: none; margin-top: 10px; text-align: center; font-size: 14px;"></div>
+                    </div>
+                    
+                    <div class="user-info">
+                        <h2 id="userName">John Doe</h2>
+                        <p class="user-role" id="accountTypeBadge">STUDENT</p>
+                        <p class="user-location"><i class="fas fa-map-marker-alt"></i> Colombo, Sri Lanka</p>
+                    </div>
+
+                    <div class="user-actions">
+                        <button class="btn btn-outline" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    </div>
+
+                    <hr class="sidebar-divider">
+
+                    <div class="skills-section">
+                        <h3>Stats & Info</h3>
+                        <div class="expert-tags">
+                            <span class="tag">ID: <span id="userId">STU2024001</span></span>
+                            <span class="tag">Joined: <span id="joinedDate">Jan 15, 2024</span></span>
+                            <span class="tag email-tag" id="userEmail" title="Email">john.doe@uoc.lk</span>
+                        </div>
+                        <div style="margin-top: 1.5rem; text-align: center;">
+                             <button class="text-btn" onclick="showDeleteModal()" style="color: #f44336; font-size: 0.9rem;">Delete Account</button>
+                        </div>
                     </div>
                 </div>
-                <div class="profile-actions">
-                    <button class="btn btn-logout" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i>Logout</button>
-                    <button class="btn btn-delete" onclick="showDeleteModal()"><i class="fas fa-trash"></i>Delete Account</button>
-                </div>
-            </div>
-        </div>
+            </aside>
 
-        <div id="sportsSection">
-            <div class="section-header"><i class="fas fa-trophy"></i><h2>Enrolled Sports</h2></div>
-            <div class="sports-grid" id="sportsGrid"></div>
-        </div>
+            <!-- Main Content Area -->
+            <main class="profile-main">
+                <div class="content-card">
+                    <!-- Tabs Navigation -->
+                    <div class="profile-tabs">
+                        <button class="tab-btn active" onclick="switchTab('bookings')">Booked Facilities</button>
+                        <button class="tab-btn" onclick="switchTab('activity')">Activity History</button>
+                        <button class="tab-btn" onclick="switchTab('performance')">Performance Summary</button>
+                    </div>
 
-        <div class="bookings-section">
-            <div class="section-header"><i class="fas fa-calendar-alt"></i><h2>Booked Facilities</h2></div>
-            <div class="bookings-controls">
-                <div class="sort-container">
-                    <label><i class="fas fa-sort"></i>Sort by:</label>
-                    <select id="sortBookings" onchange="sortBookings()">
-                        <option value="date-asc">Date (Earliest First)</option>
-                        <option value="date-desc">Date (Latest First)</option>
-                        <option value="price-asc">Price (Low to High)</option>
-                        <option value="price-desc">Price (High to Low)</option>
-                        <option value="status">Status</option>
-                    </select>
+                    <!-- Tab Contents -->
+                    <div id="bookings-tab" class="tab-content active">
+                         <div class="section-header-clean">
+                            <h2>My Bookings</h2>
+                             <div class="sort-container-clean">
+                                <select id="sortBookings" onchange="sortBookings()">
+                                    <option value="date-desc">Date (Latest First)</option>
+                                    <option value="date-asc">Date (Earliest First)</option>
+                                    <option value="status">Status</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="booking-list" id="bookingList"></div>
+                    </div>
+
+                    <div id="activity-tab" class="tab-content" style="display: none;">
+                        <div class="section-header-clean">
+                            <h2>Activity Analysis</h2>
+                        </div>
+                        <div class="chart-container" style="position: relative; height:300px; width:100%">
+                            <canvas id="activityChart"></canvas>
+                        </div>
+                        <div class="activity-timeline" style="margin-top: 2rem;">
+                            <h3 style="font-size: 1.1rem; color: #444; margin-bottom: 1rem;">Recent Timeline</h3>
+                            <!-- Placeholder Data -->
+                            <div class="activity-item">
+                                <div class="activity-icon"><i class="fas fa-running"></i></div>
+                                <div class="activity-details">
+                                    <h4>Completed a Swimming Session</h4>
+                                    <span class="activity-time">2 days ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon"><i class="fas fa-check-circle"></i></div>
+                                <div class="activity-details">
+                                    <h4>Booking Confirmed: Badminton Court</h4>
+                                    <span class="activity-time">5 days ago</span>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon"><i class="fas fa-trophy"></i></div>
+                                <div class="activity-details">
+                                    <h4>Won Inter-Faculty Cricket Match</h4>
+                                    <span class="activity-time">1 week ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="performance-tab" class="tab-content" style="display: none;">
+                        <div class="section-header-clean">
+                            <h2>Performance Summary</h2>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-fire"></i></div>
+                                <div class="stat-info">
+                                    <h3>12</h3>
+                                    <p>Matches Played</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-medal"></i></div>
+                                <div class="stat-info">
+                                    <h3>5</h3>
+                                    <p>Man of the Match</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"><i class="fas fa-stopwatch"></i></div>
+                                <div class="stat-info">
+                                    <h3>45h</h3>
+                                    <p>Training Hours</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="booking-list" id="bookingList"></div>
+            </main>
         </div>
     </div>
 
@@ -96,6 +172,7 @@
         require '../app/views/templates/general/footer.php';
     ?>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Backend data from PHP
         const userData = {
@@ -106,8 +183,6 @@
             profilePicture: <?php echo json_encode($userDetails['profile_image_url'] ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400'); ?>,
             joinedDate: <?php echo json_encode($userDetails['joined_date'] ?? ''); ?>
         };
-
-        const enrolledSports = <?php echo json_encode($enrolledSports ?? []); ?>;
 
         let bookings = <?php 
             // Transform bookings data for frontend
@@ -128,17 +203,63 @@
             echo json_encode($frontendBookings);
         ?>;
 
+        // Chart instance
+        let activityChart = null;
+
         function init() {
             loadUserData();
-            loadSports();
             loadBookings();
             document.getElementById('profile-upload').addEventListener('change', uploadProfileImage);
+            
+            // Load chart data
+            fetchActivityData();
+        }
+
+        async function fetchActivityData() {
+            try {
+                const response = await fetch('/uoc-sports/public/api/chart/activity-analysis');
+                const data = await response.json();
+                renderChart(data);
+            } catch (error) {
+                console.error('Error loading chart data:', error);
+            }
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            
+            if (activityChart) {
+                activityChart.destroy();
+            }
+
+            activityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: data.datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Activity Trends (Last 6 Months)' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
         }
 
         function loadUserData() {
             document.getElementById('userName').textContent = userData.name;
+            // document.getElementById('userNameOverview').textContent = userData.name; // Overview removed
             document.getElementById('userEmail').textContent = userData.email;
-            document.getElementById('accountType').textContent = userData.accountType;
+            document.getElementById('accountTypeBadge').textContent = userData.accountType;
             document.getElementById('userId').textContent = userData.id;
             document.getElementById('profilePicture').src = userData.profilePicture;
             
@@ -146,81 +267,78 @@
                 const joinedDate = new Date(userData.joinedDate);
                 document.getElementById('joinedDate').textContent = joinedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             }
-            
-            if (userData.accountType !== 'STUDENT' && userData.accountType !== 'CAPTAIN') {
-                document.getElementById('sportsSection').style.display = 'none';
-            }
         }
 
-        function loadSports() {
-            if (userData.accountType !== 'STUDENT' && userData.accountType !== 'CAPTAIN') {
-                return;
-            }
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+                content.classList.remove('active');
+            });
             
-            if (enrolledSports.length === 0) {
-                const grid = document.getElementById('sportsGrid');
-                grid.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">You are not enrolled in any sports yet.</p>';
-                return;
-            }
+            // Deactivate all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
             
-            const grid = document.getElementById('sportsGrid');
-            grid.innerHTML = enrolledSports.map(s => {
-                // Generate sport images based on sport name
-                const sportImages = {
-                    'Cricket': 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=400',
-                    'Basketball': 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400',
-                    'Swimming': 'https://images.unsplash.com/photo-1519315901367-f34ff9154487?w=400',
-                    'Football': 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400',
-                    'Badminton': 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400',
-                    'Tennis': 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400',
-                    'Volleyball': 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=400'
-                };
-                const image = sportImages[s.sport_name] || 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400';
-                const coachName = s.coach_name || 'TBA';
-                
-                return `
-                    <div class="sport-card">
-                        <div class="sport-image">
-                            <img src="${image}" alt="${s.sport_name}">
-                            <div class="sport-name">${s.sport_name}</div>
-                        </div>
-                        <div class="sport-details">
-                            <p><i class="fas fa-user"></i><span><strong>Coach:</strong> ${coachName}</span></p>
-                            <p><i class="fas fa-calendar"></i><span><strong>Joined:</strong> ${s.joined_date ? new Date(s.joined_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A'}</span></p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            // Show selected tab content
+            const selectedTab = document.getElementById(tabName + '-tab');
+            selectedTab.style.display = 'block';
+            setTimeout(() => selectedTab.classList.add('active'), 10);
+            
+            // Activate selected button
+            document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+
+            // Resize chart if activity tab is shown
+            if (tabName === 'activity' && activityChart) {
+                setTimeout(() => activityChart.resize(), 50);
+            }
         }
 
         function loadBookings() {
             const list = document.getElementById('bookingList');
             
             if (bookings.length === 0) {
-                list.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">You have no facility bookings yet.</p>';
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>No facilities booked yet.</p>
+                        <button class="btn btn-primary btn-sm" onclick="window.location.href='/uoc-sports/public/bookings/new'">Book Now</button>
+                    </div>`;
                 return;
             }
             
             list.innerHTML = bookings.map(b => {
                 const statusClass = b.status.toLowerCase();
-                const dateStr = new Date(b.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const dateObj = new Date(b.date);
+                const day = dateObj.getDate();
+                const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+                const year = dateObj.getFullYear();
+                
                 return `
                     <div class="booking-item ${statusClass}">
-                        <div class="booking-info">
-                            <i class="fas fa-map-marker-alt booking-icon"></i>
-                            <div class="booking-details">
+                        <div class="booking-date-box">
+                            <span class="date-month">${month}</span>
+                            <span class="date-day">${day}</span>
+                            <span class="date-year">${year}</span>
+                        </div>
+                        
+                        <div class="booking-info-compact">
+                            <div class="booking-header">
                                 <h3>${b.facility}</h3>
-                                <div class="booking-meta">
-                                    <span><i class="fas fa-calendar"></i><strong>Date:</strong> ${dateStr}</span>
-                                    <span><i class="fas fa-clock"></i><strong>Time:</strong> ${b.time}</span>
-                                </div>
-                                <p class="booking-purpose"><strong>Purpose:</strong> ${b.purpose}</p>
+                                <span class="booking-time"><i class="far fa-clock"></i> ${b.time}</span>
+                            </div>
+                            <div class="booking-sub">
+                                <span class="purpose-badge"><i class="fas fa-bullseye"></i> ${b.purpose}</span>
+                                <span class="price-tag">Rs. ${b.price.toFixed(2)}</span>
                             </div>
                         </div>
-                        <div class="booking-right">
-                            <span class="booking-status ${statusClass}">${b.status}</span>
-                            <span class="booking-price">Rs. ${b.price.toFixed(2)}</span>
-                            ${b.status === 'PENDING' ? '<button class="btn-pay" onclick="payNow(\'' + b.id + '\')">Pay Now</button>' : ''}
+
+                        <div class="booking-actions-modern">
+                            <span class="status-dot ${statusClass}" title="${b.status}"></span>
+                            ${b.status === 'PENDING' ? 
+                                '<button class="btn-pay-icon" onclick="payNow(\'' + b.id + '\')" title="Pay Now"><i class="fas fa-credit-card"></i></button>' : 
+                                ''}
                         </div>
                     </div>
                 `;

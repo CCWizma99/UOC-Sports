@@ -1,0 +1,129 @@
+.secondary-header {
+    width: 100%;
+    background-color: var(--primary-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 999;
+    padding: 6px 0;
+    /* Slightly tighter padding */
+}
+
+.secondary-header .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+}
+
+/* Nav Wrapper */
+.header-nav-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Tabs */
+.nav-tabs {
+    display: flex;
+    list-style: none;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Firefox */
+    position: relative;
+    top: 4px;
+    /* Align precisely with bottom border */
+}
+
+.nav-tabs::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari/Opera */
+}
+
+.nav-tabs li a {
+    display: block;
+    padding: 10px 16px;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.nav-tabs li a:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+.nav-tabs li a.active {
+    color: #ffffff;
+    border-bottom-color: #ffffff;
+    font-weight: 600;
+}
+
+/* Sport Selector */
+.sport-selector {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    /* Push selector to the far right if present */
+}
+
+.sport-selector select {
+    padding: 5px 10px;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    background-color: #f6f8fa;
+    color: #1f2328;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.sport-selector select:hover {
+    background-color: #eff2f5;
+}
+
+/* Global Reset Overrides */
+header {
+    position: relative !important;
+    box-shadow: none !important;
+}
+
+body {
+    margin-top: 0 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .secondary-header .container {
+        padding: 0 15px;
+    }
+
+    .header-nav-wrapper {
+        gap: 15px;
+    }
+
+    .nav-tabs {
+        top: 0;
+    }
+
+    .sport-selector {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+
+    .header-nav-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

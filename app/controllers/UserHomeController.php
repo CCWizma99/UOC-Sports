@@ -23,6 +23,14 @@ class UserHomeController {
         view('general/contact-us');
     }
 
+    public function services() {
+        view('general/services');
+    }
+
+    public function stories() {
+        view('general/stories');
+    }
+
     public function profile() {
         if (!isset($_SESSION['user_id'])) {
             header("Location: /uoc-sports/public/sign-in");

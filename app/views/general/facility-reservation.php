@@ -8,20 +8,38 @@
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
-        @import url(/uoc-sports/public/css/general/facility-reservation-page.css);
+        @import url(/uoc-sports/public/css/general/facility-reservation-page.css?v=3.17);
         @import url(/uoc-sports/public/css/general/footer.css);
 
-        .mesh-sporty {
-            background: 
-                linear-gradient(rgba(94, 45, 145, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(94, 45, 145, 0.05) 1px, transparent 1px),
-                linear-gradient(135deg, #faf9fc 0%, #f3f1f7 100%);
-            background-size: 40px 40px, 40px 40px, 100% 100%;
-            min-height: 100vh;
+        .parallel-booking-alert {
+            display: none;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            align-items: center;
+            gap: 10px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .parallel-booking-alert i {
+            font-size: 1.1rem;
+        }
+
+        .parallel-booking-alert.active {
+            display: flex;
         }
     </style>
 </head>
-<body class="mesh-sporty">
+<body>
     <?php require '../app/views/templates/general/header.php'; ?>
 
     <div class="facility-page-wrapper">
@@ -42,48 +60,30 @@
                 <div id="facilityDetails" class="facility-details hidden"></div>
             </section>
 
-            <!-- My Reservations Section - Calendar View -->
-            <section class="section my-reservations-calendar">
-                <div class="calendar-header">
-                    <h2><i class="fas fa-calendar-alt"></i> My Reservations</h2>
-                </div>
-
-                <?php if (!isset($_SESSION['user_id']) && !isset($user_id)): ?>
-                    <div class="auth-message">
-                        <p>Please <a href="/uoc-sports/public/sign-in">log in</a> to view your reservations.</p>
-                    </div>
-                <?php else: ?>
-                    <div class="user-calendar-container">
-                        <div class="calendar-nav">
-                            <button class="cal-nav-btn" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
-                            <span id="calendarMonthLabel">Loading...</span>
-                            <button class="cal-nav-btn" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
-                        </div>
-                        <div id="userCalendar" class="user-calendar"></div>
-                        <div id="reservationDetails" class="reservation-details">
-                            <p class="select-date-msg"><i class="fas fa-hand-pointer"></i> Click on a date to view details</p>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </section>
         </div>
 
         <!-- RIGHT PANEL: RESERVATION FORM -->
         <div class="right-panel">
             <section class="section facility-reservation-container">
-                <h3><i class="fas fa-calendar-plus"></i> Reserve a Facility</h3>
+                <h3><i class="fas fa-calendar-plus"></i> Reserve a Facility <span style="font-size: 0.7rem; color: #4b0082; background: #eee; padding: 2px 5px; border-radius: 4px; vertical-align: middle; margin-left: 10px;">Updated UI</span></h3>
+
+                <div id="parallelBookingAlert" class="parallel-booking-alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Someone else is booking this facility at the same time. Please be careful when selecting a time slot. Refresh before selecting a date and timeslot.</span>
+                </div>
 
                 <form id="facilityReservationForm" onsubmit="submitReservation(event)">
-                    <div class="form-row">
-                        <label for="date"><i class="fas fa-calendar"></i> Date</label>
-                        <input type="date" id="date" name="date" required>
-                    </div>
-
-                    <div class="form-row">
-                        <label for="facility_id"><i class="fas fa-building"></i> Select Facility</label>
-                        <select id="facility_id" name="facility_id" required disabled>
-                            <option value="">-- Choose a facility --</option>
-                        </select>
+                    <div class="form-row split-row">
+                        <div class="form-group">
+                            <label for="facility_id"><i class="fas fa-building"></i> Select Facility</label>
+                            <select id="facility_id" name="facility_id" required>
+                                <option value="">-- Choose a facility --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="date"><i class="fas fa-calendar"></i> Date</label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
                     </div>
 
                     <div class="form-row price-row">
@@ -96,6 +96,8 @@
                             <h4>Current Reservations</h4>
                             <div class="chart-legend">
                                 <span class="legend-item"><span class="legend-box available"></span>Available</span>
+                                <span class="legend-item"><span class="legend-box interested"></span>Someone Interested</span>
+                                <span class="legend-item"><span class="legend-box disabled"></span>Not Available</span>
                                 <span class="legend-item"><span class="legend-box reserved"></span>Reserved</span>
                             </div>
                         </div>
@@ -163,35 +165,136 @@ const BOOKING_API = "/uoc-sports/public/create-facility-booking";
 const SLOTS_API = "/uoc-sports/public/get-reserved-slots";
 const RESERVATIONS_API = "/uoc-sports/public/reserve-facilities/view-reservations";
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadMyReservations();
-    loadFacilities();
-    
-    // Facility dropdown disabled until date is picked
-    document.getElementById("facility_id").disabled = true;
-
-    // Enable facility dropdown after picking date
-    document.getElementById("date").addEventListener("change", async () => {
-        const date = document.getElementById("date").value;
-        const facilitySelect = document.getElementById("facility_id");
-        const chartContainer = document.getElementById("reservationChartContainer");
-
-        if (!date) {
-            facilitySelect.disabled = true;
-            chartContainer.classList.add("hidden");
-            return;
-        }
-
-        facilitySelect.disabled = false;
-        // Reset selection when date changes
-        facilitySelect.value = "";
-        document.getElementById("priceDisplay").textContent = "Rs. 0.00";
-        document.getElementById("slot_id").innerHTML = '<option value="">Select facility first</option>';
+    document.addEventListener("DOMContentLoaded", () => {
+        loadFacilities();
+        
+        // Add event listeners for both fields to trigger updates
+        document.getElementById("date").addEventListener("change", handleFacilityChange);
+        document.getElementById("facility_id").addEventListener("change", handleFacilityChange);
     });
 
-    // Add event listener for facility change
-    document.getElementById("facility_id").addEventListener("change", handleFacilityChange);
-});
+/* -------------------- HEARTBEAT LOGIC ----------------------- */
+let heartbeatInterval = null;
+let slotRefreshInterval = null;
+let currentSelectedSlot = null; // Track which slot the user clicked on the chart
+const HEARTBEAT_API = "/uoc-sports/public/reserve-facilities/heartbeat";
+
+function startHeartbeat(facilityId) {
+    stopHeartbeat();
+    
+    // Function to perform the heartbeat
+    const performHeartbeat = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("facility_id", facilityId);
+            
+            // Send selected date and slot with heartbeat
+            const selectedDate = document.getElementById("date").value;
+            if (selectedDate) formData.append("date", selectedDate);
+            if (currentSelectedSlot) formData.append("slot", currentSelectedSlot);
+
+            const res = await fetch(HEARTBEAT_API, {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+
+            const alertBox = document.getElementById("parallelBookingAlert");
+            if (data.parallel_booking) {
+                alertBox.classList.add("active");
+            } else {
+                alertBox.classList.remove("active");
+            }
+        } catch (e) {
+            console.error("Heartbeat error:", e);
+        }
+    };
+
+    // Function to refresh chart slot colors from heartbeat data
+    const refreshSlotColors = async () => {
+        try {
+            const formData = new FormData();
+            formData.append("facility_id", facilityId);
+            
+            const selectedDate = document.getElementById("date").value;
+            if (selectedDate) formData.append("date", selectedDate);
+            if (currentSelectedSlot) formData.append("slot", currentSelectedSlot);
+
+            const res = await fetch(HEARTBEAT_API, {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+
+            // Update chart slot colors in real-time
+            if (data.slot_interest || data.booked_slots) {
+                updateChartSlotColors(data.slot_interest || {}, data.booked_slots || {});
+            }
+        } catch (e) {
+            console.error("Slot refresh error:", e);
+        }
+    };
+
+    // Fire heartbeat immediately, then every 1s
+    performHeartbeat();
+    heartbeatInterval = setInterval(performHeartbeat, 1000);
+    
+    // Refresh slot colors every 5s
+    refreshSlotColors();
+    slotRefreshInterval = setInterval(refreshSlotColors, 5000);
+}
+
+function stopHeartbeat() {
+    if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+    }
+    if (slotRefreshInterval) {
+        clearInterval(slotRefreshInterval);
+        slotRefreshInterval = null;
+    }
+    const alertBox = document.getElementById("parallelBookingAlert");
+    if (alertBox) alertBox.classList.remove("active");
+}
+
+/* -------------------- UPDATE CHART SLOT COLORS IN REAL-TIME ----------------------- */
+function updateChartSlotColors(slotInterest, bookedSlots) {
+    const slotTypes = ['MORNING', 'AFTERNOON', 'FULL'];
+    const allDateColumns = document.querySelectorAll('.date-column');
+    
+    allDateColumns.forEach(col => {
+        const dateId = col.id.replace('col-', ''); // e.g. "2026-02-20"
+        const slots = col.querySelectorAll('.slot');
+        
+        slots.forEach((slotEl, index) => {
+            const slotType = slotTypes[index];
+            if (!slotType) return;
+            
+            // Skip slots the current user has selected
+            if (slotEl.classList.contains('selected')) return;
+            // Skip disabled slots
+            if (slotEl.classList.contains('disabled')) return;
+            
+            const isBooked = bookedSlots[dateId] && bookedSlots[dateId].includes(slotType);
+            const isInterested = slotInterest[dateId] && slotInterest[dateId].includes(slotType);
+            
+            // Remove previous real-time classes
+            slotEl.classList.remove('interested', 'taken');
+            
+            if (isBooked) {
+                slotEl.classList.add('taken');
+                slotEl.title = 'Reserved';
+                slotEl.removeAttribute('onclick');
+            } else if (isInterested) {
+                slotEl.classList.add('interested');
+                slotEl.title = 'Someone is considering this slot';
+            } else if (!slotEl.classList.contains('taken')) {
+                slotEl.classList.add('available');
+                slotEl.title = 'Available';
+            }
+        });
+    });
+}
 
 /* -------------------- HANDLE FACILITY CHANGE ----------------------- */
 async function handleFacilityChange() {
@@ -201,15 +304,26 @@ async function handleFacilityChange() {
     const slotSelect = document.getElementById("slot_id");
 
     // Reset if no facility selected
-    if (!facilityId || !date) {
+    if (!facilityId) {
         chartContainer.classList.add("hidden");
         document.getElementById("priceDisplay").textContent = "Rs. 0.00";
-        slotSelect.innerHTML = '<option value="">Select facility and date first</option>';
+        slotSelect.innerHTML = '<option value="">Select facility first</option>';
+        stopHeartbeat();
         return;
     }
 
     const facility = facilityPrices.find(f => f.id == facilityId);
     if (!facility) return;
+
+    // Start heartbeat immediately if facility is selected
+    startHeartbeat(facilityId);
+
+    if (!date) {
+        chartContainer.classList.add("hidden");
+        document.getElementById("priceDisplay").textContent = "Select a date";
+        slotSelect.innerHTML = '<option value="">Select date first</option>';
+        return;
+    }
 
     // Determine if date is working day
     const dayOfWeek = new Date(date).getDay(); // 0=Sun, 6=Sat
@@ -225,7 +339,7 @@ async function handleFacilityChange() {
     document.getElementById("priceDisplay").textContent = `Rs. ${currentPrice.toFixed(2)}`;
 
     // Load reservation chart and slots
-    await generateReservationChart(facilityId);
+    await generateReservationChart(facilityId, date);
     await loadSlots();
     chartContainer.classList.remove("hidden");
 }
@@ -277,43 +391,88 @@ document.addEventListener("change", (e) => {
 });
 
 /* -------------------- GENERATE RESERVATION CHART ----------------------- */
-async function generateReservationChart(facilityId) {
+/* -------------------- GENERATE RESERVATION CHART ----------------------- */
+async function generateReservationChart(facilityId, selectedDate) {
     const chart = document.getElementById("reservationChart");
+    
+    // Default to today if no date selected
+    const dateParam = selectedDate || new Date().toISOString().split('T')[0];
 
     try {
-        const res = await fetch(`/uoc-sports/public/reserve-facilities/chart?facility_id=${facilityId}`);
-        const reservations = await res.json();
+        const res = await fetch(`/uoc-sports/public/reserve-facilities/chart?facility_id=${facilityId}&date=${dateParam}`);
+        const response = await res.json();
+
+        // Handle both old (plain array) and new (object with chart_data) response formats
+        const reservations = Array.isArray(response) ? response : (response.chart_data || []);
+        const isParallel = !Array.isArray(response) && response.parallel_booking === true;
+
 
         if (!reservations || reservations.length === 0) {
             chart.innerHTML = "<p>No reservations data available.</p>";
             return;
         }
 
-        const slotTypes = ["MORNING", "AFTERNOON", "FULL"];
-        let html = '<div class="chart-grid">';
+        let html = '<div class="chart-wrapper">';
+        
+        // Fixed Legend Column
+        html += `
+            <div class="chart-legend-col">
+                <div class="legend-header-placeholder"></div>
+                <div class="legend-label">Morning</div>
+                <div class="legend-label">Afternoon</div>
+                <div class="legend-label">Full Day</div>
+            </div>
+        `;
 
-        // Slot labels
-        html += '<div class="time-labels">';
-        slotTypes.forEach(slot => html += `<div class="time-label">${slot}</div>`);
-        html += '</div>';
+        // Scrollable Days Container
+        html += '<div class="date-columns-container" id="daysContainer">';
 
-        // Date columns
-        html += '<div class="date-columns">';
+        const slotTypes = ['MORNING', 'AFTERNOON', 'FULL'];
 
         reservations.forEach(day => {
-            html += `<div class="date-column">
+            const isSelected = day.date === selectedDate;
+            const highlightClass = isSelected ? 'highlighted' : '';
+            
+            html += `<div class="date-column ${highlightClass}" id="col-${day.date}">
                 <div class="date-label">${formatDateShort(day.date)}</div>`;
 
-            slotTypes.forEach(slotType => {
-                const isTaken = day.slots[slotType] || false;
-                html += `<div class="slot ${isTaken ? 'taken' : 'available'}" title="${isTaken ? 'Taken' : 'Available'}"></div>`;
+            const facility = facilityPrices.find(f => f.id == facilityId);
+
+            slotTypes.forEach(type => {
+                const isTaken = day.slots[type] || false;
+                let statusClass = isTaken ? 'taken' : 'available';
+                let title = isTaken ? 'Reserved' : 'Available';
+                let onclick = '';
+
+                // Check if slot is strictly valid for this facility
+                if (!isSlotValid(facility, type, day.date)) {
+                   statusClass = 'disabled';
+                   title = 'Not Available';
+                } else if (!isTaken) {
+                   onclick = `onclick="selectSlot(this, '${type}', '${day.date}')"`;
+                }
+                
+                html += `<div class="slot ${statusClass}" title="${title}" ${onclick}></div>`;
             });
 
             html += '</div>';
         });
 
-        html += '</div></div>';
+        html += '</div></div>'; // Close daysContainer and chart-wrapper
         chart.innerHTML = html;
+
+        // Scroll to highlighted column
+        if (selectedDate) {
+            setTimeout(() => {
+                const col = document.getElementById(`col-${selectedDate}`);
+                const container = document.getElementById("daysContainer");
+                if (col && container) {
+                    // Center the selected day
+                    const scrollLeft = col.offsetLeft - container.offsetLeft - (container.clientWidth / 2) + (col.clientWidth / 2);
+                    container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+                }
+            }, 100);
+        }
 
     } catch (e) {
         console.error("Error loading chart:", e);
@@ -321,12 +480,103 @@ async function generateReservationChart(facilityId) {
     }
 }
 
+/* -------------------- SLOT VALIDATION HELPER ----------------------- */
+function isSlotValid(facility, slotType, dateStr) {
+    if (!facility) return true; // Fallback
+
+    const d = new Date(dateStr);
+    const day = d.getDay();
+    const isWorking = (day >= 1 && day <= 5);
+
+    // Logic based on facility rates presence
+    // If price is 0 or null, we assume slot is not offered
+    
+    if (slotType === 'MORNING' || slotType === 'AFTERNOON') {
+        const price = isWorking ? facility.practice_working_hours : facility.practice_other_hours;
+        return price && parseFloat(price) > 0;
+    } 
+    
+    if (slotType === 'FULL') {
+        const price = isWorking ? facility.tournament_full_day_working : facility.tournament_full_day_other;
+        return price && parseFloat(price) > 0;
+    }
+
+    return true;
+}
+
+/* -------------------- HANDLE SLOT SELECTION ----------------------- */
+function selectSlot(el, slotId, dateStr) {
+    // Toggle Logic: If clicking the same slot, deselect it
+    if (el.classList.contains('selected')) {
+        deselectSlot();
+        return;
+    }
+
+    // Track selected slot for heartbeat
+    currentSelectedSlot = slotId;
+
+    // 1. Visual Feedback
+    document.querySelectorAll('.slot.selected').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+
+    // 2. Update Date Input (if different)
+    const dateInput = document.getElementById('date');
+    const dateChanged = (dateInput.value !== dateStr);
+    
+    if (dateChanged) {
+        dateInput.value = dateStr;
+        
+        // Reload slots for new date, then select
+        loadSlots().then(() => {
+             setSlotValue(slotId, el);
+        });
+    } else {
+         setSlotValue(slotId, el);
+    }
+}
+
+function deselectSlot() {
+    document.querySelectorAll('.slot.selected').forEach(s => s.classList.remove('selected'));
+    currentSelectedSlot = null; // Clear slot tracking
+    const slotSelect = document.getElementById('slot_id');
+    if (slotSelect) {
+        slotSelect.value = "";
+        // Reset price display
+        const event = new Event('change');
+        slotSelect.dispatchEvent(event);
+    }
+}
+
+// Click Outside to Deselect
+document.addEventListener('click', function(e) {
+    const form = document.getElementById('facilityReservationForm');
+    const chartContainer = document.getElementById('reservationChartContainer');
+    
+    // If click is NOT inside the form, deselect
+    // This allows clicking "Purpose", "Submit", etc. without deselecting
+    // But clicking Left Panel or Background deselects
+    if (form && !form.contains(e.target)) {
+        deselectSlot();
+    }
+});
+
+function setSlotValue(slotId, el) {
+    const slotSelect = document.getElementById('slot_id');
+    if (!slotSelect) return;
+    
+    slotSelect.value = slotId;
+    
+    // Trigger change to update price display
+    const event = new Event('change');
+    slotSelect.dispatchEvent(event);
+}
+
 function formatDateShort(dateString) {
     const date = new Date(dateString + 'T00:00:00');
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
     const day = days[date.getDay()];
     const dateNum = date.getDate();
-    return `${day} ${dateNum}`;
+    return `<span class="day-name">${day}</span><span class="day-num">${dateNum}</span>`;
 }
 
 /* -------------------- FLOATING MESSAGES ----------------------- */
@@ -343,228 +593,6 @@ function showFloatingMessage(msg, type = "success") {
     }, 2500);
 }
 
-/* -------------------- USER CALENDAR VARIABLES ----------------------- */
-let userReservations = [];
-let calendarYear, calendarMonth;
-
-/* -------------------- LOAD MY RESERVATIONS (Calendar) ----------------------- */
-function loadMyReservations() {
-    const calendarContainer = document.getElementById('userCalendar');
-    if (!calendarContainer) return; // User not logged in
-
-    // Initialize to current month
-    const now = new Date();
-    calendarYear = now.getFullYear();
-    calendarMonth = now.getMonth();
-
-    fetch(RESERVATIONS_API)
-        .then(res => res.json())
-        .then(response => {
-            userReservations = response.data || [];
-            renderUserCalendar();
-        })
-        .catch(err => {
-            console.error("Error loading reservations:", err);
-            calendarContainer.innerHTML = '<p class="no-reservations">Unable to load reservations.</p>';
-        });
-}
-
-/* -------------------- RENDER USER CALENDAR ----------------------- */
-function renderUserCalendar() {
-    const container = document.getElementById('userCalendar');
-    const labelEl = document.getElementById('calendarMonthLabel');
-    
-    const date = new Date(calendarYear, calendarMonth, 1);
-    const monthName = date.toLocaleString('default', { month: 'long' });
-    labelEl.textContent = `${monthName} ${calendarYear}`;
-
-    // Build reservation lookup by date
-    const reservationsByDate = {};
-    userReservations.forEach(r => {
-        if (!reservationsByDate[r.date]) reservationsByDate[r.date] = [];
-        reservationsByDate[r.date].push(r);
-    });
-
-    // Generate calendar HTML
-    let html = `<table class="user-booking-calendar">
-        <thead><tr>
-            <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
-        </tr></thead><tbody>`;
-
-    let row = '<tr>';
-    // Empty cells for days before first
-    for (let i = 0; i < date.getDay(); i++) {
-        row += '<td class="empty"></td>';
-    }
-
-    while (date.getMonth() === calendarMonth) {
-        if (date.getDay() === 0 && row !== '<tr>') {
-            html += row + '</tr>';
-            row = '<tr>';
-        }
-
-        const day = date.getDate();
-        const dateStr = `${calendarYear}-${(calendarMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-        const dayReservations = reservationsByDate[dateStr] || [];
-        
-        // Determine status class
-        let statusClass = '';
-        if (dayReservations.length > 0) {
-            // Check if any are pending
-            const hasPending = dayReservations.some(r => r.payment_status === 'INCOMPLETE');
-            const hasCancelled = dayReservations.some(r => r.status === 'CANCELLED');
-            const allPaid = dayReservations.every(r => r.payment_status === 'COMPLETE');
-            
-            if (hasCancelled) statusClass = 'cancelled';
-            else if (hasPending) statusClass = 'pending';
-            else if (allPaid) statusClass = 'paid';
-            else statusClass = 'has-booking';
-        }
-
-        const isToday = dateStr === new Date().toISOString().split('T')[0];
-        
-        row += `<td class="calendar-day ${statusClass} ${isToday ? 'today' : ''}" 
-                    data-date="${dateStr}" 
-                    onclick="showDayReservations('${dateStr}')">
-                    ${day}
-                    ${dayReservations.length > 0 ? `<span class="dot"></span>` : ''}
-                </td>`;
-
-        date.setDate(day + 1);
-    }
-
-    // Fill remaining cells
-    while (row.split('<td').length <= 7) {
-        row += '<td class="empty"></td>';
-    }
-    html += row + '</tr></tbody></table>';
-
-    container.innerHTML = html;
-}
-
-/* -------------------- SHOW DAY RESERVATIONS ----------------------- */
-function showDayReservations(dateStr) {
-    const detailsDiv = document.getElementById('reservationDetails');
-    const dayReservations = userReservations.filter(r => r.date === dateStr);
-
-    // Highlight selected date
-    document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
-    document.querySelector(`.calendar-day[data-date="${dateStr}"]`)?.classList.add('selected');
-
-    if (dayReservations.length === 0) {
-        detailsDiv.innerHTML = `
-            <div class="details-header">
-                <p class="booking-date"><strong>${formatDisplayDate(dateStr)}</strong></p>
-                <button class="details-close-btn" onclick="closeReservationDetails()"><i class="fas fa-times"></i></button>
-            </div>
-            <p class="no-bookings">No reservations on this day.</p>
-        `;
-        return;
-    }
-
-    let html = `<div class="details-header">
-                    <p class="booking-date"><strong>${formatDisplayDate(dateStr)}</strong></p>
-                    <button class="details-close-btn" onclick="closeReservationDetails()"><i class="fas fa-times"></i></button>
-                </div>
-                <div class="reservation-cards">`;
-
-    dayReservations.forEach(item => {
-        const status = item.payment_status === "INCOMPLETE" ? "pending" : "paid";
-        html += `
-            <div class="reservation-card ${status}">
-                <div class="card-header">
-                    <span class="facility-name">${item.facility_name}</span>
-                    <span class="status-badge ${status}">${status === 'paid' ? 'Paid' : 'Pending'}</span>
-                </div>
-                <div class="card-body">
-                    <div class="time-info">
-                        <i class="fas fa-clock"></i> ${item.start_time} - ${item.end_time}
-                    </div>
-                    <div class="purpose-info">${item.purpose || 'No purpose specified'}</div>
-                </div>
-                <div class="card-actions">
-                    ${status === "pending" ? `
-                    <button class="btn pay-btn" onclick="payNow('${item.booking_id}')">
-                        <i class="fas fa-credit-card"></i> Pay
-                    </button>` : ""}
-                    <button class="btn cancel-btn" onclick="cancelFacilityReservation('${item.booking_id}')">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
-                </div>
-            </div>
-        `;
-    });
-
-    html += '</div>';
-    detailsDiv.innerHTML = html;
-}
-
-function formatDisplayDate(dateStr) {
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-function closeReservationDetails() {
-    document.getElementById('reservationDetails').innerHTML = `
-        <p class="select-date-msg"><i class="fas fa-hand-pointer"></i> Click on a date to view details</p>
-    `;
-    document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
-}
-
-/* -------------------- CALENDAR NAVIGATION ----------------------- */
-document.addEventListener('DOMContentLoaded', () => {
-    const prevBtn = document.getElementById('prevMonth');
-    const nextBtn = document.getElementById('nextMonth');
-    
-    if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-            calendarMonth--;
-            if (calendarMonth < 0) {
-                calendarMonth = 11;
-                calendarYear--;
-            }
-            renderUserCalendar();
-        });
-    }
-    
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            calendarMonth++;
-            if (calendarMonth > 11) {
-                calendarMonth = 0;
-                calendarYear++;
-            }
-            renderUserCalendar();
-        });
-    }
-});
-
-/* -------------------- CANCEL RESERVATION ----------------------- */
-function cancelFacilityReservation(id) {
-    if (!confirm("Are you sure you want to cancel this reservation?")) return;
-    
-    fetch("/uoc-sports/public/reserve-facilities/cancel", {
-        method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: "booking_id=" + encodeURIComponent(id)
-    })
-    .then(res => res.text())
-    .then(msg => {
-        showFloatingMessage(msg, "success");
-        loadMyReservations();
-        // Refresh chart if visible
-        const facilityId = document.getElementById("facility_id").value;
-        if (facilityId) {
-            generateReservationChart(facilityId);
-        }
-    })
-    .catch(() => showFloatingMessage("Error cancelling booking.", "error"));
-}
-
-/* -------------------- PAYMENT REDIRECT ----------------------- */
-function payNow(id) {
-    window.location.href = `/uoc-sports/public/payment?booking_id=${id}`;
-}
 
 /* -------------------- FACILITY SEARCH ----------------------- */
 async function searchFacilities() {
@@ -729,6 +757,32 @@ async function submitReservation(e) {
         showFloatingMessage("Booking error. Please try again.", "error");
     }
 }
+
+// -------------------- AUTO-REFRESH EVERY 10 MINUTES ---------------------
+let chartRefreshInterval = null;
+
+function startChartAutoRefresh() {
+    if (chartRefreshInterval) clearInterval(chartRefreshInterval);
+    chartRefreshInterval = setInterval(async () => {
+        const facilityId = document.getElementById('facility_id').value;
+        const date = document.getElementById('date').value;
+        if (facilityId && date) {
+            await generateReservationChart(facilityId, date);
+        }
+    }, 10 * 60 * 1000); // 10 minutes
+}
+
+// Start auto-refresh when both facility and date are set
+document.getElementById('facility_id').addEventListener('change', () => {
+    const facilityId = document.getElementById('facility_id').value;
+    const date = document.getElementById('date').value;
+    if (facilityId && date) startChartAutoRefresh();
+});
+document.getElementById('date').addEventListener('change', () => {
+    const facilityId = document.getElementById('facility_id').value;
+    const date = document.getElementById('date').value;
+    if (facilityId && date) startChartAutoRefresh();
+});
 
 </script>
 </html>
