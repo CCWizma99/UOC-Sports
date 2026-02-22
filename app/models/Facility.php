@@ -264,6 +264,42 @@ class Facility {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /* ---------- GET MONTHLY BOOKINGS ---------- */
+    public function getMonthlyBookings($month, $year) {
+        $sql = "SELECT 
+                    fb.booking_id,
+                    fb.date,
+                    fb.slot,
+                    fb.status,
+                    fr.facility_name
+                FROM `facility-booking` fb
+                INNER JOIN facility_rates fr ON fb.facility_id = fr.id
+                WHERE MONTH(fb.date) = :month 
+                AND YEAR(fb.date) = :year
+                AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')
+                ORDER BY fb.date ASC, fb.slot ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':month' => $month,
+            ':year' => $year
+        ]);
+
+        $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Group by date
+        $grouped = [];
+        foreach ($bookings as $booking) {
+            $date = $booking['date'];
+            if (!isset($grouped[$date])) {
+                $grouped[$date] = [];
+            }
+            $grouped[$date][] = $booking;
+        }
+        
+        return $grouped;
+    }
+
     /* ---------- CALCULATE BOOKING RATE ---------- */
     public function calculateBookingRate($booking) {
         // Determine if it's a working day (Mon-Fri) or weekend/holiday

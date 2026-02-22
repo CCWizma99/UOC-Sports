@@ -13,12 +13,12 @@ if (!$userType || in_array($userType, ['ADMIN', 'EXECUTIVE'])) {
 
 // Map user types to human-readable names and home links
 $roleMap = [
-    'STUDENT' => ['name' => 'Student Portal', 'url' => '/uoc-sports/public/student/'],
-    'CAPTAIN' => ['name' => 'Captain Portal', 'url' => '/uoc-sports/public/captain/'],
-    'COACH'   => ['name' => 'Coach Portal', 'url' => '/uoc-sports/public/coach/'],
-    'EQP'     => ['name' => 'Equipment Manager', 'url' => '/uoc-sports/public/equipment-manager/'],
-    'SPT'     => ['name' => 'Sport Manager', 'url' => '/uoc-sports/public/sport-manager/'],
-    'REG'     => ['name' => 'Registrar', 'url' => '/uoc-sports/public/registrar/'],
+    'STUDENT' => ['name' => 'Student Portal', 'url' => '/uoc-sports/public/student'],
+    'CAPTAIN' => ['name' => 'Captain Portal', 'url' => '/uoc-sports/public/captain'],
+    'COACH'   => ['name' => 'Coach Portal', 'url' => '/uoc-sports/public/coach'],
+    'EQP'     => ['name' => 'Equipment Manager', 'url' => '/uoc-sports/public/equipment-manager'],
+    'SPT'     => ['name' => 'Sport Manager', 'url' => '/uoc-sports/public/sport-manager'],
+    'REG'     => ['name' => 'Registrar', 'url' => '/uoc-sports/public/registrar'],
 ];
 
 // Check if the current page belongs to the user's specific portal
@@ -35,7 +35,7 @@ $navLinks = [];
 switch ($userType) {
     case 'STUDENT':
         $navLinks = [
-            ['name' => 'Home', 'url' => '/uoc-sports/public/student/'],
+            ['name' => 'Home', 'url' => '/uoc-sports/public/student'],
             ['name' => 'Available Sports', 'url' => '/uoc-sports/public/student/available-sports'],
             ['name' => 'Enrolled Sports', 'url' => '/uoc-sports/public/student/enrolled-sports'],
             ['name' => 'Equipment Requests', 'url' => '/uoc-sports/public/student/equipment-requests'],
@@ -43,7 +43,7 @@ switch ($userType) {
         break;
     case 'CAPTAIN':
         $navLinks = [
-            ['name' => 'Home', 'url' => '/uoc-sports/public/captain/'],
+            ['name' => 'Home', 'url' => '/uoc-sports/public/captain'],
             ['name' => 'Team', 'url' => '/uoc-sports/public/captain/add-members'],
             ['name' => 'Schedule', 'url' => '/uoc-sports/public/captain/schedule-practice'],
             ['name' => 'Attendance', 'url' => '/uoc-sports/public/captain/mark-attendance'],
@@ -52,14 +52,14 @@ switch ($userType) {
         break;
     case 'COACH':
         $navLinks = [
-            ['name' => 'Home', 'url' => '/uoc-sports/public/coach/'],
+            ['name' => 'Home', 'url' => '/uoc-sports/public/coach'],
             ['name' => 'Injuries', 'url' => '/uoc-sports/public/coach/report-injury'],
             ['name' => 'Communication', 'url' => '/uoc-sports/public/coach/coach-communicate'],
         ];
         break;
     case 'EQP':
         $navLinks = [
-            ['name' => 'Home', 'url' => '/uoc-sports/public/equipment-manager/'],
+            ['name' => 'Home', 'url' => '/uoc-sports/public/equipment-manager'],
             ['name' => 'Reservations', 'url' => '/uoc-sports/public/equipment-manager/equipment-reservations'],
             ['name' => 'Equipments', 'url' => '/uoc-sports/public/equipment-manager/equipments'],
             ['name' => 'Schedule', 'url' => '/uoc-sports/public/equipment-manager/practiceschedule'],
@@ -87,7 +87,7 @@ switch ($userType) {
         }
         $sportParam = $selectedSportId ? '?sport=' . urlencode($selectedSportId) : '';
         $navLinks = [
-            ['name' => 'Home', 'url' => '/uoc-sports/public/sport-manager/'],
+            ['name' => 'Home', 'url' => '/uoc-sports/public/sport-manager'],
             ['name' => 'Expenses', 'url' => '/uoc-sports/public/sport-manager/expenses' . $sportParam],
             ['name' => 'Practice Sessions', 'url' => '/uoc-sports/public/sport-manager/practicesessions' . $sportParam],
             ['name' => 'Competitions', 'url' => '/uoc-sports/public/sport-manager/competitions' . $sportParam],
@@ -97,7 +97,7 @@ switch ($userType) {
         break;
     case 'REG':
         $navLinks = [
-            ['name' => 'Home', 'url' => '/uoc-sports/public/registrar/'],
+            ['name' => 'Home', 'url' => '/uoc-sports/public/registrar'],
             ['name' => 'Verify Students', 'url' => '/uoc-sports/public/registrar/verify-students'],
             ['name' => 'Verify Staff', 'url' => '/uoc-sports/public/registrar/verify-staff'],
             ['name' => 'Verify Bookings', 'url' => '/uoc-sports/public/registrar/verify-bookings'],

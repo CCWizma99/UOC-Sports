@@ -21,6 +21,7 @@ $router->get('/admin-reservation-analytics', 'AdminHomeController@reservationAna
 $router->get('/admin-players', 'AdminHomeController@players');
 $router->get('/admin-equipments', 'AdminHomeController@equipments');
 $router->get('/admin-equipment-analytics', 'AdminHomeController@equipmentAnalytics');
+$router->get('/admin-equipment-reports', 'AdminHomeController@equipmentReports');
 $router->get('/admin-events', 'AdminHomeController@events');
 $router->get('/admin-teams', 'AdminHomeController@teams');
 $router->get('/admin-team-details', 'AdminHomeController@teamDetails');
@@ -39,6 +40,19 @@ $router->get('/admin-equipments/get-equipments', 'EquipmentApiController@getEqui
 $router->get('/admin-equipments/get-sports', 'EquipmentApiController@getSports');
 $router->get('/admin-equipments/analytics', 'EquipmentApiController@getAnalytics');
 $router->get('/admin-equipments/report/pdf', 'EquipmentReportController@generatePDF');
+$router->get('/admin-equipments/report/inventory', 'EquipmentReportController@equipmentInventoryPDF');
+$router->get('/admin-equipments/report/suppliers', 'EquipmentReportController@supplierDetailsPDF');
+$router->get('/admin-equipments/report/snapshot', 'EquipmentReportController@allEquipmentSnapshotPDF');
+$router->get('/admin-equipments/report/stock', 'EquipmentReportController@stockSnapshotPDF');
+$router->get('/admin-equipments/report/period', 'EquipmentReportController@periodSnapshotPDF');
+// Report Data (JSON) routes
+$router->get('/admin-equipments/report-data/inventory', 'EquipmentApiController@reportInventory');
+$router->get('/admin-equipments/report-data/suppliers', 'EquipmentApiController@reportSuppliers');
+$router->get('/admin-equipments/report-data/snapshot', 'EquipmentApiController@reportSnapshot');
+$router->get('/admin-equipments/report-data/stock', 'EquipmentApiController@reportStock');
+$router->get('/admin-equipments/report-data/period', 'EquipmentApiController@reportPeriod');
+$router->get('/admin-equipments/report-data/supplier-detail', 'EquipmentApiController@reportSupplierDetail');
+$router->get('/admin-equipments/report/supplier-detail', 'EquipmentReportController@supplierDetailPDF');
 $router->get('/admin-budget/search-budget', 'BudgetApiController@search');
 $router->get('/admin-post/search', 'PostApiController@search');
 $router->get('/admin-sport/get-sport-fields', 'SportApiController@getSportFields');
@@ -51,6 +65,17 @@ $router->post('/admin-users/add-internal-user', 'AuthController@addUser');
 $router->post('/admin-equipments/add', 'EquipmentApiController@add');
 $router->post('/admin-equipments/add-equipment-type', 'EquipmentApiController@addEquipmentType');
 $router->post('/admin-equipments/add-stock', 'EquipmentApiController@addStock');
+
+// Equipment Management Form routes
+$router->get('/admin-equipments/get-suppliers', 'EquipmentApiController@getSuppliers');
+$router->get('/admin-equipments/get-stock-entries', 'EquipmentApiController@getStockEntries');
+$router->get('/admin-equipments/get-users-by-type', 'EquipmentApiController@getUsersByType');
+$router->post('/admin-equipments/add-grn', 'EquipmentApiController@addGoodReceivedNote');
+$router->post('/admin-equipments/add-gin', 'EquipmentApiController@addGoodIssueNote');
+$router->post('/admin-equipments/add-gcn', 'EquipmentApiController@addGoodCondemnNote');
+$router->post('/admin-equipments/add-sport', 'EquipmentApiController@addSport');
+$router->post('/admin-equipments/add-article', 'EquipmentApiController@addArticle');
+$router->post('/admin-equipments/add-supplier', 'EquipmentApiController@addSupplier');
 $router->post('/admin-budget/add-budget', 'BudgetApiController@addBudget');
 $router->post('/admin-post/add-post', 'PostApiController@addPost');
 $router->post('/admin-post/update', 'PostApiController@updatePost');
