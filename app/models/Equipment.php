@@ -9,21 +9,24 @@ class Equipment {
     public function addEquipment($name, $quantity, $date, $remarks, $sport_id, $condition, $files) {
         $equipmentId = uniqid("eq_", true);
     
-        // Insert main equipment record (no image_name here)
+        // Insert main equipment record matching actual schema
         $sql = "
             INSERT INTO equipment 
-            (equipment_id, equipment_name, sport_id, equipment_condition, remarks, quantity, image_name)
-            VALUES (:equipment_id, :equipment_name, :sport_id, :condition, :remarks, :quantity, '')
+            (equipment_id, equipment_name, sport_id, max_allow, image_name)
+            VALUES (:equipment_id, :equipment_name, :sport_id, :max_allow, '')
         ";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             'equipment_id' => $equipmentId,
             'equipment_name' => $name,
             'sport_id' => $sport_id,
-            'condition' => $condition,
-            'remarks' => $remarks,
-            'quantity' => $quantity
+            'max_allow' => $quantity
         ]);
+
+        // Add initial stock to equipment_inventory if quantity provided
+        if ($quantity > 0 && $date) {
+            $this->addStock($equipmentId, $quantity, $date, $remarks ?: '-');
+        }
     
         // Handle image uploads
         if ($files && count($files['tmp_name']) > 0) {
@@ -150,7 +153,7 @@ class Equipment {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function addEquipmentType($sport_id, $equipment_name, $image_name) {
+    public function addEquipmentType($sport_id, $equipment_name, $image_name, $max_allow = 0) {
         // Prevent duplicates for same sport
         $checkSql = "SELECT equipment_id FROM equipment 
                      WHERE sport_id = :sport_id AND equipment_name = :equipment_name";
@@ -168,14 +171,15 @@ class Equipment {
         $equipment_id = uniqid("EQ");
     
         $sql = "INSERT INTO equipment 
-                (equipment_id, sport_id, equipment_name, image_name)
-                VALUES (:equipment_id, :sport_id, :equipment_name, :image_name)";
+                (equipment_id, sport_id, equipment_name, max_allow, image_name)
+                VALUES (:equipment_id, :sport_id, :equipment_name, :max_allow, :image_name)";
     
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             ':equipment_id' => $equipment_id,
             ':sport_id' => $sport_id,
             ':equipment_name' => $equipment_name,
+            ':max_allow' => $max_allow,
             ':image_name' => $image_name
         ]);
     
@@ -308,14 +312,26 @@ class Equipment {
 
     public function addReservation($equipment_id, $student_id, $date, $start, $end, $purpose, $notes) {
         $id = uniqid('req_', true);
+
+        // Look up sport_id and equipment_name from equipment table
+        $eqSql = "SELECT sport_id, equipment_name FROM equipment WHERE equipment_id = :equipment_id";
+        $eqStmt = $this->db->prepare($eqSql);
+        $eqStmt->execute(['equipment_id' => $equipment_id]);
+        $eq = $eqStmt->fetch(PDO::FETCH_ASSOC);
+
+        $sport_id = $eq ? $eq['sport_id'] : '';
+        $category_name = $eq ? $eq['equipment_name'] : '';
+
         $sql = "INSERT INTO `equipment-requests`
-                (request_id, student_id, equipment_id, request_date, start_time, end_time, purpose, notes)
-                VALUES (:id, :student_id, :equipment_id, :date, :start, :end, :purpose, :notes)";
+                (request_id, student_id, equipment_id, category_name, sport_id, request_date, start_time, end_time, purpose, notes)
+                VALUES (:id, :student_id, :equipment_id, :category_name, :sport_id, :date, :start, :end, :purpose, :notes)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             'id' => $id,
             'student_id' => $student_id,
             'equipment_id' => $equipment_id,
+            'category_name' => $category_name,
+            'sport_id' => $sport_id,
             'date' => $date,
             'start' => $start,
             'end' => $end,

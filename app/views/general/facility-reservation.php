@@ -60,6 +60,22 @@
                 <div id="facilityDetails" class="facility-details hidden"></div>
             </section>
 
+            <!-- Monthly Bookings Calendar Section -->
+            <section class="section monthly-calendar-section">
+                <div class="calendar-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Booking Overview</h3>
+                    <div class="calendar-nav">
+                        <button type="button" onclick="changeCalendarMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <span id="calendarMonthLabel"></span>
+                        <button type="button" onclick="changeCalendarMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div id="monthlyCalendar" class="monthly-calendar-grid"></div>
+                <div class="calendar-legend">
+                    <span class="legend-item"><span class="legend-dot booked"></span> Booked</span>
+                    <span class="legend-item"><span class="legend-dot today"></span> Today</span>
+                </div>
+            </section>
         </div>
 
         <!-- RIGHT PANEL: RESERVATION FORM -->
@@ -164,14 +180,18 @@ const API_BASE = "/uoc-sports/public/api/get-facility-rates.php";
 const BOOKING_API = "/uoc-sports/public/create-facility-booking";
 const SLOTS_API = "/uoc-sports/public/get-reserved-slots";
 const RESERVATIONS_API = "/uoc-sports/public/reserve-facilities/view-reservations";
+const MONTHLY_BOOKINGS_API = "/uoc-sports/public/reserve-facilities/monthly-bookings";
 
-    document.addEventListener("DOMContentLoaded", () => {
-        loadFacilities();
-        
-        // Add event listeners for both fields to trigger updates
-        document.getElementById("date").addEventListener("change", handleFacilityChange);
-        document.getElementById("facility_id").addEventListener("change", handleFacilityChange);
-    });
+let currentCalendarDate = new Date();
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadFacilities();
+    renderMonthlyCalendar();
+    
+    // Add event listeners for both fields to trigger updates
+    document.getElementById("date").addEventListener("change", handleFacilityChange);
+    document.getElementById("facility_id").addEventListener("change", handleFacilityChange);
+});
 
 /* -------------------- HEARTBEAT LOGIC ----------------------- */
 let heartbeatInterval = null;
@@ -783,6 +803,89 @@ document.getElementById('date').addEventListener('change', () => {
     const date = document.getElementById('date').value;
     if (facilityId && date) startChartAutoRefresh();
 });
+
+// -------------------- MONTHLY CALENDAR OVERVIEW ---------------------
+async function renderMonthlyCalendar() {
+    const calendarEl = document.getElementById('monthlyCalendar');
+    const labelEl = document.getElementById('calendarMonthLabel');
+    
+    const month = currentCalendarDate.getMonth() + 1;
+    const year = currentCalendarDate.getFullYear();
+    
+    labelEl.textContent = currentCalendarDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    
+    try {
+        const response = await fetch(`${MONTHLY_BOOKINGS_API}?month=${month}&year=${year}`);
+        const result = await response.json();
+        
+        if (!result.success) throw new Error(result.message);
+        
+        const bookings = result.data; // Grouped by date
+        
+        // Build Grid
+        const firstDay = new Date(year, month - 1, 1).getDay();
+        const daysInMonth = new Date(year, month, 0).getDate();
+        
+        let html = `
+            <div class="calendar-grid-header">Sun</div>
+            <div class="calendar-grid-header">Mon</div>
+            <div class="calendar-grid-header">Tue</div>
+            <div class="calendar-grid-header">Wed</div>
+            <div class="calendar-grid-header">Thu</div>
+            <div class="calendar-grid-header">Fri</div>
+            <div class="calendar-grid-header">Sat</div>
+        `;
+        
+        // Padding
+        for (let i = 0; i < firstDay; i++) {
+            html += '<div class="calendar-day padding"></div>';
+        }
+        
+        // Days
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const isToday = (dateStr === todayStr);
+            const dayBookings = bookings[dateStr] || [];
+            
+            const bookedClass = dayBookings.length > 0 ? 'booked' : '';
+            const todayClass = isToday ? 'today' : '';
+            
+            // Build tooltip content
+            let tooltip = '';
+            if (dayBookings.length > 0) {
+                tooltip = 'Bookings:\n' + dayBookings.map(b => `- ${b.facility_name} (${b.slot})`).join('\n');
+            }
+            
+            html += `
+                <div class="calendar-day ${bookedClass} ${todayClass}" title="${tooltip}" onclick="selectDateFromCalendar('${dateStr}')">
+                    <span class="day-number">${d}</span>
+                    ${dayBookings.length > 0 ? `<span class="booking-indicator">${dayBookings.length}</span>` : ''}
+                </div>
+            `;
+        }
+        
+        calendarEl.innerHTML = html;
+        
+    } catch (e) {
+        console.error("Calendar Error:", e);
+        calendarEl.innerHTML = `<p class="error">Failed to load calendar</p>`;
+    }
+}
+
+function changeCalendarMonth(offset) {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
+    renderMonthlyCalendar();
+}
+
+function selectDateFromCalendar(dateStr) {
+    const dateInput = document.getElementById('date');
+    dateInput.value = dateStr;
+    
+    // Trigger update
+    handleFacilityChange();
+}
 
 </script>
 </html>
