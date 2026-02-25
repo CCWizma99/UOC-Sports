@@ -60,7 +60,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
 
     <!-- Attendance Section (Hidden until session selected) -->
     <div id="attendanceSection" style="display: none;">
-        <!-- Action Buttons -->
+        <!-- Action Buttons (always visible) -->
         <div class="action-buttons">
             <button class="btn btn-secondary" onclick="openAttendanceRecords()">
                 <i class="fas fa-history"></i> View Previous Records
@@ -76,22 +76,23 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
             <div class="summary-count" id="attendanceSummary">0/0 Players Present</div>
         </div>
 
-        <!-- Attendance Table -->
-        <div class="table-section">
-            <div class="table-header">
-                <div>Student Name</div>
-                <div>ID Number</div>
-                <div>Present</div>
-                <div>Attendance %</div>
+        <!-- Attendance Table and Submit Button (conditionally shown) -->
+        <div id="attendanceMarkingSection">
+            <div class="table-section">
+                <div class="table-header">
+                    <div>Student Name</div>
+                    <div>ID Number</div>
+                    <div>Present</div>
+                    <div>Attendance %</div>
+                </div>
+                <div id="teamMembersContainer">
+                    <!-- Team members will be loaded here dynamically -->
+                </div>
             </div>
-            <div id="teamMembersContainer">
-                <!-- Team members will be loaded here dynamically -->
-            </div>
+            <button class="submit-btn" id="submitBtn" onclick="submitAttendance()">
+                <i class="fas fa-check"></i> Submit Attendance
+            </button>
         </div>
-
-        <button class="submit-btn" id="submitBtn" onclick="submitAttendance()">
-            <i class="fas fa-check"></i> Submit Attendance
-        </button>
     </div>
 
     <!-- Empty State -->
@@ -107,14 +108,26 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
     <div class="modal-content">
         <div class="modal-header">
             <h2>Attendance Records</h2>
-            <button class="close-btn" onclick="closeAttendanceRecords()">&times;</button>
+<button onclick="closeAttendanceRecords()">×</button>
         </div>
         <div class="modal-body" id="recordsModalBody">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p>Loading records...</p>
-            </div>
-        </div>
+        <div class="filter-section">
+    <label>Select Date</label>
+<div class="date-picker-wrapper">
+    <input type="text" id="historyDate" class="form-select" placeholder="Select Date" />
+    <i class="fas fa-calendar calendar-icon"></i>
+</div>
+
+
+</div>
+
+<div id="historySessions"></div>
+<div id="historyDetails"></div>
+
+</div>
+
+<div id="recordsResult"></div>
+
     </div>
 </div>
 
@@ -134,6 +147,263 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
     </div>
 </div>
 
+<style>
+.session-selector-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #2d3748;
+}
+
+.required {
+    color: #e53e3e;
+}
+
+.form-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s;
+    background: white;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #5e2d91;
+    box-shadow: 0 0 0 3px rgba(94, 45, 145, 0.1);
+}
+
+.session-info {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f7fafc;
+    border-radius: 8px;
+    border-left: 4px solid #5e2d91;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-item i {
+    color: #5e2d91;
+    font-size: 18px;
+}
+
+.session-description {
+    padding-top: 15px;
+    border-top: 1px solid #e2e8f0;
+    color: #4a5568;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 40px;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #5e2d91;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.empty-state i {
+    font-size: 64px;
+    color: #cbd5e0;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #718096;
+}
+
+.subtitle {
+    color: #718096;
+    margin-top: 5px;
+}
+
+.submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ===== Modal Improvements ===== */
+
+.modal-content {
+    border-radius: 14px;
+    padding: 20px;
+}
+
+/* Session Card */
+.history-session {
+    background: #ffffff;
+    padding: 18px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    border-left: 5px solid #5e2d91;
+    transition: 0.3s ease;
+}
+
+.history-session:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+/* Session Header */
+.history-session h4 {
+    margin: 0;
+    font-size: 16px;
+    color: #2d3748;
+}
+
+.history-session p {
+    margin: 6px 0 12px;
+    color: #718096;
+    font-size: 14px;
+}
+
+/* Attendance List */
+.attendance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    background: #f7fafc;
+    font-size: 14px;
+}
+
+/* Present Badge */
+.attendance-item.present {
+    border-left: 4px solid #48bb78;
+}
+
+/* Absent Badge */
+.attendance-item.absent {
+    border-left: 4px solid #f56565;
+}
+
+/* Status Text Styling */
+.attendance-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-present {
+    background: #e6fffa;
+    color: #2f855a;
+}
+
+.status-absent {
+    background: #fff5f5;
+    color: #c53030;
+}
+
+/* Date Picker Styling */
+.filter-section {
+    margin-bottom: 20px;
+}
+
+#historyDate {
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    padding: 10px;
+    transition: 0.3s;
+}
+
+#historyDate:focus {
+    border-color: #5e2d91;
+    box-shadow: 0 0 0 3px rgba(94, 45, 145, 0.1);
+}
+
+.flatpickr-day.has-session {
+    background: #5e2d91;
+    color: white;
+    border-radius: 50%;
+}
+
+.flatpickr-day.has-session:hover {
+    background: #4c2375;
+}
+
+.date-picker-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.date-picker-wrapper .calendar-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #5e2d91;
+    pointer-events: none; /* So clicking goes to input */
+    font-size: 16px;
+}
+
+.date-picker-wrapper input.form-select {
+    padding-right: 40px; /* Make space for icon */
+}
+
+
+</style>
 
 <script>
     const SPORT_ID = '<?php echo $captainSportId; ?>';
@@ -175,7 +445,6 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
     // Handle session selection
     document.getElementById('practiceSession').addEventListener('change', async function() {
         const selectedOption = this.options[this.selectedIndex];
-        
         if (!selectedOption.value) {
             hideAttendanceSection();
             return;
@@ -191,8 +460,30 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
         document.getElementById('sessionDescription').textContent = session.description || 'Regular practice session';
         document.getElementById('sessionDetails').style.display = 'block';
 
-        // Load team members
-        await loadTeamMembers();
+       const now = new Date();
+const sessionDateTime = new Date(session.session_date + " " + session.session_time);
+
+const attendanceSection = document.getElementById('attendanceSection');
+const markingSection = document.getElementById('attendanceMarkingSection');
+
+attendanceSection.style.display = 'block';
+document.getElementById('emptyState').style.display = 'none';
+
+if (isNaN(sessionDateTime)) {
+    console.error("Invalid session date/time format");
+    markingSection.style.display = 'none';
+    return;
+}
+
+if (sessionDateTime > now) {
+    markingSection.style.display = 'none';
+    showNotification("You cannot mark attendance before session time.", 'info');
+} else {
+    markingSection.style.display = 'block';
+    await loadTeamMembers();
+}
+
+
     });
 
     // Load team members with attendance percentages
@@ -373,54 +664,6 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
         }
     }
 
-    // Open attendance records modal
-    async function openAttendanceRecords() {
-        document.getElementById('recordsModal').classList.add('show');
-        const modalBody = document.getElementById('recordsModalBody');
-        modalBody.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading records...</p></div>';
-
-        try {
-            const response = await fetch(`/uoc-sports/public/api/attendance/history/${SPORT_ID}?limit=5`);
-            const data = await response.json();
-
-            if (data.status === 'success' && data.data.length > 0) {
-                let html = '';
-                data.data.forEach(session => {
-                    html += `
-                        <div class="session-record-group">
-                            <div class="modal-date-header">📅 ${session.session_date} | ${session.facility}</div>
-                            <table class="attendance-table">
-                                <thead>
-                                    <tr>
-                                        <th>Student Name</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${session.attendance.map(att => `
-                                        <tr>
-                                            <td>${att.fname} ${att.lname}</td>
-                                            <td>
-                                                <span class="status-badge ${att.status === 'ABSENT' ? 'status-absent' : 'status-present'}">
-                                                    ${att.status === 'PRESENT' ? 'Present' : 'Absent'}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    `;
-                });
-                modalBody.innerHTML = html;
-            } else {
-                modalBody.innerHTML = '<div class="empty-message">No attendance records found</div>';
-            }
-        } catch (error) {
-            modalBody.innerHTML = '<div class="error-message">Failed to load records</div>';
-        }
-    }
-
     // Open last day attendance modal
     async function openLastDayAttendance() {
         document.getElementById('lastDayModal').classList.add('show');
@@ -428,36 +671,23 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
         modalBody.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading last session...</p></div>';
 
         try {
+            // Fetch last session attendance from backend
             const response = await fetch(`/uoc-sports/public/api/attendance/last-session/${SPORT_ID}`);
             const data = await response.json();
 
-            if (data.status === 'success') {
+            if (data.status === 'success' && data.data) {
                 const session = data.data;
-                let html = `
-                    <div class="session-record-group">
-                        <div class="modal-date-header">📅 ${session.session_date} | ${session.facility}</div>
-                        <table class="attendance-table">
-                            <thead>
-                                <tr>
-                                    <th>Student Name</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${session.attendance.map(att => `
-                                    <tr>
-                                        <td>${att.fname} ${att.lname}</td>
-                                        <td>
-                                            <span class="status-badge ${att.status === 'ABSENT' ? 'status-absent' : 'status-present'}">
-                                                ${att.status === 'PRESENT' ? 'Present' : 'Absent'}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
+                let html = `<div class="modal-date">📅 ${session.session_date} | ${session.facility}</div>`;
+                if (session.attendance && session.attendance.length > 0) {
+                    html += session.attendance.map(att => `
+                        <div class="attendance-item ${att.status === 'ABSENT' ? 'absent' : ''}">
+                            <span class="attendance-item-name">${att.fname} ${att.lname}</span>
+                            <span class="attendance-item-status">${att.status === 'PRESENT' ? 'Present' : 'Absent'}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    html += '<div class="empty-message">No attendance records for last session</div>';
+                }
                 modalBody.innerHTML = html;
             } else {
                 modalBody.innerHTML = '<div class="empty-message">No previous session found</div>';
@@ -519,6 +749,162 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
             setTimeout(() => notification.remove(), 300);
         }, 4000);
     }
+
+
+
+let historySessions = [];
+
+async function openAttendanceRecords() {
+    document.getElementById('recordsModal').classList.add('show');
+
+    const modalBody = document.getElementById('recordsModalBody');
+    modalBody.innerHTML = `
+        <div class="filter-section">
+            <label>Select Date</label>
+            <input type="date" id="historyDate" class="form-select" />
+        </div>
+        <div id="historySessions"></div>
+        <div id="historyDetails"></div>
+    `;
+
+    try {
+        const response = await fetch(`/uoc-sports/public/api/attendance/history/${SPORT_ID}?limit=50`);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            historySessions = data.data;
+            initializeCalendar();
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+function initializeCalendar() {
+
+    // Extract unique dates from sessions
+    const availableDates = [...new Set(
+        historySessions.map(s => s.session_date.split(' ')[0])
+    )];
+
+    flatpickr("#historyDate", {
+        dateFormat: "Y-m-d",
+        maxDate: "today",
+
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+const year = dayElem.dateObj.getFullYear();
+const month = String(dayElem.dateObj.getMonth() + 1).padStart(2, '0');
+const day = String(dayElem.dateObj.getDate()).padStart(2, '0');
+
+const date = `${year}-${month}-${day}`;
+
+            if (availableDates.includes(date)) {
+                dayElem.classList.add("has-session");
+            }
+        },
+
+        onChange: function(selectedDates, dateStr) {
+            filterSessionsByDate(dateStr);
+        }
+    });
+}
+
+
+    document.addEventListener('change', function(e) {
+
+    if (e.target.id === 'historyDate') {
+
+        const selectedDate = e.target.value;
+        const sessionsDiv = document.getElementById('historySessions');
+        const detailsDiv = document.getElementById('historyDetails');
+
+        sessionsDiv.innerHTML = '';
+        detailsDiv.innerHTML = '';
+
+        if (!selectedDate) return;
+
+        const filtered = historySessions.filter(s =>
+            s.session_date.split(' ')[0] === selectedDate
+        );
+
+        if (filtered.length === 0) {
+            sessionsDiv.innerHTML = '<div class="empty-message">No sessions on this date</div>';
+            return;
+        }
+
+        filtered.forEach(session => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-secondary';
+            btn.style.margin = '5px 0';
+            btn.textContent = `${session.session_time} | ${session.facility}`;
+            btn.onclick = () => showSessionDetails(session);
+            sessionsDiv.appendChild(btn);
+        });
+    }
+});
+function filterSessionsByDate(selectedDate) {
+
+    const sessionsDiv = document.getElementById('historySessions');
+    const detailsDiv = document.getElementById('historyDetails');
+
+    sessionsDiv.innerHTML = '';
+    detailsDiv.innerHTML = '';
+
+    if (!selectedDate) return;
+
+    const filtered = historySessions.filter(s =>
+        s.session_date.split(' ')[0] === selectedDate
+    );
+
+    if (filtered.length === 0) {
+        sessionsDiv.innerHTML = '<div class="empty-message">No sessions on this date</div>';
+        return;
+    }
+
+    filtered.forEach(session => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-secondary';
+        btn.style.margin = '5px 0';
+        btn.textContent = `${session.session_time} | ${session.facility}`;
+        btn.onclick = () => showSessionDetails(session);
+        sessionsDiv.appendChild(btn);
+    });
+}
+
+function showSessionDetails(session) {
+
+    const detailsDiv = document.getElementById('historyDetails');
+
+    let html = `
+        <div class="history-session">
+            <h4>📅 ${session.session_date} | ${session.session_time}</h4>
+            <p><strong>Facility:</strong> ${session.facility}</p>
+            <hr>
+    `;
+
+    if (session.attendance.length > 0) {
+        html += session.attendance.map(att => `
+           <div class="attendance-item ${att.status === 'ABSENT' ? 'absent' : 'present'}">
+    <span>${att.fname} ${att.lname} (${att.student_id})</span>
+    <span class="attendance-status ${att.status === 'ABSENT' ? 'status-absent' : 'status-present'}">
+        ${att.status === 'ABSENT' ? 'Absent' : 'Present'}
+    </span>
+</div>
+
+        `).join('');
+    } else {
+        html += `<div class="empty-message">No attendance data</div>`;
+    }
+
+    html += `</div>`;
+
+    detailsDiv.innerHTML = html;
+}
+
+
+
+
+
+
 </script>
 
 <style>
