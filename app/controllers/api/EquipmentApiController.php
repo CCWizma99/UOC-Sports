@@ -347,4 +347,254 @@ class EquipmentApiController {
             ]);
         }
     }
+
+    // ─── Equipment Management Form Endpoints ───
+
+    public function getSuppliers() {
+        header('Content-Type: application/json');
+        try {
+            $model = new EquipmentManagement();
+            $suppliers = $model->getSuppliers();
+            echo json_encode(['status' => 'success', 'data' => $suppliers]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Error loading suppliers']);
+        }
+    }
+
+    public function getStockEntries() {
+        header('Content-Type: application/json');
+        try {
+            $sportId = $_GET['sport_id'] ?? null;
+            $equipmentId = $_GET['equipment_id'] ?? null;
+            $model = new EquipmentManagement();
+            $entries = $model->getStockEntries($sportId, $equipmentId);
+            echo json_encode(['status' => 'success', 'data' => $entries]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Error loading stock entries']);
+        }
+    }
+
+    public function getUsersByType() {
+        header('Content-Type: application/json');
+        try {
+            $type = $_GET['type'] ?? '';
+            if (!$type) {
+                echo json_encode(['status' => 'error', 'message' => 'Type is required']);
+                return;
+            }
+            $model = new EquipmentManagement();
+            $users = $model->getUsersByType($type);
+            echo json_encode(['status' => 'success', 'data' => $users]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Error loading users']);
+        }
+    }
+
+    public function addGoodReceivedNote() {
+        header('Content-Type: application/json');
+        try {
+            $required = ['sport_id', 'equipment_id', 'date', 'supplier_id', 'quantity', 'unit', 'unit_price', 'stock_id'];
+            foreach ($required as $field) {
+                if (empty($_POST[$field])) {
+                    echo json_encode(['status' => 'error', 'message' => "Missing required field: $field"]);
+                    return;
+                }
+            }
+            $model = new EquipmentManagement();
+            $result = $model->addGoodReceivedNote($_POST);
+            echo json_encode([
+                'status' => $result ? 'success' : 'error',
+                'message' => $result ? 'Good Received Note added successfully' : 'Failed to add GRN'
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Server error: ' . $e->getMessage()]);
+        }
+    }
+
+    public function addGoodIssueNote() {
+        header('Content-Type: application/json');
+        try {
+            $required = ['sport_id', 'equipment_id', 'date', 'quantity', 'unit', 'stock_id'];
+            foreach ($required as $field) {
+                if (empty($_POST[$field])) {
+                    echo json_encode(['status' => 'error', 'message' => "Missing required field: $field"]);
+                    return;
+                }
+            }
+            $model = new EquipmentManagement();
+            $result = $model->addGoodIssueNote($_POST);
+            echo json_encode([
+                'status' => $result ? 'success' : 'error',
+                'message' => $result ? 'Good Issue Note added successfully' : 'Failed to add GIN'
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Server error: ' . $e->getMessage()]);
+        }
+    }
+
+    public function addGoodCondemnNote() {
+        header('Content-Type: application/json');
+        try {
+            $required = ['sport_id', 'equipment_id', 'stock_id', 'quantity'];
+            foreach ($required as $field) {
+                if (empty($_POST[$field])) {
+                    echo json_encode(['status' => 'error', 'message' => "Missing required field: $field"]);
+                    return;
+                }
+            }
+            $model = new EquipmentManagement();
+            $result = $model->addGoodCondemnNote($_POST);
+            echo json_encode([
+                'status' => $result ? 'success' : 'error',
+                'message' => $result ? 'Good Condemn Note added successfully' : 'Failed to add GCN'
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Server error: ' . $e->getMessage()]);
+        }
+    }
+
+    public function addSport() {
+        header('Content-Type: application/json');
+        try {
+            $name = trim($_POST['sport_name'] ?? '');
+            if (!$name) {
+                echo json_encode(['status' => 'error', 'message' => 'Sport name is required']);
+                return;
+            }
+            $model = new EquipmentManagement();
+            $result = $model->addSport($name);
+            if ($result === 'DUPLICATE') {
+                echo json_encode(['status' => 'error', 'message' => 'Sport already exists']);
+                return;
+            }
+            echo json_encode(['status' => 'success', 'message' => 'Sport added successfully']);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Server error']);
+        }
+    }
+
+    public function addArticle() {
+        header('Content-Type: application/json');
+        try {
+            $sportId = $_POST['sport_id'] ?? '';
+            $name = trim($_POST['article_name'] ?? '');
+            if (!$sportId || !$name) {
+                echo json_encode(['status' => 'error', 'message' => 'Sport and Article name are required']);
+                return;
+            }
+            $model = new EquipmentManagement();
+            $result = $model->addArticle($sportId, $name);
+            if ($result === 'DUPLICATE') {
+                echo json_encode(['status' => 'error', 'message' => 'Article already exists for this sport']);
+                return;
+            }
+            echo json_encode(['status' => 'success', 'message' => 'Sport Item / Article added successfully']);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Server error']);
+        }
+    }
+
+    public function addSupplier() {
+        header('Content-Type: application/json');
+        try {
+            $required = ['supplier_name', 'address', 'telephone_1'];
+            foreach ($required as $field) {
+                if (empty($_POST[$field])) {
+                    echo json_encode(['status' => 'error', 'message' => "Missing required field: $field"]);
+                    return;
+                }
+            }
+            $model = new EquipmentManagement();
+            $result = $model->addSupplier($_POST);
+            if ($result === 'DUPLICATE') {
+                echo json_encode(['status' => 'error', 'message' => 'Supplier already exists']);
+                return;
+            }
+            echo json_encode(['status' => 'success', 'message' => 'Supplier added successfully']);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Server error']);
+        }
+    }
+
+    // ─── Report Data (JSON) Endpoints ───
+
+    private function getReportFilters() {
+        return [ $_GET['year'] ?? null, $_GET['month'] ?? null ];
+    }
+
+    public function reportInventory() {
+        header('Content-Type: application/json');
+        try {
+            [$year, $month] = $this->getReportFilters();
+            $model = new EquipmentManagement();
+            echo json_encode(['status' => 'success', 'data' => $model->getEquipmentInventoryReport($year, $month)]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to load report']);
+        }
+    }
+
+    public function reportSuppliers() {
+        header('Content-Type: application/json');
+        try {
+            [$year, $month] = $this->getReportFilters();
+            $model = new EquipmentManagement();
+            echo json_encode(['status' => 'success', 'data' => $model->getSupplierReport($year, $month)]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to load report']);
+        }
+    }
+
+    public function reportSnapshot() {
+        header('Content-Type: application/json');
+        try {
+            [$year, $month] = $this->getReportFilters();
+            $model = new EquipmentManagement();
+            echo json_encode(['status' => 'success', 'data' => $model->getAllEquipmentSnapshot($year, $month)]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to load report']);
+        }
+    }
+
+    public function reportStock() {
+        header('Content-Type: application/json');
+        try {
+            [$year, $month] = $this->getReportFilters();
+            $model = new EquipmentManagement();
+            echo json_encode(['status' => 'success', 'data' => $model->getStockSnapshot($year, $month)]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to load report']);
+        }
+    }
+
+    public function reportPeriod() {
+        header('Content-Type: application/json');
+        try {
+            [$year, $month] = $this->getReportFilters();
+            $model = new EquipmentManagement();
+            echo json_encode(['status' => 'success', 'data' => $model->getPeriodSnapshot($year, $month)]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to load report']);
+        }
+    }
+
+    public function reportSupplierDetail() {
+        header('Content-Type: application/json');
+        try {
+            [$year, $month] = $this->getReportFilters();
+            $supplierId = $_GET['supplier_id'] ?? null;
+            if (!$supplierId) {
+                echo json_encode(['status' => 'error', 'message' => 'Supplier ID required']);
+                return;
+            }
+            $model = new EquipmentManagement();
+            $data = $model->getSupplierDetailReport($supplierId, $year, $month);
+            if (!$data) {
+                echo json_encode(['status' => 'error', 'message' => 'Supplier not found']);
+                return;
+            }
+            echo json_encode(['status' => 'success', 'data' => $data]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to load report']);
+        }
+    }
 }

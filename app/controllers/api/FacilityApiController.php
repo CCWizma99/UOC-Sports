@@ -257,4 +257,30 @@ class FacilityApiController {
             ]);
         }
     }
+
+    /**
+     * Get reservations for a specific month
+     */
+    public function getMonthlyBookings() {
+        header('Content-Type: application/json');
+        
+        try {
+            $month = $_GET['month'] ?? date('m');
+            $year = $_GET['year'] ?? date('Y');
+            
+            $model = new Facility();
+            $bookings = $model->getMonthlyBookings($month, $year);
+            
+            echo json_encode([
+                'success' => true,
+                'data' => $bookings
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error fetching monthly bookings: ' . $e->getMessage()
+            ]);
+        }
+    }
 }

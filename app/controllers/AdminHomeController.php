@@ -80,6 +80,9 @@ class AdminHomeController {
     public function equipmentAnalytics() {
         view('admin/equipment-analytics', ['title' => 'Equipment Analytics']);
     }
+    public function equipmentReports() {
+        view('admin/equipment-reports', ['title' => 'Equipment Reports']);
+    }
     public function events() {
         view('admin/events', ['title' => 'Sports Events']);
     }

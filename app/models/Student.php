@@ -106,11 +106,12 @@ class Student {
         $sessionsList = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
         // 3. Reserved Equipment
-        // Adjusted table name and columns based on Equipment model research
-        $sql3 = "SELECT e.equipment_name, r.request_date 
+        // Uses equipment_id FK to join equipment-requests with equipment table
+        $sql3 = "SELECT COALESCE(e.equipment_name, r.category_name) as equipment_name, r.request_date 
                  FROM `equipment-requests` r 
-                 JOIN equipment e ON r.equipment_id = e.equipment_id
+                 LEFT JOIN equipment e ON r.equipment_id = e.equipment_id
                  WHERE r.student_id = :student_id 
+                 AND r.status IN ('ACTIVE', 'ACCEPTED')
                  ORDER BY r.request_date DESC";
         $equipmentList = [];
         try {
