@@ -1196,7 +1196,6 @@ CREATE TABLE IF NOT EXISTS `match_participant` (
 -- --------------------------------------------------------
 
 
-
 --
 -- Table structure for table `tournament_result`
 --
