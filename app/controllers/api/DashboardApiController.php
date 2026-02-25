@@ -5,6 +5,9 @@ require_once '../app/models/Facility.php';
 require_once '../app/models/Equipment.php';
 require_once '../app/models/Tournament.php';
 require_once '../app/models/Budget.php';
+require_once '../app/models/Post.php';
+require_once '../app/models/Inquiry.php';
+require_once '../app/models/SportAchievements.php';
 
 class DashboardApiController {
     private $userModel;
@@ -12,6 +15,9 @@ class DashboardApiController {
     private $equipmentModel;
     private $tournamentModel;
     private $budgetModel;
+    private $postModel;
+    private $inquiryModel;
+    private $achievementsModel;
 
     public function __construct() {
         $this->userModel = new User();
@@ -19,6 +25,9 @@ class DashboardApiController {
         $this->equipmentModel = new Equipment();
         $this->tournamentModel = new Tournament();
         $this->budgetModel = new Budget();
+        $this->postModel = new Post();
+        $this->inquiryModel = new Inquiry();
+        $this->achievementsModel = new SportAchievements();
     }
 
     /**
@@ -47,6 +56,18 @@ class DashboardApiController {
 
             // 6. ADDITIONAL INSIGHTS
             $summary['insights'] = $this->getAdditionalInsights();
+
+            // 7. COMMUNITY STATS
+            $summary['community'] = $this->getCommunityStats();
+
+            // 8. ACHIEVEMENTS
+            $summary['achievements'] = $this->getAchievementStats();
+
+            // 9. FACILITY ANALYTICS (detailed)
+            $summary['facility_analytics'] = $this->getFacilityAnalytics();
+
+            // 10. EQUIPMENT ANALYTICS (detailed)
+            $summary['equipment_analytics'] = $this->getEquipmentDetailedAnalytics();
 
             echo json_encode([
                 'status' => 'success',
@@ -373,6 +394,263 @@ class DashboardApiController {
             'remaining' => $remaining,
             'percent_used' => $percentUsed,
             'year' => date('Y')
+        ];
+    }
+
+    /**
+     * Community Stats - Recent comments, inquiries, post engagement
+     */
+    private function getCommunityStats() {
+        $db = Database::getConnection();
+        
+        // Recent comments (last 10)
+        $commentsSQL = "SELECT c.comment_id, c.content, 
+                               CONCAT(u.fname, ' ', u.lname) as user_name,
+                               p.title as post_title
+                        FROM comment c
+                        JOIN user u ON c.comment_from = u.user_id
+                        JOIN newsfeed_post p ON c.post_id = p.post_id
+                        ORDER BY c.comment_id DESC
+                        LIMIT 10";
+        try {
+            $stmt = $db->query($commentsSQL);
+            $recentComments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $recentComments = [];
+        }
+        
+        // Post stats
+        $postStatsSQL = "SELECT 
+                            COUNT(*) as total_posts,
+                            SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) as active_posts,
+                            SUM(CASE WHEN commenting = 'YES' THEN 1 ELSE 0 END) as commenting_enabled
+                         FROM newsfeed_post";
+        try {
+            $stmt = $db->query($postStatsSQL);
+            $postStats = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $postStats = ['total_posts' => 0, 'active_posts' => 0, 'commenting_enabled' => 0];
+        }
+        
+        // Total comments count
+        $totalCommentsSQL = "SELECT COUNT(*) as total FROM comment";
+        try {
+            $stmt = $db->query($totalCommentsSQL);
+            $totalComments = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        } catch (Exception $e) {
+            $totalComments = 0;
+        }
+        
+        // Inquiry stats
+        $inquiryStatsSQL = "SELECT 
+                              COUNT(*) as total,
+                              SUM(CASE WHEN status = 'NOT-RESOLVED' THEN 1 ELSE 0 END) as unresolved,
+                              SUM(CASE WHEN status = 'RESOLVED' THEN 1 ELSE 0 END) as resolved
+                            FROM inquiry";
+        try {
+            $stmt = $db->query($inquiryStatsSQL);
+            $inquiryStats = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $inquiryStats = ['total' => 0, 'unresolved' => 0, 'resolved' => 0];
+        }
+        
+        // Recent inquiries (last 5)
+        $recentInquiriesSQL = "SELECT inquiry_id, email, subject, date, status 
+                               FROM inquiry 
+                               ORDER BY date DESC 
+                               LIMIT 5";
+        try {
+            $stmt = $db->query($recentInquiriesSQL);
+            $recentInquiries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $recentInquiries = [];
+        }
+        
+        return [
+            'recent_comments' => $recentComments,
+            'total_comments' => $totalComments,
+            'post_stats' => $postStats,
+            'inquiry_stats' => $inquiryStats,
+            'recent_inquiries' => $recentInquiries
+        ];
+    }
+
+    /**
+     * Achievement Stats - Recent achievements, top performers, counts
+     */
+    private function getAchievementStats() {
+        $db = Database::getConnection();
+        
+        // Total achievements
+        $totalSQL = "SELECT COUNT(*) as total FROM sport_achievements";
+        try {
+            $stmt = $db->query($totalSQL);
+            $total = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        } catch (Exception $e) {
+            $total = 0;
+        }
+        
+        // Recent achievements (last 5)
+        $recentSQL = "SELECT sa.id, sa.achievement_type, sa.points, sa.date_achieved,
+                             CONCAT(u.fname, ' ', u.lname) as student_name,
+                             s.sport_name
+                      FROM sport_achievements sa
+                      JOIN user u ON sa.user_id = u.user_id
+                      LEFT JOIN sport s ON sa.sport_id = s.sport_id
+                      ORDER BY sa.date_achieved DESC
+                      LIMIT 5";
+        try {
+            $stmt = $db->query($recentSQL);
+            $recent = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $recent = [];
+        }
+        
+        // Top performers
+        $topSQL = "SELECT CONCAT(u.fname, ' ', u.lname) as student_name,
+                          SUM(sa.points) as total_points,
+                          COUNT(*) as achievement_count
+                   FROM sport_achievements sa
+                   JOIN user u ON sa.user_id = u.user_id
+                   GROUP BY sa.user_id
+                   ORDER BY total_points DESC
+                   LIMIT 5";
+        try {
+            $stmt = $db->query($topSQL);
+            $topPerformers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $topPerformers = [];
+        }
+        
+        // Achievements by sport
+        $bySportSQL = "SELECT s.sport_name, COUNT(*) as count, SUM(sa.points) as total_points
+                       FROM sport_achievements sa
+                       JOIN sport s ON sa.sport_id = s.sport_id
+                       GROUP BY sa.sport_id
+                       ORDER BY count DESC
+                       LIMIT 8";
+        try {
+            $stmt = $db->query($bySportSQL);
+            $bySport = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $bySport = [];
+        }
+        
+        return [
+            'total' => $total,
+            'recent' => $recent,
+            'top_performers' => $topPerformers,
+            'by_sport' => $bySport
+        ];
+    }
+
+    /**
+     * Detailed Facility Analytics for the Facilities tab
+     */
+    private function getFacilityAnalytics() {
+        $db = Database::getConnection();
+        
+        // Facility utilization rates
+        $utilizationSQL = "SELECT fr.facility_name,
+                                  COUNT(fb.booking_id) as total_bookings,
+                                  SUM(CASE WHEN fb.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as last_30_days
+                           FROM facility_rates fr
+                           LEFT JOIN `facility-booking` fb ON fr.id = fb.facility_id
+                           GROUP BY fr.id, fr.facility_name
+                           ORDER BY total_bookings DESC";
+        try {
+            $stmt = $db->query($utilizationSQL);
+            $utilization = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $utilization = [];
+        }
+        
+        // Bookings by status
+        $statusSQL = "SELECT status, COUNT(*) as count 
+                      FROM `facility-booking` 
+                      GROUP BY status";
+        try {
+            $stmt = $db->query($statusSQL);
+            $byStatus = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $byStatus = [];
+        }
+        
+        // Monthly trend (last 6 months)
+        $trendSQL = "SELECT DATE_FORMAT(date, '%Y-%m') as month, COUNT(*) as bookings
+                     FROM `facility-booking`
+                     WHERE date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+                     GROUP BY DATE_FORMAT(date, '%Y-%m')
+                     ORDER BY month ASC";
+        try {
+            $stmt = $db->query($trendSQL);
+            $monthlyTrend = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $monthlyTrend = [];
+        }
+        
+        return [
+            'utilization' => $utilization,
+            'by_status' => $byStatus,
+            'monthly_trend' => $monthlyTrend
+        ];
+    }
+
+    /**
+     * Detailed Equipment Analytics for the Equipment tab
+     */
+    private function getEquipmentDetailedAnalytics() {
+        $db = Database::getConnection();
+        
+        // Equipment by sport
+        $bySportSQL = "SELECT s.sport_name, 
+                              COUNT(DISTINCT ei.equipment_id) as item_types,
+                              SUM(ei.quantity) as total_quantity
+                       FROM equipment_inventory ei
+                       JOIN sport s ON ei.sport_id = s.sport_id
+                       GROUP BY ei.sport_id
+                       ORDER BY total_quantity DESC";
+        try {
+            $stmt = $db->query($bySportSQL);
+            $bySport = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $bySport = [];
+        }
+        
+        // Low stock items (less than 10)
+        $lowStockSQL = "SELECT e.equipment_name, s.sport_name, ei.quantity
+                        FROM equipment_inventory ei
+                        JOIN equipment e ON ei.equipment_id = e.equipment_id
+                        JOIN sport s ON ei.sport_id = s.sport_id
+                        WHERE ei.quantity < 10
+                        ORDER BY ei.quantity ASC
+                        LIMIT 10";
+        try {
+            $stmt = $db->query($lowStockSQL);
+            $lowStock = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $lowStock = [];
+        }
+        
+        // Recent GRN activity (last 5)
+        $recentGRN = "SELECT g.date, g.quantity, g.unit_price, 
+                             e.equipment_name, s.sport_name
+                      FROM `good-received-note` g
+                      JOIN equipment e ON g.equipment_id = e.equipment_id
+                      JOIN sport s ON g.sport_id = s.sport_id
+                      ORDER BY g.date DESC
+                      LIMIT 5";
+        try {
+            $stmt = $db->query($recentGRN);
+            $recentActivity = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            $recentActivity = [];
+        }
+        
+        return [
+            'by_sport' => $bySport,
+            'low_stock' => $lowStock,
+            'recent_activity' => $recentActivity
         ];
     }
 }

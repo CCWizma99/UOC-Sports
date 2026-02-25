@@ -30,12 +30,6 @@ require '../app/views/templates/admin/sidebar.php';
 <div class="main-content-wrapper">
     <div class="reservations-grid-container">
         <div class="reservations-grid-left">
-            <div class="analytics-link-box">
-                <a href="./admin-reservation-analytics" class="btn-analytics">
-                    <i class="fas fa-chart-line"></i>
-                    View Analytics
-                </a>
-            </div>
             <section id="search-user">
                 <h2>Search Reservations</h2>
                 <div class="filter-bar">
