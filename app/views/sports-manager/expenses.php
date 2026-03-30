@@ -62,9 +62,10 @@
                     
                     
                     <th onclick="sortTable(3)">Expense Title<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(3)">Date & Time<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(4)">Amount (Rs) <span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(5)">Receipt<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(3)">Sports Event<span class="sort-indicator"></span></th>  
+                    <th onclick="sortTable(4)">Amount<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(5)">Date & Time<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(6)">Receipt<span class="sort-indicator"></span></th>
 
 
                     
@@ -78,9 +79,10 @@
 
                        
                         <td><?= htmlspecialchars($expense['expense_title']) ?></td>
-                        <td><?= htmlspecialchars($expense['expense_date']) ?></td>
+                        <td><?= !empty($expense['sport_event']) ? htmlspecialchars($expense['sport_event']) : '<span style="color: #9ca3af;">N/A</span>' ?></td>
                         <td>Rs <?= number_format($expense['amount'], 2) ?></td>
-
+                        <td><?= htmlspecialchars($expense['expense_date']) ?></td>
+                        
                         <td>
                             <?php if (!empty($expense['receipt'])): ?>
                                 <a href="/uoc-sports/app/internal/sport_exp_receipt/<?= htmlspecialchars($expense['receipt']) ?>" target="_blank" class="btn-view">
@@ -95,7 +97,7 @@
                   <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 2rem; color: #6b7280;">No expenses found.</td>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: #6b7280;">No expenses found.</td>
                     </tr>
                 <?php endif; ?>
 

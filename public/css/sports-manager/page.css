@@ -33,6 +33,7 @@
     border-radius: 12px;
     border: 1px solid #e5e7eb;
 }
+
 .page-header{
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
@@ -77,7 +78,7 @@
 .form-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .form-group.full-width {
@@ -158,8 +159,9 @@
 
 
 .form-actions button[type="button"]:hover {
-    
-    color: black;
+    background: #f3f4f6;
+    color: #111827;
+    border-color: #6b7280;
     transition: all 0.3s ease;
 }
 
@@ -353,7 +355,7 @@
     white-space: nowrap;
 }
 
-/* ====================== BOOKING FORM ENHANCEMENTS ====================== */
+/* ====================== FORM ENHANCEMENTS ====================== */
 
 /* Alert Messages */
 .alert-message {
@@ -397,177 +399,10 @@
     font-size: 1.1rem;
 }
 
-/* Equipment Selection Container */
-.equipment-selection-container {
-    grid-column: 1 / -1;
-}
-
-.equipment-selection-container label {
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 0.75rem;
-    font-size: 1rem;
-    display: block;
-}
-
-#equipment-checkboxes {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1rem;
-    padding: 1.5rem;
-    border: 2px solid #d1d5db;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-    min-height: 120px;
-    transition: border-color 0.3s ease;
-}
-
-#equipment-checkboxes:focus-within {
-    border-color: var(--primary-purple);
-    box-shadow: 0 0 0 3px rgba(117, 48, 225, 0.1);
-}
-
-/* Equipment Item Card */
-.equipment-item-card {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 1rem;
-    border: 2px solid #d1d5db;
-    border-radius: 8px;
-    background-color: white;
-    transition: all 0.3s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.equipment-item-card:hover {
-    border-color: var(--primary-purple);
-    box-shadow: 0 4px 12px rgba(117, 48, 225, 0.15);
-    transform: translateY(-2px);
-}
-
-.equipment-item-card.selected {
-    border-color: var(--primary-purple);
-    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-}
-
-.equipment-main-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.equipment-checkbox {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    accent-color: var(--primary-purple);
-    flex-shrink: 0;
-}
-
-.equipment-label {
-    flex: 1;
-    cursor: pointer;
-    font-weight: 500;
-    color: #374151;
-    font-size: 0.95rem;
-    line-height: 1.4;
-}
-
-.equipment-quantity-section {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-}
-
-.equipment-quantity-label {
-    font-size: 0.875rem;
-    color: #6b7280;
-    font-weight: 500;
-}
-
-.equipment-quantity-input {
-    width: 75px;
-    padding: 0.4rem 0.5rem;
-    border: 2px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.equipment-quantity-input:focus {
-    outline: none;
-    border-color: var(--primary-purple);
-    box-shadow: 0 0 0 3px rgba(117, 48, 225, 0.1);
-}
-
-.equipment-quantity-input:disabled {
-    background-color: #f3f4f6;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-/* Time Slot Conflict Warning */
-.overlap-warning {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border-left: 4px solid #f59e0b;
-    padding: 0.75rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-.overlap-warning-header {
-    font-weight: 600;
-    color: #92400e;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.overlap-slot-item {
-    margin-left: 1.25rem;
-    color: #78350f;
-    margin-top: 0.25rem;
-    line-height: 1.5;
-}
-
-.overlap-slot-item::before {
-    content: "•";
-    margin-right: 0.5rem;
-    color: #f59e0b;
-}
-
-.overlap-slot-item strong {
-    color: #92400e;
-}
-
-/* Empty State Message */
-.equipment-empty-message {
-    grid-column: 1 / -1;
-    color: #9ca3af;
-    margin: 0;
-    font-style: italic;
-    text-align: center;
-    padding: 2rem;
-    font-size: 0.95rem;
-}
-
 /* Form Input Enhancements */
 .form-group input[type="date"],
-.form-group input[type="time"] {
+.form-group input[type="time"],
+.form-group input[type="number"] {
     cursor: pointer;
 }
 
@@ -582,6 +417,81 @@
     background-color: #f3f4f6;
     color: #6b7280;
     cursor: not-allowed;
+}
+
+/* File Input Note */
+.file-note {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+/* Participants Selection Styles */
+.participants-checkbox-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #f9fafb;
+}
+
+.participants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0.75rem;
+}
+
+.participant-checkbox-label {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.participant-checkbox-label:hover {
+    border-color: #7c3aed;
+    background-color: #faf5ff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.1);
+}
+
+.participant-checkbox {
+    width: 18px;
+    height: 18px;
+    margin-right: 0.75rem;
+    cursor: pointer;
+    accent-color: #7c3aed;
+    flex-shrink: 0;
+}
+
+.participant-info {
+    flex: 1;
+}
+
+.participant-name {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.participant-details {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.no-students-message {
+    text-align: center;
+    color: #9ca3af;
+    padding: 1.25rem;
+    margin: 0;
+    font-style: italic;
 }
 
 /* Button Enhancements */
@@ -604,22 +514,7 @@
     transform: translateY(0);
 }
 
-.form-actions button[type="button"]:hover {
-    background: #f3f4f6;
-    color: #111827;
-    border-color: #6b7280;
-}
-
-/* Loading State */
-.equipment-loading {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 2rem;
-    color: #6b7280;
-    font-style: italic;
-}
-
-/* Responsive Design for Booking Form */
+/* Responsive Design for Form */
 @media (max-width: 1200px) {
     .page-form-container {
         width: 100%;
@@ -651,10 +546,6 @@
         gap: 0.5rem;
     }
     
-    #equipment-checkboxes {
-        grid-template-columns: 1fr;
-    }
-    
     .form-actions {
         gap: 1rem;
         flex-direction: column-reverse;
@@ -682,20 +573,6 @@
     
     .page-header h2 {
         font-size: 1.5rem;
-    }
-    
-    .equipment-item-card {
-        padding: 0.875rem;
-    }
-    
-    .equipment-main-row {
-        flex-wrap: wrap;
-    }
-    
-    .equipment-quantity-section {
-        width: 100%;
-        justify-content: flex-start;
-        margin-left: 32px;
     }
 }
 

@@ -37,7 +37,7 @@
      
        <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search Equipment...">
-  
+
         <button class="btn-add" onclick="window.location.href='/uoc-sports/public/equipment-manager/equipments'">
  Back to Sports
         </button>

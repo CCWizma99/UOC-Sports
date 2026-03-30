@@ -2,7 +2,13 @@
 $currentPage = $_SERVER['REQUEST_URI'];
 $userId = $_SESSION['user_id'] ?? null;
 $managedSports = [];
-$selectedSportId = $_GET['sport'] ?? null;
+$selectedSportId = $_GET['sport'] ?? $_SESSION['selected_sport_id'] ?? null;
+
+// Store in session if provided in URL
+if (isset($_GET['sport'])) {
+    $_SESSION['selected_sport_id'] = $_GET['sport'];
+    $selectedSportId = $_GET['sport'];
+}
 
 // Fetch managed sports for dropdown using manager_sport table
 if ($userId) {
@@ -15,9 +21,10 @@ if ($userId) {
     $stmt->execute([$userId]);
     $managedSports = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // If no sport selected, use first managed sport
+    // If no sport selected, use first managed sport and store in session
     if (!$selectedSportId && !empty($managedSports)) {
         $selectedSportId = $managedSports[0]['sport_id'];
+        $_SESSION['selected_sport_id'] = $selectedSportId;
     }
 }
 ?>

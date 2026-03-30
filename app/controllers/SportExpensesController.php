@@ -49,6 +49,7 @@ class SportExpensesController {
         $data = [
             'sport' => $_POST['sport'] ?? '',
             'expense_title' => $_POST['expense'] ?? '',
+            'sport_event' => $_POST['sportEvent'] ?? NULL,
             'amount' => $_POST['amount'] ?? 0,
             'submitted_by' => $_POST['submittedBy'] ?? '',
             'notes' => $_POST['notes'] ?? ''

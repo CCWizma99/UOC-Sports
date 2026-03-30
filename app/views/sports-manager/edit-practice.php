@@ -14,6 +14,7 @@
     @import url("/uoc-sports/public/css/general/footer.css");
 
     @import url("/uoc-sports/public/css/sports-manager/report.css");
+    @import url("/uoc-sports/public/css/sports-manager/page.css");
   </style>
 </head>
 <body>
@@ -36,8 +37,11 @@
             </div>
             <form id="editPracticeForm" class="form" method="POST" action="/uoc-sports/public/sport-manager/update-practice<?= isset($selectedSport) ? '?sport=' . urlencode($selectedSport) : '' ?>">
                 <input type="hidden" name="id" value="<?= htmlspecialchars($session['id']) ?>">
+                <?php if (isset($selectedSport)): ?>
+                    <input type="hidden" name="sport_param" value="<?= htmlspecialchars($selectedSport) ?>">
+                <?php endif; ?>
                 
-                <div class="form-grid">
+                <div class="form-row">
                     <div class="form-group">
                         <label for="sport">Sport *</label>
                         <select id="sport" name="sport" required>
@@ -106,15 +110,15 @@
 
                     <div class="form-group full-width">
                         <label for="notes">Special Notes</label>
-                        <textarea id="notes" name="notes" rows="2" placeholder="Enter any special notes..."><?= htmlspecialchars($session['notes'] ?? '') ?></textarea>
+                        <textarea id="notes" name="notes" rows="4" placeholder="Enter any special notes..."><?= htmlspecialchars($session['notes'] ?? '') ?></textarea>
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="view-all-link" onclick="window.location.href='/uoc-sports/public/sport-manager/practicesessions'">
+                    <button type="button" onclick="window.location.href='/uoc-sports/public/sport-manager/practicesessions'">
                        Cancel
                     </button>
-                    <button type="submit" class="view-all-link">
+                    <button type="submit">
                        Update Practice Session
                     </button>
                 </div>

@@ -285,6 +285,15 @@
     <div class="container-header">
         <h2>Practice Sessions</h2>
         <p>Manage and schedule practice sessions</p>
+        <?php 
+            // Count active sessions
+            $activeSessionsCount = 0;
+            foreach ($sessions as $session) {
+                if (strtoupper($session['status']) === 'ACTIVE') {
+                    $activeSessionsCount++;
+                }
+            }
+        ?>
         <?php if (isset($selectedSportId) && $selectedSportId): ?>
             <div class="filter-info">
                 <span class="info-badge">
@@ -295,6 +304,11 @@
                 <span class="info-badge">
                     <span class="info-badge-icon"></span>
                    Total Sessions: <strong><?= count($sessions) ?></strong>
+                </span>
+                <span class="info-separator">•</span>
+                <span class="info-badge">
+                    <span class="info-badge-icon"></span>
+                    Active Sessions: <strong><?= $activeSessionsCount ?></strong>
                 </span>
                 <?php if (count($sessions) > 0): ?>
                     <span class="info-separator">•</span>
@@ -307,12 +321,12 @@
         <?php else: ?>
             <div class="filter-info filter-info-warning">
                 <span class="info-badge warning">
-                    <span class="info-badge-icon">⚠️</span>
-                    No Filter Active
+                    <span class="info-badge-icon"></span>
+                    Active Sessions: <strong><?= $activeSessionsCount ?></strong>
                 </span>
                 <span class="info-separator warning">•</span>
                 <span class="info-badge warning">
-                    <span class="info-badge-icon">📊</span>
+                   
                     Total: <strong><?= count($sessions) ?></strong> sessions
                 </span>
             </div>
@@ -346,7 +360,7 @@
                 <tr>
                     
        
-                    <th onclick="sortTable(2)">Date<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(2)">Practice Session Date<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Start Time<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(4)">End Time<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(5)">Location<span class="sort-indicator"></span></th>
@@ -466,9 +480,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Skip the "no sessions" message row
             if (row.cells.length < 2) continue;
             
-            // Get the date cell (index 1 - second column)
-            const dateCell = row.cells[1];
+            // Get the date cell (index 0 - first column)
+            const dateCell = row.cells[0];
             const rowDate = dateCell.textContent.trim();
+            
+            console.log('Comparing: rowDate="' + rowDate + '" with selectedDate="' + selectedDate + '"');
             
             if (rowDate === selectedDate) {
                 row.style.display = '';
@@ -479,6 +495,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         console.log('Filtered to ' + visibleCount + ' sessions for date: ' + selectedDate);
+        
+        // Show message if no results found
+        if (visibleCount === 0) {
+            console.warn('No sessions found for the selected date');
+        }
     }
     
     function showAllRows() {

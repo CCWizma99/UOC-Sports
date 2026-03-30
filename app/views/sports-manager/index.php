@@ -395,8 +395,8 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
             <div class="sidebar-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h3 style="margin: 0;">Upcoming Competitions</h3>
-                    <select id="competitionMonth" class="btn-select" style="width: auto; padding: 0.25rem; font-size: 0.8rem; margin-bottom: 0.65rem; border:2px solid #7e22ce; background: #e9d5ff;
-    color: #7e22ce; box-shadow:none;">
+                    <select id="competitionMonth" class="btn-select" style="width: auto; padding: 0.25rem; font-size: 0.8rem; margin-bottom: 0.65rem; border:2px solid #6b21a8; background: #f3e8ff;
+    color: #6b21a8; box-shadow:none;">
                         <option value="01">January</option>
                         <option value="02">February</option>
                         <option value="03">March</option>

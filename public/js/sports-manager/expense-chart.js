@@ -298,18 +298,10 @@ function createLineChart(expenses, sportId, year) {
                             
                             innerHtml += '<div class="tooltip-row">';
                             innerHtml += '<div class="expense-detail">';
-                            innerHtml += '<i class="fas fa-calendar tooltip-icon icon-month"></i>';
-                            innerHtml += '<span class="tooltip-label">Date:</span>';
-                            innerHtml += '</div>';
-                            innerHtml += '<span class="tooltip-value">' + new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</span>';
-                            innerHtml += '</div>';
-                            
-                            innerHtml += '<div class="tooltip-row">';
-                            innerHtml += '<div class="expense-detail">';
                             innerHtml += '<i class="fas fa-money-bill-wave tooltip-icon icon-amount"></i>';
                             innerHtml += '<span class="tooltip-label">Amount:</span>';
                             innerHtml += '</div>';
-                            innerHtml += '<span class="tooltip-value">Rs ' + amount.toLocaleString('en-IN', {minimumFractionDigits: 2}) + '</span>';
+                            innerHtml += '<span class="tooltip-value">Rs ' + amount.toLocaleString('en-US', {minimumFractionDigits: 2}) + '</span>';
                             innerHtml += '</div>';
                             
                             innerHtml += '<div class="tooltip-row">';
@@ -317,7 +309,7 @@ function createLineChart(expenses, sportId, year) {
                             innerHtml += '<i class="fas fa-coins tooltip-icon icon-percent"></i>';
                             innerHtml += '<span class="tooltip-label">Cumulative:</span>';
                             innerHtml += '</div>';
-                            innerHtml += '<span class="tooltip-value">Rs ' + cumulative.toLocaleString('en-IN', {minimumFractionDigits: 2}) + '</span>';
+                            innerHtml += '<span class="tooltip-value">Rs ' + cumulative.toLocaleString('en-US', {minimumFractionDigits: 2}) + '</span>';
                             innerHtml += '</div>';
 
                             if (expense.category) {
@@ -401,7 +393,7 @@ function createLineChart(expenses, sportId, year) {
                     },
                     ticks: {
                         callback: function(value) {
-                            return 'Rs ' + value.toLocaleString('en-IN');
+                            return 'Rs ' + value.toLocaleString('en-US');
                         },
                         color: '#6b7280',
                         font: {
@@ -470,7 +462,7 @@ function updateBalanceDisplay(remaining, allocated, spent, percentage) {
     const percentElement = document.getElementById('percent');
     
     if (balanceElement) {
-        balanceElement.textContent = `Rs ${remaining.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        balanceElement.textContent = `Rs ${remaining.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 })}`;
     }
     
     if (progressElement) {

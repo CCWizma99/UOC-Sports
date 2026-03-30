@@ -69,12 +69,12 @@
         <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
             <!-- Performance Analysis Chart (Left Side) -->
             <div style="flex: 1; min-width: 400px; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <h4 style="color: #2b0c4d; margin: 0 0 1rem 0; font-size: 1.1rem;">Performance Analysis</h4>
+                <h4 style="color: #2b0c4d; margin: 0 0 1rem 0; font-size: 1.1rem;">Performance Analysis by Category</h4>
                 <p style="color: #6b7280; font-size: 0.85rem; margin-bottom: 1rem;">
-                    Track student performance across competitions (Max possible: 12 points for 1st place + Best performer)
+                    Track student performance across competition categories and years. Each dot represents an achievement, colored by competition category.
 </br><p style="color: #6b7280; font-size: 0.7rem; margin-bottom: 1rem;"> 5 points for 1st place,
  3 points for 2nd place,
- 2 points for 3rd place</p>
+ 2 points for 3rd place (Max: 12 pts with Best performer)</p>
                 
                 <div style="position: relative; height: 350px;">
                     <canvas id="performanceChart"></canvas>
