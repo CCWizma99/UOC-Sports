@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 04, 2026 at 02:13 PM
+-- Generation Time: Feb 21, 2026 at 01:24 PM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -20,6 +20,23 @@ SET time_zone = "+00:00";
 --
 -- Database: `uoc-sports`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `active_booking_attempts`
+--
+
+DROP TABLE IF EXISTS `active_booking_attempts`;
+CREATE TABLE IF NOT EXISTS `active_booking_attempts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `facility_id` int NOT NULL,
+  `date` date NOT NULL,
+  `last_active_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`,`facility_id`,`date`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -104,7 +121,7 @@ CREATE TABLE IF NOT EXISTS `equipment` (
   `sport_id` varchar(4) NOT NULL,
   `equipment_name` varchar(32) NOT NULL,
   `max_allow` int NOT NULL,
-  `image_name` varchar(48) CHARACTER SET utf8mb4 NOT NULL,
+  `image_name` varchar(48) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`equipment_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
@@ -176,7 +193,8 @@ INSERT INTO `equipment` (`equipment_id`, `sport_id`, `equipment_name`, `max_allo
 ('EQ061', 'CRM', 'Carrom Coins', 1, ''),
 ('EQ062', 'CRM', 'Striker', 1, ''),
 ('EQ69354316b1', 'TKD', 'Taekwondo Tatami', 9, 'taekwondo_tatami_2938.jpg'),
-('EQ6937e28ddf', 'BOX', 'Boxing Shoes', 1, 'boxing_shoes_3247.jpg');
+('EQ6937e28ddf', 'BOX', 'Boxing Shoes', 1, 'boxing_shoes_3247.jpg'),
+('EQ699563ae09', 'NET', 'Netball BALL', 0, '');
 
 -- --------------------------------------------------------
 
@@ -188,22 +206,64 @@ DROP TABLE IF EXISTS `equipment-requests`;
 CREATE TABLE IF NOT EXISTS `equipment-requests` (
   `request_id` varchar(12) NOT NULL,
   `student_id` varchar(12) DEFAULT NULL,
-  `category_name` varchar(100) NOT NULL,
+  `category_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `equipment_id` varchar(12) DEFAULT NULL,
   `request_date` date NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `notes` varchar(255) DEFAULT NULL,
+  `purpose` varchar(64) NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY (`request_id`)
+  `notes` varchar(64) NOT NULL,
+  `sport_id` varchar(4) NOT NULL,
+  `reserved_location` varchar(100) NOT NULL,
+  `requester_name` varchar(100) NOT NULL,
+  `equipment_items` text COMMENT 'JSON array of equipment items with quantities',
+  PRIMARY KEY (`request_id`),
+  KEY `equipment_id` (`equipment_id`),
+  KEY `sport_id` (`sport_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `equipment-requests`
 --
 
-INSERT INTO `equipment-requests` (`request_id`, `student_id`, `category_name`, `request_date`, `start_time`, `end_time`, `notes`, `status`) VALUES
-('req_6937e152', '23000000', 'Badminton Racket', '2025-12-29', '08:00:00', '10:00:00', 'For the Taekwondo Provincial matches practices', 'ACTIVE'),
-('req_693a734e', '23020342', 'Tennis Ball', '2026-01-01', '13:00:00', '15:00:00', 'Foot work practice', 'ACTIVE');
+INSERT INTO `equipment-requests` (`request_id`, `student_id`, `category_name`, `request_date`, `start_time`, `end_time`, `purpose`, `status`, `notes`, `sport_id`, `reserved_location`, `requester_name`, `equipment_items`) VALUES
+('req_6937e152', 'FMX6Z8DF', 'Badminton Re', '2025-12-29', '08:00:00', '10:00:00', 'For the Taekwondo Provincial matches practices', 'COMPLETED', '-', 'BAD', 'Ground', 'K S Silva', NULL),
+('req_6d607bf3', NULL, 'Tennis Racket (x2)', '2026-02-13', '10:30:00', '11:30:00', '', 'ACTIVE', '', 'TEN', 'Tennis Court', 'Student ', '[{\"equipment_name\":\"Tennis Racket\",\"quantity\":2}]'),
+('req_eec57c81', NULL, 'Cricket Bat', '2026-01-24', '06:21:00', '07:21:00', '', 'COMPLETED', '', 'CRI', 'Cricket Pitch', 'Student ', NULL),
+('req_9fdd61ac', NULL, 'Netball Post', '2026-01-25', '09:50:00', '11:49:00', '', 'PENDING', 'Team Practice', 'NET', 'Ground', 'In person reservation', NULL),
+('req_c9eaa56c', 'In person', 'Goalkeeper P', '2026-01-25', '12:01:00', '13:01:00', '', 'ACCEPTED', 'Freshers', 'HOC', 'Ground', 'Savi', '[{\"equipment_name\":\"Goalkeeper Pads\",\"quantity\":1},{\"equipment_name\":\"Hockey Ball\",\"quantity\":1}]'),
+('req_693a734e', '23020342', 'Boxing Shoes', '2026-01-01', '13:00:00', '15:00:00', 'Foot work practice', 'ACTIVE', '-', 'BOX', 'Indoor court', 'S J', NULL),
+('req_de7286f7', NULL, 'Relay baton (x4)', '2026-02-13', '06:30:00', '08:00:00', '', 'ACTIVE', '', 'ATH', 'Ground', 'S K', '[{\"equipment_name\":\"Relay baton\",\"quantity\":4}]'),
+('req_eefe02a8', NULL, 'Relay baton (x1)', '2026-02-13', '06:30:00', '07:00:00', '', 'ACTIVE', '', 'ATH', 'Ground', 'S Silv', '[{\"equipment_name\":\"Relay baton\",\"quantity\":1}]');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `equipment_categories`
+--
+
+DROP TABLE IF EXISTS `equipment_categories`;
+CREATE TABLE IF NOT EXISTS `equipment_categories` (
+  `category_id` varchar(8) NOT NULL,
+  `category_name` varchar(64) NOT NULL,
+  `description` varchar(256) DEFAULT NULL,
+  PRIMARY KEY (`category_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `equipment_categories`
+--
+
+INSERT INTO `equipment_categories` (`category_id`, `category_name`, `description`) VALUES
+('CAT001', 'Balls', 'Various types of balls for different sports'),
+('CAT002', 'Bats & Rackets', 'Batting and racket equipment'),
+('CAT003', 'Protective Gear', 'Safety and protective equipment'),
+('CAT004', 'Nets & Goals', 'Nets, goals, and target equipment'),
+('CAT005', 'Training Equipment', 'Practice and training gear'),
+('CAT006', 'Mats & Flooring', 'Mats, tatami, and floor equipment'),
+('CAT007', 'Clothing & Shoes', 'Sports apparel and footwear'),
+('CAT008', 'Other', 'Miscellaneous equipment');
 
 -- --------------------------------------------------------
 
@@ -214,7 +274,7 @@ INSERT INTO `equipment-requests` (`request_id`, `student_id`, `category_name`, `
 DROP TABLE IF EXISTS `equipment_inventory`;
 CREATE TABLE IF NOT EXISTS `equipment_inventory` (
   `stock_id` varchar(8) NOT NULL,
-  `equipment_id` varchar(12) CHARACTER SET utf8mb4 NOT NULL,
+  `equipment_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `sport_id` varchar(4) NOT NULL,
   `quantity` int NOT NULL,
   `usable` int NOT NULL,
@@ -229,7 +289,7 @@ CREATE TABLE IF NOT EXISTS `equipment_inventory` (
 
 INSERT INTO `equipment_inventory` (`stock_id`, `equipment_id`, `sport_id`, `quantity`, `usable`, `added_date`, `remarks`) VALUES
 ('STK69354', 'EQ020', 'NET', 4, 4, '2025-12-07', '-'),
-('STK00001', 'EQ001', 'BAD', 20, 20, '2025-12-08', '-'),
+('STK00001', 'EQ001', 'BAD', 20, 15, '2025-12-08', '-'),
 ('STK00002', 'EQ002', 'BAD', 200, 200, '2025-12-08', '-'),
 ('STK00003', 'EQ003', 'BAD', 5, 5, '2025-12-08', '-'),
 ('STK00004', 'EQ004', 'VOL', 15, 15, '2025-12-08', '-'),
@@ -239,18 +299,18 @@ INSERT INTO `equipment_inventory` (`stock_id`, `equipment_id`, `sport_id`, `quan
 ('STK00008', 'EQ008', 'FOO', 4, 4, '2025-12-08', '-'),
 ('STK00009', 'EQ009', 'FOO', 25, 25, '2025-12-08', '-'),
 ('STK00010', 'EQ010', 'FOO', 10, 10, '2025-12-08', '-'),
-('STK00011', 'EQ011', 'TEN', 12, 12, '2025-12-08', '-'),
+('STK00011', 'EQ011', 'TEN', 12, 8, '2025-12-08', '-'),
 ('STK00012', 'EQ012', 'TEN', 150, 150, '2025-12-08', '-'),
 ('STK00013', 'EQ013', 'TEN', 4, 4, '2025-12-08', '-'),
 ('STK00014', 'EQ014', 'BAS', 10, 10, '2025-12-08', '-'),
 ('STK00015', 'EQ015', 'BAS', 6, 6, '2025-12-08', '-'),
 ('STK00016', 'EQ016', 'BAS', 2, 2, '2025-12-08', '-'),
-('STK00017', 'EQ017', 'HOC', 20, 20, '2025-12-08', '-'),
+('STK00017', 'EQ017', 'HOC', 20, 6, '2025-12-08', '-'),
 ('STK00018', 'EQ018', 'HOC', 30, 30, '2025-12-08', '-'),
 ('STK00019', 'EQ019', 'HOC', 6, 6, '2025-12-08', '-'),
 ('STK00020', 'EQ020', 'NET', 10, 10, '2025-12-08', '-'),
 ('STK00021', 'EQ021', 'NET', 4, 4, '2025-12-08', '-'),
-('STK00022', 'EQ022', 'CRI', 12, 12, '2025-12-08', '-'),
+('STK00022', 'EQ022', 'CRI', 12, 10, '2025-12-08', '-'),
 ('STK00023', 'EQ023', 'CRI', 60, 60, '2025-12-08', '-'),
 ('STK00024', 'EQ024', 'CRI', 10, 10, '2025-12-08', '-'),
 ('STK00025', 'EQ025', 'CRI', 8, 8, '2025-12-08', '-'),
@@ -268,7 +328,7 @@ INSERT INTO `equipment_inventory` (`stock_id`, `equipment_id`, `sport_id`, `quan
 ('STK00037', 'EQ037', 'ROW', 6, 6, '2025-12-08', '-'),
 ('STK00038', 'EQ038', 'ROW', 20, 20, '2025-12-08', '-'),
 ('STK00039', 'EQ039', 'WRE', 4, 4, '2025-12-08', '-'),
-('STK00040', 'EQ040', 'CHE', 15, 15, '2025-12-08', '-'),
+('STK00040', 'EQ040', 'CHE', 15, 3, '2025-12-08', '-'),
 ('STK00041', 'EQ041', 'CHE', 10, 10, '2025-12-08', '-'),
 ('STK00042', 'EQ042', 'ATH', 8, 8, '2025-12-08', '-'),
 ('STK00043', 'EQ043', 'ATH', 12, 12, '2025-12-08', '-'),
@@ -293,7 +353,8 @@ INSERT INTO `equipment_inventory` (`stock_id`, `equipment_id`, `sport_id`, `quan
 ('STK00062', 'EQ062', 'CRM', 15, 15, '2025-12-08', '-'),
 ('STK00063', 'EQ69354316b1', 'TKD', 200, 200, '2025-12-08', '-'),
 ('STK6937d', 'EQ046', 'BOX', 12, 12, '2025-12-09', 'Donated by Sri Lanka Boxing Federation'),
-('STK6937e', 'EQ6937e28ddf', 'BOX', 20, 20, '2025-12-09', 'Donated by Sri Lanka Boxing Federation');
+('STK6937e', 'EQ6937e28ddf', 'BOX', 20, 20, '2025-12-09', 'Donated by Sri Lanka Boxing Federation'),
+('STK69956', 'EQ699563ae09', 'NET', 5, 5, '2026-12-18', '-');
 
 -- --------------------------------------------------------
 
@@ -325,6 +386,7 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
   `purpose` varchar(300) NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'BOOKED',
   `payment_status` varchar(12) NOT NULL DEFAULT 'INCOMPLETE',
+  `payment_id` varchar(50) DEFAULT NULL,
   `rejection_reason` varchar(256) NOT NULL,
   PRIMARY KEY (`booking_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
@@ -333,16 +395,24 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
 -- Dumping data for table `facility-booking`
 --
 
-INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, `slot`, `purpose`, `status`, `payment_status`, `rejection_reason`) VALUES
-('BK711559', 'H4J1OHSX', '9', '2025-12-11', 'FULL', 'To practice for Inter Provincial Matches held in January 2026', 'BOOKED', 'INCOMPLETE', ''),
-('BK398317', 'H4J1OHSX', '3', '2025-12-10', 'AFTERNOON', 'Badminton Provincial Matches Practice', 'BOOKED', 'INCOMPLETE', ''),
-('BK861578', 'L3NCL2J4', '11', '2025-12-10', 'MORNING', 'For Inter University Practices for SLIIT University', 'REJECTED', 'INCOMPLETE', 'No reason'),
-('BK937846', 'L3NCL2J4', '15', '2025-12-18', 'FULL', 'For TOC Championship Match Practice', 'REJECTED', 'INCOMPLETE', 'A maintenance on the ground has been scheduled for that day. Sorry for the inconvenience.'),
-('BK405911', 'H4J1OHSX', '5', '2025-12-11', 'FULL', 'Divisional Tennis Matches', 'BOOKED', 'INCOMPLETE', ''),
-('BK662944', '5Q1XZO2Y', '15', '2025-12-12', 'FULL', 'Inter Uni Matches Practice', 'BOOKED', 'INCOMPLETE', ''),
-('BK743077', 'L3NCL2J4', '18', '2025-12-27', 'FULL', 'Cricket practice', 'ACCEPTED', 'INCOMPLETE', ''),
-('BK425118', 'H4J1OHSX', '13', '2025-12-29', 'FULL', '-', 'BOOKED', 'INCOMPLETE', ''),
-('BK896561', 'H4J1OHSX', '13', '2026-01-01', 'FULL', '-', 'BOOKED', 'INCOMPLETE', '');
+INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, `slot`, `purpose`, `status`, `payment_status`, `payment_id`, `rejection_reason`) VALUES
+('BK711559', 'H4J1OHSX', '9', '2025-12-11', 'FULL', 'To practice for Inter Provincial Matches held in January 2026', 'BOOKED', 'INCOMPLETE', NULL, ''),
+('BK398317', 'H4J1OHSX', '3', '2025-12-10', 'AFTERNOON', 'Badminton Provincial Matches Practice', 'BOOKED', 'INCOMPLETE', NULL, ''),
+('BK861578', 'L3NCL2J4', '11', '2025-12-10', 'MORNING', 'For Inter University Practices for SLIIT University', 'REJECTED', 'INCOMPLETE', NULL, 'No reason'),
+('BK937846', 'L3NCL2J4', '15', '2025-12-18', 'FULL', 'For TOC Championship Match Practice', 'REJECTED', 'INCOMPLETE', NULL, 'A maintenance on the ground has been scheduled for that day. Sorry for the inconvenience.'),
+('BK405911', 'H4J1OHSX', '5', '2025-12-11', 'FULL', 'Divisional Tennis Matches', 'BOOKED', 'INCOMPLETE', NULL, ''),
+('BK662944', '5Q1XZO2Y', '15', '2025-12-12', 'FULL', 'Inter Uni Matches Practice', 'BOOKED', 'COMPLETE', 'RETURN-1768619626', ''),
+('BK743077', 'L3NCL2J4', '18', '2025-12-27', 'FULL', 'Cricket practice', 'ACCEPTED', 'INCOMPLETE', NULL, ''),
+('BK425118', 'H4J1OHSX', '13', '2025-12-29', 'FULL', '-', 'BOOKED', 'INCOMPLETE', NULL, ''),
+('BK896561', 'H4J1OHSX', '13', '2026-01-01', 'FULL', '-', 'ACCEPTED', 'COMPLETE', 'RETURN-1767766634', ''),
+('BK228271', 'H4J1OHSX', '4', '2026-01-09', 'MORNING', 'Inter uni practices', 'BOOKED', 'COMPLETE', 'RETURN-1767779957', ''),
+('BK656929', 'H4J1OHSX', '2', '2026-01-16', 'MORNING', 'Testing 01', 'BOOKED', 'INCOMPLETE', NULL, ''),
+('BK623825', 'H4J1OHSX', '2', '2026-01-16', 'AFTERNOON', 'Testing 02', 'BOOKED', 'COMPLETE', 'RETURN-1768311979', ''),
+('BK572996', 'H4J1OHSX', '2', '2026-01-14', 'MORNING', 'Testing 3', 'BOOKED', 'INCOMPLETE', NULL, ''),
+('BK341930', '5Q1XZO2Y', '2', '2026-01-14', 'AFTERNOON', 'testing 4', 'BOOKED', 'COMPLETE', 'RETURN-1768619654', ''),
+('BK390858', 'H4J1OHSX', '13', '2026-01-21', 'FULL', '-', 'BOOKED', 'INCOMPLETE', NULL, ''),
+('BK890801', 'NPM8O9RE', '14', '2026-02-20', 'MORNING', 'Practice', 'BOOKED', 'INCOMPLETE', NULL, ''),
+('BK955511', 'H4J1OHSX', '2', '2026-02-18', 'AFTERNOON', '-', 'BOOKED', 'INCOMPLETE', NULL, '');
 
 -- --------------------------------------------------------
 
@@ -353,8 +423,8 @@ INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, 
 DROP TABLE IF EXISTS `facility_rates`;
 CREATE TABLE IF NOT EXISTS `facility_rates` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `facility_type` enum('INDOOR_GYM','GROUND') NOT NULL,
-  `facility_name` varchar(255) NOT NULL,
+  `facility_type` enum('INDOOR_GYM','GROUND') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `facility_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `capacity` int DEFAULT NULL,
   `practice_working_hours` decimal(10,2) DEFAULT NULL,
   `practice_other_hours` decimal(10,2) DEFAULT NULL,
@@ -450,6 +520,13 @@ CREATE TABLE IF NOT EXISTS `injury_report` (
   PRIMARY KEY (`report_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `injury_report`
+--
+
+INSERT INTO `injury_report` (`report_id`, `user_id`, `coach_id`, `practice_id`, `date`, `description`, `need_substitude`, `substitude_id`) VALUES
+('IRP6971E85EA', 'P001', 'NPM8O9RE', '4', '2026-01-01', 'test (Minor)', 'YES', 'P002');
+
 -- --------------------------------------------------------
 
 --
@@ -474,7 +551,7 @@ CREATE TABLE IF NOT EXISTS `inquiry` (
 
 INSERT INTO `inquiry` (`inquiry_id`, `user_id`, `email`, `subject`, `message`, `date`, `status`) VALUES
 ('INQA1A688463', 'H4J1OHSX', 'maximal@gmail.com', 'Testing contact', 'Something Something', '2025-12-15', 'RESOLVED'),
-('INQE8F057499', 'H4J1OHSX', 'dakshinagn@gmail.com', 'about group project', 'on progress', '2025-12-18', 'NOT-RESOLVED');
+('INQE8F057499', 'H4J1OHSX', 'dakshinagn@gmail.com', 'about group project', 'on progress', '2025-12-18', 'RESOLVED');
 
 -- --------------------------------------------------------
 
@@ -529,6 +606,297 @@ CREATE TABLE IF NOT EXISTS `lost_item` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `message`
+--
+
+DROP TABLE IF EXISTS `message`;
+CREATE TABLE IF NOT EXISTS `message` (
+  `message_id` varchar(12) NOT NULL,
+  `sender_id` varchar(12) NOT NULL COMMENT 'User ID of sender',
+  `recipient_id` varchar(12) NOT NULL COMMENT 'User ID of recipient',
+  `recipient_type` enum('COACH','MANAGER','CAPTAIN') NOT NULL,
+  `sport_id` varchar(4) NOT NULL,
+  `title` varchar(128) NOT NULL,
+  `message` text NOT NULL,
+  `sent_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`message_id`),
+  KEY `sender_id` (`sender_id`),
+  KEY `recipient_id` (`recipient_id`),
+  KEY `sport_id` (`sport_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_ball_court`
+--
+
+DROP TABLE IF EXISTS `match_ball_court`;
+CREATE TABLE IF NOT EXISTS `match_ball_court` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `match_id` varchar(50) NOT NULL,
+  `team_a_name` varchar(100) DEFAULT NULL,
+  `team_b_name` varchar(100) DEFAULT NULL,
+  `sport_subtype` enum('BASKETBALL','VOLLEYBALL','BASEBALL') NOT NULL,
+  `period_scores` json DEFAULT NULL,
+  `final_score_a` int DEFAULT '0',
+  `final_score_b` int DEFAULT '0',
+  `overtime_periods` int DEFAULT '0',
+  `sets_won_a` int DEFAULT NULL,
+  `sets_won_b` int DEFAULT NULL,
+  `innings_played` int DEFAULT NULL,
+  `notes` text,
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_board_game`
+--
+
+DROP TABLE IF EXISTS `match_board_game`;
+CREATE TABLE IF NOT EXISTS `match_board_game` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `match_id` varchar(50) NOT NULL,
+  `player_a_name` varchar(100) DEFAULT NULL,
+  `player_b_name` varchar(100) DEFAULT NULL,
+  `game_type` enum('CHESS','SCRABBLE','CARROM') NOT NULL,
+  `chess_result` enum('WHITE_WIN','BLACK_WIN','DRAW','STALEMATE') DEFAULT NULL,
+  `chess_opening` varchar(100) DEFAULT NULL,
+  `moves_count` int DEFAULT NULL,
+  `time_control` varchar(50) DEFAULT NULL,
+  `scrabble_score_a` int DEFAULT NULL,
+  `scrabble_score_b` int DEFAULT NULL,
+  `highest_word_score` int DEFAULT NULL,
+  `highest_word` varchar(50) DEFAULT NULL,
+  `carrom_score_a` int DEFAULT NULL,
+  `carrom_score_b` int DEFAULT NULL,
+  `boards_played` int DEFAULT '1',
+  `notes` text,
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_combat`
+--
+
+DROP TABLE IF EXISTS `match_combat`;
+CREATE TABLE IF NOT EXISTS `match_combat` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `match_id` varchar(50) NOT NULL,
+  `fighter_a_name` varchar(100) DEFAULT NULL,
+  `fighter_b_name` varchar(100) DEFAULT NULL,
+  `weight_category` varchar(50) DEFAULT NULL,
+  `round_scores` json DEFAULT NULL,
+  `total_rounds` int DEFAULT '3',
+  `rounds_completed` int DEFAULT '0',
+  `final_score_a` int DEFAULT '0',
+  `final_score_b` int DEFAULT '0',
+  `result_type` enum('POINTS','KO','TKO','SUBMISSION','IPPON','WAZA_ARI','DISQUALIFICATION','WALKOVER','PIN') DEFAULT 'POINTS',
+  `knockdowns_a` int DEFAULT '0',
+  `knockdowns_b` int DEFAULT '0',
+  `warnings_a` int DEFAULT '0',
+  `warnings_b` int DEFAULT '0',
+  `pins_a` int DEFAULT '0',
+  `pins_b` int DEFAULT '0',
+  `raid_points_a` int DEFAULT NULL,
+  `raid_points_b` int DEFAULT NULL,
+  `tackle_points_a` int DEFAULT NULL,
+  `tackle_points_b` int DEFAULT NULL,
+  `notes` text,
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `match_combat`
+--
+
+INSERT INTO `match_combat` (`id`, `match_id`, `fighter_a_name`, `fighter_b_name`, `weight_category`, `round_scores`, `total_rounds`, `rounds_completed`, `final_score_a`, `final_score_b`, `result_type`, `knockdowns_a`, `knockdowns_b`, `warnings_a`, `warnings_b`, `pins_a`, `pins_b`, `raid_points_a`, `raid_points_b`, `tackle_points_a`, `tackle_points_b`, `notes`) VALUES
+(1, 'match_695d2d74e031d4.90256849', 'UCSC', 'Science', '72+', '[{\"a\": 15, \"b\": 8}, {\"a\": 18, \"b\": 0}]', 3, 2, 0, 0, '', 0, 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL, '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_cricket`
+--
+
+DROP TABLE IF EXISTS `match_cricket`;
+CREATE TABLE IF NOT EXISTS `match_cricket` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `match_id` varchar(50) NOT NULL,
+  `team_a_name` varchar(100) DEFAULT NULL,
+  `team_b_name` varchar(100) DEFAULT NULL,
+  `match_format` enum('TEST','ODI','T20','T10','OTHER') DEFAULT 'T20',
+  `overs_per_innings` decimal(4,1) DEFAULT NULL,
+  `innings_1_team` char(1) DEFAULT NULL,
+  `innings_1_runs` int DEFAULT '0',
+  `innings_1_wickets` int DEFAULT '0',
+  `innings_1_overs` decimal(4,1) DEFAULT '0.0',
+  `innings_1_extras` int DEFAULT '0',
+  `innings_2_team` char(1) DEFAULT NULL,
+  `innings_2_runs` int DEFAULT '0',
+  `innings_2_wickets` int DEFAULT '0',
+  `innings_2_overs` decimal(4,1) DEFAULT '0.0',
+  `innings_2_extras` int DEFAULT '0',
+  `result_type` enum('WIN_RUNS','WIN_WICKETS','TIE','DRAW','NO_RESULT','SUPER_OVER') DEFAULT NULL,
+  `win_margin` int DEFAULT NULL,
+  `winning_team` char(1) DEFAULT NULL,
+  `super_over_team_a` int DEFAULT NULL,
+  `super_over_team_b` int DEFAULT NULL,
+  `potm_user_id` varchar(12) DEFAULT NULL,
+  `toss_won_by` char(1) DEFAULT NULL,
+  `toss_decision` enum('BAT','BOWL') DEFAULT NULL,
+  `notes` text,
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_participant`
+--
+
+DROP TABLE IF EXISTS `match_participant`;
+CREATE TABLE IF NOT EXISTS `match_participant` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `match_id` varchar(50) NOT NULL,
+  `user_id` varchar(12) NOT NULL,
+  `team` enum('A','B') DEFAULT 'A',
+  `score` int DEFAULT NULL,
+  `performance_data` json DEFAULT NULL,
+  `notes` text,
+  PRIMARY KEY (`id`),
+  KEY `match_id` (`match_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_racket`
+--
+
+DROP TABLE IF EXISTS `match_racket`;
+CREATE TABLE IF NOT EXISTS `match_racket` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `match_id` varchar(50) NOT NULL,
+  `player_a_name` varchar(100) DEFAULT NULL,
+  `player_b_name` varchar(100) DEFAULT NULL,
+  `match_format` enum('BEST_OF_3','BEST_OF_5','SINGLE_SET') DEFAULT 'BEST_OF_3',
+  `match_type` enum('SINGLES','DOUBLES','MIXED_DOUBLES') DEFAULT 'SINGLES',
+  `set_scores` json DEFAULT NULL,
+  `sets_won_a` int DEFAULT '0',
+  `sets_won_b` int DEFAULT '0',
+  `total_points_a` int DEFAULT '0',
+  `total_points_b` int DEFAULT '0',
+  `notes` text,
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_team_goal`
+--
+
+DROP TABLE IF EXISTS `match_team_goal`;
+CREATE TABLE IF NOT EXISTS `match_team_goal` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `match_id` varchar(50) NOT NULL,
+  `team_a_name` varchar(100) DEFAULT NULL,
+  `team_b_name` varchar(100) DEFAULT NULL,
+  `team_a_goals` int DEFAULT '0',
+  `team_b_goals` int DEFAULT '0',
+  `team_a_yellow_cards` int DEFAULT '0',
+  `team_b_yellow_cards` int DEFAULT '0',
+  `team_a_red_cards` int DEFAULT '0',
+  `team_b_red_cards` int DEFAULT '0',
+  `team_a_tries` int DEFAULT NULL,
+  `team_b_tries` int DEFAULT NULL,
+  `team_a_conversions` int DEFAULT NULL,
+  `team_b_conversions` int DEFAULT NULL,
+  `team_a_penalties` int DEFAULT NULL,
+  `team_b_penalties` int DEFAULT NULL,
+  `extra_time` tinyint(1) DEFAULT '0',
+  `penalty_shootout` tinyint(1) DEFAULT '0',
+  `penalty_score_a` int DEFAULT NULL,
+  `penalty_score_b` int DEFAULT NULL,
+  `notes` text,
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_timed`
+--
+
+DROP TABLE IF EXISTS `match_timed`;
+CREATE TABLE IF NOT EXISTS `match_timed` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `match_id` varchar(50) NOT NULL,
+  `event_type` enum('SPRINT','MIDDLE_DISTANCE','LONG_DISTANCE','RELAY','SWIMMING','ROWING','FIELD_THROW','FIELD_JUMP','ROAD_RACE') DEFAULT 'SPRINT',
+  `event_name` varchar(100) DEFAULT NULL,
+  `results` json DEFAULT NULL,
+  `winning_time` decimal(10,3) DEFAULT NULL,
+  `winning_distance` decimal(10,3) DEFAULT NULL,
+  `winner_user_id` varchar(12) DEFAULT NULL,
+  `is_record` tinyint(1) DEFAULT '0',
+  `record_type` enum('PERSONAL_BEST','UNIVERSITY_RECORD','NATIONAL_RECORD') DEFAULT NULL,
+  `weather_conditions` varchar(100) DEFAULT NULL,
+  `wind_speed` decimal(4,2) DEFAULT NULL,
+  `notes` text,
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `match_weight_lifting`
+--
+
+DROP TABLE IF EXISTS `match_weight_lifting`;
+CREATE TABLE IF NOT EXISTS `match_weight_lifting` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `match_id` varchar(50) NOT NULL,
+  `athlete_name` varchar(100) DEFAULT NULL,
+  `weight_category` varchar(50) DEFAULT NULL,
+  `snatch_1` decimal(5,1) DEFAULT NULL,
+  `snatch_1_valid` tinyint(1) DEFAULT NULL,
+  `snatch_2` decimal(5,1) DEFAULT NULL,
+  `snatch_2_valid` tinyint(1) DEFAULT NULL,
+  `snatch_3` decimal(5,1) DEFAULT NULL,
+  `snatch_3_valid` tinyint(1) DEFAULT NULL,
+  `snatch_best` decimal(5,1) DEFAULT NULL,
+  `cj_1` decimal(5,1) DEFAULT NULL,
+  `cj_1_valid` tinyint(1) DEFAULT NULL,
+  `cj_2` decimal(5,1) DEFAULT NULL,
+  `cj_2_valid` tinyint(1) DEFAULT NULL,
+  `cj_3` decimal(5,1) DEFAULT NULL,
+  `cj_3_valid` tinyint(1) DEFAULT NULL,
+  `cj_best` decimal(5,1) DEFAULT NULL,
+  `total_kg` decimal(5,1) DEFAULT NULL,
+  `competition_results` json DEFAULT NULL,
+  `final_position` int DEFAULT NULL,
+  `notes` text,
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `newsfeed_post`
 --
 
@@ -536,7 +904,7 @@ DROP TABLE IF EXISTS `newsfeed_post`;
 CREATE TABLE IF NOT EXISTS `newsfeed_post` (
   `post_id` varchar(12) NOT NULL,
   `title` varchar(64) NOT NULL,
-  `description` varchar(1024) CHARACTER SET utf8mb4 NOT NULL,
+  `description` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `commenting` varchar(8) NOT NULL,
   `date_posted` date NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'ACTIVE',
@@ -580,6 +948,31 @@ INSERT INTO `newsfeed_post_image` (`image_id`, `post_id`, `image_path`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `parallel_checker`
+--
+
+DROP TABLE IF EXISTS `parallel_checker`;
+CREATE TABLE IF NOT EXISTS `parallel_checker` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `session_id` varchar(120) NOT NULL,
+  `facility_id` int NOT NULL,
+  `last_heartbeat` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `selected_date` date DEFAULT NULL,
+  `selected_slot` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `session_id` (`session_id`,`facility_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `parallel_checker`
+--
+
+INSERT INTO `parallel_checker` (`id`, `session_id`, `facility_id`, `last_heartbeat`, `selected_date`, `selected_slot`) VALUES
+(15, 'lv20h4m1gum693bu16b5emon3q', 2, '2026-02-19 04:36:57', '2026-02-18', NULL);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `payment`
 --
 
@@ -608,22 +1001,31 @@ CREATE TABLE IF NOT EXISTS `practice_sessions` (
   `added_by` varchar(8) NOT NULL,
   `facility` varchar(100) NOT NULL,
   `session_date` date NOT NULL,
-  `session_time` time NOT NULL,
-  `description` text,
-  `status` varchar(12) CHARACTER SET utf8mb4 NOT NULL DEFAULT 'ACTIVE',
+  `start_time` time NOT NULL,
+  `notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `status` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `end_time` time NOT NULL,
+  `location` varchar(100) NOT NULL,
+  `need_equipment` varchar(10) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `practice_sessions`
 --
 
-INSERT INTO `practice_sessions` (`id`, `sport_id`, `added_by`, `facility`, `session_date`, `session_time`, `description`, `status`, `created_at`, `updated_at`) VALUES
-(4, 'BAD', 'CAPTAIN', 'Badminton one Court (08 Persons for practices)', '2025-12-03', '12:45:00', '-', '', '2025-11-28 07:11:04', '2025-12-10 16:04:35'),
-(5, 'TKD', 'CAPTAIN', 'Karate / Taekwondo with without Tatami', '2026-01-01', '16:00:00', 'For Inter Uni matches', '', '2025-12-09 09:54:15', '2025-12-10 16:04:53'),
-(8, 'VOL', 'CAPTAIN', 'Volleyball (25 Persons for practices)', '2026-01-01', '13:00:00', 'Practices for inter university Volleyball matches 2026', 'MARKED', '2025-12-10 16:19:45', '2025-12-15 11:16:17');
+INSERT INTO `practice_sessions` (`id`, `sport_id`, `added_by`, `facility`, `session_date`, `start_time`, `notes`, `status`, `created_at`, `updated_at`, `end_time`, `location`, `need_equipment`) VALUES
+(17, 'KBD', 'SPT', '', '2026-02-08', '22:24:00', '', 'ACTIVE', '2026-02-08 16:54:31', NULL, '23:24:00', 'Indoor court', 'No'),
+(14, 'BAD', 'SPT', '', '2026-02-08', '15:55:00', '', 'ACCEPTED', '2026-01-25 10:24:38', '2026-02-08 14:14:50', '17:54:00', 'Indoor court', 'No'),
+(15, 'CRI', 'SPT', '', '2026-01-29', '12:25:00', '', 'PENDING', '2026-01-28 23:57:10', '2026-01-28 23:57:48', '15:25:00', 'Outdoor Field', 'No'),
+(16, 'BAD', 'SPT', '', '2026-01-24', '22:45:00', '', 'ACCEPTED', '2026-02-08 14:15:32', '2026-02-08 14:44:37', '22:45:00', 'Indoor court', 'No'),
+(9, 'SCR', 'SPT', 'Select the Location', '2026-01-25', '14:30:00', '', 'ACTIVE', '2026-01-25 08:57:16', NULL, '00:00:00', '', ''),
+(10, 'KRT', 'SPT', '', '2026-01-09', '17:27:00', '', 'ACTIVE', '2026-01-25 08:57:47', '2026-01-25 10:04:13', '00:00:00', 'Indoor Court', 'No'),
+(11, 'CRI', 'SPT', '', '2026-01-25', '14:40:00', '', 'ACCEPTED', '2026-01-25 09:09:46', '2026-01-25 22:06:34', '16:40:00', 'Outdoor Field', 'Yes'),
+(13, 'BAD', 'SPT', '', '2026-01-25', '16:50:00', '', 'CANCELED', '2026-01-25 10:21:02', '2026-01-28 23:54:41', '18:50:00', 'Indoor court', 'No'),
+(19, 'BAD', 'SPT', '', '2026-02-14', '10:30:00', '', 'PENDING', '2026-02-13 01:54:34', NULL, '11:30:00', 'Outdoor Field', 'Yes');
 
 -- --------------------------------------------------------
 
@@ -677,7 +1079,7 @@ DROP TABLE IF EXISTS `sport`;
 CREATE TABLE IF NOT EXISTS `sport` (
   `sport_id` varchar(4) NOT NULL,
   `sport_name` varchar(24) NOT NULL,
-  `sport_category` ENUM('TEAM_GOAL', 'RACKET', 'CRICKET', 'COMBAT', 'TRACK_FIELD', 'BOARD_GAME', 'BALL_COURT', 'WEIGHT') NOT NULL,
+  `sport_category` enum('TEAM_GOAL','RACKET','CRICKET','COMBAT','TRACK_FIELD','BOARD_GAME','BALL_COURT','WEIGHT') NOT NULL,
   `coach_id` varchar(12) NOT NULL,
   `captain_id` varchar(12) NOT NULL,
   `manager_id` varchar(12) NOT NULL,
@@ -701,7 +1103,7 @@ INSERT INTO `sport` (`sport_id`, `sport_name`, `sport_category`, `coach_id`, `ca
 ('SWI', 'Swimming', 'TRACK_FIELD', '', '', ''),
 ('TT', 'Table Tennis', 'RACKET', '', '', ''),
 ('WL', 'Weight Lifting', 'WEIGHT', '', '', ''),
-('ROW', 'Rowing', 'TRACK_FIELD', '', '', ''),
+('ROW', 'Rowing', 'TRACK_FIELD', 'NPM8O9RE', '', ''),
 ('WRE', 'Wrestling', 'COMBAT', '', '', ''),
 ('CHE', 'Chess', 'BOARD_GAME', '', '', ''),
 ('ATH', 'Athletics', 'TRACK_FIELD', '', '', 'usr_68f89be0'),
@@ -739,368 +1141,8 @@ INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`, `in_team`) V
 ('ATH', 'L3NCL2J4', '2025-12-09', 'NO'),
 ('VOL', '5Q1XZO2Y', '2025-10-25', 'NO'),
 ('ATH', '5Q1XZO2Y', '2025-12-11', 'NO'),
-('VOL', 'L3NCL2J4', '2025-12-15', 'NO'),
+('ROW', 'L3NCL2J4', '2025-12-15', 'NO'),
 ('BAS', 'STU005', '2026-01-04', 'NO');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `match_team_goal`
--- For: Football, Hockey, Rugby, Netball, Elle
---
-
-DROP TABLE IF EXISTS `match_team_goal`;
-CREATE TABLE IF NOT EXISTS `match_team_goal` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `match_id` VARCHAR(50) NOT NULL,
-  
-  -- Team names
-  `team_a_name` VARCHAR(100) DEFAULT NULL,
-  `team_b_name` VARCHAR(100) DEFAULT NULL,
-  
-  -- Score
-  `team_a_goals` INT DEFAULT 0,
-  `team_b_goals` INT DEFAULT 0,
-  
-  -- Cards (for football, hockey)
-  `team_a_yellow_cards` INT DEFAULT 0,
-  `team_b_yellow_cards` INT DEFAULT 0,
-  `team_a_red_cards` INT DEFAULT 0,
-  `team_b_red_cards` INT DEFAULT 0,
-  
-  -- For rugby
-  `team_a_tries` INT DEFAULT NULL,
-  `team_b_tries` INT DEFAULT NULL,
-  `team_a_conversions` INT DEFAULT NULL,
-  `team_b_conversions` INT DEFAULT NULL,
-  `team_a_penalties` INT DEFAULT NULL,
-  `team_b_penalties` INT DEFAULT NULL,
-  
-  -- Extra time / Penalties
-  `extra_time` BOOLEAN DEFAULT FALSE,
-  `penalty_shootout` BOOLEAN DEFAULT FALSE,
-  `penalty_score_a` INT DEFAULT NULL,
-  `penalty_score_b` INT DEFAULT NULL,
-  
-  `notes` TEXT,
-  
-  PRIMARY KEY (`id`),
-  KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `match_racket`
--- For: Badminton, Tennis, Table Tennis
---
-
-DROP TABLE IF EXISTS `match_racket`;
-CREATE TABLE IF NOT EXISTS `match_racket` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `match_id` VARCHAR(50) NOT NULL,
-  
-  -- Players/Teams
-  `player_a_name` VARCHAR(100) DEFAULT NULL,
-  `player_b_name` VARCHAR(100) DEFAULT NULL,
-  
-  -- Match format
-  `match_format` ENUM('BEST_OF_3', 'BEST_OF_5', 'SINGLE_SET') DEFAULT 'BEST_OF_3',
-  `match_type` ENUM('SINGLES', 'DOUBLES', 'MIXED_DOUBLES') DEFAULT 'SINGLES',
-  
-  -- Set scores (JSON array)
-  `set_scores` JSON,  -- e.g., [{"a": 21, "b": 19}, {"a": 15, "b": 21}, {"a": 21, "b": 18}]
-  
-  -- Summary
-  `sets_won_a` INT DEFAULT 0,
-  `sets_won_b` INT DEFAULT 0,
-  `total_points_a` INT DEFAULT 0,
-  `total_points_b` INT DEFAULT 0,
-  
-  `notes` TEXT,
-  
-  PRIMARY KEY (`id`),
-  KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `match_cricket`
--- For: Cricket
---
-
-DROP TABLE IF EXISTS `match_cricket`;
-CREATE TABLE IF NOT EXISTS `match_cricket` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `match_id` VARCHAR(50) NOT NULL,
-  
-  -- Team names
-  `team_a_name` VARCHAR(100) DEFAULT NULL,
-  `team_b_name` VARCHAR(100) DEFAULT NULL,
-  
-  -- Match format
-  `match_format` ENUM('TEST', 'ODI', 'T20', 'T10', 'OTHER') DEFAULT 'T20',
-  `overs_per_innings` DECIMAL(4,1) DEFAULT NULL,
-  
-  -- First Innings
-  `innings_1_team` CHAR(1) DEFAULT NULL,  -- 'A' or 'B'
-  `innings_1_runs` INT DEFAULT 0,
-  `innings_1_wickets` INT DEFAULT 0,
-  `innings_1_overs` DECIMAL(4,1) DEFAULT 0,
-  `innings_1_extras` INT DEFAULT 0,
-  
-  -- Second Innings
-  `innings_2_team` CHAR(1) DEFAULT NULL,
-  `innings_2_runs` INT DEFAULT 0,
-  `innings_2_wickets` INT DEFAULT 0,
-  `innings_2_overs` DECIMAL(4,1) DEFAULT 0,
-  `innings_2_extras` INT DEFAULT 0,
-  
-  -- Result
-  `result_type` ENUM('WIN_RUNS', 'WIN_WICKETS', 'TIE', 'DRAW', 'NO_RESULT', 'SUPER_OVER') DEFAULT NULL,
-  `win_margin` INT DEFAULT NULL,
-  `winning_team` CHAR(1) DEFAULT NULL,
-  
-  -- Super Over (if applicable)
-  `super_over_team_a` INT DEFAULT NULL,
-  `super_over_team_b` INT DEFAULT NULL,
-  
-  -- Player of the match
-  `potm_user_id` VARCHAR(12) DEFAULT NULL,
-  
-  -- Toss details
-  `toss_won_by` CHAR(1) DEFAULT NULL,
-  `toss_decision` ENUM('BAT', 'BOWL') DEFAULT NULL,
-  
-  `notes` TEXT,
-  
-  PRIMARY KEY (`id`),
-  KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `match_combat`
--- For: Boxing, Taekwondo, Karate, Wrestling, Kabaddi
---
-
-DROP TABLE IF EXISTS `match_combat`;
-CREATE TABLE IF NOT EXISTS `match_combat` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `match_id` VARCHAR(50) NOT NULL,
-  
-  -- Competitors
-  `fighter_a_name` VARCHAR(100) DEFAULT NULL,
-  `fighter_b_name` VARCHAR(100) DEFAULT NULL,
-  `weight_category` VARCHAR(50) DEFAULT NULL,
-  
-  -- Score by rounds (JSON array)
-  `round_scores` JSON,  -- e.g., [{"a": 10, "b": 9}, {"a": 9, "b": 10}]
-  `total_rounds` INT DEFAULT 3,
-  `rounds_completed` INT DEFAULT 0,
-  
-  -- Final scores
-  `final_score_a` INT DEFAULT 0,
-  `final_score_b` INT DEFAULT 0,
-  
-  -- Result type
-  `result_type` ENUM('POINTS', 'KO', 'TKO', 'SUBMISSION', 'IPPON', 'WAZA_ARI', 'DISQUALIFICATION', 'WALKOVER', 'PIN') DEFAULT 'POINTS',
-  
-  -- Combat-specific stats
-  `knockdowns_a` INT DEFAULT 0,
-  `knockdowns_b` INT DEFAULT 0,
-  `warnings_a` INT DEFAULT 0,
-  `warnings_b` INT DEFAULT 0,
-  
-  -- For wrestling
-  `pins_a` INT DEFAULT 0,
-  `pins_b` INT DEFAULT 0,
-  
-  -- For kabaddi
-  `raid_points_a` INT DEFAULT NULL,
-  `raid_points_b` INT DEFAULT NULL,
-  `tackle_points_a` INT DEFAULT NULL,
-  `tackle_points_b` INT DEFAULT NULL,
-  
-  `notes` TEXT,
-  
-  PRIMARY KEY (`id`),
-  KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `match_timed`
--- For: Athletics, Swimming, Rowing, Road Race
---
-
-DROP TABLE IF EXISTS `match_timed`;
-CREATE TABLE IF NOT EXISTS `match_timed` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `match_id` VARCHAR(50) NOT NULL,
-  
-  -- Event details
-  `event_type` ENUM('SPRINT', 'MIDDLE_DISTANCE', 'LONG_DISTANCE', 'RELAY', 'SWIMMING', 'ROWING', 'FIELD_THROW', 'FIELD_JUMP', 'ROAD_RACE') DEFAULT 'SPRINT',
-  `event_name` VARCHAR(100) DEFAULT NULL,  -- e.g., "100m", "Long Jump", "50m Freestyle"
-  
-  -- Participant results stored in JSON (multiple participants)
-  `results` JSON,  -- [{"user_id": "...", "name": "...", "time": 10.5, "distance": null, "position": 1}]
-  
-  -- Winning stats
-  `winning_time` DECIMAL(10,3) DEFAULT NULL,  -- in seconds
-  `winning_distance` DECIMAL(10,3) DEFAULT NULL,  -- in meters
-  `winner_user_id` VARCHAR(12) DEFAULT NULL,
-  
-  -- Records
-  `is_record` BOOLEAN DEFAULT FALSE,
-  `record_type` ENUM('PERSONAL_BEST', 'UNIVERSITY_RECORD', 'NATIONAL_RECORD') DEFAULT NULL,
-  
-  -- Conditions
-  `weather_conditions` VARCHAR(100) DEFAULT NULL,
-  `wind_speed` DECIMAL(4,2) DEFAULT NULL,  -- for sprints/jumps (m/s)
-  
-  `notes` TEXT,
-  
-  PRIMARY KEY (`id`),
-  KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `match_ball_court`
--- For: Basketball, Volleyball, Baseball
---
-
-DROP TABLE IF EXISTS `match_ball_court`;
-CREATE TABLE IF NOT EXISTS `match_ball_court` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `match_id` VARCHAR(50) NOT NULL,
-  
-  -- Team names
-  `team_a_name` VARCHAR(100) DEFAULT NULL,
-  `team_b_name` VARCHAR(100) DEFAULT NULL,
-  
-  -- Sport subtype (determines period interpretation)
-  `sport_subtype` ENUM('BASKETBALL', 'VOLLEYBALL', 'BASEBALL') NOT NULL,
-  
-  -- Period scores (JSON for flexibility)
-  `period_scores` JSON,
-  -- Basketball: [{"a": 24, "b": 22}, ...] (quarters)
-  -- Volleyball: [{"a": 25, "b": 23}, ...] (sets)
-  -- Baseball: [{"a": 1, "b": 0}, ...] (innings)
-  
-  -- Final scores
-  `final_score_a` INT DEFAULT 0,
-  `final_score_b` INT DEFAULT 0,
-  
-  -- Basketball specific
-  `overtime_periods` INT DEFAULT 0,
-  
-  -- Volleyball specific
-  `sets_won_a` INT DEFAULT NULL,
-  `sets_won_b` INT DEFAULT NULL,
-  
-  -- Baseball specific
-  `innings_played` INT DEFAULT NULL,
-  
-  `notes` TEXT,
-  
-  PRIMARY KEY (`id`),
-  KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `match_board_game`
--- For: Chess, Scrabble, Carrom
---
-
-DROP TABLE IF EXISTS `match_board_game`;
-CREATE TABLE IF NOT EXISTS `match_board_game` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `match_id` VARCHAR(50) NOT NULL,
-  
-  -- Players
-  `player_a_name` VARCHAR(100) DEFAULT NULL,
-  `player_b_name` VARCHAR(100) DEFAULT NULL,
-  
-  `game_type` ENUM('CHESS', 'SCRABBLE', 'CARROM') NOT NULL,
-  
-  -- For Chess
-  `chess_result` ENUM('WHITE_WIN', 'BLACK_WIN', 'DRAW', 'STALEMATE') DEFAULT NULL,
-  `chess_opening` VARCHAR(100) DEFAULT NULL,
-  `moves_count` INT DEFAULT NULL,
-  `time_control` VARCHAR(50) DEFAULT NULL,  -- e.g., "10+5", "Classical"
-  
-  -- For Scrabble
-  `scrabble_score_a` INT DEFAULT NULL,
-  `scrabble_score_b` INT DEFAULT NULL,
-  `highest_word_score` INT DEFAULT NULL,
-  `highest_word` VARCHAR(50) DEFAULT NULL,
-  
-  -- For Carrom
-  `carrom_score_a` INT DEFAULT NULL,
-  `carrom_score_b` INT DEFAULT NULL,
-  `boards_played` INT DEFAULT 1,
-  
-  `notes` TEXT,
-  
-  PRIMARY KEY (`id`),
-  KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `match_weight_lifting`
--- For: Weight Lifting
---
-
-DROP TABLE IF EXISTS `match_weight_lifting`;
-CREATE TABLE IF NOT EXISTS `match_weight_lifting` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `match_id` VARCHAR(50) NOT NULL,
-  
-  `athlete_name` VARCHAR(100) DEFAULT NULL,
-  `weight_category` VARCHAR(50) DEFAULT NULL,  -- e.g., "56kg", "62kg"
-  
-  -- Snatch attempts (3 attempts max)
-  `snatch_1` DECIMAL(5,1) DEFAULT NULL,
-  `snatch_1_valid` BOOLEAN DEFAULT NULL,
-  `snatch_2` DECIMAL(5,1) DEFAULT NULL,
-  `snatch_2_valid` BOOLEAN DEFAULT NULL,
-  `snatch_3` DECIMAL(5,1) DEFAULT NULL,
-  `snatch_3_valid` BOOLEAN DEFAULT NULL,
-  `snatch_best` DECIMAL(5,1) DEFAULT NULL,
-  
-  -- Clean & Jerk attempts
-  `cj_1` DECIMAL(5,1) DEFAULT NULL,
-  `cj_1_valid` BOOLEAN DEFAULT NULL,
-  `cj_2` DECIMAL(5,1) DEFAULT NULL,
-  `cj_2_valid` BOOLEAN DEFAULT NULL,
-  `cj_3` DECIMAL(5,1) DEFAULT NULL,
-  `cj_3_valid` BOOLEAN DEFAULT NULL,
-  `cj_best` DECIMAL(5,1) DEFAULT NULL,
-  
-  -- Total
-  `total_kg` DECIMAL(5,1) DEFAULT NULL,
-  
-  -- Competition results stored in JSON for multiple participants
-  `competition_results` JSON,  -- [{"user_id": "...", "total": 250, "position": 1}]
-  
-  -- Ranking
-  `final_position` INT DEFAULT NULL,
-  
-  `notes` TEXT,
-  
-  PRIMARY KEY (`id`),
-  KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1126,7 +1168,7 @@ CREATE TABLE IF NOT EXISTS `student_id_cards` (
 
 DROP TABLE IF EXISTS `tournament`;
 CREATE TABLE IF NOT EXISTS `tournament` (
-  `tournament_id` varchar(24) CHARACTER SET utf8mb4 NOT NULL,
+  `tournament_id` varchar(24) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `tournament_name` varchar(64) NOT NULL,
   `sport_id` varchar(4) NOT NULL,
   `start_date` date DEFAULT NULL,
@@ -1148,23 +1190,19 @@ INSERT INTO `tournament` (`tournament_id`, `tournament_name`, `sport_id`, `start
 
 --
 -- Table structure for table `tournament_match`
--- Central match table linking to sport-specific detail tables
 --
 
 DROP TABLE IF EXISTS `tournament_match`;
 CREATE TABLE IF NOT EXISTS `tournament_match` (
-  `match_id` VARCHAR(50) NOT NULL,
-  `tournament_id` VARCHAR(24) NOT NULL,
-  `sport_id` VARCHAR(4) NOT NULL,
-  `sport_category` ENUM('TEAM_GOAL', 'RACKET', 'CRICKET', 'COMBAT', 'TRACK_FIELD', 'BOARD_GAME', 'BALL_COURT', 'WEIGHT') NOT NULL,
-  `match_name` VARCHAR(100) NOT NULL,
-  `match_date` DATE NOT NULL,
-  
-  -- Common queryable fields
-  `winner_id` VARCHAR(12) DEFAULT NULL,
-  `result_status` ENUM('COMPLETED', 'CANCELLED', 'DRAW', 'PENDING', 'NO_RESULT') DEFAULT 'PENDING',
-  
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `match_id` varchar(50) NOT NULL,
+  `tournament_id` varchar(24) NOT NULL,
+  `sport_id` varchar(4) NOT NULL,
+  `sport_category` enum('TEAM_GOAL','RACKET','CRICKET','COMBAT','TRACK_FIELD','BOARD_GAME','BALL_COURT','WEIGHT') NOT NULL,
+  `match_name` varchar(100) NOT NULL,
+  `match_date` date NOT NULL,
+  `winner_id` varchar(12) DEFAULT NULL,
+  `result_status` enum('COMPLETED','CANCELLED','DRAW','PENDING','NO_RESULT') DEFAULT 'PENDING',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`match_id`),
   KEY `tournament_id` (`tournament_id`),
   KEY `sport_id` (`sport_id`),
@@ -1172,29 +1210,14 @@ CREATE TABLE IF NOT EXISTS `tournament_match` (
   KEY `winner_id` (`winner_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `match_participant`
--- Links individual players to matches for performance tracking
+-- Dumping data for table `tournament_match`
 --
 
-DROP TABLE IF EXISTS `match_participant`;
-CREATE TABLE IF NOT EXISTS `match_participant` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `match_id` VARCHAR(50) NOT NULL,
-  `user_id` VARCHAR(12) NOT NULL,
-  `team` ENUM('A', 'B') DEFAULT 'A',
-  `score` INT DEFAULT NULL,
-  `performance_data` JSON,
-  `notes` TEXT DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `match_id` (`match_id`),
-  KEY `user_id` (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+INSERT INTO `tournament_match` (`match_id`, `tournament_id`, `sport_id`, `sport_category`, `match_name`, `match_date`, `winner_id`, `result_status`, `created_at`) VALUES
+('match_695d2d74e031d4.90256849', 'TOUR_694cd4c59abad', 'KRT', 'COMBAT', 'Quarter Final', '2026-01-01', 'L3NCL2J4', 'COMPLETED', '2026-01-06 15:42:44');
 
 -- --------------------------------------------------------
-
 
 --
 -- Table structure for table `tournament_result`
@@ -1224,9 +1247,9 @@ CREATE TABLE IF NOT EXISTS `transaction` (
   `amount` int NOT NULL,
   `purpose` varchar(256) NOT NULL,
   `timestamp` timestamp NOT NULL,
-  `proof_doc` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+  `proof_doc` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `remarks` varchar(256) NOT NULL,
-  `change_reason` varchar(256) CHARACTER SET utf8mb4 NOT NULL,
+  `change_reason` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`transaction_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
@@ -1259,12 +1282,12 @@ CREATE TABLE IF NOT EXISTS `user` (
   `password` varchar(256) NOT NULL,
   `must_change_pass` int NOT NULL,
   `joined_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `contact_no` varchar(12) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `contact_no` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `profile_img` varchar(64) NOT NULL,
   `sport_id` varchar(5) NOT NULL,
-  `student_id` varchar(12) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `faculty_id` varchar(4) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `status` varchar(6) CHARACTER SET utf8mb4 NOT NULL DEFAULT 'ACTIVE',
+  `student_id` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `faculty_id` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `status` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `Email` (`email`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
@@ -1283,7 +1306,7 @@ INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `m
 ('104', 'Mark', 'Silva', 'PUBLIC', 'mark.silva@example.com', '', 0, '2025-08-24 06:07:00', '0752345678', '', '', NULL, '', 'ACTIVE'),
 ('105', 'Kamal', 'Jayasinghe', 'PUBLIC', 'kamal.jayasinghe@example.com', '', 0, '2025-08-24 06:07:00', '0761112233', '', '', NULL, '', 'ACTIVE'),
 ('201', 'Sameera', 'Dissanayake', 'PUBLIC', 'sameera.dissanayake@example.com', '', 0, '2025-08-24 06:07:00', '0775566778', '', '', NULL, '', 'ACTIVE'),
-('202', 'Nuwan', 'Karunaratne', 'PUBLIC', 'nuwan.karunaratne@example.com', '', 0, '2025-08-24 06:07:00', '0711122334', '', '', NULL, '', 'ACTIVE'),
+('202', 'Nuwan', 'Karunaratne', 'EXECUTIVE', 'nuwan.karunaratne@example.com', '$2y$10$50U4SKStJpeogM4DSK5r2OnQO041WacupfYjfsX3w1B18UtX6RvCy', 0, '2025-08-24 06:07:00', '0711122334', '', '', NULL, '', 'ACTIVE'),
 ('203', 'Ruwan', 'Senanayake', 'PUBLIC', 'ruwan.senanayake@example.com', '', 0, '2025-08-24 06:07:00', '0729988776', '', '', NULL, '', 'ACTIVE'),
 ('204', 'Suresh', 'Kumara', 'PUBLIC', 'suresh.kumara@example.com', '', 0, '2025-08-24 06:07:00', '0765544332', '', '', NULL, '', 'ACTIVE'),
 ('205', 'Ashan', 'Wijesinghe', 'PUBLIC', 'ashan.wijesinghe@example.com', '', 0, '2025-08-24 06:07:00', '0776677889', '', '', NULL, '', 'ACTIVE'),
@@ -1292,7 +1315,7 @@ INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `m
 ('303', 'Isuru', 'Lakshan', 'PUBLIC', 'isuru.lakshan@example.com', '', 0, '2025-08-24 06:07:00', '0723344556', '', '', NULL, '', 'ACTIVE'),
 ('304', 'Gayan', 'Rathnayake', 'PUBLIC', 'gayan.rathnayake@example.com', '', 0, '2025-08-24 06:07:00', '0779988775', '', '', NULL, '', 'ACTIVE'),
 ('305', 'Roshan', 'Abeysinghe', 'PUBLIC', 'roshan.abeysinghe@example.com', '', 0, '2025-08-24 06:07:00', '0764455667', '', '', NULL, '', 'ACTIVE'),
-('NPM8O9RE', 'Chamal', 'Chamuditha', 'COACH', 'chamal1@gmail.com', '$2y$10$8trbPHuAHueKspCIvyWQyudyy97asXBJzzKTvWW7bXgSeoLdq2aku', 0, '2025-09-01 22:53:08', NULL, '', '', NULL, '', 'ACTIVE'),
+('NPM8O9RE', 'Chamal', 'Chamuditha', 'COACH', 'chamal1@gmail.com', '$2y$10$50U4SKStJpeogM4DSK5r2OnQO041WacupfYjfsX3w1B18UtX6RvCy', 0, '2025-09-01 22:53:08', NULL, '', '', NULL, '', 'ACTIVE'),
 ('UBVXZ90U', 'ddkjn', 'fsrvn', 'PUBLIC', 'maximal@gmail.com', '$2y$10$LYuhIcrTAZJqsfDTzQlZLecow/GgbcLCngpkp7ltpuyKJZ6rlR6zi', 0, '2025-09-01 23:24:32', NULL, '', '', NULL, '', 'ACTIVE'),
 ('KI5RL42D', 'ddkjn', 'fsrvn', 'PUBLIC', 'hj@gmail.com', '$2y$10$TPyJAf4EyP825BBF0mACouJOFnqcAWbXO/bxm7IK5xNtTVI1PlP7S', 0, '2025-09-01 23:29:53', NULL, '', '', NULL, '', 'ACTIVE'),
 ('PA0XK3QZ', 'ddkjn', 'fsrvn', 'PUBLIC', 'hjggd@gmail.com', '$2y$10$cODg7SN2ZxBh2.gsibO4yOvm9zJYuPdMCDDDPCWHduYywH7RTLUSa', 0, '2025-09-01 23:32:55', NULL, '', '', NULL, '', 'ACTIVE'),
@@ -1304,10 +1327,10 @@ INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `m
 ('43N1VK76', 'vvdsdwef', 'qeq', 'PUBLIC', 'esrdrfff@gmail.com', '$2y$10$.nBD9d6ZqFXVsMZ4tzknn.25DfshuRPdNEJdehgcOa8JX6Q5uIiaK', 0, '2025-09-01 23:57:10', NULL, '', '', NULL, '', 'ACTIVE'),
 ('CE02XIPB', 'Admin', 'UOC', 'PUBLIC', 'admin@uocs.com', '$2y$10$ZGlvkCP/uyqffeCxj8Pm7.HA8JUcle3TlPEw8NEsuHDHUvr.jSt0C', 0, '2025-09-02 00:01:26', NULL, '', '', NULL, '', 'ACTIVE'),
 ('H4J1OHSX', 'Chamal', 'Chamuditha', 'ADMIN', 'chamal.admin@uocs.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 02:04:39', NULL, 'H4J1OHSX.png', '', NULL, '', 'ACTIVE'),
-('usr_694d89fa', 'Amal', 'Shantha', 'SPT', 'chamlaanil99@gmail.com', '$2y$10$5GAnmRD7UblTn9Q3TQOXCeWwslM.A8uoZdXe1EDU9g32gc7tBem3S', 1, '2025-12-25 19:01:15', '0716379044', '', 'KBD', NULL, NULL, 'ACTIVE'),
+('usr_694d89fa', 'Amal', 'Shantha', 'SPT', 'chamlaanil99@gmail.com', '$2y$10$50U4SKStJpeogM4DSK5r2OnQO041WacupfYjfsX3w1B18UtX6RvCy', 1, '2025-12-25 19:01:15', '0716379044', '', 'KBD', NULL, NULL, 'ACTIVE'),
 ('L3NCL2J4', 'Chamal', 'Hettiarachchi', 'STUDENT', 'chamal2@gmail.com', '$2y$10$zlUHk9p5y7uAz7u2jQQ0X.PNaxkDwan5JIDlR/jySjsAgtcutfqpm', 0, '2025-10-14 04:48:58', NULL, 'L3NCL2J4.jpg', '', '23000000', '', 'ACTIVE'),
 ('usr_68f82fe0', 'Shashini', 'Malsha', 'EQP', 'ccwrecker99@gmail.com', '$2y$10$0Tn8wECDAB8QNE6PwnexKeewRZA2GHwtm9Ljpx5USTm2LKEjsvL6W', 1, '2025-10-22 01:14:08', '076543213', '', '', NULL, '', 'ACTIVE'),
-('usr_68f89998', 'Jaye', 'Jayaweera', 'EQP', 'jayashinisjayaweera@gmail.com', '$2y$10$xCPw7W7/c0MvcP6jqG/fxee6tOWfcnP9eNa.ht9aymTKeKei4prui', 1, '2025-10-22 08:45:12', '0763452143', '', '', NULL, '', 'ACTIVE'),
+('usr_68f89998', 'Jaye', 'Jayaweera', 'EQP', 'jayashinisjayaweera@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-10-22 08:45:12', '0763452143', '', '', NULL, '', 'ACTIVE'),
 ('usr_68f89be0', 'J', 'Jaye', 'SPT', '2023is043@stu.ucsc.cmb.ac.lk', '$2y$10$0Z1ZoYUII3O2MDC3ltxdku2r3ROkBM.swVOJs88JYaG4fsZCyFy2W', 1, '2025-10-22 08:54:56', '0763452145', '', 'CRI', NULL, '', 'ACTIVE'),
 ('FMX6Z8DF', 'Shashini', 'Malsha', 'STUDENT', 'shashini@gmail.com', '$2y$10$PUWxFaoItXKbGY/52bG/vebAWPEQyHc39o5nwtTb2iPoZ6zpAd0rq', 0, '2025-10-23 07:10:43', NULL, '', '', '23020997', '', 'ACTIVE'),
 ('5Q1XZO2Y', 'Jansika', 'Balakrishnan', 'CAPTAIN', 'jansi@gmail.com', '$2y$10$50U4SKStJpeogM4DSK5r2OnQO041WacupfYjfsX3w1B18UtX6RvCy', 0, '2025-10-23 07:23:06', NULL, '5Q1XZO2Y.jpg', '', '23020342', '', 'ACTIVE'),
@@ -1360,21 +1383,435 @@ CREATE TABLE IF NOT EXISTS `verification_request_students` (
   KEY `faculty_id` (`faculty_id`),
   KEY `verification_status` (`verification_status`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `suppliers`
+--
+
+DROP TABLE IF EXISTS `suppliers`;
+CREATE TABLE IF NOT EXISTS `suppliers` (
+  `supplier_id` int NOT NULL AUTO_INCREMENT,
+  `supplier_name` varchar(128) NOT NULL,
+  `address` varchar(256) NOT NULL,
+  `telephone_1` varchar(20) NOT NULL,
+  `telephone_2` varchar(20) DEFAULT NULL,
+  `email` varchar(128) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`supplier_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `good_received_notes`
+--
+
+DROP TABLE IF EXISTS `good_received_notes`;
+CREATE TABLE IF NOT EXISTS `good_received_notes` (
+  `grn_id` int NOT NULL AUTO_INCREMENT,
+  `sport_id` varchar(4) NOT NULL,
+  `equipment_id` varchar(12) NOT NULL,
+  `description` varchar(256) DEFAULT NULL,
+  `date` date NOT NULL,
+  `po_number` varchar(64) DEFAULT NULL,
+  `supplier_id` int NOT NULL,
+  `invoice_no` varchar(64) DEFAULT NULL,
+  `quantity` int NOT NULL,
+  `unit` varchar(32) NOT NULL,
+  `unit_price` decimal(10,2) NOT NULL,
+  `reference_info` varchar(128) DEFAULT NULL,
+  `stock_id` varchar(8) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`grn_id`),
+  KEY `sport_id` (`sport_id`),
+  KEY `equipment_id` (`equipment_id`),
+  KEY `supplier_id` (`supplier_id`),
+  KEY `stock_id` (`stock_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `good_issue_notes`
+--
+
+DROP TABLE IF EXISTS `good_issue_notes`;
+CREATE TABLE IF NOT EXISTS `good_issue_notes` (
+  `gin_id` int NOT NULL AUTO_INCREMENT,
+  `sport_id` varchar(4) NOT NULL,
+  `equipment_id` varchar(12) NOT NULL,
+  `date` date NOT NULL,
+  `quantity` int NOT NULL,
+  `unit` varchar(32) NOT NULL,
+  `stock_id` varchar(8) NOT NULL,
+  `sport_manager_id` varchar(12) DEFAULT NULL,
+  `captain_id` varchar(12) DEFAULT NULL,
+  `equipment_manager_id` varchar(12) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`gin_id`),
+  KEY `sport_id` (`sport_id`),
+  KEY `equipment_id` (`equipment_id`),
+  KEY `stock_id` (`stock_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `good_condemn_notes`
+--
+
+DROP TABLE IF EXISTS `good_condemn_notes`;
+CREATE TABLE IF NOT EXISTS `good_condemn_notes` (
+  `gcn_id` int NOT NULL AUTO_INCREMENT,
+  `sport_id` varchar(4) NOT NULL,
+  `equipment_id` varchar(12) NOT NULL,
+  `stock_id` varchar(8) NOT NULL,
+  `quantity` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`gcn_id`),
+  KEY `sport_id` (`sport_id`),
+  KEY `equipment_id` (`equipment_id`),
+  KEY `stock_id` (`stock_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `suppliers`
+--
+
+INSERT INTO `suppliers` (`supplier_id`, `supplier_name`, `address`, `telephone_1`, `telephone_2`, `email`) VALUES
+(1, 'Lanka Sports Pvt Ltd', 'No. 45, Galle Road, Colombo 03', '0112345678', '0112345679', 'info@lankasports.lk'),
+(2, 'Prozone Sports Equipment', 'No. 12, Kandy Road, Peradeniya', '0812234567', '', 'sales@prozone.lk'),
+(3, 'Island Sports Traders', 'No. 78, High Level Road, Nugegoda', '0112889900', '0112889901', 'orders@islandsports.lk'),
+(4, 'Champion Sporting Goods', 'No. 5, Stadium Road, Colombo 07', '0114567890', '', 'contact@champion.lk'),
+(5, 'Sri Lanka Sports Authority Supplies', 'No. 100, Independence Square, Colombo 07', '0112678900', '0112678901', 'supplies@slsa.gov.lk'),
+(6, 'Yonex Sri Lanka', 'No. 22, Duplication Road, Colombo 04', '0115678901', '', 'info@yonex.lk'),
+(7, 'Nivia Sports Lanka', 'No. 88, Baseline Road, Colombo 09', '0116789012', '0116789013', 'orders@nivia.lk'),
+(8, 'University Sports Store', 'University of Colombo, College House, Colombo 03', '0112158000', '', 'sports.store@uoc.lk');
+
+--
+-- Dumping data for table `good_received_notes`
+--
+
+INSERT INTO `good_received_notes` (`grn_id`, `sport_id`, `equipment_id`, `description`, `date`, `po_number`, `supplier_id`, `invoice_no`, `quantity`, `unit`, `unit_price`, `reference_info`, `stock_id`, `created_at`) VALUES
+(1, 'BAD', 'EQ001', 'Badminton Rackets - Yonex Astrox 88D', '2025-06-15', 'PO-2025-001', 6, 'INV-YNX-0456', 20, 'Nos', 8500.00, 'Annual procurement', 'STK00001', '2025-06-15 10:00:00'),
+(2, 'BAD', 'EQ002', 'Shuttlecocks - Yonex Mavis 350', '2025-06-15', 'PO-2025-001', 6, 'INV-YNX-0457', 200, 'Tubes', 1200.00, 'Annual procurement', 'STK00002', '2025-06-15 10:00:00'),
+(3, 'CRI', 'EQ022', 'Cricket Bats - SG Profile Xtreme', '2025-07-20', 'PO-2025-005', 1, 'INV-LS-1123', 12, 'Nos', 12000.00, 'Inter-university tournament', 'STK00022', '2025-07-20 09:30:00'),
+(4, 'CRI', 'EQ023', 'Cricket Balls - SG Test Red', '2025-07-20', 'PO-2025-005', 1, 'INV-LS-1124', 60, 'Nos', 950.00, 'Inter-university tournament', 'STK00023', '2025-07-20 09:30:00'),
+(5, 'FOO', 'EQ007', 'Footballs - Nivia Ashtang', '2025-08-10', 'PO-2025-008', 7, 'INV-NIV-0089', 18, 'Nos', 3500.00, 'Seasonal stock', 'STK00007', '2025-08-10 14:00:00'),
+(6, 'BAS', 'EQ014', 'Basketballs - Molten GG7X', '2025-09-01', 'PO-2025-012', 4, 'INV-CHP-0234', 10, 'Nos', 7500.00, 'Replacement stock', 'STK00014', '2025-09-01 11:00:00'),
+(7, 'VOL', 'EQ004', 'Volleyballs - Mikasa MVA200', '2025-09-15', 'PO-2025-015', 3, 'INV-IST-0567', 15, 'Nos', 6800.00, 'Inter-faculty games', 'STK00004', '2025-09-15 13:30:00'),
+(8, 'TEN', 'EQ011', 'Tennis Rackets - Wilson Blade', '2025-10-05', 'PO-2025-018', 2, 'INV-PRO-0345', 12, 'Nos', 15000.00, 'Varsity team', 'STK00011', '2025-10-05 10:15:00'),
+(9, 'HOC', 'EQ017', 'Hockey Sticks - Malik Carbon', '2025-11-12', 'PO-2025-022', 1, 'INV-LS-1200', 20, 'Nos', 9500.00, 'National championship prep', 'STK00017', '2025-11-12 09:00:00'),
+(10, 'ATH', 'EQ043', 'Javelins - Nordic Competition', '2025-12-01', 'PO-2025-025', 5, 'INV-SLSA-0078', 12, 'Nos', 22000.00, 'Track & Field equipment', 'STK00043', '2025-12-01 08:45:00'),
+(11, 'BOX', 'EQ046', 'Boxing Gloves - Everlast Pro', '2025-12-09', 'PO-2025-028', 4, 'INV-CHP-0290', 16, 'Pairs', 4500.00, 'Boxing team', 'STK00046', '2025-12-09 11:20:00'),
+(12, 'SWI', 'EQ028', 'Swimming Goggles - Speedo Fastskin', '2026-01-10', 'PO-2026-001', 3, 'INV-IST-0601', 25, 'Nos', 3200.00, 'New season stock', 'STK00028', '2026-01-10 09:00:00'),
+(13, 'RUG', 'EQ026', 'Rugby Balls - Gilbert Match XV', '2026-01-20', 'PO-2026-003', 7, 'INV-NIV-0112', 10, 'Nos', 5500.00, 'Rugby season', 'STK00026', '2026-01-20 14:30:00'),
+(14, 'TT', 'EQ031', 'Table Tennis Bats - Butterfly Timo Boll', '2026-02-05', 'PO-2026-005', 2, 'INV-PRO-0389', 20, 'Nos', 6200.00, 'TT club renewal', 'STK00031', '2026-02-05 10:00:00'),
+(15, 'BAD', 'EQ003', 'Badminton Nets - Li-Ning Tournament', '2026-02-15', 'PO-2026-008', 6, 'INV-YNX-0512', 5, 'Nos', 4500.00, 'Net replacement', 'STK00003', '2026-02-15 09:15:00');
+
+--
+-- Dumping data for table `good_issue_notes`
+--
+
+INSERT INTO `good_issue_notes` (`gin_id`, `sport_id`, `equipment_id`, `date`, `quantity`, `unit`, `stock_id`, `sport_manager_id`, `captain_id`, `equipment_manager_id`, `created_at`) VALUES
+(1, 'BAD', 'EQ001', '2025-07-10', 5, 'Nos', 'STK00001', 'usr_694d89fa', '5Q1XZO2Y', 'usr_68f82fe0', '2025-07-10 08:00:00'),
+(2, 'CRI', 'EQ022', '2025-08-05', 2, 'Nos', 'STK00022', 'usr_68f89be0', NULL, 'usr_68f89998', '2025-08-05 09:30:00'),
+(3, 'FOO', 'EQ007', '2025-09-20', 4, 'Nos', 'STK00007', 'SPT004', NULL, 'usr_68f82fe0', '2025-09-20 10:00:00'),
+(4, 'VOL', 'EQ004', '2025-10-15', 3, 'Nos', 'STK00004', 'usr_694d89fa', NULL, 'usr_68f89998', '2025-10-15 11:30:00'),
+(5, 'TEN', 'EQ011', '2025-11-10', 4, 'Nos', 'STK00011', 'SPT004', '5Q1XZO2Y', 'usr_68f82fe0', '2025-11-10 14:00:00'),
+(6, 'HOC', 'EQ017', '2025-12-01', 6, 'Nos', 'STK00017', 'usr_68f89be0', NULL, 'usr_68f89998', '2025-12-01 09:15:00'),
+(7, 'BAS', 'EQ014', '2026-01-08', 3, 'Nos', 'STK00014', 'usr_694d89fa', '5Q1XZO2Y', 'usr_68f82fe0', '2026-01-08 10:45:00'),
+(8, 'ATH', 'EQ042', '2026-01-15', 2, 'Nos', 'STK00042', 'SPT004', NULL, 'usr_68f89998', '2026-01-15 08:30:00'),
+(9, 'CRI', 'EQ023', '2026-02-01', 10, 'Nos', 'STK00023', 'usr_68f89be0', '5Q1XZO2Y', 'usr_68f82fe0', '2026-02-01 11:00:00'),
+(10, 'BAD', 'EQ002', '2026-02-18', 20, 'Tubes', 'STK00002', 'usr_694d89fa', NULL, 'usr_68f89998', '2026-02-18 09:00:00');
+
+--
+-- Dumping data for table `good_condemn_notes`
+--
+
+INSERT INTO `good_condemn_notes` (`gcn_id`, `sport_id`, `equipment_id`, `stock_id`, `quantity`, `created_at`) VALUES
+(1, 'BAD', 'EQ001', 'STK00001', 3, '2025-09-01 10:00:00'),
+(2, 'HOC', 'EQ017', 'STK00017', 8, '2025-10-15 14:00:00'),
+(3, 'TEN', 'EQ011', 'STK00011', 2, '2025-11-20 09:30:00'),
+(4, 'CRI', 'EQ022', 'STK00022', 1, '2025-12-10 11:00:00'),
+(5, 'CHE', 'EQ040', 'STK00040', 12, '2026-01-05 08:45:00'),
+(6, 'FOO', 'EQ009', 'STK00009', 3, '2026-01-22 10:15:00'),
+(7, 'BAD', 'EQ002', 'STK00002', 15, '2026-02-10 13:00:00'),
+(8, 'VOL', 'EQ006', 'STK00006', 5, '2026-02-19 09:00:00');
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `competition`
+--
+
+DROP TABLE IF EXISTS `competition`;
+CREATE TABLE IF NOT EXISTS `competition` (
+  `competition_id` int NOT NULL AUTO_INCREMENT,
+  `competition_name` varchar(100) NOT NULL,
+  `sport_id` varchar(20) NOT NULL,
+  `participant_pdf` varchar(255) DEFAULT NULL,
+  `participants` varchar(500) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `date` date NOT NULL,
+  PRIMARY KEY (`competition_id`),
+  KEY `sport_id` (`sport_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `competition`
+--
+
+INSERT INTO `competition` (`competition_id`, `competition_name`, `sport_id`, `participant_pdf`, `participants`, `created_at`, `date`) VALUES
+(1, 'Inter University Basketball Competition', 'BAS', '', '', '2026-01-25 19:35:25', '0000-00-00'),
+(3, 'National Cricket Championship', 'CRI', 'competition_1769374959_697684efe76e6.pdf', 'Dineth Amarasinghe', '2026-01-25 20:30:22', '2026-01-30');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `achievement`
+--
+
+DROP TABLE IF EXISTS `achievement`;
+CREATE TABLE IF NOT EXISTS `achievement` (
+  `achievement_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(12) DEFAULT NULL,
+  `sport_id` varchar(10) DEFAULT NULL,
+  `competition_id` varchar(20) DEFAULT NULL,
+  `achievement` varchar(50) DEFAULT NULL,
+  `points` int DEFAULT '0',
+  PRIMARY KEY (`achievement_id`),
+  KEY `fk_achievement_user` (`user_id`),
+  KEY `fk_achievement_competition` (`competition_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `achievement`
+--
+
+INSERT INTO `achievement` (`achievement_id`, `user_id`, `sport_id`, `competition_id`, `achievement`, `points`) VALUES
+(9, 'STU010', 'CRI', '105', 'Best performance', 7),
+(8, 'STU009', 'CRI', '103', 'Participation', 0),
+(7, 'STU010', 'CRI', '103', 'Best performance', 7),
+(6, 'STU010', 'CRI', '101', '2nd place', 3);
+
+--
+-- Triggers `achievement`
+--
+DROP TRIGGER IF EXISTS `trg_assign_points`;
+DELIMITER $$
+CREATE TRIGGER `trg_assign_points` BEFORE INSERT ON `achievement` FOR EACH ROW BEGIN
+    IF NEW.achievement = '1st place' THEN
+        SET NEW.points = 5;
+    ELSEIF NEW.achievement = '2nd place' THEN
+        SET NEW.points = 3;
+    ELSEIF NEW.achievement = '3rd place' THEN
+        SET NEW.points = 2;
+    ELSEIF NEW.achievement = '4th place' THEN
+        SET NEW.points = 1;
+    ELSEIF NEW.achievement = 'Best performance' THEN
+        SET NEW.points = 7;
+    ELSE
+        SET NEW.points = 0;
+    END IF;
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_update_student_points`;
+DELIMITER $$
+CREATE TRIGGER `trg_update_student_points` AFTER INSERT ON `achievement` FOR EACH ROW BEGIN
+    DECLARE total_points INT;
+
+    -- Calculate total points for that user
+    SELECT SUM(points)
+    INTO total_points
+    FROM achievement
+    WHERE user_id = NEW.user_id;
+
+    -- Insert new record OR update existing one
+    INSERT INTO user_points (user_id, user_points)
+    VALUES (NEW.user_id, total_points)
+    ON DUPLICATE KEY UPDATE
+        user_points = total_points;
+
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_points`
+--
+
+DROP TABLE IF EXISTS `user_points`;
+CREATE TABLE IF NOT EXISTS `user_points` (
+  `user_id` varchar(12) NOT NULL,
+  `user_points` int DEFAULT '0',
+  PRIMARY KEY (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `user_points`
+--
+
+INSERT INTO `user_points` (`user_id`, `user_points`) VALUES
+('STU010', 17),
+('STU009', 0);
+
+-- --------------------------------------------------------
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `manager_sport`
+--
+
+DROP TABLE IF EXISTS `manager_sport`;
+CREATE TABLE IF NOT EXISTS `manager_sport` (
+  `user_id` varchar(12) NOT NULL,
+  `sport_id` varchar(4) NOT NULL,
+  `date_started` date NOT NULL,
+  `date_relieved` date DEFAULT NULL,
+  PRIMARY KEY (`user_id`,`sport_id`, `date_started`),
+  KEY `sport_id` (`sport_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `coach_sport`
+--
+
+DROP TABLE IF EXISTS `coach_sport`;
+CREATE TABLE IF NOT EXISTS `coach_sport` (
+  `user_id` varchar(12) NOT NULL,
+  `sport_id` varchar(4) NOT NULL,
+  `date_started` date NOT NULL,
+  `date_relieved` date DEFAULT NULL,
+  PRIMARY KEY (`user_id`,`sport_id`, `date_started`),
+  KEY `sport_id` (`sport_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `captain_sport`
+--
+
+DROP TABLE IF EXISTS `captain_sport`;
+CREATE TABLE IF NOT EXISTS `captain_sport` (
+  `user_id` varchar(12) NOT NULL,
+  `sport_id` varchar(4) NOT NULL,
+  `date_started` date NOT NULL,
+  `date_relieved` date DEFAULT NULL,
+  PRIMARY KEY (`user_id`,`sport_id`, `date_started`),
+  KEY `sport_id` (`sport_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Triggers for role history tracking
+--
+
+DELIMITER $$
+
+-- Trigger for Manager history
+DROP TRIGGER IF EXISTS `trg_sport_manager_history`$$
+CREATE TRIGGER `trg_sport_manager_history` AFTER UPDATE ON `sport`
+FOR EACH ROW
+BEGIN
+    IF OLD.manager_id != NEW.manager_id THEN
+        -- Close old tenure
+        IF OLD.manager_id != '' THEN
+            UPDATE manager_sport 
+            SET date_relieved = CURDATE() 
+            WHERE sport_id = OLD.sport_id 
+              AND user_id = OLD.manager_id 
+              AND date_relieved IS NULL;
+        END IF;
+        -- Start new tenure
+        IF NEW.manager_id != '' THEN
+            INSERT INTO manager_sport (user_id, sport_id, date_started)
+            VALUES (NEW.manager_id, NEW.sport_id, CURDATE());
+        END IF;
+    END IF;
+END $$
+
+-- Trigger for Coach history
+DROP TRIGGER IF EXISTS `trg_sport_coach_history`$$
+CREATE TRIGGER `trg_sport_coach_history` AFTER UPDATE ON `sport`
+FOR EACH ROW
+BEGIN
+    IF OLD.coach_id != NEW.coach_id THEN
+        -- Close old tenure
+        IF OLD.coach_id != '' THEN
+            UPDATE coach_sport 
+            SET date_relieved = CURDATE() 
+            WHERE sport_id = OLD.sport_id 
+              AND user_id = OLD.coach_id 
+              AND date_relieved IS NULL;
+        END IF;
+        -- Start new tenure
+        IF NEW.coach_id != '' THEN
+            INSERT INTO coach_sport (user_id, sport_id, date_started)
+            VALUES (NEW.coach_id, NEW.sport_id, CURDATE());
+        END IF;
+    END IF;
+END $$
+
+-- Trigger for Captain history
+DROP TRIGGER IF EXISTS `trg_sport_captain_history`$$
+CREATE TRIGGER `trg_sport_captain_history` AFTER UPDATE ON `sport`
+FOR EACH ROW
+BEGIN
+    IF OLD.captain_id != NEW.captain_id THEN
+        -- Close old tenure
+        IF OLD.captain_id != '' THEN
+            UPDATE captain_sport 
+            SET date_relieved = CURDATE() 
+            WHERE sport_id = OLD.sport_id 
+              AND user_id = OLD.captain_id 
+              AND date_relieved IS NULL;
+        END IF;
+        -- Start new tenure
+        IF NEW.captain_id != '' THEN
+            INSERT INTO captain_sport (user_id, sport_id, date_started)
+            VALUES (NEW.captain_id, NEW.sport_id, CURDATE());
+        END IF;
+    END IF;
+END $$
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sport_expenses`
+--
+
+DROP TABLE IF EXISTS `sport_expenses`;
+CREATE TABLE IF NOT EXISTS `sport_expenses` (
+  `expense_id` int NOT NULL AUTO_INCREMENT,
+  `sport` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expense_title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `receipt` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `submitted_by` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `expense_date` datetime NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`expense_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
-CREATE TABLE IF NOT EXISTS `sport_expenses` (
-    `expense_id` INT AUTO_INCREMENT PRIMARY KEY,
-    `sport` VARCHAR(100) NOT NULL,
-    `expense_title` VARCHAR(255) NOT NULL,
-    `amount` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-    `receipt` VARCHAR(255),
-    `submitted_by` VARCHAR(100) NOT NULL,
-    `notes` TEXT,
-    `expense_date` DATETIME NOT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

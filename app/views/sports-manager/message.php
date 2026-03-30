@@ -10,7 +10,6 @@
 		@import url("/uoc-sports/public/css/global.css");
 		@import url("/uoc-sports/public/css/general/header.css");
 		@import url("/uoc-sports/public/css/sports-manager/messages.css");
-		@import url("/uoc-sports/public/css/sports-manager/sub-nav.css");
 		@import url("/uoc-sports/public/css/general/footer.css");
     @import url("/uoc-sports/public/css/sports-manager/report.css");
 	</style>
@@ -19,7 +18,6 @@
 <body data-user-id="<?= htmlspecialchars($userId ?? '') ?>">
 <?php
     require "../app/views/templates/general/header.php";
-    require "../app/views/sports-manager/header-subnav.php";  
 ?>
 
 <script>

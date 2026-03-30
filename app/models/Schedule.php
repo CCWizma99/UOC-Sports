@@ -10,10 +10,10 @@ class Schedule {
 
     public function getAll($sport_id = null) {
         if ($sport_id) {
-            $stmt = $this->pdo->prepare("SELECT * FROM practice_sessions WHERE sport_id = ? ORDER BY session_date, session_time");
+            $stmt = $this->pdo->prepare("SELECT * FROM practice_sessions WHERE sport_id = ? ORDER BY session_date, start_time");
             $stmt->execute([$sport_id]);
         } else {
-            $stmt = $this->pdo->prepare("SELECT * FROM practice_sessions ORDER BY session_date, session_time");
+            $stmt = $this->pdo->prepare("SELECT * FROM practice_sessions ORDER BY session_date, start_time");
             $stmt->execute();
         }
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -23,8 +23,8 @@ class Schedule {
         $stmt = $this->pdo->prepare("
             SELECT * FROM practice_sessions 
             WHERE sport_id = :sport_id 
-            AND (session_date < CURDATE() OR (session_date = CURDATE() AND session_time < CURTIME()))
-            ORDER BY session_date DESC, session_time DESC
+            AND (session_date < CURDATE() OR (session_date = CURDATE() AND start_time < CURTIME()))
+            ORDER BY session_date DESC, start_time DESC
             LIMIT :limit
         ");
         $stmt->bindValue(':sport_id', $sport_id, PDO::PARAM_STR);
@@ -46,26 +46,26 @@ class Schedule {
         return $result ? (int)$result['count'] : 0;
     }
 
-    public function create($facility, $session_date, $session_time, $description, $sport_id = '', $added_by = '') {
-        $stmt = $this->pdo->prepare("INSERT INTO practice_sessions (sport_id, added_by, facility, session_date, session_time, description, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    public function create($facility, $session_date, $start_time, $notes, $sport_id = '', $added_by = '') {
+        $stmt = $this->pdo->prepare("INSERT INTO practice_sessions (sport_id, added_by, facility, session_date, start_time, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
         return $stmt->execute([
             $sport_id,
             $added_by,
             $facility,
             $session_date,
-            $session_time,
-            $description,
+            $start_time,
+            $notes,
             '' // status defaults to empty string as per existing data
         ]);
     }
 
-    public function update($id, $facility, $session_date, $session_time, $description) {
-        $stmt = $this->pdo->prepare("UPDATE practice_sessions SET facility = ?, session_date = ?, session_time = ?, description = ? WHERE id = ?");
+    public function update($id, $facility, $session_date, $start_time, $notes) {
+        $stmt = $this->pdo->prepare("UPDATE practice_sessions SET facility = ?, session_date = ?, start_time = ?, notes = ? WHERE id = ?");
         return $stmt->execute([
             $facility,
             $session_date,
-            $session_time,
-            $description,
+            $start_time,
+            $notes,
             (int)$id
         ]);
     }
@@ -98,7 +98,7 @@ class Schedule {
                 SELECT * FROM practice_sessions 
                 WHERE sport_id = :sport_id
                 AND session_date >= CURDATE()
-                ORDER BY session_date ASC, session_time ASC
+                ORDER BY session_date ASC, start_time ASC
                 LIMIT :limit
             ");
             $stmt->bindValue(':sport_id', $sportId, PDO::PARAM_STR);
@@ -107,7 +107,7 @@ class Schedule {
             $stmt = $this->pdo->prepare("
                 SELECT * FROM practice_sessions 
                 WHERE session_date >= CURDATE()
-                ORDER BY session_date ASC, session_time ASC
+                ORDER BY session_date ASC, start_time ASC
                 LIMIT :limit
             ");
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -146,7 +146,7 @@ class Schedule {
             SELECT * FROM practice_sessions
             WHERE sport_id = :sport_id
             AND session_date >= CURDATE()
-            ORDER BY session_date ASC, session_time ASC
+            ORDER BY session_date ASC, start_time ASC
         ");
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -155,7 +155,7 @@ class Schedule {
         $stmt = $this->pdo->prepare("
             SELECT * FROM practice_sessions 
             WHERE sport_id = :sport_id
-            ORDER BY session_date DESC, session_time DESC
+            ORDER BY session_date DESC, start_time DESC
             LIMIT :limit
         ");
         $stmt->bindValue(':sport_id', $sport_id, PDO::PARAM_STR);

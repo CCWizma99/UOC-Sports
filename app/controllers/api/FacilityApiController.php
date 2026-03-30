@@ -130,13 +130,9 @@ class FacilityApiController {
             $model = new Facility();
             $data = $model->getReservedSlots($_GET['facility_id'], $_GET['date']);
             
-            // Return only available slots
-            $availableSlots = array_filter($data['slots'], function($slot) {
-                return !$slot['taken'];
-            });
-            
-            // Re-index array
-            echo json_encode(array_values($availableSlots));
+            // Return ALL slots (taken or not) so frontend can render the full chart/list
+            // The frontend will handle disabling/hiding taken slots if needed
+            echo json_encode($data['slots']);
             
         } catch (Exception $e) {
             echo json_encode([]);
@@ -147,9 +143,13 @@ class FacilityApiController {
      * NEW METHOD: Get chart data for reservation visualization
      */
     public function getReservationChart() {
+        // Start output buffering to prevent any stray output from breaking JSON
+        ob_start();
+        
         header('Content-Type: application/json');
         
         if (!isset($_GET['facility_id'])) {
+            ob_end_clean();
             echo json_encode([]);
             return;
         }
@@ -158,13 +158,79 @@ class FacilityApiController {
             $model = new Facility();
             $facility_id = $_GET['facility_id'];
             
-            // Get next 7 days of data
-            $chartData = $model->getReservationChartData($facility_id, 10);
+            // Default to current month if no date provided
+            $date = isset($_GET['date']) ? $_GET['date'] : date('Y-m-d');
             
-            echo json_encode($chartData);
+            // Calculate First and Last Day of the Month for the given date
+            $startDate = date('Y-m-01', strtotime($date));
+            $endDate = date('Y-m-t', strtotime($date));
+            
+            // Get data for the whole month
+            $chartData = $model->getReservationChartData($facility_id, $startDate, $endDate);
+            
+            // Clean any stray output and send JSON
+            ob_end_clean();
+            echo json_encode([
+                'chart_data' => $chartData,
+                'parallel_booking' => false // This will be handled by the specialized heartbeat now
+            ]);
             
         } catch (Exception $e) {
-            echo json_encode([]);
+            ob_end_clean();
+            echo json_encode([
+                'chart_data' => [],
+                'parallel_booking' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * HEARTBEAT: Real-time concurrency check with slot-level tracking
+     */
+    public function heartbeat() {
+        header('Content-Type: application/json');
+
+        if (!isset($_POST['facility_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Facility ID missing']);
+            return;
+        }
+
+        try {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            $model = new Facility();
+            $facility_id = $_POST['facility_id'];
+            $session_id = session_id();
+            $date = isset($_POST['date']) ? $_POST['date'] : null;
+            $slot = isset($_POST['slot']) ? $_POST['slot'] : null;
+
+            // Update heartbeat with date/slot selection
+            $model->updateHeartbeat($session_id, $facility_id, $date, $slot);
+
+            // Check if others are booking
+            $isParallel = $model->checkParallelStatus($session_id, $facility_id);
+
+            // Get slot-level interest from other users
+            $slotInterest = $model->getSlotInterest($session_id, $facility_id);
+
+            // Get confirmed bookings
+            $bookedSlots = $model->getBookedSlots($facility_id);
+
+            echo json_encode([
+                'success' => true,
+                'parallel_booking' => $isParallel,
+                'slot_interest' => (object)$slotInterest,
+                'booked_slots' => (object)$bookedSlots
+            ]);
+
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         }
     }
 
@@ -188,6 +254,32 @@ class FacilityApiController {
                 'status' => 'error',
                 'data' => [],
                 'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Get reservations for a specific month
+     */
+    public function getMonthlyBookings() {
+        header('Content-Type: application/json');
+        
+        try {
+            $month = $_GET['month'] ?? date('m');
+            $year = $_GET['year'] ?? date('Y');
+            
+            $model = new Facility();
+            $bookings = $model->getMonthlyBookings($month, $year);
+            
+            echo json_encode([
+                'success' => true,
+                'data' => $bookings
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error fetching monthly bookings: ' . $e->getMessage()
             ]);
         }
     }

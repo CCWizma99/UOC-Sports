@@ -13,6 +13,8 @@ $router->get('/', 'UserHomeController@index');
 $router->get('/news', 'UserHomeController@news');
 $router->get('/facility-reservation', 'UserHomeController@facilityReservation');
 $router->get('/contact-us', 'UserHomeController@contactUs');
+$router->get('/services', 'UserHomeController@services');
+$router->get('/stories', 'UserHomeController@stories');
 $router->get('/profile', 'UserHomeController@profile');
 $router->get('/post/{id}', 'PostController@viewPost');
 $router->post('/post/add-comment', 'PostController@addComment');
@@ -21,6 +23,8 @@ $router->get('/get-faculties', 'UserHomeController@getFaculties');
 $router->get('/reserve-facilities/view-reservations', 'FacilityApiController@viewMyReservations');
 $router->get('/get-reserved-slots', 'FacilityApiController@getReservedSlots');
 $router->get('/reserve-facilities/chart', 'FacilityApiController@getReservationChart');
+$router->get('/reserve-facilities/monthly-bookings', 'FacilityApiController@getMonthlyBookings');
+$router->post('/reserve-facilities/heartbeat', 'FacilityApiController@heartbeat');
 $router->post('/create-facility-booking', 'FacilityApiController@createBooking');
 $router->get('/payment', 'UserHomeController@payment');
 $router->get('/payment/success', 'PaymentController@success');
@@ -34,12 +38,18 @@ $router->get('/api/user/registration-stats', 'UserApiController@getRegistrationS
 $router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
 
 $router->get('/student', 'StudentController@index');
+$router->get('/student/sports', 'StudentController@sports');
+$router->get('/student/equipment', 'StudentController@equipment');
+$router->get('/student/facilities', 'StudentController@facilities');
+$router->get('/student/bookings', 'StudentController@bookings');
+$router->get('/student/dashboard-stats', 'StudentController@dashboardStats');
+
 $router->get('/student/available-sports', 'StudentController@getAvailableSports');
 $router->get('/student/enrolled-sports', 'StudentController@getEnrolledSports');
 $router->post('/student/enroll-sport', 'StudentController@enrollSport');
 $router->post('/student/unenroll-sport', 'StudentController@unenrollSport');
 
-$router->get('/captain//', 'CaptainController@index');
+$router->get('/captain', 'CaptainController@index');
 $router->get('/captain/mark-attendance', 'CaptainController@MarkAttendance');
 $router->get('/captain/add-members', 'CaptainController@AddMembers');
 $router->get('/captain/schedule-practice', 'CaptainController@SchedulePractice');
@@ -73,11 +83,11 @@ $router->get('/api/coach/message/recipients', 'MessageApiController@getCoachReci
 $router->post('/api/coach/message/send', 'MessageApiController@sendCoachMessage');
 $router->get('/api/coach/message/list', 'MessageApiController@getMessages');
 
-$router->get('/coach//', 'CoachController@TeamSchedules');
+$router->get('/coach', 'CoachController@TeamSchedules');
 $router->get('/coach/coach-communicate', 'CoachController@CoachCommunicate');
 $router->get('/coach/report-injury', 'CoachController@ReportInjury');
 
-$router->get('/registrar//', 'RegistrarController@RegistrarDashboard');
+$router->get('/registrar', 'RegistrarController@RegistrarDashboard');
 $router->get('/registrar/verify-students', 'RegistrarController@VerifyStudents');
 $router->get('/registrar/verify-staff', 'RegistrarController@VerifyStaff');
 $router->get('/registrar/verify-bookings', 'RegistrarController@VerifyBookings');
@@ -98,7 +108,7 @@ $router->post('/reserve-equipments/add', 'EquipmentApiController@addReservation'
 $router->post('/reserve-equipments/cancel', 'EquipmentApiController@cancelReservation');
 $router->get('/reserve-equipments/view', 'EquipmentApiController@getReservedItems');
 $router->get('/reserve-equipments/add-lostitem', 'EquipmentApiController@addLostItem');
-$router->get('/equipment-manager//', 'EquipmentManagerController@index');
+$router->get('/equipment-manager', 'EquipmentManagerController@index');
 $router->get('/equipment-manager/equipment-reservations', 'EquipmentManagerController@equipmentReport');
 $router->get('/equipment-manager/equipments', 'EquipmentManagerController@equipments');
 $router->get('/equipment-manager/practiceschedule', 'EquipmentManagerController@practiceschedule');
@@ -127,7 +137,7 @@ $router->get('/equipment-manager/equipment-details', 'SportEquipmentController@g
 // Student equipment requests
 $router->get('/student/equipment-requests', 'EquipmentBookingRequestController@myRequests');
 
-$router->get('/sport-manager//', 'SportManagerController@index');
+$router->get('/sport-manager', 'SportManagerController@index');
 $router->get('/sport-manager/schedule', 'SportManagerController@schedule');
 $router->get('/sport-manager/expenses', 'SportManagerController@expenses');
 $router->post('/sport-manager/add-expenses', 'BudgetController@addTransaction');
@@ -161,6 +171,7 @@ $router->post('/api/injury/delete', 'InjuryApiController@deleteReport');
 $router->post('/api/injury/update', 'InjuryApiController@updateReport');
 
 $router->post('/profile/upload-image', 'ProfileController@uploadProfileImage');
+$router->get('/api/chart/activity-analysis', 'ChartController@getActivityAnalysis');
 
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->get('/sign-in', 'AuthController@showSigninForm');

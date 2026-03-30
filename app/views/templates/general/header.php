@@ -13,13 +13,15 @@
         require_once APP_ROOT.'/core/Database.php';
         $db = Database::getConnection();
 
-        $stmt = $db->prepare("SELECT type FROM user WHERE user_id = :user_id");
+        $stmt = $db->prepare("SELECT type, fname, lname FROM user WHERE user_id = :user_id");
         $stmt->execute(['user_id' => $user_id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // Check for pending facility bookings with incomplete payment
-        // Skip this check if already on the payment page
-        if (!$isPaymentPage) {
+        // Only show this on the facility reservation page
+        $isFacilityReservationPage = strpos($currentPage, '/facility-reservation') !== false;
+        
+        if ($isFacilityReservationPage && !$isPaymentPage) {
             $pendingStmt = $db->prepare("
                 SELECT fb.booking_id, fb.date, fb.slot, fr.facility_name
                 FROM `facility-booking` fb
@@ -44,14 +46,11 @@
         <i class="fa-solid fa-bars" id="menu-btn" onclick="toggleMenu()"></i>
         <div class="nav-links" id="nav-links">
             <?php
-                // Detect active state for regular nav links
-                $isNewsPage = strpos($currentPage, '/news') !== false;
                 $isFacilityPage = strpos($currentPage, '/facility-reservation') !== false;
+                $facilityActiveClass = $isFacilityPage ? ' active-portal' : '';
             ?>
-            <a href="/uoc-sports/public/news"<?php echo $isNewsPage ? ' class="active"' : ''; ?>>News</a>
-            <a href="/uoc-sports/public/#contact">Contact Us</a>
 
-            <a href="/uoc-sports/public/facility-reservation" id="nav-res" class="btn-secondary<?php echo $isFacilityPage ? ' active' : ''; ?>">
+            <a href="/uoc-sports/public/facility-reservation" id="nav-res" class="btn-primary<?php echo $facilityActiveClass; ?>">
                 Facility Reservation
             </a>
 
@@ -115,10 +114,14 @@
                     $isProfilePage = strpos($currentPage, '/profile') !== false;
                     $profileActiveClass = $isProfilePage ? ' active-portal' : '';
                     echo '
-                        <a href="/uoc-sports/public/profile" class="btn-primary'.$profileActiveClass.'" id="nav-pro">
-                            Profile <i class="fa-solid fa-circle-user"></i>
+                        <a href="/uoc-sports/public/profile" class="profile-link" id="nav-pro">
+                            <div class="profile-info">
+                                <span class="profile-name">' . htmlspecialchars(strtoupper(substr($user['fname'], 0, 1)) . '. ' . $user['lname']) . '</span>
+                            </div>
+                            <i class="fa-solid fa-circle-user"></i>
                         </a>
                     ';
+
 
                 } else {
                     // Sign in button
@@ -129,6 +132,8 @@
         </div>
     </nav>
 </header>
+
+<?php require_once APP_ROOT . '/app/views/templates/general/secondary-header.php'; ?>
 
 <?php if ($pendingBooking): ?>
 <!-- Pending Payment Reminder Modal -->
@@ -312,4 +317,124 @@ document.head.appendChild(style);
         nav.classList.toggle('show');
     }
 </script>
+
+<?php if (isset($_SESSION['message'])): ?>
+<div id="toast-overlay" class="toast-overlay">
+    <div id="toast-notification" class="toast-notification <?php echo $_SESSION['color'] ?? 'green'; ?>">
+        <div class="toast-icon">
+            <?php if (($_SESSION['color'] ?? 'green') === 'red'): ?>
+                <i class="fas fa-exclamation-circle"></i>
+            <?php else: ?>
+                <i class="fas fa-check-circle"></i>
+            <?php endif; ?>
+        </div>
+        <div class="toast-content">
+            <p class="toast-message"><?php echo htmlspecialchars($_SESSION['message']); ?></p>
+        </div>
+        <button class="toast-close" onclick="closeToast()"><i class="fas fa-times"></i></button>
+    </div>
+</div>
+
+<style>
+.toast-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.toast-notification {
+    background: white;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border-radius: 20px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    min-width: 400px;
+    max-width: 500px;
+    transform: scale(0.9);
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    border-top: 8px solid;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.toast-notification.green { border-top-color: #2e7d32; }
+.toast-notification.red { border-top-color: #d32f2f; }
+
+.toast-icon { 
+    font-size: 48px; 
+    margin-bottom: 10px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.toast-notification.green .toast-icon { color: #2e7d32; background: #e8f5e9; }
+.toast-notification.red .toast-icon { color: #d32f2f; background: #ffebee; }
+
+.toast-content { width: 100%; }
+.toast-title { margin: 0 0 12px; font-size: 24px; font-weight: 800; color: #333; }
+.toast-message { margin: 0; font-size: 18px; color: #666; line-height: 1.5; }
+
+.toast-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px;
+    transition: color 0.2s;
+}
+.toast-close:hover { color: #333; }
+</style>
+
+<script>
+function closeToast() {
+    const overlay = document.getElementById('toast-overlay');
+    if (overlay) {
+        overlay.style.animation = 'fadeOut 0.3s forwards';
+        setTimeout(() => overlay.remove(), 300);
+    }
+}
+
+// Auto hide after 3 seconds
+setTimeout(closeToast, 3000);
+</script>
+
+<?php 
+    // Clear message after displaying
+    unset($_SESSION['message']);
+    unset($_SESSION['color']);
+?>
+<?php endif; ?>
 
