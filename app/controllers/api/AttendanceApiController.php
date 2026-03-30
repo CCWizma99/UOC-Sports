@@ -167,6 +167,39 @@ class AttendanceApiController {
         }
     }
 
+  public function getSessionsByDate($sportId)
+{
+    $input = json_decode(file_get_contents('php://input'), true);
+    $date = $input['date'] ?? null;
+
+    $query = "
+        SELECT id, session_time, facility
+        FROM practice_sessions
+        WHERE sport_id = :sport_id
+    ";
+
+    if ($date) {
+        $query .= " AND session_date = :session_date";
+    }
+
+    $query .= " ORDER BY session_time ASC";
+
+    $stmt = $this->db->prepare($query);
+
+    $params = ['sport_id' => $sportId];
+    if ($date) {
+        $params['session_date'] = $date;
+    }
+
+    $stmt->execute($params);
+    $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode([
+        'status' => 'success',
+        'sessions' => $sessions
+    ]);
+}
+
     /**
      * Get upcoming practice sessions for a sport
      * GET /api/attendance/upcoming-sessions/{sport_id}

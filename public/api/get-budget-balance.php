@@ -27,14 +27,7 @@ try {
     
     // Get budget for the sport and year
     $sql = "SELECT 
-                COALESCE(allocated_amount, 100000.00) AS allocated_amount, 
-                COALESCE(spent_amount, 0) AS spent_amount,
-                (COALESCE(allocated_amount, 100000.00) - COALESCE(spent_amount, 0)) AS remaining_amount,
-                CASE 
-                    WHEN COALESCE(allocated_amount, 100000.00) > 0 
-                    THEN ROUND((COALESCE(spent_amount, 0) / COALESCE(allocated_amount, 100000.00)) * 100, 1)
-                    ELSE 0 
-                END AS spent_percentage
+                COALESCE(allocated_amount, 100000.00) AS allocated_amount
             FROM budget 
             WHERE sport_id = :sport_id AND year = :year
             ORDER BY allocation_date DESC
@@ -47,49 +40,39 @@ try {
     ]);
     
     $budget = $stmt->fetch(PDO::FETCH_ASSOC);
+    $allocatedAmount = $budget ? floatval($budget['allocated_amount']) : 100000.00;
     
-    // If no budget found, calculate spent from sport_expenses table
-    if (!$budget) {
-        error_log("No budget found for sport $sportId year $year, checking sport_expenses");
-        
-        // Get total spent from sport_expenses table
-        $expenseSql = "SELECT 
-                        COALESCE(SUM(se.amount), 0) AS total_spent
-                       FROM sport_expenses se
-                       INNER JOIN sport s ON se.sport COLLATE utf8mb4_unicode_ci = s.sport_name COLLATE utf8mb4_unicode_ci
-                       WHERE s.sport_id = :sport_id 
-                       AND YEAR(se.expense_date) = :year";
-        
-        $expenseStmt = $db->prepare($expenseSql);
-        $expenseStmt->execute([
-            'sport_id' => $sportId,
-            'year' => (int)$year
-        ]);
-        
-        $expenseData = $expenseStmt->fetch(PDO::FETCH_ASSOC);
-        $totalSpent = floatval($expenseData['total_spent'] ?? 0);
-        
-        $allocatedAmount = 100000.00;
-        $spentPercentage = $allocatedAmount > 0 ? round(($totalSpent / $allocatedAmount) * 100, 1) : 0;
-        
-        error_log("Calculated from expenses: spent=$totalSpent, percentage=$spentPercentage");
-        
-        echo json_encode([
-            'success' => true,
-            'data' => [
-                'allocated_amount' => $allocatedAmount,
-                'spent_amount' => $totalSpent,
-                'remaining_amount' => $allocatedAmount - $totalSpent,
-                'spent_percentage' => $spentPercentage
-            ],
-            'message' => 'Using default budget of Rs 100,000.00 with calculated expenses'
-        ]);
-    } else {
-        echo json_encode([
-            'success' => true,
-            'data' => $budget
-        ]);
-    }
+    // Always calculate spent amount from sport_expenses table to ensure consistency with expense chart
+    $expenseSql = "SELECT 
+                    COALESCE(SUM(se.amount), 0) AS total_spent
+                   FROM sport_expenses se
+                   INNER JOIN sport s ON se.sport COLLATE utf8mb4_unicode_ci = s.sport_name COLLATE utf8mb4_unicode_ci
+                   WHERE s.sport_id = :sport_id 
+                   AND YEAR(se.expense_date) = :year";
+    
+    $expenseStmt = $db->prepare($expenseSql);
+    $expenseStmt->execute([
+        'sport_id' => $sportId,
+        'year' => (int)$year
+    ]);
+    
+    $expenseData = $expenseStmt->fetch(PDO::FETCH_ASSOC);
+    $totalSpent = floatval($expenseData['total_spent'] ?? 0);
+    
+    $spentPercentage = $allocatedAmount > 0 ? round(($totalSpent / $allocatedAmount) * 100, 1) : 0;
+    $remainingAmount = $allocatedAmount - $totalSpent;
+    
+    error_log("Balance calculation - Sport: $sportId, Year: $year, Allocated: $allocatedAmount, Spent: $totalSpent, Percentage: $spentPercentage");
+    
+    echo json_encode([
+        'success' => true,
+        'data' => [
+            'allocated_amount' => $allocatedAmount,
+            'spent_amount' => $totalSpent,
+            'remaining_amount' => $remainingAmount,
+            'spent_percentage' => $spentPercentage
+        ]
+    ]);
     
 } catch (Exception $e) {
     error_log("Budget Balance API Error: " . $e->getMessage());

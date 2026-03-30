@@ -106,13 +106,14 @@
                 </div>
             <?php endif; ?>
         </div>
-        
-        <div class="lostitem-actions">
+          </div>
+        <div class="form-actions">
+            <button type="button" class="btn-add" onclick="window.location.href='/uoc-sports/public/equipment-manager/lostitem'">Back</button>
             <button type="submit" class="btn-add"><?php echo $isEdit ? 'Update Item' : 'Add Item'; ?></button>
-            <button type="button" class="btn-add" onclick="window.location.href='/uoc-sports/public/equipment-manager/lostitem'">
-            Back</button>
+            
+            
         </div>
-            </div>
+          
     </form>
 </div>
 </div>

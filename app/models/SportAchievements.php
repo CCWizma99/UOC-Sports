@@ -11,6 +11,7 @@ class SportAchievements extends Model {
                     a.user_id,
                     a.sport_id,
                     a.competition_id,
+                    a.tournament_year,
                     a.achievement,
                     a.points,
                     u.fname,
@@ -93,6 +94,7 @@ class SportAchievements extends Model {
                     a.achievement,
                     a.points,
                     a.sport_id,
+                    a.tournament_year,
                     s.sport_name,
                     c.competition_name,
                     c.date as competition_date
@@ -100,7 +102,7 @@ class SportAchievements extends Model {
                   LEFT JOIN sport s ON a.sport_id = s.sport_id
                   LEFT JOIN competition c ON a.competition_id = c.competition_id
                   WHERE a.user_id = ?
-                  ORDER BY c.date DESC, a.points DESC";
+                  ORDER BY a.tournament_year DESC, c.date DESC, a.points DESC";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute([$userId]);
