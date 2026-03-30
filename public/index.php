@@ -64,6 +64,7 @@ $router->get('/api/attendance/team-members/{sport_id}', 'AttendanceApiController
 $router->get('/api/attendance/history/{sport_id}', 'AttendanceApiController@getAttendanceHistory');
 $router->get('/api/attendance/last-session/{sport_id}', 'AttendanceApiController@getLastSessionAttendance');
 $router->get('/api/attendance/upcoming-sessions/{sport_id}', 'AttendanceApiController@getUpcomingSessions');
+$router->get('/api/attendance/previous-sessions/{sport_id}', 'AttendanceApiController@getPreviousSessions');
 $router->get('/api/attendance/exists/{practice_id}', 'AttendanceApiController@checkAttendanceExists');
 
 

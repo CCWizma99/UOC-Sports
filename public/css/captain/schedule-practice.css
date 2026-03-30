@@ -50,8 +50,19 @@
     font-weight: 700;
     color: #1a202c;
     margin-bottom: 24px;
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 16px;
+}
+/* ===== 2 COLUMN FORM LAYOUT ===== */
+
+.form-section form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 30px;
+}
+
+/* Make textarea and button full width */
+.form-group.full-width,
+.form-section button {
+    grid-column: span 2;
 }
 
 .form-group {
@@ -89,12 +100,14 @@
     box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.1);
 }
 
+/* ===== TIME SIDE BY SIDE ===== */
+
 .datetime {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+    grid-column: span 2;
 }
-
 .form-group textarea {
     resize: vertical;
     min-height: 120px;
@@ -259,13 +272,16 @@
 }
 
 /* Table Section */
+/* ===== SMALLER TABLE WITH MARGIN ===== */
+
 .table-section {
     background: white;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    margin: 20px;
+    
 }
-
 .table-header {
     background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
     padding: 25px 30px;
@@ -303,9 +319,10 @@
 }
 
 .practice-table {
-    width: 100%;
+    width: 95%;
+    margin: 0 auto;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .practice-table thead {
@@ -315,7 +332,7 @@
 }
 
 .practice-table thead th {
-    padding: 18px 20px;
+    padding: 14px 16px;
     text-align: left;
     font-weight: 600;
     color: #2d3748;
@@ -335,7 +352,7 @@
 }
 
 .practice-table tbody td {
-    padding: 16px 20px;
+    padding: 14px 16px;
     vertical-align: middle;
 }
 
@@ -886,5 +903,102 @@
     .session-details .detail-label,
     .session-details .detail-value {
         font-size: 13px;
+    }
+}
+
+/* Previous Sessions Button */
+.previous-btn {
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.previous-btn:hover {
+    background-color: #1a252f;
+    transform: translateY(-2px);
+}
+
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+/* Modal box */
+.modal{
+    background: #ffffff;
+    width: 600px;
+    max-width: 95%;
+    padding: 30px;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #555;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+
+/* Calendar container */
+#calendar {
+    margin-top: 20px;
+}
+/* Highlight previous session dates */
+.fc-event.previous-session {
+    background-color: #e74c3c !important;
+    border: none !important;
+    color: #fff !important;
+    font-size: 12px;
+    padding: 3px;
+    border-radius: 6px;
+}
+
+/* Hover effect */
+.fc-event.previous-session:hover {
+    background-color: #c0392b !important;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .previous-btn {
+        width: 100%;
     }
 }

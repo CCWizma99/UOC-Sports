@@ -39,73 +39,109 @@ class CaptainController {
         view('captain/add-members');
     }
     public function SchedulePractice() {
-        // Get captain's user_id from session
-        if (!isset($_SESSION['user_id'])) {
-            header("Location: /uoc-sports/public/login");
-            exit;
-        }
-        
-        $userId = $_SESSION['user_id'];
-        $scheduleModel = new Schedule();
-        
-        // Get captain's sport_id from database if not already in session
-        if (!isset($_SESSION['captain_sport_id'])) {
-            $pdo = Database::getConnection();
-            $stmt = $pdo->prepare("SELECT sport_id FROM sport WHERE captain_id = ?");
-            $stmt->execute([$userId]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($result && !empty($result['sport_id'])) {
-                $_SESSION['captain_sport_id'] = $result['sport_id'];
-            } else {
-                // User is not a captain of any sport
-                die("Error: You are not assigned as a captain for any sport.");
-            }
-        }
-        
-        $sportId = $_SESSION['captain_sport_id'];
 
-        // Handle Create
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create'])) {
-            // sanitize or validate as needed
-            $facility = $_POST['facility'] ?? '';
-            $date = $_POST['date'] ?? '';
-            $time = $_POST['time'] ?? '';
-            $description = $_POST['description'] ?? '';
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: /uoc-sports/public/login");
+        exit;
+    }
 
-            $scheduleModel->create($facility, $date, $time, $description, $sportId, 'CAPTAIN');
-            header("Location: /uoc-sports/public/captain/schedule-practice");
-            exit;
+    $userId = $_SESSION['user_id'];
+    $scheduleModel = new Schedule();
+    $pdo = Database::getConnection(); // ✅ Define once here
+
+    // Get captain sport id
+    if (!isset($_SESSION['captain_sport_id'])) {
+        $stmt = $pdo->prepare("SELECT sport_id FROM sport WHERE captain_id = ?");
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result && !empty($result['sport_id'])) {
+            $_SESSION['captain_sport_id'] = $result['sport_id'];
+        } else {
+            die("Error: You are not assigned as a captain for any sport.");
         }
+    }
 
-        // Handle Update
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
-            $id = $_POST['id'] ?? null;
-            $facility = $_POST['facility'] ?? '';
-            $date = $_POST['date'] ?? '';
-            $time = $_POST['time'] ?? '';
-            $description = $_POST['description'] ?? '';
+    $sportId = $_SESSION['captain_sport_id'];
 
-        if ($id) {
-            $scheduleModel->update($id, $facility, $date, $time, $description);
-        }
+    // ✅ Get sport name ONCE (important fix)
+    $stmt = $pdo->prepare("SELECT sport_name FROM sport WHERE sport_id = ?");
+    $stmt->execute([$sportId]);
+    $sportData = $stmt->fetch(PDO::FETCH_ASSOC);
+    $sportName = $sportData['sport_name'] ?? '';
+
+    /* ===================== CREATE ===================== */
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create'])) {
+
+        $facility = $sportName; // Always secure
+
+        $date = $_POST['date'] ?? '';
+        $startTime = $_POST['start_time'] ?? '';
+        $endTime = $_POST['end_time'] ?? '';
+        $equipment = $_POST['need_equipment'] ?? '';
+        $location = $_POST['location'] ?? '';
+        $notes = $_POST['notes'] ?? '';
+
+        $scheduleModel->create(
+            $facility,
+            $date,
+            $startTime,
+            $endTime,
+            $equipment,
+            $location,
+            $notes,
+            $sportId
+        );
+
         header("Location: /uoc-sports/public/captain/schedule-practice");
         exit;
     }
 
-        // Handle Delete
-        if (isset($_GET['delete'])) {
-            $scheduleModel->delete($_GET['delete']);
-            header("Location: /uoc-sports/public/captain/schedule-practice");
-            exit;
+    /* ===================== UPDATE ===================== */
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
+
+        $id = $_POST['id'] ?? null;
+
+        $facility = $sportName; // Always secure
+
+        $date = $_POST['date'] ?? '';
+        $startTime = $_POST['start_time'] ?? '';
+        $endTime = $_POST['end_time'] ?? '';
+        $equipment = $_POST['need_equipment'] ?? '';
+        $location = $_POST['location'] ?? '';
+        $notes = $_POST['notes'] ?? '';
+
+        if ($id) {
+            $scheduleModel->update(
+                $id,
+                $facility,
+                $date,
+                $startTime,
+                $endTime,
+                $equipment,
+                $location,
+                $notes
+            );
         }
 
-        // Fetch all schedules for display (filtered by captain's sport)
-        $schedules = $scheduleModel->getAll($sportId);
-        view('captain/schedule-practice', ['schedules' => $schedules]);
-    }   
-
-    public function Communication() {
-        view('captain/communication');
+        header("Location: /uoc-sports/public/captain/schedule-practice");
+        exit;
     }
+
+    /* ===================== DELETE ===================== */
+    if (isset($_GET['delete'])) {
+        $scheduleModel->delete($_GET['delete']);
+        header("Location: /uoc-sports/public/captain/schedule-practice");
+        exit;
+    }
+
+    /* ===================== VIEW LOAD ===================== */
+    $schedules = $scheduleModel->getAll($sportId);
+
+    view('captain/schedule-practice', [
+        'schedules' => $schedules,
+        'sport_name' => $sportName
+    ]);
+}
+
 }

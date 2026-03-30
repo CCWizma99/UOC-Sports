@@ -212,4 +212,15 @@ class AttendanceApiController {
             ]);
         }
     }
+
+    public function getPreviousSessions($sportId)
+{
+    $scheduleModel = new Schedule();
+    $sessions = $scheduleModel->getPreviousSessions($sportId);
+
+    echo json_encode([
+        'status' => 'success',
+        'sessions' => $sessions
+    ]);
+}
 }

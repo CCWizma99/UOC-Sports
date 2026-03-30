@@ -48,6 +48,7 @@ switch ($userType) {
             ['name' => 'Schedule', 'url' => '/uoc-sports/public/captain/schedule-practice'],
             ['name' => 'Attendance', 'url' => '/uoc-sports/public/captain/mark-attendance'],
             ['name' => 'Communication', 'url' => '/uoc-sports/public/captain/communication'],
+            ['name' => 'Achievements', 'url' => '/uoc-sports/public/captain/achievements'],
         ];
         break;
     case 'COACH':
