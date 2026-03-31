@@ -36,7 +36,57 @@ class CaptainController {
         view('captain/mark-attendance');
     }
     public function AddMembers() {
-        view('captain/add-members');
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /uoc-sports/public/sign-in");
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $sportModel = new Sport();
+        $sportTeamModel = new SportTeam();
+        $userModel = new User();
+
+        // Get sport assigned to this captain
+        $sport = $sportModel->getSportByCaptain($userId);
+        $sportId = $sport['sport_id'] ?? null;
+
+        // Handle add/remove actions
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_POST['add_member_id'])) {
+                $addId = $_POST['add_member_id'];
+                $sportTeamModel->addMember($sportId, $addId);
+            }
+            if (isset($_POST['remove_member_id'])) {
+                $removeId = $_POST['remove_member_id'];
+                $sportTeamModel->removeMember($sportId, $removeId);
+            }
+            // Redirect to avoid form resubmission
+            header("Location: /uoc-sports/public/captain/add-members");
+            exit;
+        }
+
+        // Get current team members
+        $team_members = $sportTeamModel->getTeamMembers($sportId);
+        $team_member_ids = array_column($team_members, 'user_id');
+
+        // Get all eligible students for this sport (not in team)
+        $all_students = $userModel->getEligibleStudents($sportId); // You may need to implement this method
+        $available_members = array_filter($all_students, function($student) use ($team_member_ids) {
+            return !in_array($student['user_id'], $team_member_ids);
+        });
+
+        // Stats
+        $available_total = count($available_members);
+        $selected_total = count($team_members);
+        $available_slots = 15 - $selected_total;
+
+        view('captain/add-members', [
+            'team_members' => $team_members,
+            'available_members' => $available_members,
+            'available_total' => $available_total,
+            'selected_total' => $selected_total,
+            'available_slots' => $available_slots
+        ]);
     }
     public function SchedulePractice() {
 
@@ -144,4 +194,42 @@ class CaptainController {
     ]);
 }
 
+ public function Communication() {
+        view('captain/communication');
+    }
+
+    public function Achievements() {
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /uoc-sports/public/sign-in");
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $sportModel = new Sport();
+        $sport = $sportModel->getSportByCaptain($userId);
+        $sportId = $sport['sport_id'] ?? null;
+        $sportName = $sport['sport_name'] ?? '';
+
+        require_once __DIR__ . '/../models/Achievements.php';
+        $achievementsModel = new Achievements();
+        $teamAchievements = $achievementsModel->getTeamAchievements($sportId);
+
+        // For each team achievement, get players and their individual achievements for that competition
+        $teamDetails = [];
+        foreach ($teamAchievements as $teamAch) {
+            $competitionId = $teamAch['competition_id'];
+            $players = $achievementsModel->getPlayersByCompetition($sportId, $competitionId);
+            $individuals = $achievementsModel->getIndividualAchievementsByCompetition($competitionId);
+            $teamDetails[$competitionId] = [
+                'players' => $players,
+                'individual_achievements' => $individuals
+            ];
+        }
+
+        view('captain/achievements', [
+            'sport_name' => $sportName,
+            'team_achievements' => $teamAchievements,
+            'team_details' => $teamDetails
+        ]);
+    }
 }

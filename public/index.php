@@ -56,6 +56,9 @@ $router->get('/captain/schedule-practice', 'CaptainController@SchedulePractice')
 $router->post('/captain/schedule-practice', 'CaptainController@SchedulePractice');
 $router->get('/captain/communication', 'CaptainController@Communication');
 $router->get('/captain/team-schedules', 'CoachController@TeamSchedules');
+$router->get('/captain/achievements', 'CaptainController@Achievements');
+$router->get('/captain/add-members', 'CaptainController@AddMembers');
+$router->post('/captain/add-members', 'CaptainController@AddMembers');
 
 // Attendance API routes
 $router->post('/api/attendance/save', 'AttendanceApiController@saveAttendance');
