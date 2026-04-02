@@ -115,6 +115,8 @@ async function showAchievements(userId) {
         const response = await fetch(`/uoc-sports/public/api/get-student-achievements.php?user_id=${userId}`);
         const data = await response.json();
         
+        console.log('Student Achievements Data:', data); // Debug log
+        
         if (data.success) {
             const student = students.find(s => s.user_id === userId);
             nameElement.textContent = `${student?.fname || ''} ${student?.lname || ''}'s Achievements`;
@@ -131,35 +133,55 @@ async function showAchievements(userId) {
                 createPerformanceChart(data.achievements);
                 
                 // Display achievements list
-                contentElement.innerHTML = data.achievements.map(achievement => `
+                contentElement.innerHTML = data.achievements.map(achievement => {
+                    // Get year with fallback logic
+                    let year = 'N/A';
+                    if (achievement.tournament_year) {
+                        year = achievement.tournament_year;
+                    } else if (achievement.competition_date && achievement.competition_date !== '0000-00-00') {
+                        try {
+                            const date = new Date(achievement.competition_date);
+                            if (!isNaN(date.getTime())) {
+                                year = date.getFullYear();
+                            }
+                        } catch (e) {
+                            console.warn('Error parsing date:', e);
+                        }
+                    }
+                    
+                    const competitionLabel = achievement.competition_name 
+                        ? `${achievement.competition_name} ${year !== 'N/A' ? '(' + year + ')' : ''}` 
+                        : '<em style="color: #ef4444;">No Competition Linked</em>';
+                    
+                    return `
                     <div style="background: white; border-left: 4px solid #2b0c4d; border-radius: 6px; padding: 1rem; margin-bottom: 0.75rem;">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; gap: 0.5rem;">
-                            <h5 style="margin: 0; color: #2b0c4d; font-size: 0.95rem; font-weight: 700;">
-                                ${achievement.competition_name || 'Competition'}
-                            </h5>
+                            <div>
+                                <p style="margin: 0 0 0.25rem 0; color: #6b7280; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Competition</p>
+                                <h5 style="margin: 0; color: #2b0c4d; font-size: 0.95rem; font-weight: 700;">
+                                    ${competitionLabel}
+                                </h5>
+                            </div>
                             <span style="background: ${getAchievementColor(achievement.achievement)}; color: #ffffff; padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-size: 0.7rem; font-weight: 700; white-space: nowrap;">
                                 ${achievement.achievement}
                             </span>
                         </div>
-                        <p style="margin: 0 0 0.25rem 0; color: #374151; font-size: 0.85rem; font-weight: 500;">
-                            ${achievement.sport_name || 'Sport'}
-                        </p>
                         <p style="margin: 0; color: #6b7280; font-size: 0.75rem;">
                             Points: ${achievement.points || 0} / 12
                         </p>
                     </div>
-                `).join('');
+                `}).join('');
             }
         } else {
-            contentElement.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem;">Failed to load achievements</p>`;
+            contentElement.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem;">Failed to load achievements: ${data.message || 'Unknown error'}</p>`;
         }
     } catch (error) {
         console.error('Error loading achievements:', error);
-        contentElement.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem;">Error loading achievements</p>`;
+        contentElement.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem;">Error loading achievements: ${error.message}</p>`;
     }
 }
 
-// Create performance analysis chart
+// Create performance analysis chart (Dot Chart)
 function createPerformanceChart(achievements) {
     const ctx = document.getElementById('performanceChart');
     
@@ -170,92 +192,277 @@ function createPerformanceChart(achievements) {
         performanceChart.destroy();
     }
     
-    // Prepare data
-    const labels = achievements.map((a, idx) => a.competition_name || `Competition ${idx + 1}`);
-    const achievedPoints = achievements.map(a => a.points || 0);
-    
-    performanceChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Points Achieved',
-                    data: achievedPoints,
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    borderColor: 'rgb(16, 185, 129)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    pointBackgroundColor: 'rgb(16, 185, 129)',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
+    try {
+        // Extract category from competition name (e.g., "National Championship" -> "Championship")
+        function extractCategory(competitionName) {
+            if (!competitionName) return 'Unknown';
+            
+            const lowerName = competitionName.toLowerCase();
+            
+            // Check for specific competition types first
+            if (lowerName.includes('inter university') || lowerName.includes('inter-university')) {
+                return 'Inter University';
+            }
+            if (lowerName.includes('inter faculty') || lowerName.includes('inter-faculty')) {
+                return 'Inter Faculty';
+            }
+            
+            // Common competition categories
+            const categories = {
+                'championship': 'Championship',
+                'competition': 'Competition',
+                'tournament': 'Tournament',
+                'league': 'League',
+                'cup': 'Cup',
+                'open': 'Open',
+                'series': 'Series',
+                'match': 'Match',
+                'national': 'National',
+                'international': 'International'
+            };
+            
+            for (const [key, value] of Object.entries(categories)) {
+                if (lowerName.includes(key)) {
+                    return value;
                 }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y + ' points';
-                        }
+            }
+            
+            // If no category found, use first word of competition name
+            return competitionName.split(' ')[0];
+        }
+        
+        // Get year from achievement data with fallback
+        function getYear(achievement) {
+            // Try tournament_year first
+            if (achievement.tournament_year) {
+                return achievement.tournament_year;
+            }
+            // Try competition_date
+            if (achievement.competition_date && achievement.competition_date !== '0000-00-00') {
+                try {
+                    const date = new Date(achievement.competition_date);
+                    if (!isNaN(date.getTime())) {
+                        return date.getFullYear();
                     }
+                } catch (e) {
+                    console.warn('Error parsing date:', e);
                 }
+            }
+            // Default to current year
+            return new Date().getFullYear();
+        }
+        
+        // Color palette for categories (fixed colors)
+        const categoryColors = {
+            'Inter University': '#9B59B6',      // Purple - for inter university
+            'Inter Faculty': '#45B7D1',         // Red - for inter faculty
+            'Championship': '#FF6B6B',          // Light Red
+            'Competition': '#4ECDC4',           // Teal
+            'Tournament': '#3498DB',            // Blue
+            'League': '#FFA07A',                // Coral
+            'Cup': '#98D8C8',                   // Mint
+            'Open': '#F7DC6F',                  // Yellow
+            'Series': '#BB8FCE',                // Light Purple
+            'Match': '#85C1E2',                 // Light Blue
+            'National': '#2ECC71',              // Green
+            'International': '#E74C3C',         // Bright Blue
+            'Unknown': '#95A5A6'                // Gray
+        };
+        
+        // Group achievements by category
+        const categoryMap = new Map();
+        
+        achievements.forEach((achievement, idx) => {
+            const category = extractCategory(achievement.competition_name);
+            const year = getYear(achievement);
+            const label = `${category}\n${year}`;
+            
+            if (!categoryMap.has(category)) {
+                categoryMap.set(category, {
+                    label: category,
+                    data: [],
+                    backgroundColor: categoryColors[category] || '#' + Math.floor(Math.random()*16777215).toString(16),
+                    borderColor: categoryColors[category] || '#' + Math.floor(Math.random()*16777215).toString(16),
+                    pointRadius: 8,
+                    pointHoverRadius: 12,
+                    pointStyle: 'circle',
+                    borderWidth: 2
+                });
+            }
+            
+            categoryMap.get(category).data.push({
+                x: label,  // Use the label directly for category axis
+                y: achievement.points || 0,
+                competitionName: achievement.competition_name,
+                achievement: achievement.achievement,
+                year: year
+            });
+        });
+        
+        // Sort achievements by year (oldest to newest) for proper timeline display
+        const sortedAchievements = [...achievements].sort((a, b) => {
+            const yearA = getYear(a);
+            const yearB = getYear(b);
+            return yearA - yearB;  // Ascending order: past records on left, recent on right
+        });
+        
+        // Rebuild category datasets with sorted achievements
+        categoryMap.clear();
+        sortedAchievements.forEach((achievement, idx) => {
+            const category = extractCategory(achievement.competition_name);
+            const year = getYear(achievement);
+            const label = `${category}\n${year}`;
+            
+            if (!categoryMap.has(category)) {
+                categoryMap.set(category, {
+                    label: category,
+                    data: [],
+                    backgroundColor: categoryColors[category] || '#' + Math.floor(Math.random()*16777215).toString(16),
+                    borderColor: categoryColors[category] || '#' + Math.floor(Math.random()*16777215).toString(16),
+                    pointRadius: 8,
+                    pointHoverRadius: 12,
+                    pointStyle: 'circle',
+                    borderWidth: 2
+                });
+            }
+            
+            categoryMap.get(category).data.push({
+                x: label,
+                y: achievement.points || 0,
+                competitionName: achievement.competition_name,
+                achievement: achievement.achievement,
+                year: year
+            });
+        });
+        
+        // Convert map to datasets array
+        const datasets = Array.from(categoryMap.values());
+        
+        // Create labels for x-axis using sorted achievements
+        const labels = sortedAchievements.map((a, idx) => {
+            const category = extractCategory(a.competition_name);
+            const year = getYear(a);
+            return `${category}\n${year}`;
+        });
+        
+        performanceChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: datasets
             },
-            scales: {
-                x: {
-                    title: {
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
                         display: true,
-                        text: 'Competitions',
-                        font: {
-                            size: 12,
-                            weight: 'bold'
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 11,
+                                weight: 'bold'
+                            }
                         }
                     },
-                    ticks: {
-                        maxRotation: 45,
-                        minRotation: 45
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const dataPoint = context[0].raw;
+                                return dataPoint.competitionName || 'Competition';
+                            },
+                            label: function(context) {
+                                const dataPoint = context.raw;
+                                return [
+                                    `Category: ${context.dataset.label}`,
+                                    `Year: ${dataPoint.year}`,
+                                    `Achievement: ${dataPoint.achievement}`,
+                                    `Points: ${dataPoint.y}`
+                                ];
+                            }
+                        },
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 12
+                        }
                     }
                 },
-                y: {
-                    beginAtZero: true,
-                    min: 0,
-                    max: 12,
-                    title: {
-                        display: true,
-                        text: 'Points',
-                        font: {
-                            size: 12,
-                            weight: 'bold'
+                scales: {
+                    x: {
+                        type: 'category',
+                        labels: labels,
+                        position: 'bottom',
+                        title: {
+                            display: true,
+                            text: 'Competition Timeline',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            autoSkip: false,
+                            font: {
+                                size: 9
+                            }
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawOnChartArea: true,
+                            offset: false
                         }
                     },
-                    ticks: {
-                        stepSize: 2
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 12,
+                        title: {
+                            display: true,
+                            text: 'Points Achieved',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            stepSize: 2
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
                     }
                 }
             }
+        });
+    } catch (error) {
+        console.error('Error creating performance chart:', error);
+        // Show error message in chart container
+        const chartContainer = ctx.parentElement;
+        if (chartContainer) {
+            chartContainer.innerHTML = '<p style="text-align: center; color: #ef4444; padding: 2rem;">Error creating chart. Please check console for details.</p>';
         }
-    });
+    }
 }
 
 // Get achievement color based on type
 function getAchievementColor(achievement) {
     const colors = {
-        '1st place': '#ffd700',
-        '2nd place': '#c0c0c0',
+        '1st place': '#FFA07A',
+        '2nd place': '#4ECDC4',
         '3rd place': '#cd7f32',
         '4th place': '#6b7280',
         'Best performance': '#10b981',
-        'Participation': '#3b82f6'
+        'Participation': '#45B7D1'
     };
     return colors[achievement] || '#2b0c4d';
 }
@@ -292,6 +499,8 @@ async function viewAchievements(userId) {
         const response = await fetch(`/uoc-sports/public/api/get-student-achievements.php?user_id=${userId}`);
         const data = await response.json();
         
+        console.log('Modal Achievements Data:', data); // Debug log
+        
         if (data.success) {
             if (data.achievements.length === 0) {
                 achievementsList.innerHTML = `
@@ -300,31 +509,38 @@ async function viewAchievements(userId) {
                     </div>
                 `;
             } else {
-                achievementsList.innerHTML = data.achievements.map((achievement, index) => `
+                achievementsList.innerHTML = data.achievements.map((achievement, index) => {
+                    const year = achievement.tournament_year || (achievement.competition_date ? new Date(achievement.competition_date).getFullYear() : 'N/A');
+                    const competitionLabel = achievement.competition_name 
+                        ? `${achievement.competition_name} (${year})` 
+                        : '<em style="color: #ef4444;">No Competition Linked</em>';
+                    
+                    return `
                     <div style="background: linear-gradient(135deg, #f9f7ff 0%, #ffffff 100%); border: 2px solid #e5e7eb; border-left: 4px solid #2b0c4d; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; transition: all 0.3s;" onmouseover="this.style.boxShadow='0 4px 15px rgba(43,12,77,0.1)'; this.style.transform='translateX(4px)';" onmouseout="this.style.boxShadow='none'; this.style.transform='translateX(0)';">
                         <div style="display: flex; align-items: start; gap: 1rem;">
                             <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #2b0c4d 0%, #6b1fa0 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(43,12,77,0.2);">
                                 ${index + 1}
                             </div>
                             <div style="flex: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
-                                    <h4 style="margin: 0; color: #2b0c4d; font-size: 1.1rem; font-weight: 700;">
-                                        ${achievement.competition_name || 'Competition'}
+                                <div style="margin-bottom: 0.5rem;">
+                                    <p style="margin: 0 0 0.25rem 0; color: #6b7280; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Competition Name</p>
+                                    <h4 style="margin: 0 0 0.5rem 0; color: #2b0c4d; font-size: 1.1rem; font-weight: 700;">
+                                        ${competitionLabel}
                                     </h4>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
                                     <span style="background: ${getAchievementColor(achievement.achievement)}; color: #ffffff; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                                         ${achievement.achievement}
                                     </span>
                                 </div>
-                                <p style="margin: 0 0 0.5rem 0; color: #374151; font-size: 0.95rem; font-weight: 500;">
-                                    ${achievement.sport_name || 'Sport'}
-                                </p>
+                                
                                 <p style="margin: 0; color: #6b7280; font-size: 0.85rem;">
                                     Points Earned: ${achievement.points || 0}
                                 </p>
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             }
         } else {
             achievementsList.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem;">Failed to load achievements</p>`;

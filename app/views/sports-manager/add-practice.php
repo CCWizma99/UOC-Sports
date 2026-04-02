@@ -13,6 +13,7 @@
     @import url("/uoc-sports/public/css/general/footer.css");
 
     @import url("/uoc-sports/public/css/sports-manager/report.css");
+    @import url("/uoc-sports/public/css/sports-manager/page.css");
   </style>
 </head>
 <body>
@@ -49,7 +50,7 @@
                 <?php if (isset($_GET['sport'])): ?>
                     <input type="hidden" name="sport_param" value="<?php echo htmlspecialchars($_GET['sport']); ?>">
                 <?php endif; ?>
-                <div class="form-grid">
+                <div class="form-row">
                     <div class="form-group">
                         <label for="Sport name">Sport *</label>
                         <select id="sport" name="sport" required>
@@ -130,15 +131,15 @@
 
                     <div class="form-group full-width">
                         <label for="expenseDescription">Special Notes *</label>
-                        <textarea id="expenseDescription" name="notes" rows="2" placeholder="Enter any special notes..."></textarea>
+                        <textarea id="expenseDescription" name="notes" rows="4" placeholder="Enter any special notes..."></textarea>
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="view-all-link" onclick="window.location.href='/uoc-sports/public/sport-manager/practicesessions'">
+                    <button type="button" onclick="window.location.href='/uoc-sports/public/sport-manager/practicesessions'">
                        Cancel
                     </button>
-                    <button type="submit" class="view-all-link">
+                    <button type="submit">
                        Add Practice Session
                     </button>
                 </div>

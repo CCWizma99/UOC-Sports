@@ -168,20 +168,31 @@ class EquipmentBookigRequest {
      * Update request details
      */
     public function updateRequest($requestId, $data) {
+        // Prepare equipment_items as JSON if provided
+        $equipmentItemsJson = null;
+        if (isset($data['equipment_items']) && is_array($data['equipment_items'])) {
+            $equipmentItemsJson = json_encode($data['equipment_items']);
+        }
+        
         $query = "UPDATE `equipment-requests` 
-                  SET category_name = ?,
+                  SET student_id = ?,
+                      category_name = ?,
+                      equipment_items = ?,
                       sport_id = ?,
                       request_date = ?,
                       start_time = ?,
                       end_time = ?,
                       reserved_location = ?,
                       requester_name = ?,
-                      notes = ?
+                      notes = ?,
+                      status = ?
                   WHERE request_id = ?";
         
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
+            $data['student_id'] ?? null,
             $data['category_name'],
+            $equipmentItemsJson,
             $data['sport_id'] ?? null,
             $data['request_date'],
             $data['start_time'],
@@ -189,6 +200,7 @@ class EquipmentBookigRequest {
             $data['reserved_location'] ?? '',
             $data['requester_name'] ?? '',
             $data['notes'] ?? '',
+            $data['status'] ?? 'PENDING',
             $requestId
         ]);
     }

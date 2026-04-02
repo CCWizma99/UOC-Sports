@@ -106,8 +106,9 @@
                     <th onclick="sortTable(6)">Start Time<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(7)">End Time<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(8)">Location<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(9)">Notes<span class="sort-indicator"></span></th>
+                  
                     <th onclick="sortTable(10)">Status<span class="sort-indicator"></span></th>
+                      <th onclick="sortTable(9)">Notes<span class="sort-indicator"></span></th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -167,7 +168,7 @@
                         <td><?= date('h:i A', strtotime($request['start_time'])) ?></td>
                         <td><?= date('h:i A', strtotime($request['end_time'])) ?></td>
                         <td><?= htmlspecialchars($request['reserved_location'] ?? 'N/A') ?></td>
-                        <td><?= htmlspecialchars($request['notes'] ?? 'N/A') ?></td>
+                       
                         <td>
                             <select class="status-dropdown status-<?= strtolower($request['status']) ?>" 
                                     data-request-id="<?= $request['request_id'] ?>" 
@@ -180,9 +181,12 @@
                                 <option value="REJECTED" <?= $request['status'] === 'REJECTED' ? 'selected' : '' ?>>REJECTED</option>
                             </select>
                         </td>
+                         <td><?= htmlspecialchars($request['notes'] ?? 'N/A') ?></td>
                         <td>
                             <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
-
+                                <button class="btn-edit" onclick="window.location.href='/uoc-sports/public/equipment-manager/add-booking?id=<?= $request['request_id'] ?>'">
+                                 Edit
+                                </button>
                                 <button class="btn-delete" onclick="deleteRequest('<?= $request['request_id'] ?>')">Delete</button>
                             </div>
                         </td>

@@ -31,16 +31,18 @@ class SportExpense {
         }
         
         $sql = "INSERT INTO sport_expenses 
-                (sport, expense_title, amount, receipt, submitted_by, notes, expense_date)
-                VALUES (?, ?, ?, ?, ?, ?, NOW())";
+                (sport, expense_title, sport_event, amount, receipt, submitted_by, notes, expense_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
         
         $stmt = $this->conn->prepare($sql);
         $notes = $data['notes'] ?? '';
         $amount = $data['amount'] ?? 0;
+        $sport_event = !empty($data['sport_event']) ? $data['sport_event'] : NULL;
         
         $stmt->execute([
             $data['sport'],
             $data['expense_title'],
+            $sport_event,
             $amount,
             $receipt_image,
             $data['submitted_by'],
@@ -89,6 +91,7 @@ class SportExpense {
         $sql = "UPDATE sport_expenses 
                 SET sport = ?,
                     expense_title = ?,
+                    sport_event = ?,
                     amount = ?,
                     receipt = ?,
                     submitted_by = ?,
@@ -98,10 +101,12 @@ class SportExpense {
         $stmt = $this->conn->prepare($sql);
         $notes = $data['notes'] ?? '';
         $amount = $data['amount'] ?? 0;
+        $sport_event = !empty($data['sport_event']) ? $data['sport_event'] : NULL;
         
         $result = $stmt->execute([
             $data['sport'],
             $data['expense_title'],
+            $sport_event,
             $amount,
             $receipt_image,
             $data['submitted_by'],
@@ -118,7 +123,7 @@ class SportExpense {
      * @return array
      */
     public function getAll($filters = []) {
-        $sql = "SELECT expense_id, sport, expense_title, amount, receipt, submitted_by, 
+        $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
                        notes, expense_date 
                 FROM sport_expenses";
         
@@ -207,7 +212,7 @@ class SportExpense {
      * @return array
      */
     public function search($query) {
-        $sql = "SELECT expense_id, sport, expense_title, amount, receipt, submitted_by, 
+        $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
                        notes, expense_date 
                 FROM sport_expenses
                 WHERE expense_title LIKE :query 
@@ -243,7 +248,7 @@ class SportExpense {
      * @return array
      */
     public function getBySport($sport) {
-        $sql = "SELECT expense_id, sport, expense_title, amount, receipt, submitted_by, 
+        $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
                        notes, expense_date 
                 FROM sport_expenses
                 WHERE sport = ?
@@ -261,7 +266,7 @@ class SportExpense {
      * @return array
      */
     public function getByDateRange($startDate, $endDate) {
-        $sql = "SELECT expense_id, sport, expense_title, amount, receipt, submitted_by, 
+        $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
                        notes, expense_date 
                 FROM sport_expenses
                 WHERE expense_date BETWEEN ? AND ?
@@ -289,7 +294,7 @@ class SportExpense {
      * @return array
      */
     public function getRecent($limit = 5) {
-        $sql = "SELECT expense_id, sport, expense_title, amount, receipt, submitted_by, 
+        $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
                        notes, expense_date 
                 FROM sport_expenses
                 ORDER BY expense_date DESC

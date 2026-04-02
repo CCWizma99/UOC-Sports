@@ -172,6 +172,7 @@
   padding: 25px;
   background: #fff;
   border-radius: 12px;
+
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   font-family: Arial, sans-serif;
 }
@@ -575,8 +576,7 @@ body {
     background-color: var(--white);
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    height: fit-content;
-    position: sticky;
+  
     top: 100px;
     grid-column: 1;
 }
@@ -655,11 +655,11 @@ body {
 }
 
 .welcome-section {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(43, 12, 77, 0.08) 100%);
+    background: #f3e8ff;
     color: var(--primary-purple);
     padding: 2rem 1.5rem;
     border-radius: 12px;
-    border: 2px solid var(--primary-purple);
+    border: 2px solid #6b21a8;
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
     min-height: 120px;
     margin-bottom: 1rem;
@@ -1059,8 +1059,8 @@ body {
     background-color: var(--white);
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    height: fit-content;
-    position: sticky;
+
+   
     top: 100px;
     grid-column: 3;
 }
@@ -1229,12 +1229,13 @@ body {
 
 .days-ago {
     font-size: 0.8rem;
-    color: white;
-    background: linear-gradient(135deg, var(--sport-cricket) 0%, #ea580c 100%);
+    color: #f59e0b;
+    background:  #fcf1df;
     padding: 0.2rem 0.5rem;
     border-radius: 10px;
+    border: 2px solid #f59e0b;
     white-space: nowrap;
-    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3);
+   
     font-weight: 600;
 }
 
@@ -1367,7 +1368,206 @@ body {
     }
 }
 
+/* Tablet breakpoint */
+@media (max-width: 1024px) {
+    /* Switch to 2-column layout on tablets */
+    .main-content-wrapper {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+    
+    .left-sidebar,
+    .content-wrapper,
+    .right-sidebar {
+        position: relative;
+        top: 0;
+    }
+    
+    .stats-calendar-wrapper {
+        grid-template-columns: 200px 1fr;
+    }
+}
+
 @media (max-width: 768px) {
+    /* Prevent horizontal scrolling */
+    body {
+        overflow-x: hidden;
+    }
+    
+    /* Ensure all boxes respect mobile width */
+    * {
+        max-width: 100%;
+    }
+    
+    /* Change main layout from 3-column to single column */
+    .main-content-wrapper {
+        grid-template-columns: 1fr;
+        padding: 0.5rem;
+        gap: 1rem;
+    }
+    
+    /* Stack sidebars and content vertically */
+    .left-sidebar,
+    .content-wrapper,
+    .right-sidebar {
+        position: relative;
+        top: 0;
+        width: 100%;
+        grid-column: 1;
+    }
+    
+    /* Reorder on mobile: content-wrapper first, then left-sidebar, then right-sidebar */
+    .content-wrapper {
+        order: 1;
+    }
+    
+    .left-sidebar {
+        order: 2;
+    }
+    
+    .right-sidebar {
+        order: 3;
+    }
+    
+    /* Reduce padding on mobile */
+    .left-sidebar,
+    .right-sidebar,
+    .content-wrapper {
+        padding: 1rem;
+    }
+    
+    /* Stack stats and calendar vertically on mobile */
+    .stats-calendar-wrapper {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    /* Stats grid single column */
+    .stats-grid {
+        flex-direction: row;
+        gap: 1rem;
+    }
+    
+    /* Stat cards smaller on mobile */
+    .stat-card {
+        padding: 1.25rem 1rem;
+        min-height: 120px;
+    }
+    
+    .stat-number {
+        font-size: 1.75rem;
+    }
+    
+    .stat-info h4 {
+        font-size: 0.75rem;
+    }
+    
+    /* Welcome section adjustments */
+    .welcome-section {
+        padding: 1.25rem 1rem;
+        min-height: 80px;
+    }
+    
+    .welcome-section h1 {
+        font-size: 1.25rem;
+    }
+    
+    .welcome-section p {
+        font-size: 0.875rem;
+    }
+    
+    /* Calendar adjustments */
+    .calendar-section-compact {
+        padding: 0.75rem;
+    }
+    
+    .calendar-section-compact h3 {
+        font-size: 1rem;
+    }
+    
+    #equipmentCalendar {
+        padding: 0.5rem;
+    }
+    
+    .calendar-grid {
+        gap: 0.25rem;
+    }
+    
+    .calendar-day {
+        min-height: 45px;
+        padding: 0.25rem;
+        font-size: 0.75rem;
+    }
+    
+    .calendar-day-header {
+        font-size: 0.65rem;
+        padding: 0.35rem;
+    }
+    
+    /* Calendar header adjustments */
+    .calendar-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    .calendar-header h4 {
+        font-size: 1rem;
+    }
+    
+    .calendar-nav {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .calendar-nav button {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Sidebar sections */
+    .sidebar-section h3 {
+        font-size: 0.95rem;
+    }
+    
+    /* Reservation items */
+    .reservation-item {
+        padding: 0.75rem;
+    }
+    
+    .reservation-time {
+        font-size: 0.75rem;
+    }
+    
+    .reservation-equipment {
+        font-size: 0.85rem;
+    }
+    
+    .reservation-location {
+        font-size: 0.75rem !important;
+    }
+    
+    /* Found items */
+    .found-item {
+        padding: 0.75rem;
+    }
+    
+    .found-item-name {
+        font-size: 0.85rem;
+    }
+    
+    /* Ensure images in found items are responsive */
+    .found-item img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    
+    /* View all links */
+    .view-all-link {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+    }
+    
     .header {
         padding: 1rem;
     }
@@ -1381,19 +1581,144 @@ body {
     .system-info h1 {
         font-size: 1.25rem;
     }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    /* Further reduce padding and spacing */
+    .main-content-wrapper {
+        padding: 0.25rem;
+        gap: 0.75rem;
+    }
     
+    .left-sidebar,
+    .right-sidebar,
+    .content-wrapper {
+        padding: 0.75rem;
+    }
+    
+    /* Welcome section even smaller */
+    .welcome-section {
+        padding: 1rem 0.75rem;
+        min-height: 60px;
+    }
+    
+    .welcome-section h1 {
+        font-size: 1.1rem;
+    }
+    
+    .welcome-section p {
+        font-size: 0.8rem;
+    }
+    
+    /* Stats grid stack vertically on very small screens */
     .stats-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .stat-card {
+        padding: 1rem 0.75rem;
+        min-height: 100px;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .stat-info h4 {
+        font-size: 0.7rem;
+    }
+    
+    /* Calendar further compressed */
+    .calendar-section-compact {
+        padding: 0.5rem;
+    }
+    
+    .calendar-section-compact h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    #equipmentCalendar {
+        padding: 0.25rem;
     }
     
     .calendar-grid {
-        gap: 0.25rem;
+        gap: 0.15rem;
     }
     
     .calendar-day {
-        min-height: 50px;
-        padding: 0.5rem;
-        font-size: 0.875rem;
+        min-height: 38px;
+        padding: 0.15rem;
+        font-size: 0.7rem;
+    }
+    
+    .calendar-day-header {
+        font-size: 0.6rem;
+        padding: 0.25rem;
+    }
+    
+    .calendar-nav button {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Sidebar sections more compact */
+    .sidebar-section h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .reservation-item {
+        padding: 0.65rem;
+    }
+    
+    .reservation-time,
+    .reservation-location {
+        font-size: 0.7rem !important;
+    }
+    
+    .reservation-equipment {
+        font-size: 0.8rem;
+    }
+    
+    .status-badge {
+        padding: 0.2rem 0.6rem;
+        font-size: 0.65rem;
+    }
+    
+    /* Found items */
+    .found-item {
+        padding: 0.65rem;
+    }
+    
+    .found-item-name {
+        font-size: 0.8rem;
+    }
+    
+    .days-ago {
+        font-size: 0.7rem;
+    }
+    
+    /* Ensure images in found items remain responsive */
+    .found-item img {
+        max-width: 120px !important;
+        height: auto !important;
+    }
+    
+    /* View all links */
+    .view-all-link {
+        font-size: 0.8rem;
+        padding: 0.4rem;
+    }
+    
+    /* Calendar tooltip adjustments */
+    .calendar-tooltip {
+        max-width: 260px;
+        min-width: 220px;
+        padding: 10px;
+        font-size: 0.8rem;
     }
 }
 

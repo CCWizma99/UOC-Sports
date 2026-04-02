@@ -1631,4 +1631,127 @@ CREATE TABLE IF NOT EXISTS `verification_request_students` (
   KEY `verification_status` (`verification_status`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+
+--
+-- Triggers for role history tracking
+--
+
+DELIMITER $$
+
+-- Trigger for Manager history
+DROP TRIGGER IF EXISTS `trg_sport_manager_history`$$
+CREATE TRIGGER `trg_sport_manager_history` AFTER UPDATE ON `sport`
+FOR EACH ROW
+BEGIN
+    IF OLD.manager_id != NEW.manager_id THEN
+        -- Close old tenure
+        IF OLD.manager_id != '' THEN
+            UPDATE manager_sport 
+            SET date_relieved = CURDATE() 
+            WHERE sport_id = OLD.sport_id 
+              AND user_id = OLD.manager_id 
+              AND date_relieved IS NULL;
+        END IF;
+        -- Start new tenure
+        IF NEW.manager_id != '' THEN
+            INSERT INTO manager_sport (user_id, sport_id, date_started)
+            VALUES (NEW.manager_id, NEW.sport_id, CURDATE());
+        END IF;
+    END IF;
+END $$
+
+-- Trigger for Coach history
+DROP TRIGGER IF EXISTS `trg_sport_coach_history`$$
+CREATE TRIGGER `trg_sport_coach_history` AFTER UPDATE ON `sport`
+FOR EACH ROW
+BEGIN
+    IF OLD.coach_id != NEW.coach_id THEN
+        -- Close old tenure
+        IF OLD.coach_id != '' THEN
+            UPDATE coach_sport 
+            SET date_relieved = CURDATE() 
+            WHERE sport_id = OLD.sport_id 
+              AND user_id = OLD.coach_id 
+              AND date_relieved IS NULL;
+        END IF;
+        -- Start new tenure
+        IF NEW.coach_id != '' THEN
+            INSERT INTO coach_sport (user_id, sport_id, date_started)
+            VALUES (NEW.coach_id, NEW.sport_id, CURDATE());
+        END IF;
+    END IF;
+END $$
+
+-- Trigger for Captain history
+DROP TRIGGER IF EXISTS `trg_sport_captain_history`$$
+CREATE TRIGGER `trg_sport_captain_history` AFTER UPDATE ON `sport`
+FOR EACH ROW
+BEGIN
+    IF OLD.captain_id != NEW.captain_id THEN
+        -- Close old tenure
+        IF OLD.captain_id != '' THEN
+            UPDATE captain_sport 
+            SET date_relieved = CURDATE() 
+            WHERE sport_id = OLD.sport_id 
+              AND user_id = OLD.captain_id 
+              AND date_relieved IS NULL;
+        END IF;
+        -- Start new tenure
+        IF NEW.captain_id != '' THEN
+            INSERT INTO captain_sport (user_id, sport_id, date_started)
+            VALUES (NEW.captain_id, NEW.sport_id, CURDATE());
+        END IF;
+    END IF;
+END $$
+
+-- Trigger for Good Received Notes (GRN) to update equipment inventory
+DROP TRIGGER IF EXISTS `trg_grn_after_insert`$$
+CREATE TRIGGER `trg_grn_after_insert` AFTER INSERT ON `good_received_notes`
+FOR EACH ROW
+BEGIN
+    UPDATE `equipment_inventory`
+    SET `quantity` = `quantity` + NEW.quantity,
+        `usable`   = `usable` + NEW.quantity
+    WHERE `stock_id` = NEW.stock_id;
+END$$
+
+-- Trigger for Good Condemn Notes (GCN) to update equipment inventory
+DROP TRIGGER IF EXISTS `trg_gcn_after_insert`$$
+CREATE TRIGGER `trg_gcn_after_insert` AFTER INSERT ON `good_condemn_notes`
+FOR EACH ROW
+BEGIN
+    UPDATE `equipment_inventory`
+    SET `quantity` = GREATEST(0, CAST(`quantity` AS SIGNED) - CAST(NEW.quantity AS SIGNED)),
+        `usable`   = GREATEST(0, CAST(`usable` AS SIGNED) - CAST(NEW.quantity AS SIGNED))
+    WHERE `stock_id` = NEW.stock_id;
+END$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sport_expenses`
+--
+
+DROP TABLE IF EXISTS `sport_expenses`;
+CREATE TABLE IF NOT EXISTS `sport_expenses` (
+  `expense_id` int NOT NULL AUTO_INCREMENT,
+  `sport` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expense_title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `receipt` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `submitted_by` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `expense_date` datetime NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`expense_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

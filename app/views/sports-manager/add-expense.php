@@ -13,6 +13,7 @@
     @import url("/uoc-sports/public/css/general/footer.css");
 
     @import url("/uoc-sports/public/css/sports-manager/report.css");
+    @import url("/uoc-sports/public/css/sports-manager/page.css");
   </style>
 </head>
 <body>
@@ -51,7 +52,7 @@
                 <?php if (isset($_GET['sport'])): ?>
                     <input type="hidden" name="sport_param" value="<?php echo htmlspecialchars($_GET['sport']); ?>">
                 <?php endif; ?>
-                <div class="form-grid">
+                <div class="form-row">
                     <div class="form-group">
                         <label for="Sport name">Sport *</label>
                         <?php 
@@ -60,38 +61,34 @@
                                        (isset($selectedSportFromUrl) ? $selectedSportFromUrl : 
                                        (isset($selectedSportName) ? $selectedSportName : ''));
                         ?>
-                        <select id="sport" name="sport" required>
-                            <option value="">Select Sport</option>
-                            <option value="Athletics" <?php echo $sportToSelect == 'Athletics' ? 'selected' : ''; ?>>Athletics</option>
-                            <option value="Rugby" <?php echo $sportToSelect == 'Rugby' ? 'selected' : ''; ?>>Rugby</option>
-                            <option value="Tennis" <?php echo $sportToSelect == 'Tennis' ? 'selected' : ''; ?>>Tennis</option>
-                            <option value="Weightlifting" <?php echo $sportToSelect == 'Weightlifting' ? 'selected' : ''; ?>>Weightlifting</option>
-                            <option value="Basketball" <?php echo $sportToSelect == 'Basketball' ? 'selected' : ''; ?>>Basketball</option>
-                            <option value="Carrom" <?php echo $sportToSelect == 'Carrom' ? 'selected' : ''; ?>>Carrom</option>
-                            <option value="Scrabble" <?php echo $sportToSelect == 'Scrabble' ? 'selected' : ''; ?>>Scrabble</option>
-                            <option value="Chess" <?php echo $sportToSelect == 'Chess' ? 'selected' : ''; ?>>Chess</option>
-                            <option value="Football" <?php echo $sportToSelect == 'Football' ? 'selected' : ''; ?>>Football</option>
-                            <option value="Baseball" <?php echo $sportToSelect == 'Baseball' ? 'selected' : ''; ?>>Baseball</option>
-                            <option value="Rowing" <?php echo $sportToSelect == 'Rowing' ? 'selected' : ''; ?>>Rowing</option>
-                            <option value="Netball" <?php echo $sportToSelect == 'Netball' ? 'selected' : ''; ?>>Netball</option>
-                            <option value="Teakwondo" <?php echo $sportToSelect == 'Teakwondo' ? 'selected' : ''; ?>>Teakwondo</option>
-                            <option value="Hockey" <?php echo $sportToSelect == 'Hockey' ? 'selected' : ''; ?>>Hockey</option>
-                            <option value="Elle" <?php echo $sportToSelect == 'Elle' ? 'selected' : ''; ?>>Elle</option>
-                            <option value="Cricket" <?php echo $sportToSelect == 'Cricket' ? 'selected' : ''; ?>>Cricket</option>
-                            <option value="Kabaddi" <?php echo $sportToSelect == 'Kabaddi' ? 'selected' : ''; ?>>Kabaddi</option>
-                            <option value="Wrestling" <?php echo $sportToSelect == 'Wrestling' ? 'selected' : ''; ?>>Wrestling</option>
-                            <option value="Badminton" <?php echo $sportToSelect == 'Badminton' ? 'selected' : ''; ?>>Badminton</option>
-                            <option value="Table Tennis" <?php echo $sportToSelect == 'Table Tennis' ? 'selected' : ''; ?>>Table Tennis</option>
-                            <option value="Volleyball" <?php echo $sportToSelect == 'Volleyball' ? 'selected' : ''; ?>>Volleyball</option>
-                            <option value="Boxing" <?php echo $sportToSelect == 'Boxing' ? 'selected' : ''; ?>>Boxing</option>
-                            <option value="Karate" <?php echo $sportToSelect == 'Karate' ? 'selected' : ''; ?>>Karate</option>
-                            <option value="Swimming" <?php echo $sportToSelect == 'Swimming' ? 'selected' : ''; ?>>Swimming</option>
+                        <input type="text" id="sport" name="sport" value="<?php echo htmlspecialchars($sportToSelect); ?>" readonly required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sportEvent">Sports Event *</label>
+                        <select id="sportEvent" name="sportEvent" required>
+                            <option value="">Select Event</option>
+                            <option value="Practice Session" <?php echo (isset($editData) && $editData['sport_event'] == 'Practice Session') ? 'selected' : ''; ?>>Practice Session</option>
+                            <option value="Inter-Faculty Tournament" <?php echo (isset($editData) && $editData['sport_event'] == 'Inter-Faculty Tournament') ? 'selected' : ''; ?>>Inter-Faculty Tournament</option>
+                            <option value="Inter-University Tournament" <?php echo (isset($editData) && $editData['sport_event'] == 'Inter-University Tournament') ? 'selected' : ''; ?>>Inter-University Tournament</option>
+                            <option value="National Championship" <?php echo (isset($editData) && $editData['sport_event'] == 'National Championship') ? 'selected' : ''; ?>>National Championship</option>
+
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="expense">Expense Title *</label>
-                        <input type="text" id="expense" name="expense" placeholder="Enter expense purpose" value="<?php echo isset($editData) ? htmlspecialchars($editData['expense_title']) : ''; ?>" required>
+                        <label for="expense">Expense Category *</label>
+                        <select id="expense" name="expense" required>
+                            <option value="">Select Expense Category</option>                            
+                            <option value="Travel & Transportation" <?php echo (isset($editData) && $editData['expense_title'] == 'Travel & Transportation') ? 'selected' : ''; ?>>Travel & Transportation</option>
+                            <option value="Meals & Refreshments" <?php echo (isset($editData) && $editData['expense_title'] == 'Meals & Refreshments') ? 'selected' : ''; ?>>Meals & Refreshments</option>
+                            <option value="Venue & Facility Rental" <?php echo (isset($editData) && $editData['expense_title'] == 'Venue & Facility Rental') ? 'selected' : ''; ?>>Venue & Facility Rental</option>
+                            <option value="Uniforms & Apparel" <?php echo (isset($editData) && $editData['expense_title'] == 'Uniforms & Apparel') ? 'selected' : ''; ?>>Uniforms & Apparel</option>
+                            <option value="Medical & First Aid" <?php echo (isset($editData) && $editData['expense_title'] == 'Medical & First Aid') ? 'selected' : ''; ?>>Medical & First Aid</option>
+                            <option value="Coaching & Training" <?php echo (isset($editData) && $editData['expense_title'] == 'Coaching & Training') ? 'selected' : ''; ?>>Coaching & Training</option>
+                            <option value="Maintenance & Repairs" <?php echo (isset($editData) && $editData['expense_title'] == 'Maintenance & Repairs') ? 'selected' : ''; ?>>Maintenance & Repairs</option>
+                            <option value="Other" <?php echo (isset($editData) && $editData['expense_title'] == 'Other') ? 'selected' : ''; ?>>Other</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -107,22 +104,22 @@
                         <?php endif; ?>
                     </div>
 
-                     <div class="form-group">
+                    <div class="form-group">
                         <label for="submittedBy">Submitted By *</label>
-                        <input type="text" id="submittedBy" name="submittedBy" value="<?php echo isset($editData) ? htmlspecialchars($editData['submitted_by']) : (isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : ''); ?>" readonly required style="background-color: #f3f4f6; color: #6b7280; cursor: not-allowed;">
+                        <input type="text" id="submittedBy" name="submittedBy" value="<?php echo isset($editData) ? htmlspecialchars($editData['submitted_by']) : (isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : ''); ?>" readonly required>
                     </div>
 
                     <div class="form-group full-width">
                         <label for="notes">Special Notes </label>
-                        <textarea id="notes" name="notes" placeholder="Enter special notes" rows="3" ><?php echo isset($editData) ? htmlspecialchars($editData['notes']) : ''; ?></textarea>
+                        <textarea id="notes" name="notes" placeholder="Enter special notes" rows="4" ><?php echo isset($editData) ? htmlspecialchars($editData['notes']) : ''; ?></textarea>
                     </div>
                 </div>
                         
                 <div class="form-actions">
-                    <button type="button" class="view-all-link" onclick="window.location.href='/uoc-sports/public/sport-manager/expenses/<?= isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '' ?>'">
+                    <button type="button" onclick="window.location.href='/uoc-sports/public/sport-manager/expenses/<?= isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '' ?>'">
                        Cancel
                     </button>
-                    <button type="submit" class="view-all-link">
+                    <button type="submit">
                        <?php echo isset($isEdit) && $isEdit ? 'Update' : 'Add'; ?> Expense
                     </button>
                 </div>

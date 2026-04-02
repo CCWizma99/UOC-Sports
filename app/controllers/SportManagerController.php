@@ -6,8 +6,19 @@ class SportManagerController {
         $practiceModel = new SportPracticeSession();
         $competitionModel = new SportCompetition();
         
-        // Get the sport ID from URL parameter or from managed sport
+        // Get the sport ID from URL parameter, session, or from managed sport
         $selectedSportId = $_GET['sport'] ?? null;
+        
+        // Store in session if provided in URL
+        if ($selectedSportId) {
+            $_SESSION['selected_sport_id'] = $selectedSportId;
+        }
+        
+        // If not in URL, check session
+        if (!$selectedSportId && isset($_SESSION['selected_sport_id'])) {
+            $selectedSportId = $_SESSION['selected_sport_id'];
+        }
+        
         $managedSportId = null;
         
         if ($userId) {
@@ -17,8 +28,13 @@ class SportManagerController {
             $managedSportId = $stmt->fetchColumn();
         }
         
-        // Use URL parameter if provided, otherwise use managed sport
+        // Use URL/session parameter if provided, otherwise use managed sport
         $filterSportId = $selectedSportId ?: $managedSportId;
+        
+        // Store the final sport ID in session for consistency
+        if ($filterSportId) {
+            $_SESSION['selected_sport_id'] = $filterSportId;
+        }
         
         // Get current month
         $currentMonth = date('m');
@@ -67,8 +83,18 @@ class SportManagerController {
     public function expenses() {
         $expenseModel = new SportExpense(Database::getConnection());
         
-        // Get selected sport from URL parameter
+        // Get selected sport from URL parameter or session
         $selectedSportId = $_GET['sport'] ?? null;
+        
+        // Store in session if provided in URL
+        if ($selectedSportId) {
+            $_SESSION['selected_sport_id'] = $selectedSportId;
+        }
+        
+        // Fall back to session if not in URL
+        if (!$selectedSportId && isset($_SESSION['selected_sport_id'])) {
+            $selectedSportId = $_SESSION['selected_sport_id'];
+        }
         
         // If sport is selected, get sport name and filter expenses by that sport
         $filters = [];
@@ -122,6 +148,16 @@ class SportManagerController {
         $selectedSportName = 'Unknown Sport';
         $rankings = [];
         
+        // Store in session if provided in URL
+        if ($selectedSportId) {
+            $_SESSION['selected_sport_id'] = $selectedSportId;
+        }
+        
+        // Fall back to session if not in URL
+        if (!$selectedSportId && isset($_SESSION['selected_sport_id'])) {
+            $selectedSportId = $_SESSION['selected_sport_id'];
+        }
+        
         if ($userId) {
             $db = Database::getConnection();
             
@@ -138,6 +174,7 @@ class SportManagerController {
                 if (!$selectedSportId) {
                     $selectedSportId = $managedSports[0]['sport_id'];
                     $selectedSportName = $managedSports[0]['sport_name'];
+                    $_SESSION['selected_sport_id'] = $selectedSportId;
                 } else {
                     // Validate selected sport is in managed list
                     foreach ($managedSports as $sport) {
