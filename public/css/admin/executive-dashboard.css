@@ -297,6 +297,95 @@
     grid-column: 1 / -1;
 }
 
+/* ── Horizontal Overview Block ── */
+.horizontal-overview {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 16px 24px;
+}
+
+.horizontal-overview .overview-title {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 180px;
+    border-right: 1px solid #f0f0f0;
+    padding-right: 20px;
+}
+
+.horizontal-overview .overview-title h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.horizontal-overview .overview-title h3 i {
+    color: #4b0082;
+}
+
+.horizontal-overview .overview-title p {
+    font-size: 0.76rem;
+    color: #888;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.horizontal-overview .overview-stats {
+    display: flex;
+    flex: 1;
+    justify-content: space-around;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.horizontal-overview .stat-item {
+    padding: 8px;
+    background: transparent;
+    text-align: left;
+    border-radius: 0;
+    flex: 1;
+    min-width: 120px;
+}
+
+.horizontal-overview .stat-item:hover {
+    background: transparent;
+    transform: none;
+}
+
+.horizontal-overview .stat-num {
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+@media (max-width: 768px) {
+    .horizontal-overview {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px;
+        gap: 16px;
+    }
+    .horizontal-overview .overview-title {
+        border-right: none;
+        border-bottom: 1px solid #f0f0f0;
+        padding-right: 0;
+        padding-bottom: 12px;
+        width: 100%;
+    }
+    .horizontal-overview .overview-stats {
+        justify-content: flex-start;
+        gap: 16px;
+        width: 100%;
+    }
+    .horizontal-overview .stat-item {
+        min-width: 45%;
+    }
+}
+
 .insight-card .card-header {
     display: flex;
     align-items: center;

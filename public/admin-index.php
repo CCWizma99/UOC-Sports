@@ -23,8 +23,16 @@ $router->get('/admin-equipments', 'AdminHomeController@equipments');
 $router->get('/admin-equipment-analytics', 'AdminHomeController@equipmentAnalytics');
 $router->get('/admin-equipment-reports', 'AdminHomeController@equipmentReports');
 $router->get('/admin-events', 'AdminHomeController@events');
+$router->get('/admin-results', 'AdminHomeController@results');
 $router->get('/admin-teams', 'AdminHomeController@teams');
 $router->get('/admin-team-details', 'AdminHomeController@teamDetails');
+
+// Admin Match Results API
+$router->get('/admin-results/get-all', 'MatchResultApiController@getAllAdminResults');
+$router->get('/admin-results/details/{id}', 'MatchResultApiController@getMatchDetails');
+$router->post('/admin-results/toggle-publish', 'MatchResultApiController@togglePublish');
+$router->post('/admin-results/publish-tournament', 'MatchResultApiController@publishTournament');
+
 $router->get('/admin-budget', 'AdminHomeController@budget');
 $router->get('/admin-news', 'AdminHomeController@news');
 $router->get('/admin-inquiry', 'AdminHomeController@inquiry');
@@ -107,5 +115,11 @@ $router->post('/admin-tournament/add-match-result', 'TournamentController@addMat
 $router->get('/admin-sport/player-match-history', 'SportApiController@getPlayerMatchHistory');
 $router->get('/admin-sport/search-matches', 'SportApiController@searchMatches');
 $router->get('/admin-sport/match-details', 'SportApiController@getMatchDetails');
+
+// Captain Result Permission routes
+$router->get('/admin-tournament/started-tournaments', 'TournamentController@getStartedTournaments');
+$router->get('/admin-tournament/granted-permissions', 'TournamentController@getGrantedPermissions');
+$router->post('/admin-tournament/grant-captain-permission', 'TournamentController@grantCaptainPermission');
+$router->post('/admin-tournament/revoke-captain-permission', 'TournamentController@revokeCaptainPermission');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

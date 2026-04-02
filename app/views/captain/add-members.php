@@ -8,7 +8,6 @@
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
-        @import url(/uoc-sports/public/css/general/header.css);
         @import url(/uoc-sports/public/css/captain/add-members.css);
         @import url(/uoc-sports/public/css/general/footer.css);
 

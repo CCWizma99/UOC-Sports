@@ -449,34 +449,35 @@ function renderUsersTab() {
     const { athlete_engagement } = insights;
     
     container.innerHTML = `
+        <div class="insight-card wide horizontal-overview">
+            <div class="overview-title">
+                <h3><i class="fas fa-chart-bar"></i> User Overview</h3>
+                <p>Key user metrics and summary</p>
+            </div>
+            <div class="overview-stats">
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #4b0082">${users.total.toLocaleString()}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${users.new_this_month}</div>
+                    <div class="stat-label">New This Month</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${athlete_engagement.total_athletes}</div>
+                    <div class="stat-label">Total Athletes</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${athlete_engagement.participation_rate}%</div>
+                    <div class="stat-label">Participation Rate</div>
+                </div>
+            </div>
+        </div>
+
         <div class="insight-card">
             ${cardHeader('fa-user-group', 'User Distribution', 'Breakdown of registered accounts by role type')}
             <div class="card-content">
                 <div class="chart-wrapper"><canvas id="chart-user-distribution"></canvas></div>
-            </div>
-        </div>
-        
-        <div class="insight-card">
-            ${cardHeader('fa-chart-bar', 'User Overview', 'Key user metrics and registration summary')}
-            <div class="card-content">
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="stat-num">${users.total.toLocaleString()}</div>
-                        <div class="stat-label">Total Users</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${users.new_this_month}</div>
-                        <div class="stat-label">New This Month</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${athlete_engagement.total_athletes}</div>
-                        <div class="stat-label">Total Athletes</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${athlete_engagement.participation_rate}%</div>
-                        <div class="stat-label">Participation Rate</div>
-                    </div>
-                </div>
             </div>
         </div>
         
@@ -519,6 +520,31 @@ function renderFacilitiesTab() {
     const { facility_demand } = insights;
     
     container.innerHTML = `
+        <div class="insight-card wide horizontal-overview">
+            <div class="overview-title">
+                <h3><i class="fas fa-list-check"></i> Booking Status</h3>
+                <p>Total, monthly, and pending reservations</p>
+            </div>
+            <div class="overview-stats">
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #4b0082">${reservations.total}</div>
+                    <div class="stat-label">Total Bookings</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${reservations.this_month}</div>
+                    <div class="stat-label">This Month</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #d97706">${reservations.pending}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${reservations.avg_utilization}%</div>
+                    <div class="stat-label">Avg. Utilization</div>
+                </div>
+            </div>
+        </div>
+
         <div class="insight-card">
             ${cardHeader('fa-chart-pie', 'Facility Utilization', 'Booking activity and utilization rate per facility')}
             <div class="card-content">
@@ -538,29 +564,7 @@ function renderFacilitiesTab() {
             </div>
         </div>
         
-        <div class="insight-card">
-            ${cardHeader('fa-list-check', 'Booking Status', 'Overview of total, monthly, and pending reservations')}
-            <div class="card-content">
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="stat-num">${reservations.total}</div>
-                        <div class="stat-label">Total Bookings</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${reservations.this_month}</div>
-                        <div class="stat-label">This Month</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${reservations.pending}</div>
-                        <div class="stat-label">Pending</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${reservations.avg_utilization}%</div>
-                        <div class="stat-label">Avg. Utilization</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
         
         <div class="insight-card">
             ${cardHeader('fa-fire', 'Top Facilities by Demand', 'Most booked facilities ranked by total reservations')}
@@ -604,22 +608,23 @@ function renderEquipmentTab() {
     const { equipment, equipment_analytics } = dashboardData;
     
     container.innerHTML = `
-        <div class="insight-card">
-            ${cardHeader('fa-boxes-stacked', 'Equipment Overview', 'Summary of total equipment types and inventory')}
-            <div class="card-content">
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="stat-num">${equipment.total_types}</div>
-                        <div class="stat-label">Equipment Types</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${equipment.total_quantity.toLocaleString()}</div>
-                        <div class="stat-label">Total Items</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${equipment.needs_attention}</div>
-                        <div class="stat-label">Need Attention</div>
-                    </div>
+        <div class="insight-card wide horizontal-overview">
+            <div class="overview-title">
+                <h3><i class="fas fa-boxes-stacked"></i> Equipment Overview</h3>
+                <p>Total equipment and inventory status</p>
+            </div>
+            <div class="overview-stats">
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #4b0082">${equipment.total_types}</div>
+                    <div class="stat-label">Equipment Types</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${equipment.total_quantity.toLocaleString()}</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${equipment.needs_attention}</div>
+                    <div class="stat-label">Need Attention</div>
                 </div>
             </div>
         </div>
@@ -795,6 +800,31 @@ function renderBudgetTab() {
     const { budget_efficiency } = insights;
     
     container.innerHTML = `
+        <div class="insight-card wide horizontal-overview">
+            <div class="overview-title">
+                <h3><i class="fas fa-heartbeat"></i> Budget Health</h3>
+                <p>Sports on track, at risk, or underspending</p>
+            </div>
+            <div class="overview-stats">
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #059669">${budget_efficiency.summary.on_track}</div>
+                    <div class="stat-label">On Track</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #ef4444">${budget_efficiency.summary.overspend_risk}</div>
+                    <div class="stat-label">Overspend Risk</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #d97706">${budget_efficiency.summary.underspend}</div>
+                    <div class="stat-label">Underspend</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${budget_efficiency.summary.total}</div>
+                    <div class="stat-label">Total Sports</div>
+                </div>
+            </div>
+        </div>
+
         <div class="insight-card">
             ${cardHeader('fa-chart-pie', 'Budget Overview (' + budget.year + ')', 'Allocation vs spending for the current fiscal year')}
             <div class="card-content">
@@ -824,29 +854,7 @@ function renderBudgetTab() {
             </div>
         </div>
         
-        <div class="insight-card">
-            ${cardHeader('fa-heartbeat', 'Budget Health Summary', 'Sports on track, at risk, or underspending')}
-            <div class="card-content">
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="stat-num" style="color: #059669">${budget_efficiency.summary.on_track}</div>
-                        <div class="stat-label">On Track</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num" style="color: #ef4444">${budget_efficiency.summary.overspend_risk}</div>
-                        <div class="stat-label">Overspend Risk</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num" style="color: #d97706">${budget_efficiency.summary.underspend}</div>
-                        <div class="stat-label">Underspend</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${budget_efficiency.summary.total}</div>
-                        <div class="stat-label">Total Sports</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     `;
 
     // Render budget donut chart
@@ -864,46 +872,27 @@ function renderAchievementsTab() {
     const { events, achievements } = dashboardData;
     
     container.innerHTML = `
-        <div class="insight-card">
-            ${cardHeader('fa-trophy', 'Events Overview', 'Summary of all events including active and upcoming')}
-            <div class="card-content">
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="stat-num">${events.total}</div>
-                        <div class="stat-label">Total Events</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num" style="color: #059669">${events.active}</div>
-                        <div class="stat-label">Active</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num" style="color: #4b0082">${events.upcoming}</div>
-                        <div class="stat-label">Upcoming</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${events.completed_this_year}</div>
-                        <div class="stat-label">Completed (Year)</div>
-                    </div>
-                </div>
+        <div class="insight-card wide horizontal-overview">
+            <div class="overview-title">
+                <h3><i class="fas fa-trophy"></i> Events & Achievements</h3>
+                <p>Summary of events and active programs</p>
             </div>
-        </div>
-        
-        <div class="insight-card">
-            ${cardHeader('fa-medal', 'Achievements Overview', 'Total awards and active sport programs')}
-            <div class="card-content">
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="stat-num">${achievements.total}</div>
-                        <div class="stat-label">Total Achievements</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${achievements.top_performers.length}</div>
-                        <div class="stat-label">Active Performers</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${achievements.by_sport.length}</div>
-                        <div class="stat-label">Sports with Awards</div>
-                    </div>
+            <div class="overview-stats">
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #4b0082">${events.total}</div>
+                    <div class="stat-label">Total Events</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #059669">${events.active}</div>
+                    <div class="stat-label">Active Events</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${achievements.total}</div>
+                    <div class="stat-label">Total Achievements</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${achievements.top_performers.length}</div>
+                    <div class="stat-label">Active Performers</div>
                 </div>
             </div>
         </div>
@@ -962,26 +951,27 @@ function renderCommunityTab() {
     const { community } = dashboardData;
     
     container.innerHTML = `
-        <div class="insight-card">
-            ${cardHeader('fa-newspaper', 'Community Overview', 'Posts, comments, and engagement metrics')}
-            <div class="card-content">
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <div class="stat-num">${community.post_stats.total_posts || 0}</div>
-                        <div class="stat-label">Total Posts</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${community.post_stats.active_posts || 0}</div>
-                        <div class="stat-label">Active Posts</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${community.total_comments}</div>
-                        <div class="stat-label">Total Comments</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-num">${community.post_stats.commenting_enabled || 0}</div>
-                        <div class="stat-label">Comments Enabled</div>
-                    </div>
+        <div class="insight-card wide horizontal-overview">
+            <div class="overview-title">
+                <h3><i class="fas fa-newspaper"></i> Community Overview</h3>
+                <p>Engagement metrics and post stats</p>
+            </div>
+            <div class="overview-stats">
+                <div class="stat-item">
+                    <div class="stat-num" style="color: #4b0082">${community.post_stats.total_posts || 0}</div>
+                    <div class="stat-label">Total Posts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${community.post_stats.active_posts || 0}</div>
+                    <div class="stat-label">Active Posts</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${community.total_comments}</div>
+                    <div class="stat-label">Total Comments</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">${community.post_stats.commenting_enabled || 0}</div>
+                    <div class="stat-label">Comments Enabled</div>
                 </div>
             </div>
         </div>

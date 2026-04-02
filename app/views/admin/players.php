@@ -37,9 +37,11 @@ require '../app/views/templates/admin/sidebar.php';
                         Faculty
                         <div class="dropdown" data-filter="faculty">
                             <div data-value="">All</div>
-                            <div data-value="Science">Science</div>
-                            <div data-value="Arts">Arts</div>
-                            <div data-value="Medicine">Medicine</div>
+                            <?php foreach ($faculty_data as $faculty): ?>
+                                <div data-value="<?= htmlspecialchars($faculty['faculty_name']) ?>">
+                                    <?= htmlspecialchars($faculty['faculty_name']) ?>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
 
@@ -58,9 +60,11 @@ require '../app/views/templates/admin/sidebar.php';
                         Sport
                         <div class="dropdown" data-filter="sport">
                             <div data-value="">All</div>
-                            <div data-value="Cricket">Cricket</div>
-                            <div data-value="Football">Football</div>
-                            <div data-value="Rowing">Rowing</div>
+                            <?php foreach ($sport_data as $s): ?>
+                                <div data-value="<?= htmlspecialchars($s['sport_name']) ?>">
+                                    <?= htmlspecialchars($s['sport_name']) ?>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
 
@@ -88,75 +92,34 @@ require '../app/views/templates/admin/sidebar.php';
         </div>
 
         <div class="players-grid-right">
-            <section id="add-match-result">
-                <h2>Add Match Result</h2>
-                <form id="add-match-form" novalidate>
-                    <p class="required-note"><span>*</span> Required fields</p>
-                    
-                    <!-- Tournament Select -->
-                    <div class="input-div">
-                        <label for="tournament">Tournament <span class="required">*</span></label>
-                        <select id="tournament" name="tournament_id" required>
-                            <option value="">Loading tournaments...</option>
-                        </select>
-                    </div>
+            <!-- ===== GRANT CAPTAIN PERMISSION PANEL ===== -->
+            <section id="grant-permission-section">
+                <h2><i class="fas fa-unlock-alt" style="color:#5e2d91;margin-right:8px;"></i>Allow Captain to Add Results</h2>
+                <p style="font-size:13px;color:#6b7280;margin:0 0 20px;">Select a tournament that has already started to grant its captain permission to submit match results. An email notification will be sent automatically.</p>
 
-                    <!-- Sport (Auto-populated from tournament) -->
-                    <div class="input-div">
-                        <label for="sport-display">Sport</label>
-                        <input type="text" id="sport-display" readonly placeholder="(Selected from tournament)">
-                        <input type="hidden" id="sport" name="sport_id" value="">
-                        <input type="hidden" id="sport-category" name="sport_category" value="">
-                    </div>
+                <!-- Tournament Cards (started events) -->
+                <div id="started-tournaments-loading" style="padding:20px;color:#8b5cf6;font-size:13px;">
+                    <i class="fas fa-spinner fa-spin"></i> Loading started tournaments...
+                </div>
+                <div id="started-tournaments-list" style="display:none;"></div>
+                <div id="started-tournaments-empty" style="display:none;padding:24px;text-align:center;color:#9ca3af;font-size:13px;">
+                    <i class="fas fa-calendar-times" style="font-size:32px;opacity:0.3;display:block;margin-bottom:10px;"></i>
+                    No tournaments have started yet. Events are available for granting permission once their start date is reached.
+                </div>
 
-                    <!-- Match Name -->
-                    <div class="input-div">
-                        <label for="match-name">Match Name <span class="required">*</span></label>
-                        <input type="text" id="match-name" name="match_name" 
-                               placeholder="Quarter Final / Semi Final..." required>
-                    </div>
+                <div id="grant-msg" style="display:none;margin-top:14px;"></div>
+            </section>
 
-                    <!-- Match Date -->
-                    <div class="input-div">
-                        <label for="match-date">Match Date <span class="required">*</span></label>
-                        <input type="date" id="match-date" name="match_date" required>
-                    </div>
-
-                    <!-- Result Status -->
-                    <div class="input-div">
-                        <label for="result-status">Result Status</label>
-                        <select id="result-status" name="result_status">
-                            <option value="COMPLETED">Completed</option>
-                            <option value="DRAW">Draw</option>
-                            <option value="CANCELLED">Cancelled</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="NO_RESULT">No Result</option>
-                        </select>
-                    </div>
-
-                    <!-- Winner (Player) - Optional -->
-                    <div class="input-div">
-                        <label for="winner">Winner (Player)</label>
-                        <select id="winner" name="winner_id">
-                            <option value="">Select winner (optional)</option>
-                        </select>
-                    </div>
-
-                    <!-- Sport Category Info Badge -->
-                    <div id="sport-category-badge" class="category-badge" style="display:none;">
-                        <span id="category-label"></span>
-                    </div>
-
-                    <!-- Dynamic Sport-Specific Fields Container -->
-                    <div id="sport-specific-fields" class="sport-fields-container">
-                        <p class="hint-text"><i class="fas fa-info-circle"></i> Select a sport to see scoring fields</p>
-                    </div>
-
-                    <button type="submit" class="btn" id="submit-btn">
-                        <i class="fas fa-plus-circle"></i> Add Result
-                    </button>
-                    <div id="form-message"></div>
-                </form>
+            <!-- ===== GRANTED PERMISSIONS LIST ===== -->
+            <section id="permissions-list-section" style="margin-top:28px;">
+                <h2><i class="fas fa-list-check" style="color:#5e2d91;margin-right:8px;"></i>Granted Permissions</h2>
+                <div id="permissions-loading" style="padding:16px;color:#8b5cf6;font-size:13px;">
+                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                </div>
+                <div id="permissions-table-wrap" style="display:none;margin-top:12px;"></div>
+                <div id="permissions-empty" style="display:none;padding:20px;text-align:center;color:#9ca3af;font-size:13px;">
+                    No permissions granted yet.
+                </div>
             </section>
         </div>
     </div>
@@ -214,6 +177,29 @@ require '../app/views/templates/admin/sidebar.php';
 <button class="fab-search-match" onclick="openSearchMatchModal()" title="Search Matches">
     <i class="fas fa-search"></i>
 </button>
+
+<!-- Custom Confirmation Modal -->
+<div id="custom-confirm-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 420px; animation: modalSlideIn 0.2s ease;">
+        <div class="modal-header" style="padding: 18px 22px;">
+            <h3 id="confirm-modal-title" style="margin: 0; color: #1e1e2e; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-question" style="color: #4b0082;"></i> Confirm Action
+            </h3>
+            <span class="close-modal" onclick="closeConfirmModal()" style="cursor: pointer; font-size: 22px; color: #9ca3af; line-height: 1;">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 22px; font-size: 14px; color: #4b5563; white-space: pre-line; line-height: 1.5;" id="confirm-modal-message">
+            Are you sure?
+        </div>
+        <div class="modal-footer" style="padding: 16px 22px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #f3f4f6; background: #faf9fc; border-radius: 0 0 1.5rem 1.5rem;">
+            <button onclick="closeConfirmModal()" style="background: #e5e7eb; color: #374151; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;">
+                Cancel
+            </button>
+            <button id="confirm-modal-action-btn" style="border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; color: white; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
 
 
 <script>
@@ -324,499 +310,267 @@ function performSearch() {
 </script>
 
 <script>
-// ========== Add Match Result Script - Dynamic Sport-Specific Forms ==========
-document.addEventListener("DOMContentLoaded", async () => {
-    const tournamentSelect = document.getElementById("tournament");
-    const sportInput = document.getElementById("sport");
-    const sportDisplay = document.getElementById("sport-display");
-    const sportCategoryInput = document.getElementById("sport-category");
-    const categoryBadge = document.getElementById("sport-category-badge");
-    const categoryLabel = document.getElementById("category-label");
-    const sportFieldsContainer = document.getElementById("sport-specific-fields");
-    const winnerSelect = document.getElementById("winner");
-    const form = document.getElementById("add-match-form");
+// ========== Grant Captain Permission Script ==========
 
-    // Store data
-    let studentsData = [];
-    let currentFormConfig = null;
-    let tournamentsData = [];
-
-    // Category display names
-    const categoryNames = {
-        'TEAM_GOAL': 'Team Sport (Goals)',
-        'RACKET': 'Racket Sport (Sets)',
-        'CRICKET': 'Cricket',
-        'COMBAT': 'Combat Sport',
-        'TRACK_FIELD': 'Track & Field',
-        'BOARD_GAME': 'Board Game',
-        'BALL_COURT': 'Ball Court Sport',
-        'WEIGHT': 'Weight Lifting'
-    };
-
-    // ===== Load Tournaments (with sport info) =====
+async function loadStartedTournaments() {
     try {
-        const res = await fetch("admin-sport/get-tournaments");
+        const res  = await fetch('admin-tournament/started-tournaments');
         const data = await res.json();
-        tournamentSelect.innerHTML = '<option value="">Select tournament</option>';
-        if(data.status === "success"){
-            tournamentsData = data.data;
+        const loading = document.getElementById('started-tournaments-loading');
+        const list    = document.getElementById('started-tournaments-list');
+        const empty   = document.getElementById('started-tournaments-empty');
+
+        loading.style.display = 'none';
+
+        if (data.status === 'success' && data.data && data.data.length > 0) {
+            let html = '<div class="tournament-grant-grid">';
             data.data.forEach(t => {
-                const opt = document.createElement("option");
-                opt.value = t.tournament_id;
-                opt.textContent = t.tournament_name;
-                opt.dataset.sportId = t.sport_id;
-                opt.dataset.sportName = t.sport_name;
-                opt.dataset.sportCategory = t.sport_category;
-                tournamentSelect.appendChild(opt);
-            });
-        } else if (data.status === "empty"){
-            tournamentSelect.innerHTML = '<option>' + data.data + '</option>';
-        }
-    } catch(err){ tournamentSelect.innerHTML = '<option>Error loading tournaments</option>'; }
+                const hasCaptain   = t.captain_id && t.captain_id !== '';
+                const isActive     = t.permission_status === 'ACTIVE';
+                const isRevoked    = t.permission_status === 'REVOKED';
+                const hasPermission = (isActive || isRevoked);
 
-    // ===== Tournament Change - Auto-populate Sport =====
-    tournamentSelect.addEventListener("change", async () => {
-        const selectedOption = tournamentSelect.options[tournamentSelect.selectedIndex];
-        
-        if (!selectedOption.value) {
-            // No tournament selected
-            sportInput.value = '';
-            sportDisplay.value = '';
-            sportCategoryInput.value = '';
-            sportFieldsContainer.innerHTML = '<p class="hint-text"><i class="fas fa-info-circle"></i> Select a tournament to see scoring fields</p>';
-            categoryBadge.style.display = 'none';
-            currentFormConfig = null;
-            return;
-        }
-        
-        // Get sport info from tournament
-        const sportId = selectedOption.dataset.sportId;
-        const sportName = selectedOption.dataset.sportName;
-        const category = selectedOption.dataset.sportCategory;
-        
-        // Set sport values
-        sportInput.value = sportId;
-        sportDisplay.value = sportName;
-        sportCategoryInput.value = category;
-        
-        // Show category badge
-        categoryBadge.style.display = 'block';
-        categoryLabel.textContent = categoryNames[category] || category;
-        categoryBadge.className = `category-badge category-${category.toLowerCase().replace('_', '-')}`;
-        
-        // Load sport-specific form fields
-        sportFieldsContainer.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading form fields...</div>';
-        
-        try {
-            const res = await fetch(`admin-sport/get-sport-fields?sport_id=${sportId}`);
-            const data = await res.json();
-            
-            if (data.status === "success" && data.data) {
-                currentFormConfig = data.data;
-                renderSportFields(data.data);
-            } else {
-                sportFieldsContainer.innerHTML = '<p class="error-text">Could not load form configuration</p>';
-            }
-        } catch(err) {
-            sportFieldsContainer.innerHTML = '<p class="error-text">Error loading form fields</p>';
-            console.error(err);
-        }
-    });
+                const startDate = t.start_date ? new Date(t.start_date).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) : 'N/A';
 
-    // ===== Load Students for Winner Select =====
-    try {
-        const res = await fetch("admin-sport/get-students");
-        const data = await res.json();
-        winnerSelect.innerHTML = '<option value="">Select winner (optional)</option>';
-        if(data.status === "success"){
-            studentsData = data.data;
-            data.data.forEach(s => {
-                const opt = document.createElement("option");
-                opt.value = s.user_id;
-                opt.textContent = s.name;
-                winnerSelect.appendChild(opt);
-            });
-        }
-    } catch(err){ winnerSelect.innerHTML = '<option>Error loading students</option>'; }
-
-    window.studentsData = studentsData;
-
-    // ===== Render Sport-Specific Fields =====
-    function renderSportFields(config) {
-        let html = '';
-        
-        config.sections.forEach(section => {
-            const isCollapsible = section.collapsible;
-            const sectionId = section.title.toLowerCase().replace(/\s+/g, '-');
-            
-            html += `<div class="form-section ${isCollapsible ? 'collapsible' : ''}" id="section-${sectionId}">`;
-            html += `<h3 class="section-title ${isCollapsible ? 'collapsible-toggle' : ''}" 
-                        ${isCollapsible ? `onclick="toggleSection('${sectionId}')"` : ''}>
-                        ${section.title}
-                        ${isCollapsible ? '<i class="fas fa-chevron-down"></i>' : ''}
-                    </h3>`;
-            html += `<div class="section-content ${isCollapsible ? 'collapsed' : ''}">`;
-            
-            if (section.description) {
-                html += `<p class="section-description">${section.description}</p>`;
-            }
-            
-            // Render fields
-            const fieldsPerRow = section.fields.length <= 2 ? section.fields.length : 2;
-            html += `<div class="fields-grid cols-${fieldsPerRow}">`;
-            
-            section.fields.forEach(field => {
-                html += renderField(field);
-            });
-            
-            html += '</div></div></div>';
-        });
-        
-        sportFieldsContainer.innerHTML = html;
-        
-        // Add event listeners for special field types
-        setupSpecialFields();
-    }
-
-    // ===== Render Individual Field =====
-    function renderField(field) {
-        if (field.type === 'hidden') {
-            return `<input type="hidden" name="details[${field.name}]" value="${field.value || ''}">`;
-        }
-        
-        let html = `<div class="input-div field-${field.name}" ${field.conditional ? `data-conditional="${field.conditional}"` : ''}>`;
-        
-        if (field.label && field.type !== 'checkbox') {
-            html += `<label for="${field.name}">${field.label}${field.required ? ' <span class="required">*</span>' : ''}</label>`;
-        }
-        
-        switch(field.type) {
-            case 'text':
-                html += `<input type="text" id="${field.name}" name="details[${field.name}]" 
-                         placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''} ${field.readonly ? 'readonly' : ''}>`;
-                break;
-                
-            case 'number':
-                html += `<input type="number" id="${field.name}" name="details[${field.name}]" 
-                         min="${field.min ?? ''}" max="${field.max ?? ''}" step="${field.step || '1'}"
-                         placeholder="${field.placeholder || '0'}" ${field.readonly ? 'readonly' : ''}>`;
-                break;
-                
-            case 'select':
-                html += `<select id="${field.name}" name="details[${field.name}]" ${field.required ? 'required' : ''}>`;
-                html += `<option value="">Select...</option>`;
-                field.options?.forEach(opt => {
-                    html += `<option value="${opt.value}">${opt.label}</option>`;
-                });
-                html += '</select>';
-                break;
-                
-            case 'checkbox':
-                html += `<label class="checkbox-label">
-                    <input type="checkbox" id="${field.name}" name="details[${field.name}]" value="1">
-                    ${field.label}
-                </label>`;
-                break;
-                
-            case 'textarea':
-                html += `<textarea id="${field.name}" name="details[${field.name}]" 
-                         placeholder="${field.placeholder || ''}" rows="3"></textarea>`;
-                break;
-                
-            case 'player_select':
-                html += `<select id="${field.name}" name="details[${field.name}]">`;
-                html += '<option value="">Select player...</option>';
-                if (window.studentsData) {
-                    window.studentsData.forEach(s => {
-                        html += `<option value="${s.user_id}">${s.name}</option>`;
-                    });
+                html += `<div class="t-grant-card" id="tcard-${t.tournament_id}">`;
+                html += `<div class="t-grant-card-top">`;
+                html += `<div><div class="t-grant-name">${t.tournament_name}</div>`;
+                html += `<div class="t-grant-meta">`;
+                html += `<span class="t-meta-sport">${t.sport_name}</span>`;
+                html += `<span class="t-meta-date"><i class="fas fa-calendar-alt"></i> Started: ${startDate}</span>`;
+                if (hasCaptain) {
+                    html += `<span class="t-meta-captain"><i class="fas fa-user-tie"></i> ${t.captain_name || 'Captain assigned'}</span>`;
+                } else {
+                    html += `<span class="t-meta-no-captain"><i class="fas fa-user-slash"></i> No captain assigned</span>`;
                 }
-                html += '</select>';
-                break;
-                
-            case 'set_scores':
-                html += renderSetScoresField(field);
-                break;
-                
-            case 'round_scores':
-                html += renderRoundScoresField(field);
-                break;
-                
-            case 'period_scores':
-                html += renderPeriodScoresField(field);
-                break;
-                
-            case 'participant_results':
-                html += renderParticipantResultsField(field);
-                break;
-                
-            default:
-                html += `<input type="text" id="${field.name}" name="details[${field.name}]">`;
-        }
-        
-        html += '</div>';
-        return html;
-    }
+                html += `</div></div>`; // end name+meta
 
-    // ===== Render Set Scores (for racket sports) =====
-    function renderSetScoresField(field) {
-        return `
-            <div class="set-scores-container" id="set-scores-container">
-                <div class="set-scores-list" id="set-scores-list">
-                    <div class="set-row" data-set="1">
-                        <span class="set-label">Set 1:</span>
-                        <input type="number" class="set-score-a" placeholder="A" min="0">
-                        <span class="vs">-</span>
-                        <input type="number" class="set-score-b" placeholder="B" min="0">
-                    </div>
-                </div>
-                <button type="button" class="btn-small btn-add-set" onclick="addSetRow()">+ Add Set</button>
-            </div>
-            <input type="hidden" id="set_scores" name="details[set_scores]" value="[]">
-        `;
-    }
+                if (!hasCaptain) {
+                    html += `<button class="btn-grant btn-grant-disabled" disabled title="Assign a captain first">No Captain</button>`;
+                } else if (isActive) {
+                    html += `<button class="btn-grant btn-grant-revoke" onclick="revokePermission(${t.permission_id}, '${t.tournament_name}')">`;
+                    html += `<i class="fas fa-lock"></i> Revoke</button>`;
+                } else {
+                    html += `<button class="btn-grant btn-grant-allow" onclick="grantPermission('${t.tournament_id}', '${t.tournament_name}')">`;
+                    html += isRevoked ? '<i class="fas fa-rotate-right"></i> Re-grant' : '<i class="fas fa-unlock"></i> Grant Access';
+                    html += `</button>`;
+                }
 
-    // ===== Render Round Scores (for combat sports) =====
-    function renderRoundScoresField(field) {
-        return `
-            <div class="round-scores-container" id="round-scores-container">
-                <div class="round-scores-list" id="round-scores-list">
-                    <div class="round-row" data-round="1">
-                        <span class="round-label">Round 1:</span>
-                        <input type="number" class="round-score-a" placeholder="A" min="0">
-                        <span class="vs">-</span>
-                        <input type="number" class="round-score-b" placeholder="B" min="0">
-                    </div>
-                </div>
-                <button type="button" class="btn-small btn-add-round" onclick="addRoundRow()">+ Add Round</button>
-            </div>
-            <input type="hidden" id="round_scores" name="details[round_scores]" value="[]">
-        `;
-    }
+                html += `</div>`; // end card-top
 
-    // ===== Render Period Scores (for basketball/volleyball/baseball) =====
-    function renderPeriodScoresField(field) {
-        const label = field.periodLabel || 'Period';
-        return `
-            <div class="period-scores-container" id="period-scores-container">
-                <div class="period-scores-list" id="period-scores-list">
-                    <div class="period-row" data-period="1">
-                        <span class="period-label">${label} 1:</span>
-                        <input type="number" class="period-score-a" placeholder="A" min="0">
-                        <span class="vs">-</span>
-                        <input type="number" class="period-score-b" placeholder="B" min="0">
-                    </div>
-                </div>
-                <button type="button" class="btn-small btn-add-period" onclick="addPeriodRow('${label}')">+ Add ${label}</button>
-            </div>
-            <input type="hidden" id="period_scores" name="details[period_scores]" value="[]">
-        `;
-    }
+                if (isActive) {
+                    html += `<div class="t-grant-status active-status"><i class="fas fa-check-circle"></i> Permission ACTIVE — Captain can submit results</div>`;
+                } else if (isRevoked) {
+                    html += `<div class="t-grant-status revoked-status"><i class="fas fa-ban"></i> Permission revoked</div>`;
+                }
 
-    // ===== Render Participant Results (for timed events) =====
-    function renderParticipantResultsField(field) {
-        return `
-            <div class="participant-results-container" id="participant-results-container">
-                <div class="participant-results-list" id="participant-results-list">
-                    <!-- Will be populated dynamically -->
-                </div>
-                <button type="button" class="btn-small btn-add-participant" onclick="addParticipantResultRow()">+ Add Participant</button>
-            </div>
-            <input type="hidden" id="results" name="details[results]" value="[]">
-        `;
-    }
-
-    // ===== Setup Special Field Listeners =====
-    function setupSpecialFields() {
-        // Collect set/round/period scores before submit
-        form.addEventListener('submit', collectDynamicScores, { once: false });
-    }
-
-    // ===== Form Submission =====
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        
-        // Collect dynamic scores first
-        collectDynamicScores();
-        
-        const formData = new FormData(form);
-
-        try {
-            const res = await fetch("admin-tournament/add-match-result", {
-                method: "POST",
-                body: formData
+                html += `</div>`; // end card
             });
-            const data = await res.json();
-            
-            if(data.status === "success"){
-                showNotification("Match result added successfully!", "success");
-                form.reset();
-                sportFieldsContainer.innerHTML = '<p class="hint-text"><i class="fas fa-info-circle"></i> Select a sport to see scoring fields</p>';
-                categoryBadge.style.display = 'none';
-                currentFormConfig = null;
-            } else {
-                showNotification(data.message || "Failed to add result", "error");
-            }
-        } catch(err){
-            showNotification("Error submitting form!", "error");
-            console.error(err);
+            html += '</div>';
+            list.innerHTML = html;
+            list.style.display = 'block';
+        } else {
+            empty.style.display = 'block';
         }
-    });
+    } catch (e) {
+        console.error('Error loading started tournaments:', e);
+        document.getElementById('started-tournaments-loading').innerHTML = '<p style="color:#dc2626;font-size:13px;">Failed to load tournaments.</p>';
+    }
+}
+
+async function grantPermission(tournamentId, tournamentName) {
+    const msg = document.getElementById('grant-msg');
+    msg.style.display = 'none';
+
+    const confirmed = await showConfirmModal(
+        'Grant Access', 
+        `Grant the captain permission to add results for:\n"${tournamentName}"?\n\nAn email will be sent to the captain.`, 
+        'Grant', 
+        false
+    );
+    if (!confirmed) return;
+
+    try {
+        const res  = await fetch('admin-tournament/grant-captain-permission', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ tournament_id: tournamentId })
+        });
+        const data = await res.json();
+
+        showGrantMsg(data.status === 'success' ? 'success' : 'error',
+            data.status === 'success'
+                ? `✓ ${data.message}${ data.captain_name ? ' ('+data.captain_name+')' : '' }`
+                : '✗ ' + (data.message || 'Failed to grant permission.'));
+
+        if (data.status === 'success') {
+            setTimeout(() => { loadStartedTournaments(); loadGrantedPermissions(); }, 600);
+        }
+    } catch (e) {
+        showGrantMsg('error', '✗ Network error. Please try again.');
+        console.error(e);
+    }
+}
+
+async function revokePermission(permId, tournamentName) {
+    const msg = document.getElementById('grant-msg');
+    msg.style.display = 'none';
+
+    const confirmed = await showConfirmModal(
+        'Revoke Access', 
+        `Revoke captain\'s permission for:\n"${tournamentName}"?\n\nThe captain will no longer be able to submit results.`, 
+        'Revoke', 
+        true
+    );
+    if (!confirmed) return;
+
+    try {
+        const res  = await fetch('admin-tournament/revoke-captain-permission', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ permission_id: permId })
+        });
+        const data = await res.json();
+
+        showGrantMsg(data.status === 'success' ? 'success' : 'error',
+            data.status === 'success' ? '✓ Permission revoked.' : '✗ ' + (data.message || 'Failed.'));
+
+        if (data.status === 'success') {
+            setTimeout(() => { loadStartedTournaments(); loadGrantedPermissions(); }, 600);
+        }
+    } catch (e) {
+        showGrantMsg('error', '✗ Network error.');
+        console.error(e);
+    }
+}
+
+function showGrantMsg(type, text) {
+    const el = document.getElementById('grant-msg');
+    el.className   = type === 'success' ? 'grant-msg-success' : 'grant-msg-error';
+    el.textContent = text;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+async function loadGrantedPermissions() {
+    try {
+        const res  = await fetch('admin-tournament/granted-permissions');
+        const data = await res.json();
+        const loading = document.getElementById('permissions-loading');
+        const wrap    = document.getElementById('permissions-table-wrap');
+        const empty   = document.getElementById('permissions-empty');
+
+        loading.style.display = 'none';
+
+        if (data.status === 'success' && data.data && data.data.length > 0) {
+            let html = `<table class="perm-table">
+                <thead><tr>
+                    <th>Tournament</th>
+                    <th>Sport</th>
+                    <th>Captain</th>
+                    <th>Granted At</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr></thead><tbody>`;
+
+            data.data.forEach(p => {
+                const grantedAt   = new Date(p.granted_at).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+                const statusClass = p.status === 'ACTIVE' ? 'perm-active' : 'perm-revoked';
+                const emailIcon   = p.email_sent == 1 ? '<i class="fas fa-check-circle" style="color:#16a34a;"></i> Sent' : '<i class="fas fa-times-circle" style="color:#dc2626;"></i> Not sent';
+
+                html += `<tr>
+                    <td>${p.tournament_name}</td>
+                    <td><span class="t-meta-sport">${p.sport_name}</span></td>
+                    <td>${p.captain_name}<br><small style="color:#9ca3af;">${p.captain_email}</small></td>
+                    <td>${grantedAt}</td>
+                    <td style="font-size:12px;">${emailIcon}</td>
+                    <td><span class="perm-status-badge ${statusClass}">${p.status}</span></td>
+                    <td>`;
+
+                if (p.status === 'ACTIVE') {
+                    html += `<button class="perm-revoke-btn" onclick="revokePermission(${p.id}, '${p.tournament_name.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-ban"></i> Revoke
+                    </button>`;
+                } else {
+                    html += `<button class="perm-grant-btn" onclick="grantPermission('${p.tournament_id}', '${p.tournament_name.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-rotate-right"></i> Re-grant
+                    </button>`;
+                }
+                html += `</td></tr>`;
+            });
+
+            html += '</tbody></table>';
+            wrap.innerHTML = html;
+            wrap.style.display = 'block';
+        } else {
+            empty.style.display = 'block';
+        }
+    } catch(e) {
+        console.error('Error loading permissions:', e);
+        document.getElementById('permissions-loading').innerHTML = '<p style="color:#dc2626;font-size:13px;">Failed to load.</p>';
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadStartedTournaments();
+    loadGrantedPermissions();
 });
 
-// ===== Global Functions for Dynamic Rows =====
+// Custom Modal Logic
+let confirmResolver = null;
 
-// Toggle collapsible section
-function toggleSection(sectionId) {
-    const content = document.querySelector(`#section-${sectionId} .section-content`);
-    const icon = document.querySelector(`#section-${sectionId} .fa-chevron-down, #section-${sectionId} .fa-chevron-up`);
-    content.classList.toggle('collapsed');
-    if (icon) {
-        icon.classList.toggle('fa-chevron-down');
-        icon.classList.toggle('fa-chevron-up');
-    }
-}
-
-// Add set row for racket sports
-let setCounter = 1;
-function addSetRow() {
-    setCounter++;
-    const list = document.getElementById('set-scores-list');
-    const row = document.createElement('div');
-    row.className = 'set-row';
-    row.dataset.set = setCounter;
-    row.innerHTML = `
-        <span class="set-label">Set ${setCounter}:</span>
-        <input type="number" class="set-score-a" placeholder="A" min="0">
-        <span class="vs">-</span>
-        <input type="number" class="set-score-b" placeholder="B" min="0">
-        <button type="button" class="btn-remove" onclick="this.parentElement.remove()">×</button>
-    `;
-    list.appendChild(row);
-}
-
-// Add round row for combat sports
-let roundCounter = 1;
-function addRoundRow() {
-    roundCounter++;
-    const list = document.getElementById('round-scores-list');
-    const row = document.createElement('div');
-    row.className = 'round-row';
-    row.dataset.round = roundCounter;
-    row.innerHTML = `
-        <span class="round-label">Round ${roundCounter}:</span>
-        <input type="number" class="round-score-a" placeholder="A" min="0">
-        <span class="vs">-</span>
-        <input type="number" class="round-score-b" placeholder="B" min="0">
-        <button type="button" class="btn-remove" onclick="this.parentElement.remove()">×</button>
-    `;
-    list.appendChild(row);
-}
-
-// Add period row for ball court sports
-let periodCounter = 1;
-function addPeriodRow(label) {
-    periodCounter++;
-    const list = document.getElementById('period-scores-list');
-    const row = document.createElement('div');
-    row.className = 'period-row';
-    row.dataset.period = periodCounter;
-    row.innerHTML = `
-        <span class="period-label">${label} ${periodCounter}:</span>
-        <input type="number" class="period-score-a" placeholder="A" min="0">
-        <span class="vs">-</span>
-        <input type="number" class="period-score-b" placeholder="B" min="0">
-        <button type="button" class="btn-remove" onclick="this.parentElement.remove()">×</button>
-    `;
-    list.appendChild(row);
-}
-
-// Add participant result row for timed events
-let participantResultCounter = 0;
-function addParticipantResultRow() {
-    participantResultCounter++;
-    const list = document.getElementById('participant-results-list');
-    const row = document.createElement('div');
-    row.className = 'participant-result-row';
-    row.id = `result-row-${participantResultCounter}`;
+function showConfirmModal(title, message, confirmText, isDanger) {
+    document.getElementById('confirm-modal-title').innerHTML = isDanger ? 
+        `<i class="fa-solid fa-circle-exclamation" style="color: #dc2626;"></i> ${title}` : 
+        `<i class="fa-solid fa-circle-check" style="color: #16a34a;"></i> ${title}`;
     
-    let playerOptions = '<option value="">Select player...</option>';
-    if (window.studentsData) {
-        window.studentsData.forEach(s => {
-            playerOptions += `<option value="${s.user_id}">${s.name}</option>`;
-        });
-    }
+    document.getElementById('confirm-modal-message').innerText = message;
     
-    row.innerHTML = `
-        <select class="result-player">${playerOptions}</select>
-        <input type="number" class="result-time" placeholder="Time (s)" step="0.001" min="0">
-        <input type="number" class="result-distance" placeholder="Distance (m)" step="0.01" min="0">
-        <input type="number" class="result-position" placeholder="Pos" min="1" max="100">
-        <button type="button" class="btn-remove" onclick="this.parentElement.remove()">×</button>
-    `;
-    list.appendChild(row);
+    const actionBtn = document.getElementById('confirm-modal-action-btn');
+    actionBtn.innerText = confirmText;
+    
+    if (isDanger) {
+        actionBtn.style.background = '#dc2626';
+        actionBtn.style.boxShadow = '0 3px 10px rgba(220, 38, 38, 0.3)';
+    } else {
+        actionBtn.style.background = 'linear-gradient(135deg, #16a34a, #22c55e)';
+        actionBtn.style.boxShadow = '0 3px 10px rgba(22, 163, 74, 0.3)';
+    }
+
+    actionBtn.onmouseover = () => { actionBtn.style.transform = 'translateY(-1px)'; }
+    actionBtn.onmouseout = () => { actionBtn.style.transform = 'translateY(0)'; }
+
+    document.getElementById('custom-confirm-modal').style.display = 'flex';
+
+    return new Promise(resolve => {
+        confirmResolver = resolve;
+    });
 }
 
-// Collect dynamic scores into hidden fields before submission
-function collectDynamicScores() {
-    // Collect set scores
-    const setRows = document.querySelectorAll('.set-row');
-    if (setRows.length > 0) {
-        const setScores = [];
-        setRows.forEach(row => {
-            const a = row.querySelector('.set-score-a')?.value || 0;
-            const b = row.querySelector('.set-score-b')?.value || 0;
-            setScores.push({ a: parseInt(a), b: parseInt(b) });
-        });
-        const setScoresInput = document.getElementById('set_scores');
-        if (setScoresInput) setScoresInput.value = JSON.stringify(setScores);
-    }
-    
-    // Collect round scores
-    const roundRows = document.querySelectorAll('.round-row');
-    if (roundRows.length > 0) {
-        const roundScores = [];
-        roundRows.forEach(row => {
-            const a = row.querySelector('.round-score-a')?.value || 0;
-            const b = row.querySelector('.round-score-b')?.value || 0;
-            roundScores.push({ a: parseInt(a), b: parseInt(b) });
-        });
-        const roundScoresInput = document.getElementById('round_scores');
-        if (roundScoresInput) roundScoresInput.value = JSON.stringify(roundScores);
-    }
-    
-    // Collect period scores
-    const periodRows = document.querySelectorAll('.period-row');
-    if (periodRows.length > 0) {
-        const periodScores = [];
-        periodRows.forEach(row => {
-            const a = row.querySelector('.period-score-a')?.value || 0;
-            const b = row.querySelector('.period-score-b')?.value || 0;
-            periodScores.push({ a: parseInt(a), b: parseInt(b) });
-        });
-        const periodScoresInput = document.getElementById('period_scores');
-        if (periodScoresInput) periodScoresInput.value = JSON.stringify(periodScores);
-    }
-    
-    // Collect participant results
-    const resultRows = document.querySelectorAll('.participant-result-row');
-    if (resultRows.length > 0) {
-        const results = [];
-        resultRows.forEach(row => {
-            const userId = row.querySelector('.result-player')?.value;
-            if (userId) {
-                results.push({
-                    user_id: userId,
-                    time: parseFloat(row.querySelector('.result-time')?.value) || null,
-                    distance: parseFloat(row.querySelector('.result-distance')?.value) || null,
-                    position: parseInt(row.querySelector('.result-position')?.value) || null
-                });
-            }
-        });
-        const resultsInput = document.getElementById('results');
-        if (resultsInput) resultsInput.value = JSON.stringify(results);
+function closeConfirmModal() {
+    document.getElementById('custom-confirm-modal').style.display = 'none';
+    if (confirmResolver) {
+        confirmResolver(false);
+        confirmResolver = null;
     }
 }
+
+document.getElementById('confirm-modal-action-btn').addEventListener('click', () => {
+    document.getElementById('custom-confirm-modal').style.display = 'none';
+    if (confirmResolver) {
+        confirmResolver(true);
+        confirmResolver = null;
+    }
+});
+
+// Close modal when clicking outside
+document.getElementById('custom-confirm-modal').addEventListener('click', e => {
+    if(e.target === document.getElementById('custom-confirm-modal')) {
+        closeConfirmModal();
+    }
+});
 </script>
 
 <?php require '../app/views/templates/admin/footer.php'; ?>

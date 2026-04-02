@@ -31,6 +31,10 @@ class UserHomeController {
         view('general/stories');
     }
 
+    public function matchResults() {
+        view('public/results');
+    }
+
     public function profile() {
         if (!isset($_SESSION['user_id'])) {
             header("Location: /uoc-sports/public/sign-in");

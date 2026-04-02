@@ -635,7 +635,7 @@ class DashboardApiController {
         // Recent GRN activity (last 5)
         $recentGRN = "SELECT g.date, g.quantity, g.unit_price, 
                              e.equipment_name, s.sport_name
-                      FROM `good-received-note` g
+                      FROM `good_received_notes` g
                       JOIN equipment e ON g.equipment_id = e.equipment_id
                       JOIN sport s ON g.sport_id = s.sport_id
                       ORDER BY g.date DESC

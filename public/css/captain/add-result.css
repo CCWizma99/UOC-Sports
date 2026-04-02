@@ -1,0 +1,429 @@
+/* ========== Captain Add Result Page CSS ========== */
+
+.add-result-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(94, 45, 145, 0.12);
+}
+
+.page-header-icon {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #5e2d91, #8b5cf6);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.page-header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1e1e2e;
+    margin: 0;
+}
+
+.page-header p {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 4px 0 0;
+}
+
+/* Two-column layout */
+.result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 28px;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .result-grid { grid-template-columns: 1fr; }
+}
+
+/* Section Cards */
+.result-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(94, 45, 145, 0.08);
+    border: 1px solid rgba(94, 45, 145, 0.08);
+    overflow: hidden;
+}
+
+.result-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 22px;
+    background: linear-gradient(135deg, #faf5ff, #f3ebff);
+    border-bottom: 1px solid rgba(94, 45, 145, 0.1);
+}
+
+.result-card-header i {
+    color: #5e2d91;
+    font-size: 18px;
+}
+
+.result-card-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e1e2e;
+    margin: 0;
+}
+
+.result-card-body {
+    padding: 22px;
+}
+
+/* Tournament List */
+.tournament-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tournament-item {
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.tournament-item:hover {
+    border-color: #8b5cf6;
+    background: #faf5ff;
+}
+
+.tournament-item.selected {
+    border-color: #5e2d91;
+    background: linear-gradient(135deg, #faf5ff, #f3ebff);
+}
+
+.tournament-item.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    color: #5e2d91;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.tournament-name {
+    font-weight: 700;
+    color: #1e1e2e;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.tournament-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.meta-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 3px 9px;
+    border-radius: 20px;
+}
+
+.meta-tag.sport-tag {
+    background: rgba(94, 45, 145, 0.1);
+    color: #5e2d91;
+    font-weight: 600;
+}
+
+.meta-tag.date-tag { color: #059669; background: rgba(5, 150, 105, 0.08); }
+
+/* No permissions state */
+.no-permission-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+}
+
+.no-permission-state .icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.no-permission-state h3 {
+    font-size: 16px;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.no-permission-state p {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Result Form */
+.result-form-placeholder {
+    text-align: center;
+    padding: 50px 20px;
+    color: #9ca3af;
+}
+
+.result-form-placeholder i {
+    font-size: 52px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.result-form-placeholder p {
+    font-size: 14px;
+}
+
+/* Form fields (reusing admin styles pattern) */
+.input-div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.input-div label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.input-div input,
+.input-div select,
+.input-div textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #1e1e2e;
+    background: white;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.input-div input:focus,
+.input-div select:focus,
+.input-div textarea:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.input-div input[readonly] {
+    background: #f9fafb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+/* Sport-specific fields container */
+.sport-fields-container {
+    margin-top: 8px;
+}
+
+.form-section {
+    background: #faf5ff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(94, 45, 145, 0.1);
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #5e2d91;
+    margin: 0 0 14px;
+}
+
+.section-title.collapsible-toggle {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+}
+
+.section-content.collapsed { display: none; }
+
+.fields-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.fields-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.fields-grid.cols-1 { grid-template-columns: 1fr; }
+
+@media (max-width: 600px) {
+    .fields-grid.cols-2 { grid-template-columns: 1fr; }
+}
+
+/* Score row inputs */
+.set-row, .round-row, .period-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 8px;
+}
+
+.set-row input,
+.round-row input,
+.period-row input {
+    width: 70px !important;
+    text-align: center;
+    padding: 6px !important;
+}
+
+.set-label, .round-label, .period-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #5e2d91;
+    min-width: 60px;
+    white-space: nowrap;
+}
+
+.vs { font-weight: 700; color: #9ca3af; }
+
+.btn-small {
+    padding: 6px 14px;
+    font-size: 13px;
+    background: #5e2d91;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+.btn-small:hover { background: #7c3abe; }
+
+.btn-remove {
+    padding: 4px 8px;
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: auto;
+}
+
+.btn-remove:hover { background: #fecaca; }
+
+/* Category badge */
+.category-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    background: rgba(94, 45, 145, 0.1);
+    color: #5e2d91;
+}
+
+/* Hint text */
+.hint-text {
+    font-size: 13px;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 16px;
+}
+
+/* Loading */
+.loading-indicator {
+    padding: 20px;
+    text-align: center;
+    color: #8b5cf6;
+    font-size: 13px;
+}
+
+/* Submit Button */
+.submit-result-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #5e2d91, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    margin-top: 20px;
+}
+
+.submit-result-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(94, 45, 145, 0.4);
+}
+
+.submit-result-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Required mark */
+.required { color: #dc2626; }
+.required-note { font-size: 12px; color: #6b7280; margin-bottom: 16px; }
+.required-note span { color: #dc2626; }
+
+/* Form message */
+#form-message-captain {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    display: none;
+}
+#form-message-captain.success { background: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+#form-message-captain.error   { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+
+/* Participant results row */
+.participant-result-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.participant-result-row select { flex: 2; }
+.participant-result-row input  { flex: 1; }
