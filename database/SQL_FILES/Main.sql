@@ -1787,6 +1787,28 @@ BEGIN
     END IF;
 END $$
 
+-- Trigger for Good Received Notes (GRN) to update equipment inventory
+DROP TRIGGER IF EXISTS `trg_grn_after_insert`$$
+CREATE TRIGGER `trg_grn_after_insert` AFTER INSERT ON `good_received_notes`
+FOR EACH ROW
+BEGIN
+    UPDATE `equipment_inventory`
+    SET `quantity` = `quantity` + NEW.quantity,
+        `usable`   = `usable` + NEW.quantity
+    WHERE `stock_id` = NEW.stock_id;
+END$$
+
+-- Trigger for Good Condemn Notes (GCN) to update equipment inventory
+DROP TRIGGER IF EXISTS `trg_gcn_after_insert`$$
+CREATE TRIGGER `trg_gcn_after_insert` AFTER INSERT ON `good_condemn_notes`
+FOR EACH ROW
+BEGIN
+    UPDATE `equipment_inventory`
+    SET `quantity` = GREATEST(0, CAST(`quantity` AS SIGNED) - CAST(NEW.quantity AS SIGNED)),
+        `usable`   = GREATEST(0, CAST(`usable` AS SIGNED) - CAST(NEW.quantity AS SIGNED))
+    WHERE `stock_id` = NEW.stock_id;
+END$$
+
 DELIMITER ;
 
 -- --------------------------------------------------------
