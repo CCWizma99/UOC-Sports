@@ -629,13 +629,15 @@ public function getBookedSlots($facilityId) {
                 fr.facility_name,
                 fr.facility_type,
                 COUNT(fb.booking_id) as total_bookings,
-                SUM(CASE WHEN fb.status IN ('BOOKED', 'ACCEPTED') THEN 1 ELSE 0 END) as active_bookings,
-                ROUND(COUNT(fb.booking_id) * 100.0 / NULLIF((SELECT COUNT(*) FROM `facility-booking`), 0), 1) as utilization_rate
+                SUM(CASE WHEN fb.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as bookings_last_30,
+                ROUND(
+                    SUM(CASE WHEN fb.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) * 100.0 / 30
+                , 1) as utilization_rate
             FROM facility_rates fr
             LEFT JOIN `facility-booking` fb ON fr.id = fb.facility_id
             GROUP BY fr.id, fr.facility_name, fr.facility_type
             HAVING total_bookings > 0
-            ORDER BY total_bookings DESC
+            ORDER BY utilization_rate DESC
             LIMIT 10
         ";
         $stmt = $this->db->query($utilizationSQL);
