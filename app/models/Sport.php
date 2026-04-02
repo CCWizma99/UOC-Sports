@@ -32,7 +32,7 @@ class Sport {
      * Get sport by ID with category
      */
     public function getSportById($sportId) {
-        $stmt = $this->db->prepare("SELECT sport_id, sport_name FROM sport WHERE sport_id = :sport_id");
+        $stmt = $this->db->prepare("SELECT sport_id, sport_name, sport_category FROM sport WHERE sport_id = :sport_id");
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

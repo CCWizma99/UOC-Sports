@@ -21,8 +21,8 @@ abstract class BaseMatchModel {
         
         $stmt = $this->db->prepare("
             INSERT INTO tournament_match 
-            (match_id, tournament_id, sport_id, sport_category, match_name, match_date, winner_id, result_status)
-            VALUES (:match_id, :tournament_id, :sport_id, :sport_category, :match_name, :match_date, :winner_id, :result_status)
+            (match_id, tournament_id, sport_id, sport_category, match_name, match_date, winner_id, winner_name, winner_type, winner_invitational_id, result_status, is_published, submitted_by)
+            VALUES (:match_id, :tournament_id, :sport_id, :sport_category, :match_name, :match_date, :winner_id, :winner_name, :winner_type, :winner_invitational_id, :result_status, :is_published, :submitted_by)
         ");
         
         $stmt->execute([
@@ -33,8 +33,14 @@ abstract class BaseMatchModel {
             'match_name' => $data['match_name'],
             'match_date' => $data['match_date'],
             'winner_id' => $data['winner_id'] ?? null,
-            'result_status' => $data['result_status'] ?? 'PENDING'
+            'winner_name' => $data['winner_name'] ?? null,
+            'winner_type' => $data['winner_type'] ?? null,
+            'winner_invitational_id' => $data['winner_invitational_id'] ?? null,
+            'result_status' => $data['result_status'] ?? 'PENDING',
+            'is_published' => $data['is_published'] ?? 0,
+            'submitted_by' => $data['submitted_by'] ?? null
         ]);
+
         
         return $matchId;
     }
@@ -48,10 +54,22 @@ abstract class BaseMatchModel {
     public function getMatch(string $matchId): ?array {
         // Get base match data
         $stmt = $this->db->prepare("
-            SELECT tm.*, t.tournament_name, s.sport_name
+            SELECT 
+                tm.*, 
+                t.tournament_name, 
+                s.sport_name,
+                CASE 
+                    WHEN tm.winner_type = 'INTERNAL' THEN CONCAT(u.fname, ' ', u.lname)
+                    WHEN tm.winner_type = 'INVITATIONAL' THEN CONCAT(ip.fname, ' ', ip.lname)
+                    WHEN tm.winner_type = 'TEAM' THEN tm.winner_name
+                    WHEN tm.winner_type = 'DRAW' THEN 'DRAW'
+                    ELSE COALESCE(tm.winner_name, CONCAT(u.fname, ' ', u.lname))
+                END as winner_display_name
             FROM tournament_match tm
             JOIN tournament t ON tm.tournament_id = t.tournament_id
             JOIN sport s ON tm.sport_id = s.sport_id
+            LEFT JOIN user u ON tm.winner_id = u.user_id
+            LEFT JOIN invitational_players ip ON tm.winner_invitational_id = ip.inv_player_id
             WHERE tm.match_id = :match_id
         ");
         $stmt->execute(['match_id' => $matchId]);

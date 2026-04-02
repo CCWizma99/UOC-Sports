@@ -38,7 +38,7 @@ class Router {
             if ($route['method'] !== $method) continue;
     
             // Convert route patterns like /post/{id}
-            $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_-]+)', $route['uri']);
+            $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_\-\.]+)', $route['uri']);
             $pattern = '/^' . str_replace('/', '\/', $pattern) . '$/';
     
             if (preg_match($pattern, $requestedUri, $matches)) {

@@ -334,7 +334,9 @@ class TournamentController extends BaseController {
                 'match_name' => $matchName,
                 'match_date' => $matchDate,
                 'winner_id' => $winnerId ?: null,
-                'result_status' => $resultStatus
+                'result_status' => $resultStatus,
+                'is_published' => 1,
+                'submitted_by' => 'ADMIN'
             ];
             
             // Process JSON fields in details
@@ -371,6 +373,141 @@ class TournamentController extends BaseController {
                 'status' => 'error',
                 'message' => 'Error: ' . $e->getMessage()
             ]);
+        }
+    }
+    /**
+     * Get all tournaments that have already started (for admin grant-permission panel)
+     */
+    public function getStartedTournaments() {
+        header('Content-Type: application/json');
+        try {
+            $permModel = new EventResultPermission();
+            $tournaments = $permModel->getStartedTournaments();
+            echo json_encode(['status' => 'success', 'data' => $tournaments]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Get all granted permissions (for admin view)
+     */
+    public function getGrantedPermissions() {
+        header('Content-Type: application/json');
+        try {
+            $permModel = new EventResultPermission();
+            $permissions = $permModel->getAllGrantedPermissions();
+            echo json_encode(['status' => 'success', 'data' => $permissions]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Grant a captain permission to submit results for a tournament
+     * Sends an email notification to the captain
+     */
+    public function grantCaptainPermission() {
+        header('Content-Type: application/json');
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $tournamentId = trim($input['tournament_id'] ?? '');
+            $adminId      = $_SESSION['user_id'] ?? '';
+
+            if (empty($tournamentId) || empty($adminId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Tournament ID and admin session are required.']);
+                return;
+            }
+
+            // Verify tournament exists and has started
+            $tournamentModel = new Tournament();
+            $tournament      = $tournamentModel->getTournamentById($tournamentId);
+            if (!$tournament) {
+                echo json_encode(['status' => 'error', 'message' => 'Tournament not found.']);
+                return;
+            }
+            if (strtotime($tournament['start_date']) > time()) {
+                echo json_encode(['status' => 'error', 'message' => 'Tournament has not started yet. Permission can only be granted after the start date.']);
+                return;
+            }
+
+            // Get sport and captain info
+            $sportId   = $tournament['sport_id'];
+            $sportModel = new Sport();
+            $sportFull  = $sportModel->getSportWithStaff($sportId);
+
+            if (empty($sportFull['captain_id'])) {
+                echo json_encode(['status' => 'error', 'message' => 'No captain is assigned to this sport. Please assign a captain first.']);
+                return;
+            }
+
+            $captainId    = $sportFull['captain_id'];
+            $captainName  = trim(($sportFull['captain_fname'] ?? '') . ' ' . ($sportFull['captain_lname'] ?? ''));
+            $captainEmail = $sportFull['captain_email'] ?? '';
+
+            // Grant permission
+            $permModel = new EventResultPermission();
+            $result    = $permModel->grantPermission($tournamentId, $captainId, $sportId, $adminId);
+
+            if ($result === false) {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to grant permission.']);
+                return;
+            }
+
+            // If newly granted (not previously existed as active), send email
+            $emailResult = ['status' => 'skipped', 'message' => 'Permission already active, email not re-sent.'];
+            if (!$result['exists'] && !empty($captainEmail)) {
+                $emailService = new EmailService();
+                $emailResult  = $emailService->sendCaptainPermissionEmail($captainEmail, $captainName, [
+                    'tournament_name' => $tournament['tournament_name'],
+                    'sport_name'      => $tournament['sport_name'],
+                    'start_date'      => $tournament['start_date'],
+                    'end_date'        => $tournament['end_date'],
+                ]);
+                if ($emailResult['status'] === 'success') {
+                    $permModel->markEmailSent($result['id']);
+                }
+            }
+
+            echo json_encode([
+                'status'       => 'success',
+                'message'      => $result['exists']
+                    ? 'Permission was already active for this captain.'
+                    : 'Permission granted and email sent to captain.',
+                'email_result' => $emailResult,
+                'captain_name' => $captainName,
+                'captain_email'=> $captainEmail,
+            ]);
+
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Revoke a captain's permission for a tournament
+     */
+    public function revokeCaptainPermission() {
+        header('Content-Type: application/json');
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $permId = intval($input['permission_id'] ?? 0);
+
+            if (!$permId) {
+                echo json_encode(['status' => 'error', 'message' => 'Permission ID is required.']);
+                return;
+            }
+
+            $permModel = new EventResultPermission();
+            $success   = $permModel->revokePermission($permId);
+
+            if ($success) {
+                echo json_encode(['status' => 'success', 'message' => 'Permission revoked successfully.']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to revoke permission.']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
         }
     }
 }

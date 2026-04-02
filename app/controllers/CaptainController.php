@@ -108,4 +108,19 @@ class CaptainController {
     public function Communication() {
         view('captain/communication');
     }
-}
+
+    public function AddResult() {
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /uoc-sports/public/sign-in");
+            exit;
+        }
+
+        $captainId = $_SESSION['user_id'];
+        $permModel = new EventResultPermission();
+        $permittedTournaments = $permModel->getActivePermissionsForCaptain($captainId);
+
+        view('captain/add-result', [
+            'permitted_tournaments' => $permittedTournaments,
+        ]);
+    }
+}

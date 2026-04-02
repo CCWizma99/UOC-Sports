@@ -19,6 +19,29 @@
         @import url(/uoc-sports/public/css/admin/add-user.css);
         @import url(/uoc-sports/public/css/admin/user-stat.css);
         @import url(/uoc-sports/public/css/admin/ui-improvements.css);
+
+        /* Tab System */
+        .tab-wrapper { margin-bottom: 30px; display: flex; gap: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 2px; }
+        .tab-btn { 
+            padding: 12px 24px; border: none; background: transparent; font-weight: 700; color: #64748b; 
+            cursor: pointer; transition: all 0.2s; position: relative; font-size: 15px;
+        }
+        .tab-btn.active { color: #4b0082; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background: #4b0082; border-radius: 10px; }
+        .tab-content { display: none; width: 100%; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Teams UI */
+        .teams-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .teams-card { background: white; border-radius: 1.2rem; border: 1px solid rgba(75, 0, 130, 0.05); overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; }
+        .btn-edit { background: #f1f5f9; color: #4b0082; }
+        .btn-delete { background: #fee2e2; color: #ef4444; }
+        .btn-edit:hover { background: #e2e8f0; }
+        .btn-delete:hover { background: #fecaca; }
+        .team-search { padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; width: 300px; font-size: 14px; outline: none; }
+        .team-search:focus { border-color: #4b0082; box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.05); }
     </style>
 </head>
 <body>
@@ -34,118 +57,165 @@ $selected_year = $_GET['year'] ?? date('Y');
 ?>
 
 <div class="main-content-wrapper">
-    <div class="users-grid-container">
-        <div class="users-grid-left">
-            <section id="search-user">
-                <h2>Search Users</h2>
-                <div class="filter-bar">
-                    <h3>Filter <i class="fa-solid fa-filter"></i></h3>
+    <!-- Tabs Header -->
+    <div class="tab-wrapper">
+        <button class="tab-btn active" onclick="switchMainTab('users-tab', this)">
+            <i class="fa-solid fa-users"></i> Users & Players
+        </button>
+        <button class="tab-btn" onclick="switchMainTab('teams-tab', this)">
+            <i class="fa-solid fa-users-rectangle"></i> Playing Teams Registry
+        </button>
+    </div>
 
-                    <div class="btn" id="faculty-btn">
-                        Faculty
-                        <div class="dropdown" data-filter="faculty">
-                            <div data-value="">All</div>
-                            <?php foreach ($faculty_data as $faculty): ?>
-                                <div data-value="<?= htmlspecialchars($faculty['faculty_name']) ?>">
-                                    <?= htmlspecialchars($faculty['faculty_name']) ?>
-                                </div>
-                            <?php endforeach; ?>
+    <!-- Tab 1: Users & Players -->
+    <div id="users-tab" class="tab-content active">
+        <div class="users-grid-container">
+            <div class="users-grid-left">
+                <section id="search-user">
+                    <h2>Search Users</h2>
+                    <div class="filter-bar">
+                        <h3>Filter <i class="fa-solid fa-filter"></i></h3>
+
+                        <div class="btn" id="faculty-btn">
+                            Faculty
+                            <div class="dropdown" data-filter="faculty">
+                                <div data-value="">All</div>
+                                <?php foreach ($faculty_data as $faculty): ?>
+                                    <div data-value="<?= htmlspecialchars($faculty['faculty_name']) ?>">
+                                        <?= htmlspecialchars($faculty['faculty_name']) ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <div class="btn" id="sport-btn">
+                            Sport
+                            <div class="dropdown" data-filter="sport">
+                                <div data-value="">All</div>
+                                <?php foreach ($sport_data as $sport): ?>
+                                    <div data-value="<?= htmlspecialchars($sport['sport_name']) ?>">
+                                        <?= htmlspecialchars($sport['sport_name']) ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <div class="btn" id="public-btn">
+                            Type
+                            <div class="dropdown" data-filter="type">
+                                <div data-value="">All</div>
+                                <div data-value="Student">Student</div>
+                                <div data-value="Staff">Staff</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="btn" id="sport-btn">
-                        Sport
-                        <div class="dropdown" data-filter="sport">
-                            <div data-value="">All</div>
-                            <?php foreach ($sport_data as $sport): ?>
-                                <div data-value="<?= htmlspecialchars($sport['sport_name']) ?>">
-                                    <?= htmlspecialchars($sport['sport_name']) ?>
-                                </div>
-                            <?php endforeach; ?>
+                    <input type="text" name="search-user-inp" id="search-user-inp" 
+                        title="Enter user ID No. or Name" placeholder="Enter User ID or Name">
+
+                    <div class="search-output">
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <h3>Search for Users</h3>
+                            <p>Enter a user ID or name above, or use the filters to find users</p>
                         </div>
                     </div>
+                </section>
+            </div>
 
-                    <div class="btn" id="public-btn">
-                        Type
-                        <div class="dropdown" data-filter="type">
-                            <div data-value="">All</div>
-                            <div data-value="Student">Student</div>
-                            <div data-value="Staff">Staff</div>
+            <div class="users-grid-right">
+                <section id="add-user">
+                    <h2>Add a User</h2>
+                    <form id="add-user-form" class="add-user-form-content" novalidate>
+                        <p class="required-note"><span>*</span> Required fields</p>
+                        <div class="name-div">
+                            <div class="input-field">
+                                <label for="user-fname">First Name <span class="required">*</span></label>
+                                <input type="text" name="fname" id="user-fname" 
+                                       autocomplete="given-name" 
+                                       aria-required="true" 
+                                       required>
+                            </div>
+                            <div class="input-field">
+                                <label for="user-lname">Last Name</label>
+                                <input type="text" name="lname" id="user-lname" 
+                                       autocomplete="family-name">
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <input type="text" name="search-user-inp" id="search-user-inp" 
-                    title="Enter user ID No. or Name" placeholder="Enter User ID or Name">
-
-                <div class="search-output">
-                    <div class="empty-state">
-                        <i class="fas fa-search"></i>
-                        <h3>Search for Users</h3>
-                        <p>Enter a user ID or name above, or use the filters to find users</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <div class="users-grid-right">
-            <section id="add-user">
-                <h2>Add a User</h2>
-                <form id="add-user-form" class="add-user-form-content" novalidate>
-                    <p class="required-note"><span>*</span> Required fields</p>
-                    <div class="name-div">
                         <div class="input-field">
-                            <label for="user-fname">First Name <span class="required">*</span></label>
-                            <input type="text" name="fname" id="user-fname" 
-                                   autocomplete="given-name" 
-                                   aria-required="true" 
+                            <label for="user-email">Email <span class="required">*</span></label>
+                            <input type="email" name="email" id="user-email" 
+                                   autocomplete="email"
+                                   aria-required="true"
                                    required>
                         </div>
+
                         <div class="input-field">
-                            <label for="user-lname">Last Name</label>
-                            <input type="text" name="lname" id="user-lname" 
-                                   autocomplete="family-name">
+                            <label for="user-phone">Phone Number <span class="required">*</span></label>
+                            <input type="tel" name="phone" id="user-phone" 
+                                   placeholder="+94XXXXXXXXX"
+                                   pattern="^\+94[0-9]{9}$"
+                                   inputmode="tel"
+                                   autocomplete="tel"
+                                   aria-required="true"
+                                   required>
                         </div>
-                    </div>
 
-                    <div class="input-field">
-                        <label for="user-email">Email <span class="required">*</span></label>
-                        <input type="email" name="email" id="user-email" 
-                               autocomplete="email"
-                               aria-required="true"
-                               required>
-                    </div>
+                        <div class="input-field">
+                            <label for="user-type">User Type <span class="required">*</span></label>
+                            <select name="type" id="user-type" 
+                                    aria-required="true"
+                                    required>
+                                <option value="">Select User Type</option>
+                                <option value="COACH">Coach</option>
+                                <option value="SPT">Sport Manager</option>
+                                <option value="EQP">Equipment Manager</option>
+                                <option value="REG">Registrar</option>
+                            </select>
+                        </div>
 
-                    <div class="input-field">
-                        <label for="user-phone">Phone Number <span class="required">*</span></label>
-                        <input type="tel" name="phone" id="user-phone" 
-                               placeholder="+94XXXXXXXXX"
-                               pattern="^\+94[0-9]{9}$"
-                               inputmode="tel"
-                               autocomplete="tel"
-                               aria-required="true"
-                               required>
-                    </div>
+                        <!-- Dynamic fields container -->
+                        <div id="extra-fields"></div>
 
-                    <div class="input-field">
-                        <label for="user-type">User Type <span class="required">*</span></label>
-                        <select name="type" id="user-type" 
-                                aria-required="true"
-                                required>
-                            <option value="">Select User Type</option>
-                            <option value="COACH">Coach</option>
-                            <option value="SPT">Sport Manager</option>
-                            <option value="EQP">Equipment Manager</option>
-                            <option value="REG">Registrar</option>
-                        </select>
-                    </div>
+                        <button type="button" class="add-user-btn" id="add-user-submit-btn">Add User</button>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
 
-                    <!-- Dynamic fields container -->
-                    <div id="extra-fields"></div>
+    <!-- Tab 2: Playing Teams Registry -->
+    <div id="teams-tab" class="tab-content">
+        <div class="teams-header-row">
+            <h2 style="margin:0; font-size: 22px; color: #1e1e2e; font-weight:800;">
+                <i class="fa-solid fa-users-rectangle" style="color:#4b0082;"></i> Team Registry Management
+            </h2>
+            <div style="display:flex; gap:12px; align-items:center;">
+                <input type="text" id="team-search-inp" class="team-search" placeholder="Search team name..." oninput="filterTeams()">
+                <button class="btn-sm" style="background:#4b0082; color:white; height:42px; padding:0 20px;" onclick="loadTeams()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
 
-                    <button type="button" class="add-user-btn" id="add-user-submit-btn">Add User</button>
-                </form>
-            </section>
+        <div class="teams-card">
+            <div class="table-responsive">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Team ID</th>
+                            <th>Team Name</th>
+                            <th>First Registered</th>
+                            <th>Created By</th>
+                            <th style="width: 150px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teams-tbody">
+                        <tr><td colspan="5" style="text-align:center; padding:60px; color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Initializing team list...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -692,6 +762,105 @@ function showNotification(message, type = 'info') {
 }
 </script>
 
+
+// Tab switching logic
+function switchMainTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+    
+    if (tabId === 'teams-tab') {
+        loadTeams();
+    }
+}
+
+// Team Registry Logic
+let allTeams = [];
+
+async function loadTeams() {
+    const tbody = document.getElementById('teams-tbody');
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin"></i> Fetching teams...</td></tr>';
+    
+    try {
+        const res = await fetch('/uoc-sports/public/api/playing-teams/get-all');
+        const data = await res.json();
+        if (data.status === 'success') {
+            allTeams = data.data;
+            filterTeams();
+        }
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#ef4444;">Error loading teams.</td></tr>';
+    }
+}
+
+function filterTeams() {
+    const query = document.getElementById('team-search-inp').value.toLowerCase();
+    const tbody = document.getElementById('teams-tbody');
+    
+    const filtered = allTeams.filter(t => t.team_name.toLowerCase().includes(query));
+    
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#64748b;">No teams found.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = filtered.map(t => `
+        <tr>
+            <td><code style="background:#f1f5f9; padding:4px 8px; border-radius:6px; color:#4b0082;">PT-${String(t.team_id).padStart(4, '0')}</code></td>
+            <td style="font-weight:700; color:#1e293b;">${t.team_name}</td>
+            <td style="font-size:13px; color:#64748b;">${new Date(t.created_at).toLocaleDateString()}</td>
+            <td><span class="role-badge">${t.fname ? t.fname + ' ' + t.lname : 'SYSTEM'}</span></td>
+            <td>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn-sm btn-edit" onclick="editTeam('${t.team_id}', '${t.team_name.replace(/'/g, "\\'")}')" title="Rename Team"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-sm btn-delete" onclick="deleteTeam('${t.team_id}', '${t.team_name.replace(/'/g, "\\'")}')" title="Delete Team"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function editTeam(id, currentName) {
+    const newName = prompt(`Enter new name for "${currentName}":`, currentName);
+    if (!newName || newName.trim() === currentName) return;
+    
+    try {
+        const res = await fetch('/uoc-sports/public/api/playing-teams/update', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ team_id: id, team_name: newName.trim() })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            showNotification(data.message, 'success');
+            loadTeams();
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (e) { showNotification('Network error.', 'error'); }
+}
+
+async function deleteTeam(id, name) {
+    if (!confirm(`Are you absolutely sure you want to delete "${name}"?\nThis will fail if the team is used in match results.`)) return;
+    
+    try {
+        const res = await fetch('/uoc-sports/public/api/playing-teams/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ team_id: id })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            showNotification(data.message, 'success');
+            loadTeams();
+        } else {
+            showNotification(data.message, 'error', true); // Persistent alert
+        }
+    } catch (e) { showNotification('Network error.', 'error'); }
+}
+</script>
 
 <?php require '../app/views/templates/admin/footer.php'; ?>
 

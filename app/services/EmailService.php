@@ -241,4 +241,92 @@ class EmailService {
 
         return $this->sendEmail($email, 'Valued User', $emailSubject, $htmlContent);
     }
+
+    /**
+     * Send email to captain when they are granted permission to add match results
+     *
+     * @param string $captainEmail  Captain's email address
+     * @param string $captainName   Captain's full name
+     * @param array  $tournament    Tournament details (tournament_name, sport_name, start_date, end_date)
+     * @return array Response with status and message
+     */
+    public function sendCaptainPermissionEmail($captainEmail, $captainName, $tournament) {
+        $tournamentName = htmlspecialchars($tournament['tournament_name'] ?? 'Tournament');
+        $sportName      = htmlspecialchars($tournament['sport_name'] ?? 'Sport');
+        $startDate      = !empty($tournament['start_date']) ? date('F j, Y', strtotime($tournament['start_date'])) : 'N/A';
+        $endDate        = !empty($tournament['end_date'])   ? date('F j, Y', strtotime($tournament['end_date']))   : 'N/A';
+        $portalUrl      = 'http://localhost/uoc-sports/public/captain/add-result';
+
+        $subject = "Action Required: You Can Now Add Match Results — $tournamentName";
+
+        $htmlContent = "
+            <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 0; }
+                        .header { background: linear-gradient(135deg, #5e2d91, #8b5cf6); color: white; padding: 30px 20px; text-align: center; }
+                        .header h1 { margin: 0; font-size: 24px; }
+                        .header p  { margin: 5px 0 0; opacity: 0.85; font-size: 14px; }
+                        .content { padding: 30px 20px; }
+                        .permission-box {
+                            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+                            border-left: 5px solid #16a34a;
+                            border-radius: 8px;
+                            padding: 20px;
+                            margin: 20px 0;
+                        }
+                        .permission-box h3 { margin-top: 0; color: #15803d; font-size: 16px; }
+                        .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        .details-table td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
+                        .details-table td:first-child { font-weight: bold; color: #5e2d91; width: 40%; }
+                        .btn {
+                            display: inline-block; padding: 14px 28px;
+                            background: linear-gradient(135deg, #5e2d91, #8b5cf6);
+                            color: white; text-decoration: none; border-radius: 8px;
+                            font-weight: bold; margin: 20px 0; font-size: 15px;
+                        }
+                        .footer { background: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb; }
+                        .badge { display: inline-block; background: #5e2d91; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+                    </style>
+                </head>
+                <body>
+                    <div class='header'>
+                        <h1>🏆 Match Result Permission Granted</h1>
+                        <p>University of Colombo Sports E-Portal</p>
+                    </div>
+                    <div class='content'>
+                        <h2>Dear $captainName,</h2>
+                        <div class='permission-box'>
+                            <h3>✅ You have been granted permission!</h3>
+                            <p>You can now add match results for the following tournament through the Captain portal.</p>
+                        </div>
+
+                        <table class='details-table'>
+                            <tr><td>Tournament</td><td><strong>$tournamentName</strong></td></tr>
+                            <tr><td>Sport</td><td><span class='badge'>$sportName</span></td></tr>
+                            <tr><td>Start Date</td><td>$startDate</td></tr>
+                            <tr><td>End Date</td><td>$endDate</td></tr>
+                        </table>
+
+                        <p>Please log in to the Captain Portal and navigate to <strong>\"Add Match Result\"</strong> to enter the results at your earliest convenience.</p>
+
+                        <p style='text-align:center;'>
+                            <a href='$portalUrl' class='btn'>Go to Captain Portal →</a>
+                        </p>
+
+                        <p style='font-size:13px; color:#6b7280;'>If you have any questions, please contact the Sports Administration.</p>
+
+                        <p>Best regards,<br><strong>University of Colombo Sports Administration</strong></p>
+                    </div>
+                    <div class='footer'>
+                        <p>This is an automated notification from the UOC Sports E-Portal.</p>
+                        <p>University of Colombo | Physical Education Department | Colombo 03, Sri Lanka</p>
+                    </div>
+                </body>
+            </html>
+        ";
+
+        return $this->sendEmail($captainEmail, $captainName, $subject, $htmlContent);
+    }
 }
+
