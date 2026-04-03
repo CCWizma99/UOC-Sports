@@ -59,6 +59,7 @@ class Facility {
                     fb.slot,
                     fb.purpose,
                     fb.payment_status,
+                    fb.payment_slip,
                     f.practice_working_hours,
                     f.practice_other_hours,
                     f.tournament_full_day_working,
@@ -243,6 +244,7 @@ class Facility {
                     fb.purpose,
                     fb.status,
                     fb.payment_status,
+                    fb.payment_slip,
                     fb.rejection_reason,
                     CONCAT(u.fname, ' ', u.lname) AS user_name,
                     u.email AS user_email,
@@ -761,4 +763,79 @@ public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = n
 
         return $analytics;
     }
+
+    /* ---------- SEARCH RESERVATIONS ---------- */
+    public function searchReservations($query = '', $filters = []) {
+        $sql = "
+            SELECT r.booking_id,
+                   CONCAT(u.fname, ' ', u.lname) AS user_name,
+                   r.date,
+                   fr.facility_name,
+                   p.facility_name AS physical_location,
+                   u.type AS user_type,
+                   r.payment_status,
+                   r.status
+            FROM `facility-booking` r
+            INNER JOIN user u ON r.user_id = u.user_id
+            INNER JOIN facility_rates fr ON r.facility_id = fr.id
+            LEFT JOIN physical_facility p ON fr.facility_id = p.facility_id
+            WHERE 1
+        ";
+
+        $params = [];
+
+        if ($query !== '') {
+            $sql .= " AND (r.booking_id LIKE :q OR CONCAT(u.fname, ' ', u.lname) LIKE :q_full)";
+            $params[':q'] = "%$query%";
+            $params[':q_full'] = "%$query%";
+        }
+
+        if (!empty($filters['date'])) {
+            $sql .= " AND r.date = :date";
+            $params[':date'] = $filters['date'];
+        }
+
+        if (!empty($filters['location'])) {
+            $sql .= " AND p.facility_id = :location";
+            $params[':location'] = $filters['location'];
+        }
+
+        if (!empty($filters['user_type'])) {
+            $sql .= " AND u.type = :user_type";
+            $params[':user_type'] = $filters['user_type'];
+        }
+
+        $sql .= " ORDER BY r.date DESC, r.booking_id DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /* ---------- GET PHYSICAL FACILITIES ---------- */
+    public function getPhysicalFacilities() {
+        $sql = "SELECT facility_id, facility_name FROM physical_facility ORDER BY facility_name ASC";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /* ---------- UPDATE PAYMENT SLIP ---------- */
+    public function updatePaymentSlip($booking_id, $filename) {
+        try {
+            $sql = "UPDATE `facility-booking`
+                    SET payment_slip = :filename,
+                        payment_status = 'PENDING'
+                    WHERE booking_id = :booking_id";
+
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                ':filename' => $filename,
+                ':booking_id' => $booking_id
+            ]);
+        } catch (PDOException $e) {
+            error_log("Update payment slip error: " . $e->getMessage());
+            return false;
+        }
+    }
 }
+

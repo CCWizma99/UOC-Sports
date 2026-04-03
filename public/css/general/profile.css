@@ -513,6 +513,27 @@ body {
     background: #059669;
 }
 
+.btn-view-slip {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #4b0082;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+
+.btn-view-slip:hover {
+    transform: scale(1.1);
+    background: #3a0066;
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;

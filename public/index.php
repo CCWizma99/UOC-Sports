@@ -37,7 +37,11 @@ $router->post('/payment/notify', 'PaymentController@notify');
 $router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
 
 // Reservation Stats API
-$router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
+$router->get('/api/reservation/search', 'ReservationApiController@search');
+$router->get('/api/reservation/locations', 'ReservationApiController@getLocations');
+$router->post('/api/facility/submit-payment-slip', 'FacilityApiController@submitPaymentSlip');
+$router->post('/api/facility/verify-payment', 'FacilityApiController@verifyPayment');
+
 
 $router->get('/student', 'StudentController@index');
 $router->get('/student/sports', 'StudentController@sports');

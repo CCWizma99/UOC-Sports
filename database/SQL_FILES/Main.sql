@@ -423,6 +423,7 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
   `status` varchar(12) NOT NULL DEFAULT 'BOOKED',
   `payment_status` varchar(12) NOT NULL DEFAULT 'INCOMPLETE',
   `payment_id` varchar(50) DEFAULT NULL,
+  `payment_slip` varchar(255) DEFAULT NULL,
   `rejection_reason` varchar(256) NOT NULL,
   PRIMARY KEY (`booking_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;

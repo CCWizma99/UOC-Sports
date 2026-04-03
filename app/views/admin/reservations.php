@@ -46,12 +46,9 @@ require '../app/views/templates/admin/sidebar.php';
                     <!-- Location -->
                     <div class="btn" id="location-btn">
                         Location
-                        <div class="dropdown" data-filter="location">
+                        <div class="dropdown" data-filter="location" id="location-dropdown">
+                            <!-- Locations will be loaded here -->
                             <div data-value="">All</div>
-                            <div data-value="Indoor Stadium">Indoor Stadium</div>
-                            <div data-value="Karate/Taekwondo Mats">Karate/Taekwondo Mats</div>
-                            <div data-value="Volleyball Court">Volleyball Court</div>
-                            <div data-value="Baseball Court">Baseball Court</div>
                         </div>
                     </div>
 
@@ -245,26 +242,58 @@ document.querySelectorAll('.dropdown').forEach(dd => {
     dd.addEventListener('click', e => e.stopPropagation());
 });
 
-// Handle dropdown selections (non-date)
+// Debounce function to limit API calls
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Handle dropdown selections
+function handleOptionClick(e) {
+    const value = e.target.getAttribute('data-value');
+    const filterType = e.target.parentElement.getAttribute('data-filter');
+    const btn = e.target.closest('.btn');
+
+    filters[filterType] = value;
+    const originalLabel = btn.getAttribute('data-original');
+    btn.childNodes[0].textContent = value === '' ? originalLabel : e.target.textContent;
+
+    e.target.closest('.dropdown').classList.remove('show');
+    debouncedSearch();
+}
+
+// Fetch and populate locations
+function loadLocations() {
+    fetch('/uoc-sports/public/api/reservation/locations')
+        .then(res => res.json())
+        .then(data => {
+            const dropdown = document.getElementById('location-dropdown');
+            data.forEach(loc => {
+                const div = document.createElement('div');
+                div.setAttribute('data-value', loc.facility_id);
+                div.textContent = loc.facility_name;
+                div.addEventListener('click', e => handleOptionClick(e));
+                dropdown.appendChild(div);
+            });
+        })
+        .catch(err => console.error('Error loading locations:', err));
+}
+
+// Initial binding for non-dynamic options
 document.querySelectorAll('.dropdown div[data-value]').forEach(option => {
-    option.addEventListener('click', e => {
-        const value = e.target.getAttribute('data-value');
-        const filterType = e.target.parentElement.getAttribute('data-filter');
-        const btn = e.target.closest('.btn');
-
-        filters[filterType] = value;
-        const originalLabel = btn.getAttribute('data-original');
-        btn.childNodes[0].textContent = value === '' ? originalLabel : e.target.textContent;
-
-        e.target.closest('.dropdown').classList.remove('show');
-        performSearch();
-    });
+    option.addEventListener('click', e => handleOptionClick(e));
 });
 
 // Handle date selection
 const dateInput = document.getElementById('filter-date');
 if (dateInput) {
-    // Prevent dropdown from closing when clicking the date input
     ['click', 'mousedown', 'focus'].forEach(evt =>
         dateInput.addEventListener(evt, e => e.stopPropagation())
     );
@@ -274,7 +303,7 @@ if (dateInput) {
         const btn = e.target.closest('.btn');
         const originalLabel = btn.getAttribute('data-original');
         btn.childNodes[0].textContent = e.target.value || originalLabel;
-        performSearch();
+        debouncedSearch();
     });
 }
 
@@ -283,8 +312,9 @@ document.addEventListener('click', () => {
     document.querySelectorAll('.dropdown').forEach(dd => dd.classList.remove('show'));
 });
 
-// Search when typing in the input
-document.getElementById('search-reservation-inp').addEventListener('input', performSearch);
+// Search when typing in the input (with debounce)
+const debouncedSearch = debounce(performSearch, 300);
+document.getElementById('search-reservation-inp').addEventListener('input', debouncedSearch);
 
 function performSearch() {
     const query = document.getElementById('search-reservation-inp').value.trim();
@@ -294,42 +324,62 @@ function performSearch() {
         return;
     }
 
+    const outputDiv = document.querySelector('.search-output');
+
+    outputDiv.innerHTML = '<div class="searching-indicator"><i class="fa-solid fa-spinner fa-spin"></i> Searching...</div>';
+
     const params = new URLSearchParams({ q: query, ...filters });
 
-    fetch(`/uoc-sports/public/api/search-reservation.php?${params.toString()}`)
+    fetch(`/uoc-sports/public/api/reservation/search?${params.toString()}`)
         .then(res => res.json())
         .then(data => {
-            const outputDiv = document.querySelector('.search-output');
             if (data.length > 0) {
                 let html = `
                     <table class="user-table">
+                        <colgroup>
+                            <col class="col-id">
+                            <col class="col-user">
+                            <col class="col-date">
+                            <col class="col-facility">
+                            <col class="col-location">
+                            <col class="col-status">
+                            <col class="col-action">
+                        </colgroup>
                         <thead>
                             <tr>
-                                <th>Reservation ID</th>
+                                <th>ID</th>
                                 <th>User</th>
                                 <th>Date</th>
+                                <th>Facility</th>
                                 <th>Location</th>
-                                <th>User Type</th>
-                                <th>Action</th>
+                                <th>Status</th>
+                                <th style="text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                 `;
-                var className = null;
                 data.forEach(r => {
-                    if (r.payment_status == "COMPLETE"){
-                        className = "pay-complete"
-                    }
-                    else{
-                        className = "pay-incomplete"
-                    }
+                    const statusClass = `status-${r.status.toLowerCase()}`;
+                    const payClass = r.payment_status === "COMPLETE" ? "pay-complete" : "pay-incomplete";
+                    const facilityName = r.facility_name;
+                    
                     html += `
-                        <tr class="${className}">
-                            <td>${r.booking_id}</td>
-                            <td>${r.user_name}</td>
+                        <tr class="${payClass}">
+                            <td><strong>${r.booking_id}</strong></td>
+                            <td>
+                                <div class="user-info-cell">
+                                    <span>${r.user_name}</span>
+                                    <small>${r.user_type}</small>
+                                </div>
+                            </td>
                             <td>${r.date}</td>
-                            <td>${r.facility_id}</td>
-                            <td>${r.user_type}</td>
+                            <td>
+                                <div class="text-truncate" title="${facilityName}" style="max-width: 100%;">
+                                    ${facilityName}
+                                </div>
+                            </td>
+                            <td><span class="location-tag">${r.physical_location || 'N/A'}</span></td>
+                            <td><span class="status-badge ${statusClass}">${r.status}</span></td>
                             <td>
                                 <a href="/uoc-sports/public/admin-reservation?id=${r.booking_id}" class="action-link" title="View Reservation">
                                     <i class="fa-solid fa-circle-arrow-right"></i>
@@ -341,14 +391,21 @@ function performSearch() {
                 html += `</tbody></table>`;
                 outputDiv.innerHTML = html;
             } else {
-                outputDiv.innerHTML = '<p>No reservations found.</p>';
+                outputDiv.innerHTML = `
+                    <div class="no-results">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <p>No reservations matching your criteria were found.</p>
+                    </div>
+                `;
             }
         })
+
         .catch(err => {
             console.error('Search error:', err);
-            document.querySelector('.search-output').innerHTML = '<p>Error occurred.</p>';
+            outputDiv.innerHTML = '<p style="color: #d9534f; padding: 20px; text-align: center;">An error occurred while searching. Please try again.</p>';
         });
 }
+
 </script>
 
 <script>
@@ -505,8 +562,10 @@ insightsModal.addEventListener('click', (e) => {
 
 // Load chart data on page load
 document.addEventListener('DOMContentLoaded', () => {
+    loadLocations();
     updateAnalytics();
 });
+
 </script>
 
 <?php require '../app/views/templates/admin/footer.php'; ?>
