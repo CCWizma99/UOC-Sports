@@ -1190,7 +1190,10 @@ CREATE TABLE IF NOT EXISTS `sport` (
   `coach_id` varchar(12) NOT NULL,
   `captain_id` varchar(12) NOT NULL,
   `manager_id` varchar(12) NOT NULL,
-  PRIMARY KEY (`sport_id`)
+  `faculty_id` varchar(4) DEFAULT NULL COMMENT 'Faculty that manages this sport',
+  PRIMARY KEY (`sport_id`),
+  KEY `faculty_id` (`faculty_id`),
+  CONSTRAINT `sport_ibfk_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `sport` (`sport_id`, `sport_name`, `sport_category`, `coach_id`, `captain_id`, `manager_id`) VALUES
