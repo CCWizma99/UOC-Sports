@@ -69,7 +69,18 @@ class AdminHomeController {
         view('admin/reservation-analytics', ['title' => 'Reservation Analytics']);
     }
     public function executiveDashboard() {
-        view('admin/executive-dashboard', ['title' => 'Executive Dashboard']);
+        $facultyModel = new Faculty();
+        $faculties = $facultyModel->getAllFaculties();
+        
+        // Default to no faculty filter for admin view
+        $selectedFacultyId = isset($_GET['faculty_id']) ? $_GET['faculty_id'] : null;
+        
+        view('admin/executive-dashboard', [
+            'title' => 'Executive Dashboard',
+            'faculties' => $faculties,
+            'selectedFacultyId' => $selectedFacultyId,
+            'userIsAdmin' => true
+        ]);
     }
     public function players() {
         $sportModel = new Sport();

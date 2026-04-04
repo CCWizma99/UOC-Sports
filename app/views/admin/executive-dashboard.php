@@ -196,6 +196,25 @@ $userName = $_SESSION['user_name'] ?? 'User';
             .current-date { display: none; }
             .header-btn span { display: none; }
         }
+
+        /* ── Facilities Tab Specific Layout ── */
+        .facilities-grid-layout {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .facilities-grid-layout .insight-card.full-width {
+            grid-column: 1 / -1;
+        }
+        .scrollable-chart-container {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .scrollable-chart-inner {
+            min-width: 800px;
+            height: 300px;
+        }
     </style>
 </head>
 <body>
@@ -234,59 +253,33 @@ $userName = $_SESSION['user_name'] ?? 'User';
             </div>
         </div>
 
-        <!-- Faculty Selector (for scoped dashboards) -->
-        <div class="faculty-selector-container" style="margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; gap: 12px; background: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); flex-wrap: wrap;">
-                <label for="faculty-select" style="font-weight: 600; color: #1a1a2e; flex-shrink: 0;">
-                    <i class="fas fa-building"></i> Faculty:
-                </label>
-                <select id="faculty-select" style="padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 0.95rem; cursor: pointer; flex: 0 1 300px;">
-                    <option value="">-- All Faculties --</option>
-                    <?php if (!empty($faculties)): ?>
-                        <?php foreach ($faculties as $faculty): ?>
-                            <option value="<?= htmlspecialchars($faculty['faculty_id']) ?>"
-                                    <?= ($selectedFacultyId === $faculty['faculty_id']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($faculty['faculty_name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+        <!-- Date Range Filter -->
+        <div class="date-filter-container" style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 6px 12px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e5e7eb;">
+                <label for="year-select" style="font-size: 0.85rem; font-weight: 600; color: #4b5563;">Select Year:</label>
+                <select id="year-select" onchange="applyYearFilter()" 
+                        style="padding: 6px 10px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 0.9rem; cursor: pointer; min-width: 130px; background: #f9fafb;">
+                    <option value="<?php echo date('Y') ?>" selected><?php echo date('Y') ?></option>
+                    <option value="<?php echo date('Y') - 1 ?>"><?php echo date('Y') - 1 ?></option>
+                    <option value="<?php echo date('Y') - 2 ?>"><?php echo date('Y') - 2 ?></option>
+                    <option value="all">All Time</option>
                 </select>
-                <span id="faculty-status" style="font-size: 0.82rem; color: #666; font-style: italic; flex-shrink: 0;"></span>
-                
+
                 <!-- Export Buttons -->
-                <div style="flex: 1; text-align: right; min-width: 300px;">
+                <div style="flex: 1; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
                     <button id="export-csv-btn" onclick="exportDashboard('csv')" 
-                            style="padding: 8px 16px; background: #059669; color: white; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; margin-right: 8px; display: inline-flex; align-items: center; gap: 6px; transition: background 0.3s;"
-                            onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
-                        <i class="fas fa-download"></i> <span>Export CSV</span>
+                            style="padding: 8px 16px; background: #059669; color: white; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-download"></i> <span>Export</span>
                     </button>
                     <button id="export-pdf-btn" onclick="exportDashboard('pdf')" 
-                            style="padding: 8px 16px; background: #dc2626; color: white; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.3s;"
-                            onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
-                        <i class="fas fa-file-pdf"></i> <span>Export PDF</span>
+                            style="padding: 8px 16px; background: #dc2626; color: white; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-file-pdf"></i> <span>PDF</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Date Range Filter (Phase 3) -->
-        <div class="date-filter-container" style="margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; gap: 12px; background: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); flex-wrap: wrap;">
-                <label style="font-weight: 600; color: #1a1a2e; flex-shrink: 0;">
-                    <i class="fas fa-calendar"></i> Date Range:
-                </label>
-                <input type="date" id="start-date" value="<?php echo date('Y-01-01'); ?>" 
-                       style="padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 0.95rem; cursor: pointer;">
-                <span style="color: #666; flex-shrink: 0;">to</span>
-                <input type="date" id="end-date" value="<?php echo date('Y-m-d'); ?>" 
-                       style="padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 0.95rem; cursor: pointer;">
-                <button onclick="applyDateFilter()" 
-                        style="padding: 8px 16px; background: #0891b2; color: white; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.3s;"
-                        onmouseover="this.style.background='#0e7490'" onmouseout="this.style.background='#0891b2'">
-                    <i class="fas fa-filter"></i> Apply Filter
-                </button>
-            </div>
-        </div>
+
 
         <!-- KPI Cards Row -->
         <div class="kpi-row" id="kpi-cards">
@@ -367,36 +360,13 @@ $userName = $_SESSION['user_name'] ?? 'User';
 let dashboardData = null;
 
 // Determine correct API base from current URL
-const isExecRoute = window.location.pathname.includes('executive-dashboard');
-const API_BASE = isExecRoute && window.location.pathname.includes('executive-index')
-    ? 'executive-dashboard/analytics'
+const isExecRoute = window.location.pathname.includes('executive-');
+const API_BASE = isExecRoute 
+    ? '/uoc-sports/public/executive-dashboard/analytics'
     : '/uoc-sports/public/admin-dashboard/analytics';
-
-// Store current faculty filter
-let currentFacultyId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     updateDate();
-    
-    // Initialize faculty selector
-    const facultySelect = document.getElementById('faculty-select');
-    if (facultySelect) {
-        facultySelect.addEventListener('change', (e) => {
-            const selectedId = e.target.value;
-            // Update URL and reload
-            const params = new URLSearchParams(window.location.search);
-            if (selectedId) {
-                params.set('faculty_id', selectedId);
-            } else {
-                params.delete('faculty_id');
-            }
-            window.location.href = window.location.pathname + '?' + params.toString();
-        });
-        
-        // Store initial faculty ID
-        currentFacultyId = facultySelect.value;
-    }
-    
     loadDashboard();
 });
 
@@ -419,24 +389,18 @@ let facilityDeepData = null;
 
 async function loadDashboard() {
     try {
-        // Build API URL with faculty filter if set
-        let apiUrl = API_BASE;
-        if (currentFacultyId) {
-            const separator = apiUrl.includes('?') ? '&' : '?';
-            apiUrl += separator + 'faculty_id=' + encodeURIComponent(currentFacultyId);
-        }
+        const year = document.getElementById('year-select').value;
         
-        // Update faculty status indicator
-        const statusEl = document.getElementById('faculty-status');
-        if (statusEl && currentFacultyId) {
-            statusEl.textContent = '(Scoped View)';
-        }
+        // Build API URL with correct prefix and date filters
+        const API_PREFIX = isExecRoute ? '/uoc-sports/public/executive-' : '/uoc-sports/public/admin-';
+        const dateParams = `?year=${year}`;
+        const apiUrl = API_BASE + dateParams;
         
         // Fetch all 3 APIs in parallel
         const [mainRes, equipRes, facRes] = await Promise.all([
             fetch(apiUrl),
-            fetch('/uoc-sports/public/admin-equipments/analytics').catch(() => null),
-            fetch('/uoc-sports/public/admin-reservations/analytics').catch(() => null)
+            fetch(API_PREFIX + 'equipments/analytics' + dateParams).catch(() => null),
+            fetch(API_PREFIX + 'reservations/analytics' + dateParams).catch(() => null)
         ]);
         
         const result = await mainRes.json();
@@ -458,7 +422,7 @@ async function loadDashboard() {
         } catch(e) {}
         
         if (result.status === 'success') {
-            dashboardData = result.data;
+            dashboardData = getSafeData(result.data);
             renderKPICards();
             renderUsersTab();
             renderFacilitiesTab();
@@ -475,6 +439,45 @@ async function loadDashboard() {
     }
 }
 
+/**
+ * Returns a default object structure to prevent TypeErrors
+ */
+function getSafeData(data) {
+    const defaults = {
+        users: { total: 0, new_this_month: 0, type_distribution: [] },
+        reservations: { total: 0, range_total: 0, avg_utilization: 0 },
+        equipment: { total_types: 0, total_quantity: 0, needs_attention: 0 },
+        events: { total: 0, active: 0, completed_this_year: 0, upcoming: 0 },
+        budget: { allocated: 0, spent: 0, remaining: 0, percent_used: 0, year: new Date().getFullYear() },
+        insights: {
+            budget_efficiency: { summary: { on_track: 0, overspend_risk: 0, underspend: 0, total: 0 }, sports: [] },
+            facility_demand: { top_facilities: [], overall: { total: 0 } },
+            athlete_engagement: { total_athletes: 0, total_students: 0, participation_rate: 0, active_sports: 0 },
+            action_required: { unresolved_inquiries: 0, low_stock_items: 0, total_actions: 0 }
+        },
+        community: { post_stats: { total_posts: 0, active_posts: 0, commenting_enabled: 0 }, inquiry_stats: { total: 0, unresolved: 0, resolved: 0 }, recent_comments: [], recent_inquiries: [] },
+        achievements: { total: 0, recent: [], by_sport: [], top_performers: [] },
+        facility_analytics: { utilization: [], by_status: [], monthly_trend: [] },
+        equipment_analytics: { by_sport: [], low_stock: [], recent_activity: [] }
+    };
+
+    function deepMerge(target, source) {
+        if (typeof target !== 'object' || target === null) return source !== undefined ? source : target;
+        if (typeof source !== 'object' || source === null) return target;
+        if (Array.isArray(target)) return Array.isArray(source) ? source : target;
+        
+        const output = { ...target };
+        Object.keys(source).forEach(key => {
+            if (source[key] !== undefined) {
+                output[key] = deepMerge(target[key], source[key]);
+            }
+        });
+        return output;
+    }
+
+    return deepMerge(defaults, data);
+}
+
 // ══════════════════════════════════════════
 // KPI CARDS
 // ══════════════════════════════════════════
@@ -488,7 +491,7 @@ function renderKPICards() {
             <div class="kpi-content">
                 <div class="kpi-value">${users.total.toLocaleString()}</div>
                 <div class="kpi-label">Active Users</div>
-                <div class="kpi-sub">+${users.new_this_month} this month</div>
+                <div class="kpi-sub">+${users.new_this_month} in selected year</div>
             </div>
         </div>
         
@@ -497,7 +500,7 @@ function renderKPICards() {
             <div class="kpi-content">
                 <div class="kpi-value">${reservations.avg_utilization}%</div>
                 <div class="kpi-label">Facility Utilization</div>
-                <div class="kpi-sub">${reservations.this_month} bookings this month</div>
+                <div class="kpi-sub">${reservations.range_total} bookings in selected year</div>
             </div>
         </div>
         
@@ -551,7 +554,7 @@ function renderUsersTab() {
                 </div>
                 <div class="stat-item">
                     <div class="stat-num">${users.new_this_month}</div>
-                    <div class="stat-label">New This Month</div>
+                    <div class="stat-label">New This Year</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-num">${athlete_engagement.total_athletes}</div>
@@ -605,90 +608,105 @@ function renderUsersTab() {
 // FACILITIES TAB
 // ══════════════════════════════════════════
 function renderFacilitiesTab() {
-    const container = document.getElementById('facilities-grid');
-    const { reservations, facility_analytics, insights } = dashboardData;
-    const { facility_demand } = insights;
+    const container = document.getElementById('tab-facilities');
+    const { reservations, facility_analytics } = dashboardData;
+    const year = document.getElementById('year-select').value;
+    const isAllTime = year === 'all';
     
     container.innerHTML = `
-        <div class="insight-card wide horizontal-overview">
-            <div class="overview-title">
-                <h3><i class="fas fa-list-check"></i> Booking Status</h3>
-                <p>Total, monthly, and pending reservations</p>
-            </div>
-            <div class="overview-stats">
-                <div class="stat-item">
-                    <div class="stat-num" style="color: #4b0082">${reservations.total}</div>
-                    <div class="stat-label">Total Bookings</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num">${reservations.this_month}</div>
-                    <div class="stat-label">This Month</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num" style="color: #d97706">${reservations.pending}</div>
-                    <div class="stat-label">Pending</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-num">${reservations.avg_utilization}%</div>
-                    <div class="stat-label">Avg. Utilization</div>
+        <div class="facilities-grid-layout" id="facilities-grid">
+            <!-- Row 1: 3 Column Grid -->
+            <!-- Card 1: Facility Utilization -->
+            <div class="insight-card">
+                ${cardHeader('fa-chart-pie', 'Facility Utilization', 'Usage frequency and rate per facility')}
+                <div class="card-content">
+                    ${facility_analytics.utilization.length > 0 ? `
+                        <div class="data-list">
+                            ${facility_analytics.utilization
+                                .map(f => `
+                                <div class="data-row">
+                                    <div class="data-info">
+                                        <span class="name">${truncName(f.facility_name)}</span>
+                                        <span class="sub">${f.total_bookings} bookings in selected period</span>
+                                    </div>
+                                    <span class="data-value">${f.utilization_rate}%</span>
+                                </div>`).join('')}
+                        </div>
+                    ` : '<p class="no-data">No facility data available</p>'}
                 </div>
             </div>
-        </div>
 
-        <div class="insight-card">
-            ${cardHeader('fa-chart-pie', 'Facility Utilization', 'Booking activity and utilization rate per facility')}
-            <div class="card-content">
-                ${facility_analytics.utilization.length > 0 ? `
-                    <div class="data-list">${facility_analytics.utilization.map(f => {
-                        const deepMatch = facilityDeepData && facilityDeepData.utilization ? facilityDeepData.utilization.find(u => u.facility_name === f.facility_name) : null;
-                        return `
-                        <div class="data-row">
-                            <div class="data-info">
-                                <span class="name">${truncName(f.facility_name)}</span>
-                                <span class="sub">${f.last_30_days} bookings last 30 days${deepMatch ? ' • ' + deepMatch.facility_type : ''}</span>
+            <!-- Card 2: Peak Booking Days -->
+            <div class="insight-card">
+                ${cardHeader('fa-calendar-day', 'Peak Booking Days', 'Weekly distribution of reservation activity')}
+                <div class="card-content">
+                    ${facility_analytics.peak_days.length > 0 ? `
+                        <div class="data-list">
+                            ${facility_analytics.peak_days.map(d => `
+                                <div class="data-row">
+                                    <div class="data-info">
+                                        <span class="name">${d.day_name}</span>
+                                        <span class="sub">Total bookings on this day</span>
+                                    </div>
+                                    <span class="data-value">${d.count}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : '<p class="no-data">No data available</p>'}
+                </div>
+            </div>
+
+            <!-- Card 3: Booking by User Type -->
+            <div class="insight-card">
+                ${cardHeader('fa-users-gear', 'Booking by User Type', 'Facility usage distribution by student roles')}
+                <div class="card-content">
+                    ${facility_analytics.by_user_type.length > 0 ? `
+                        <div class="data-list">
+                            ${(() => {
+                                const typeLabels = { STUDENT:'Student', ADMIN:'Admin', COACH:'Coach', CAPTAIN:'Captain', SPT:'Sport Manager', EQP:'Equipment Manager', REG:'Registrar' };
+                                return facility_analytics.by_user_type.map(d => `
+                                    <div class="data-row">
+                                        <div class="data-info">
+                                            <span class="name">${typeLabels[d.user_type] || d.user_type}</span>
+                                            <span class="sub">Account role type</span>
+                                        </div>
+                                        <span class="data-value">${d.count}</span>
+                                    </div>
+                                `).join('');
+                            })()}
+                        </div>
+                    ` : '<p class="no-data">No data available</p>'}
+                </div>
+            </div>
+
+            <!-- Row 2: Full Width Grid -->
+            <!-- Card 4: Monthly Booking Trend -->
+            <div class="insight-card full-width">
+                ${cardHeader('fa-chart-line', 'Monthly Booking Trend', 'Reservation volume progression over time')}
+                <div class="card-content">
+                    ${facility_analytics.monthly_trend.length > 0 ? `
+                        <div class="scrollable-chart-container">
+                            <div class="${isAllTime ? 'scrollable-chart-inner' : 'chart-wrapper line-chart'}">
+                                <canvas id="chart-booking-trend"></canvas>
                             </div>
-                            <span class="data-value">${deepMatch ? deepMatch.utilization_rate + '%' : f.total_bookings + ' total'}</span>
-                        </div>`;
-                    }).join('')}</div>
-                ` : '<p class="no-data">No facility data available</p>'}
-            </div>
-        </div>
-        
-
-        
-        <div class="insight-card">
-            ${cardHeader('fa-fire', 'Top Facilities by Demand', 'Most booked facilities ranked by total reservations')}
-            <div class="card-content">
-                ${facility_demand.top_facilities.length > 0 ? 
-                    renderBarChart(facility_demand.top_facilities, 'facility_name', 'total_bookings') 
-                    : '<p class="no-data">No demand data</p>'}
-            </div>
-        </div>
-        
-        <div class="insight-card">
-            ${cardHeader('fa-chart-line', 'Monthly Booking Trend', 'Reservation volume over recent months')}
-            <div class="card-content">
-                ${facility_analytics.monthly_trend.length > 0 ?
-                    '<div class="chart-wrapper line-chart"><canvas id="chart-booking-trend"></canvas></div>'
-                    : '<p class="no-data">No trend data available</p>'}
+                        </div>
+                    ` : '<p class="no-data">No trend data available</p>'}
+                </div>
             </div>
         </div>
     `;
 
-    // Append deep facility analytics if available
-    if (facilityDeepData) {
-        const deepCards = renderFacilityDeepAnalytics();
-        container.innerHTML += deepCards;
-    }
 
-    // Render line chart for booking trend
-    if (facility_analytics.monthly_trend.length > 0) {
-        createLineChart('chart-booking-trend', 
-            facility_analytics.monthly_trend.map(t => t.month),
-            facility_analytics.monthly_trend.map(t => t.bookings),
-            'Bookings');
+
+    // ── Monthly Trend Chart (Card 4) ──
+    if (facility_analytics.monthly_trend && facility_analytics.monthly_trend.length > 0) {
+        createLineChart('chart-booking-trend',
+            facility_analytics.monthly_trend.map(d => d.month_label),
+            facility_analytics.monthly_trend.map(d => d.count),
+            'Reservations');
     }
 }
+
 
 // ══════════════════════════════════════════
 // EQUIPMENT TAB
@@ -864,11 +882,6 @@ function renderFacilityDeepAnalytics() {
     // Booking by User Type
     if (d.user_type && d.user_type.length) {
         html += `<div class="insight-card">${cardHeader('fa-users', 'Booking by User Type', 'Reservation distribution across user roles')}<div class="card-content">${renderBarChart(d.user_type, 'user_type', 'booking_count')}</div></div>`;
-    }
-
-    // Facility Type Distribution
-    if (d.facility_type && d.facility_type.length) {
-        html += `<div class="insight-card">${cardHeader('fa-building', 'Facility Type Distribution', 'Booking volume across different facility types')}<div class="card-content">${renderBarChart(d.facility_type, 'facility_type', 'booking_count')}</div></div>`;
     }
 
     // Underutilized
@@ -1244,6 +1257,62 @@ function createPieChart(canvasId, labels, data, colors = null) {
     });
 }
 
+function createBarChart(canvasId, labels, data, label) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+
+    if (activeCharts[canvasId]) activeCharts[canvasId].destroy();
+
+    activeCharts[canvasId] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                borderColor: '#6366f1',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1a1a2e',
+                    titleFont: { family: 'Inter', weight: 600 },
+                    bodyFont: { family: 'Inter' },
+                    padding: 12,
+                    cornerRadius: 8
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { family: 'Inter', size: 11 },
+                        color: '#888'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: {
+                        font: { family: 'Inter', size: 11 },
+                        color: '#888'
+                    }
+                }
+            },
+            animation: {
+                duration: 800
+            }
+        }
+    });
+}
+
 function createLineChart(canvasId, labels, data, label) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
@@ -1338,53 +1407,29 @@ function exportDashboard(format) {
 }
 
 // ══════════════════════════════════════════
-// PHASE 3: DATE RANGE FILTERING & DRILL-DOWN
+// PHASE 3: YEAR FILTERING & DRILL-DOWN
 // ══════════════════════════════════════════
 
 /**
- * Apply date range filter to dashboard
+ * Apply year filter to dashboard
  */
-function applyDateFilter() {
-    const startDate = document.getElementById('start-date').value;
-    const endDate = document.getElementById('end-date').value;
+function applyYearFilter() {
+    const year = document.getElementById('year-select').value;
     
-    if (!startDate || !endDate) {
-        alert('Please select both start and end dates');
-        return;
-    }
-    
-    if (new Date(startDate) > new Date(endDate)) {
-        alert('Start date must be before end date');
-        return;
-    }
-    
-    // Store dates in session storage for drill-down use
-    sessionStorage.setItem('dashboardStartDate', startDate);
-    sessionStorage.setItem('dashboardEndDate', endDate);
+    // Store year in session storage for drill-down use
+    sessionStorage.setItem('dashboardYear', year);
     
     // Reload dashboard with updated data
-    loadDashboards();
+    loadDashboard();
 }
 
 /**
  * Navigate to sport performance drill-down view
  */
 function drillDownSportPerformance(sportId) {
-    const facultyId = document.getElementById('faculty-select').value;
-    const startDate = document.getElementById('start-date').value;
-    const endDate = document.getElementById('end-date').value;
+    const year = document.getElementById('year-select').value;
     
-    let url = `/uoc-sports/public/executive-dashboard/drill-down/sport-performance?sport_id=${sportId}`;
-    if (facultyId) {
-        url += `&faculty_id=${encodeURIComponent(facultyId)}`;
-    }
-    if (startDate) {
-        url += `&start_date=${startDate}`;
-    }
-    if (endDate) {
-        url += `&end_date=${endDate}`;
-    }
-    
+    let url = `/uoc-sports/public/executive-dashboard/drill-down/sport-performance?sport_id=${sportId}&year=${year}`;
     window.location.href = url;
 }
 
@@ -1392,26 +1437,9 @@ function drillDownSportPerformance(sportId) {
  * Navigate to budget trends drill-down view
  */
 function drillDownBudgetTrends() {
-    const facultyId = document.getElementById('faculty-select').value;
-    const startDate = document.getElementById('start-date').value;
-    const endDate = document.getElementById('end-date').value;
+    const year = document.getElementById('year-select').value;
     
-    let url = `/uoc-sports/public/executive-dashboard/drill-down/budget-trends`;
-    const params = [];
-    if (facultyId) {
-        params.push(`faculty_id=${encodeURIComponent(facultyId)}`);
-    }
-    if (startDate) {
-        params.push(`start_date=${startDate}`);
-    }
-    if (endDate) {
-        params.push(`end_date=${endDate}`);
-    }
-    
-    if (params.length > 0) {
-        url += '?' + params.join('&');
-    }
-    
+    let url = `/uoc-sports/public/executive-dashboard/drill-down/budget-trends?year=${year}`;
     window.location.href = url;
 }
 
@@ -1419,26 +1447,9 @@ function drillDownBudgetTrends() {
  * Navigate to utilization trends drill-down view
  */
 function drillDownUtilizationTrends() {
-    const facultyId = document.getElementById('faculty-select').value;
-    const startDate = document.getElementById('start-date').value;
-    const endDate = document.getElementById('end-date').value;
+    const year = document.getElementById('year-select').value;
     
-    let url = `/uoc-sports/public/executive-dashboard/drill-down/utilization`;
-    const params = [];
-    if (facultyId) {
-        params.push(`faculty_id=${encodeURIComponent(facultyId)}`);
-    }
-    if (startDate) {
-        params.push(`start_date=${startDate}`);
-    }
-    if (endDate) {
-        params.push(`end_date=${endDate}`);
-    }
-    
-    if (params.length > 0) {
-        url += '?' + params.join('&');
-    }
-    
+    let url = `/uoc-sports/public/executive-dashboard/drill-down/utilization?year=${year}`;
     window.location.href = url;
 }
 </script>

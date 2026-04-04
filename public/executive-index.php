@@ -26,4 +26,8 @@ $router->get('/api/drill-down/sport-performance', 'DashboardApiController@getSpo
 $router->get('/api/drill-down/budget-trends', 'DashboardApiController@getBudgetTrendsByDateRange');
 $router->get('/api/drill-down/utilization', 'DashboardApiController@getUtilizationTrends');
 
+// Analytics for other modules (reusing existing API controllers)
+$router->get('/executive-equipments/analytics', 'EquipmentApiController@getAnalytics');
+$router->get('/executive-reservations/analytics', 'ReservationApiController@getAnalytics');
+
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

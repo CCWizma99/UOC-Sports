@@ -1765,3 +1765,49 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- ========================================================
+-- 2026 FRESH SAMPLE DATA FOR EXECUTIVE DASHBOARD TESTING
+-- Added on 2026-04-04 to fix '0' metrics
+-- ========================================================
+
+INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `must_change_pass`, `joined_date`, `contact_no`, `profile_img`, `sport_id`, `student_id`, `faculty_id`, `status`) VALUES
+('STU2026_01', 'Arjun', 'Ratnayake', 'STUDENT', 'arjun2026@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-03-10 10:00:00', '0711111111', '', '', '26000001', '1', 'ACTIVE'),
+('STU2026_02', 'Binu', 'Perera', 'STUDENT', 'binu2026@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-03-15 11:30:00', '0722222222', '', '', '26000002', '1', 'ACTIVE'),
+('STU2026_03', 'Chamath', 'Silva', 'STUDENT', 'chamath2026@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-03-20 09:15:00', '0733333333', '', '', '26000003', '2', 'ACTIVE'),
+('STU2026_04', 'Dinali', 'Fernando', 'STUDENT', 'dinali2026@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-01 08:00:00', '0744444444', '', '', '26000004', '2', 'ACTIVE');
+
+INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`, `in_team`) VALUES
+('CRI', 'STU2026_01', '2026-03-11', 'YES'),
+('BAD', 'STU2026_01', '2026-03-12', 'YES'),
+('CRI', 'STU2026_02', '2026-03-16', 'YES'),
+('FOO', 'STU2026_03', '2026-03-21', 'YES'),
+('VOL', 'STU2026_04', '2026-04-02', 'YES');
+
+INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, `slot`, `purpose`, `status`, `payment_status`, `payment_id`, `rejection_reason`) VALUES
+('BK2026_01', 'STU2026_01', '1', '2026-03-15', 'FULL', 'Cricket Practice - Fresh', 'ACCEPTED', 'COMPLETE', 'PAY_2026_01', ''),
+('BK2026_02', 'STU2026_02', '1', '2026-03-20', 'FULL', 'Cricket Matches', 'ACCEPTED', 'COMPLETE', 'PAY_2026_02', ''),
+('BK2026_03', 'STU2026_03', '3', '2026-04-02', 'MORNING', 'Badminton Practice', 'BOOKED', 'INCOMPLETE', NULL, ''),
+('BK2026_04', 'STU2026_04', '9', '2026-04-03', 'AFTERNOON', 'Volleyball Training', 'BOOKED', 'INCOMPLETE', NULL, ''),
+('BK2026_05', 'STU2026_01', '11', '2026-04-05', 'FULL', 'Baseball Match', 'ACCEPTED', 'COMPLETE', 'PAY_2026_05', '');
+
+-- 2026 BUDGET DATA
+INSERT INTO `budget` (`sport_id`, `allocated_amount`, `spent_amount`, `year`) VALUES
+('CRI', 500000.00, 120000.00, 2026),
+('BAD', 250000.00, 45000.00, 2026),
+('FOO', 300000.00, 150000.00, 2026),
+('VOL', 150000.00, 10000.00, 2026),
+('BAS', 100000.00, 0.00, 2026);
+
+-- 2026 TOURNAMENT DATA
+INSERT INTO `tournament` (`tournament_name`, `sport_id`, `start_date`, `end_date`, `status`, `venue`) VALUES
+('Inter-University Cricket Cup 2026', 'CRI', '2026-05-10', '2026-05-25', 'UPCOMING', 'Main Grounds'),
+('Open Badminton Championship 2026', 'BAD', '2026-04-01', '2026-04-15', 'ONGOING', 'Indoor Stadium'),
+('Early Season Football Friendly', 'FOO', '2026-03-01', '2026-03-05', 'COMPLETE', 'Soccer Field');
+
+-- 2026 ACHIEVEMENT DATA
+INSERT INTO `achievement` (`achievement_id`, `user_id`, `competition_id`, `achievement`, `points`, `certificate_pdf`) VALUES
+('ACH2026_01', 'STU2026_01', 3, 'Champions - Gold Medal', 500, ''),
+('ACH2026_02', 'STU2026_02', 3, 'Runners Up - Silver Medal', 300, '');
+
