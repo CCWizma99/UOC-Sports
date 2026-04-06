@@ -77,6 +77,11 @@ class ResultModel {
             $stmt2 = $this->db->prepare($sql2);
             $stmt2->execute([':tid' => $tournamentId]);
 
+            // Mark tournament as COMPLETE
+            $sql3 = "UPDATE tournament SET status = 'COMPLETE' WHERE tournament_id = :tid";
+            $stmt3 = $this->db->prepare($sql3);
+            $stmt3->execute([':tid' => $tournamentId]);
+
             $this->db->commit();
             return true;
         } catch (Exception $e) {

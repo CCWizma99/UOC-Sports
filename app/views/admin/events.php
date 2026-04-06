@@ -372,6 +372,7 @@ async function loadTournaments() {
                 const startDate = tournament.start_date ? new Date(tournament.start_date).toLocaleDateString() : '-';
                 const endDate = tournament.end_date ? new Date(tournament.end_date).toLocaleDateString() : '-';
                 const status = tournament.status || 'INCOMPLETE';
+                const isComplete = status === 'COMPLETE';
                 
                 const card = document.createElement('div');
                 card.className = 'event-card';
@@ -393,10 +394,15 @@ async function loadTournaments() {
                             </div>
                         </div>
                     </div>
-                    <div class="event-card-footer">
+                    <div class="event-card-footer" style="display: flex; gap: 10px;">
                         <button class="btn-invite" onclick="openInvitationModal('${tournament.tournament_id}', '${tournament.tournament_name}')">
-                            <i class="fas fa-envelope"></i> Send Invitation
+                            <i class="fas fa-envelope"></i> Invite
                         </button>
+                        ${!isComplete ? `
+                        <button class="btn-complete" onclick="markAsComplete('${tournament.tournament_id}', '${tournament.tournament_name.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-check-circle"></i> Complete
+                        </button>
+                        ` : ''}
                     </div>
                 `;
                 
@@ -515,6 +521,32 @@ async function sendModalInvitation() {
         }
     } catch (error) {
         showModalMessage('Error sending invitation: ' + error.message, 'error');
+    }
+}
+
+// Mark tournament as complete
+async function markAsComplete(tournamentId, tournamentName) {
+    if (!confirm(`Are you sure you want to mark "${tournamentName}" as COMPLETE? This will finalize the event.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/uoc-sports/public/admin-tournament/complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tournament_id: tournamentId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            showNotification(data.message, 'success');
+            loadTournaments(); // Refresh list
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error completing tournament: ' + error.message, 'error');
     }
 }
 

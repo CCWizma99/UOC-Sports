@@ -41,6 +41,7 @@ $router->get('/api/reservation/search', 'ReservationApiController@search');
 $router->get('/api/reservation/locations', 'ReservationApiController@getLocations');
 $router->post('/api/facility/submit-payment-slip', 'FacilityApiController@submitPaymentSlip');
 $router->post('/api/facility/verify-payment', 'FacilityApiController@verifyPayment');
+$router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
 
 
 $router->get('/student', 'StudentController@index');

@@ -26,6 +26,7 @@ $router->get('/admin-events', 'AdminHomeController@events');
 $router->get('/admin-results', 'AdminHomeController@results');
 $router->get('/admin-teams', 'AdminHomeController@teams');
 $router->get('/admin-team-details', 'AdminHomeController@teamDetails');
+$router->get('/admin-event-permissions', 'AdminHomeController@eventPermissions');
 
 // Admin Match Results API
 $router->get('/admin-results/get-all', 'MatchResultApiController@getAllAdminResults');
@@ -96,7 +97,6 @@ $router->post('/api/user/update', 'UserApiController@updateUser');
 $router->post('/api/user/toggle-status', 'UserApiController@toggleStatus');
 
 // Reservation Stats API
-$router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
 $router->get('/admin-reservations/analytics', 'ReservationApiController@getAnalytics');
 
 // Dashboard API
