@@ -47,6 +47,7 @@ switch ($userType) {
             ['name' => 'Team', 'url' => '/uoc-sports/public/captain/add-members'],
             ['name' => 'Schedule', 'url' => '/uoc-sports/public/captain/schedule-practice'],
             ['name' => 'Attendance', 'url' => '/uoc-sports/public/captain/mark-attendance'],
+            ['name' => 'Add Result', 'url' => '/uoc-sports/public/captain/add-result'],
             ['name' => 'Communication', 'url' => '/uoc-sports/public/captain/communication'],
             ['name' => 'Achievements', 'url' => '/uoc-sports/public/captain/achievements'],
         ];
@@ -61,9 +62,7 @@ switch ($userType) {
     case 'EQP':
         $navLinks = [
             ['name' => 'Home', 'url' => '/uoc-sports/public/equipment-manager'],
-            ['name' => 'Reservations', 'url' => '/uoc-sports/public/equipment-manager/equipment-reservations'],
             ['name' => 'Equipments', 'url' => '/uoc-sports/public/equipment-manager/equipments'],
-            ['name' => 'Schedule', 'url' => '/uoc-sports/public/equipment-manager/practiceschedule'],
             ['name' => 'Lost Items', 'url' => '/uoc-sports/public/equipment-manager/lostitem'],
             ['name' => 'Booking Requests', 'url' => '/uoc-sports/public/equipment-manager/bookingrequests'],
         ];

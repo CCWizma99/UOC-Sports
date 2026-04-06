@@ -72,7 +72,17 @@ class AdminHomeController {
         view('admin/executive-dashboard', ['title' => 'Executive Dashboard']);
     }
     public function players() {
-        view('admin/players', ['title' => 'Player Records']);
+        $sportModel = new Sport();
+        $sports = $sportModel->getSports();
+        
+        $facultyModel = new Faculty();
+        $faculties = $facultyModel->getAllFaculties();
+
+        view('admin/players', [
+            'title' => 'Player Records',
+            'sport_data' => $sports,
+            'faculty_data' => $faculties
+        ]);
     }
     public function equipments() {
         view('admin/equipments', ['title' => 'Equipment Inventory']);
@@ -114,5 +124,9 @@ class AdminHomeController {
     }
     public function reservationDetails() {
         view('admin/reservation', ['title' => 'Reservation Details']);
+    }
+
+    public function results() {
+        view('admin/match-results', ['title' => 'Match Results']);
     }
 }

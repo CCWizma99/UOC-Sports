@@ -60,6 +60,7 @@ if (!isset($_SESSION['user_id'])) {
                 </h1>
             </a>
             <div id="header-links" class="flex y-center">
+                <a href="/uoc-sports/public/admin-executive-dashboard" title="Executive Dashboard"><i class="fa-solid fa-chart-pie"></i></a>
                 <a href="/uoc-sports/public/"><i class="fa-solid fa-home"></i></a>
                 <a href="/uoc-sports/public/profile"><i class="fa-solid fa-user"></i></a>         
             </div>

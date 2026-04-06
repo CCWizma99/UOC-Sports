@@ -15,11 +15,7 @@ class CaptainController {
         $sportModel = new Sport();
         $sportTeamModel = new SportTeam();
         $scheduleModel = new Schedule();
-        require_once __DIR__ . '/../models/SportCompetition.php';
-        require_once __DIR__ . '/../models/Tournament.php';
-        $competitionModel = new SportCompetition();
-        $tournamentModel = new Tournament();
-
+        
         // Get user display name
         $profile = $userModel->getUserProfile($userId);
         $username = isset($profile['full_name']) ? $profile['full_name'] : (trim(($profile['fname'] ?? '') . ' ' . ($profile['lname'] ?? '')) ?: 'Captain');
@@ -27,249 +23,105 @@ class CaptainController {
         // Get sport assigned to this captain (if any)
         $sport = $sportModel->getSportByCaptain($userId);
         $sportName = $sport && isset($sport['sport_name']) ? $sport['sport_name'] : null;
-        $sportId = $sport['sport_id'] ?? null;
 
-        $practiceSessions = $scheduleModel->getSessionsBySport($sportId);
-        $memberCount = $sportTeamModel->getTeamMemberCount($sportId);
-        $sessionCount = $scheduleModel->getSessionCountById($sportId);
+        $practiceSessions = $scheduleModel->getSessionsBySport($sport['sport_id'] ?? null);
 
-        // Fetch upcoming competitions (next 30 days)
-        $upcomingCompetitions = $competitionModel->getCompetitionsByMonth($sportId, date('m'), 5);
-        // Fetch upcoming tournaments (end_date >= today)
-        $today = date('Y-m-d');
-        $allTournaments = $tournamentModel->getAllTournaments();
-        $upcomingTournaments = array_filter($allTournaments, function($t) use ($today) {
-            return isset($t['end_date']) && $t['end_date'] >= $today;
-        });
+        $memberCount = $sportTeamModel->getTeamMemberCount($sport['sport_id'] ?? null);
 
-        // Merge and sort by date
-        $events = [];
-        foreach ($upcomingCompetitions as $comp) {
-            $events[] = [
-                'date' => $comp['date'] ?? $comp['created_at'],
-                'time' => isset($comp['date']) ? date('H:i', strtotime($comp['date'])) : '',
-                'name' => $comp['competition_name'] ?? 'Competition',
-            ];
-        }
-        foreach ($upcomingTournaments as $tour) {
-            $events[] = [
-                'date' => $tour['start_date'],
-                'time' => isset($tour['start_date']) ? date('H:i', strtotime($tour['start_date'])) : '',
-                'name' => $tour['tournament_name'] ?? 'Tournament',
-            ];
-        }
-        // Sort events by date
-        usort($events, function($a, $b) {
-            return strtotime($a['date']) <=> strtotime($b['date']);
-        });
+        $sessionCount = $scheduleModel->getSessionCountById($sport['sport_id'] ?? null);
 
-        view('captain/index', [
-            'username' => $username,
-            'sport_name' => $sportName,
-            'member_count' => $memberCount,
-            'practice_sessions' => $practiceSessions,
-            'session_count' => $sessionCount,
-            'upcoming_events' => $events
-        ]);
+        view('captain/index', ['username' => $username, 'sport_name' => $sportName, 'member_count' => $memberCount, 'practice_sessions' => $practiceSessions, 'session_count' => $sessionCount]);
     }
     public function MarkAttendance() {
         view('captain/mark-attendance');
     }
     public function AddMembers() {
-        if (!isset($_SESSION['user_id'])) {
-            header("Location: /uoc-sports/public/sign-in");
-            exit;
-        }
-
-        $userId = $_SESSION['user_id'];
-        $sportModel = new Sport();
-        $sportTeamModel = new SportTeam();
-        $userModel = new User();
-
-        // Get sport assigned to this captain
-        $sport = $sportModel->getSportByCaptain($userId);
-        $sportId = $sport['sport_id'] ?? null;
-
-        // Handle add/remove actions
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['add_member_id'])) {
-                $addId = $_POST['add_member_id'];
-                $sportTeamModel->addMember($sportId, $addId);
-            }
-            if (isset($_POST['remove_member_id'])) {
-                $removeId = $_POST['remove_member_id'];
-                $sportTeamModel->removeMember($sportId, $removeId);
-            }
-            // Redirect to avoid form resubmission
-            header("Location: /uoc-sports/public/captain/add-members");
-            exit;
-        }
-
-        // Get current team members
-        $team_members = $sportTeamModel->getTeamMembers($sportId);
-        $team_member_ids = array_column($team_members, 'user_id');
-
-        // Get all eligible students for this sport (not in team)
-        $all_students = $userModel->getEligibleStudents($sportId); // You may need to implement this method
-        $available_members = array_filter($all_students, function($student) use ($team_member_ids) {
-            return !in_array($student['user_id'], $team_member_ids);
-        });
-
-        // Stats
-        $available_total = count($available_members);
-        $selected_total = count($team_members);
-        $available_slots = 15 - $selected_total;
-
-        view('captain/add-members', [
-            'team_members' => $team_members,
-            'available_members' => $available_members,
-            'available_total' => $available_total,
-            'selected_total' => $selected_total,
-            'available_slots' => $available_slots
-        ]);
+        view('captain/add-members');
     }
     public function SchedulePractice() {
-
-    if (!isset($_SESSION['user_id'])) {
-        header("Location: /uoc-sports/public/login");
-        exit;
-    }
-
-    $userId = $_SESSION['user_id'];
-    $scheduleModel = new Schedule();
-    $pdo = Database::getConnection(); // ✅ Define once here
-
-    // Get captain sport id
-    if (!isset($_SESSION['captain_sport_id'])) {
-        $stmt = $pdo->prepare("SELECT sport_id FROM sport WHERE captain_id = ?");
-        $stmt->execute([$userId]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($result && !empty($result['sport_id'])) {
-            $_SESSION['captain_sport_id'] = $result['sport_id'];
-        } else {
-            die("Error: You are not assigned as a captain for any sport.");
+        // Get captain's user_id from session
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: /uoc-sports/public/login");
+            exit;
         }
-    }
+        
+        $userId = $_SESSION['user_id'];
+        $scheduleModel = new Schedule();
+        
+        // Get captain's sport_id from database if not already in session
+        if (!isset($_SESSION['captain_sport_id'])) {
+            $pdo = Database::getConnection();
+            $stmt = $pdo->prepare("SELECT sport_id FROM sport WHERE captain_id = ?");
+            $stmt->execute([$userId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result && !empty($result['sport_id'])) {
+                $_SESSION['captain_sport_id'] = $result['sport_id'];
+            } else {
+                // User is not a captain of any sport
+                die("Error: You are not assigned as a captain for any sport.");
+            }
+        }
+        
+        $sportId = $_SESSION['captain_sport_id'];
 
-    $sportId = $_SESSION['captain_sport_id'];
+        // Handle Create
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create'])) {
+            // sanitize or validate as needed
+            $facility = $_POST['facility'] ?? '';
+            $date = $_POST['date'] ?? '';
+            $time = $_POST['time'] ?? '';
+            $description = $_POST['description'] ?? '';
 
-    // ✅ Get sport name ONCE (important fix)
-    $stmt = $pdo->prepare("SELECT sport_name FROM sport WHERE sport_id = ?");
-    $stmt->execute([$sportId]);
-    $sportData = $stmt->fetch(PDO::FETCH_ASSOC);
-    $sportName = $sportData['sport_name'] ?? '';
+            $scheduleModel->create($facility, $date, $time, $description, $sportId, 'CAPTAIN');
+            header("Location: /uoc-sports/public/captain/schedule-practice");
+            exit;
+        }
 
-    /* ===================== CREATE ===================== */
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create'])) {
-
-        $facility = $sportName; // Always secure
-
-        $date = $_POST['date'] ?? '';
-        $startTime = $_POST['start_time'] ?? '';
-        $endTime = $_POST['end_time'] ?? '';
-        $equipment = $_POST['need_equipment'] ?? '';
-        $location = $_POST['location'] ?? '';
-        $notes = $_POST['notes'] ?? '';
-
-        $scheduleModel->create(
-            $facility,
-            $date,
-            $startTime,
-            $endTime,
-            $equipment,
-            $location,
-            $notes,
-            $sportId
-        );
-
-        header("Location: /uoc-sports/public/captain/schedule-practice");
-        exit;
-    }
-
-    /* ===================== UPDATE ===================== */
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
-
-        $id = $_POST['id'] ?? null;
-
-        $facility = $sportName; // Always secure
-
-        $date = $_POST['date'] ?? '';
-        $startTime = $_POST['start_time'] ?? '';
-        $endTime = $_POST['end_time'] ?? '';
-        $equipment = $_POST['need_equipment'] ?? '';
-        $location = $_POST['location'] ?? '';
-        $notes = $_POST['notes'] ?? '';
+        // Handle Update
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
+            $id = $_POST['id'] ?? null;
+            $facility = $_POST['facility'] ?? '';
+            $date = $_POST['date'] ?? '';
+            $time = $_POST['time'] ?? '';
+            $description = $_POST['description'] ?? '';
 
         if ($id) {
-            $scheduleModel->update(
-                $id,
-                $facility,
-                $date,
-                $startTime,
-                $endTime,
-                $equipment,
-                $location,
-                $notes
-            );
+            $scheduleModel->update($id, $facility, $date, $time, $description);
+        }
+        header("Location: /uoc-sports/public/captain/schedule-practice");
+        exit;
+    }
+
+        // Handle Delete
+        if (isset($_GET['delete'])) {
+            $scheduleModel->delete($_GET['delete']);
+            header("Location: /uoc-sports/public/captain/schedule-practice");
+            exit;
         }
 
-        header("Location: /uoc-sports/public/captain/schedule-practice");
-        exit;
-    }
+        // Fetch all schedules for display (filtered by captain's sport)
+        $schedules = $scheduleModel->getAll($sportId);
+        view('captain/schedule-practice', ['schedules' => $schedules]);
+    }   
 
-    /* ===================== DELETE ===================== */
-    if (isset($_GET['delete'])) {
-        $scheduleModel->delete($_GET['delete']);
-        header("Location: /uoc-sports/public/captain/schedule-practice");
-        exit;
-    }
-
-    /* ===================== VIEW LOAD ===================== */
-    $schedules = $scheduleModel->getAll($sportId);
-
-    view('captain/schedule-practice', [
-        'schedules' => $schedules,
-        'sport_name' => $sportName
-    ]);
-}
-
- public function Communication() {
+    public function Communication() {
         view('captain/communication');
     }
 
-    public function Achievements() {
+    public function AddResult() {
         if (!isset($_SESSION['user_id'])) {
             header("Location: /uoc-sports/public/sign-in");
             exit;
         }
 
-        $userId = $_SESSION['user_id'];
-        $sportModel = new Sport();
-        $sport = $sportModel->getSportByCaptain($userId);
-        $sportId = $sport['sport_id'] ?? null;
-        $sportName = $sport['sport_name'] ?? '';
+        $captainId = $_SESSION['user_id'];
+        $permModel = new EventResultPermission();
+        $permittedTournaments = $permModel->getActivePermissionsForCaptain($captainId);
 
-        require_once __DIR__ . '/../models/Achievements.php';
-        $achievementsModel = new Achievements();
-        $teamAchievements = $achievementsModel->getTeamAchievements($sportId);
-
-        // For each team achievement, get players and their individual achievements for that competition
-        $teamDetails = [];
-        foreach ($teamAchievements as $teamAch) {
-            $competitionId = $teamAch['competition_id'];
-            $players = $achievementsModel->getPlayersByCompetition($sportId, $competitionId);
-            $individuals = $achievementsModel->getIndividualAchievementsByCompetition($competitionId);
-            $teamDetails[$competitionId] = [
-                'players' => $players,
-                'individual_achievements' => $individuals
-            ];
-        }
-
-        view('captain/achievements', [
-            'sport_name' => $sportName,
-            'team_achievements' => $teamAchievements,
-            'team_details' => $teamDetails
+        view('captain/add-result', [
+            'permitted_tournaments' => $permittedTournaments,
         ]);
     }
 }
+

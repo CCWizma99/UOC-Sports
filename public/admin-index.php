@@ -9,6 +9,42 @@ require_once '../core/Router.php';
 
 require_once '../core/helpers.php';
 
+// --- ADMIN AUTHENTICATION ENFORCEMENT ---
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+    $token = $_COOKIE['remember_token'];
+    $hashed = hash('sha256', $token);
+
+    $stmt = $db->prepare("SELECT user_id FROM remember_tokens WHERE token = ? AND expires_at > ?");
+    $stmt->execute([$hashed, time()]);
+    $row = $stmt->fetch();
+
+    if ($row) {
+        $_SESSION['user_id'] = $row['user_id'];
+        $stmtUser = $db->prepare("SELECT fname, type FROM users WHERE user_id = ?");
+        $stmtUser->execute([$row['user_id']]);
+        $user = $stmtUser->fetch();
+
+        if ($user) {
+            $_SESSION['user_name'] = $user['fname'];
+            $_SESSION['user_type'] = $user['type'];
+            $_SESSION['color'] = "green";
+        }
+    }
+}
+
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'ADMIN') {
+    // Return 403 for API requests
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
+        exit;
+    }
+    // Redirect for normal requests
+    header("Location: /uoc-sports/public/sign-in");
+    exit;
+}
+// ----------------------------------------
+
 $router = new Router();
 
 $router->get('/admin-index', 'AdminHomeController@index');
@@ -23,8 +59,16 @@ $router->get('/admin-equipments', 'AdminHomeController@equipments');
 $router->get('/admin-equipment-analytics', 'AdminHomeController@equipmentAnalytics');
 $router->get('/admin-equipment-reports', 'AdminHomeController@equipmentReports');
 $router->get('/admin-events', 'AdminHomeController@events');
+$router->get('/admin-results', 'AdminHomeController@results');
 $router->get('/admin-teams', 'AdminHomeController@teams');
 $router->get('/admin-team-details', 'AdminHomeController@teamDetails');
+
+// Admin Match Results API
+$router->get('/admin-results/get-all', 'MatchResultApiController@getAllAdminResults');
+$router->get('/admin-results/details/{id}', 'MatchResultApiController@getMatchDetails');
+$router->post('/admin-results/toggle-publish', 'MatchResultApiController@togglePublish');
+$router->post('/admin-results/publish-tournament', 'MatchResultApiController@publishTournament');
+
 $router->get('/admin-budget', 'AdminHomeController@budget');
 $router->get('/admin-news', 'AdminHomeController@news');
 $router->get('/admin-inquiry', 'AdminHomeController@inquiry');
@@ -107,5 +151,11 @@ $router->post('/admin-tournament/add-match-result', 'TournamentController@addMat
 $router->get('/admin-sport/player-match-history', 'SportApiController@getPlayerMatchHistory');
 $router->get('/admin-sport/search-matches', 'SportApiController@searchMatches');
 $router->get('/admin-sport/match-details', 'SportApiController@getMatchDetails');
+
+// Captain Result Permission routes
+$router->get('/admin-tournament/started-tournaments', 'TournamentController@getStartedTournaments');
+$router->get('/admin-tournament/granted-permissions', 'TournamentController@getGrantedPermissions');
+$router->post('/admin-tournament/grant-captain-permission', 'TournamentController@grantCaptainPermission');
+$router->post('/admin-tournament/revoke-captain-permission', 'TournamentController@revokeCaptainPermission');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

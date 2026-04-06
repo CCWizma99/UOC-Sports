@@ -28,12 +28,6 @@ require '../app/views/templates/admin/sidebar.php';
     <div class="equipments-grid-container">
         <!-- LEFT PANEL: Navigation Buttons -->
         <div class="equipments-grid-left">
-            <div class="analytics-link-box">
-                <a href="./admin-equipment-analytics" class="btn-analytics">
-                    <i class="fas fa-chart-line"></i>
-                    View Analytics
-                </a>
-            </div>
             <div class="form-nav-panel">
                 <h2>Equipment Management</h2>
                 <div class="form-nav-buttons">

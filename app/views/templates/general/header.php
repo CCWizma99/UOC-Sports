@@ -55,6 +55,14 @@
             </a>
 
             <?php
+                $isResultsPage = strpos($currentPage, '/results') !== false;
+                $resultsActiveClass = $isResultsPage ? ' active-portal' : '';
+            ?>
+            <a href="/uoc-sports/public/results" id="nav-results" class="btn-primary<?php echo $resultsActiveClass; ?>">
+                Match Results
+            </a>
+
+            <?php
                 if ($user) {
                     // Detect current portal page for active-portal styling
                     $isCaptainPage = strpos($currentPage, '/captain') !== false;
@@ -69,44 +77,44 @@
                     switch ($user['type']) {
                         case 'STUDENT':
                             $activeClass = $isStudentPage ? ' active-portal' : '';
-                            echo '<a href="/uoc-sports/public/student/" id="user_type" class="user-type btn-primary'.$activeClass.'">Student Portal</a>';
+                            echo '<a href="/uoc-sports/public/student/" id="nav-student-portal" class="user-type btn-primary'.$activeClass.'">Student Portal</a>';
                             break;
 
                         case 'CAPTAIN':
                             $studentActive = $isStudentPage ? ' active-portal' : '';
                             $captainActive = $isCaptainPage ? ' active-portal' : '';
-                            echo '<a href="/uoc-sports/public/student/" id="user_type" class="user-type btn-primary'.$studentActive.'">Student Portal</a>';
-                            echo '<a href="/uoc-sports/public/captain/" id="user_type" class="user-type btn-primary'.$captainActive.'">Captain</a>';
+                            echo '<a href="/uoc-sports/public/student/" id="nav-student-portal" class="user-type btn-primary'.$studentActive.'">Student Portal</a>';
+                            echo '<a href="/uoc-sports/public/captain/" id="nav-captain-portal" class="user-type btn-primary'.$captainActive.'">Captain</a>';
                             break;
 
                         case 'EQP':
                             $activeClass = $isEquipmentPage ? ' active-portal' : '';
-                            echo '<a href="/uoc-sports/public/equipment-manager/" id="user_type" class="user-type btn-primary'.$activeClass.'">Eq. Manager</a>';
+                            echo '<a href="/uoc-sports/public/equipment-manager/" id="nav-eqp-portal" class="user-type btn-primary'.$activeClass.'">Eq. Manager</a>';
                             break;
 
                         case 'COACH':
                             $activeClass = $isCoachPage ? ' active-portal' : '';
-                            echo '<a href="/uoc-sports/public/coach/" id="user_type" class="user-type btn-primary'.$activeClass.'">Coach</a>';
+                            echo '<a href="/uoc-sports/public/coach/" id="nav-coach-portal" class="user-type btn-primary'.$activeClass.'">Coach</a>';
                             break;
 
                         case 'SPT':
                             $activeClass = $isSportManagerPage ? ' active-portal' : '';
-                            echo '<a href="/uoc-sports/public/sport-manager/" id="user_type" class="user-type btn-primary'.$activeClass.'">Sp. Manager</a>';
+                            echo '<a href="/uoc-sports/public/sport-manager/" id="nav-spt-portal" class="user-type btn-primary'.$activeClass.'">Sp. Manager</a>';
                             break;
 
                         case 'REG':
                             $activeClass = $isRegistrarPage ? ' active-portal' : '';
-                            echo '<a href="/uoc-sports/public/registrar//" id="user_type" class="user-type btn-primary'.$activeClass.'">Registrar</a>';
+                            echo '<a href="/uoc-sports/public/registrar//" id="nav-reg-portal" class="user-type btn-primary'.$activeClass.'">Registrar</a>';
                             break;
 
                         case 'INSTAFF':
                             $activeClass = $isStudentPage ? ' active-portal' : '';
-                            echo '<a href="/uoc-sports/public/student/" id="user_type" class="user-type btn-primary'.$activeClass.'">Staff</a>';
+                            echo '<a href="/uoc-sports/public/student/" id="nav-staff-portal" class="user-type btn-primary'.$activeClass.'">Staff</a>';
                             break;
 
                         case 'ADMIN':
                             $activeClass = $isAdminPage ? ' active-portal' : '';
-                            echo '<a href="/uoc-sports/public/admin-index" id="user_type" class="user-type btn-primary'.$activeClass.'">Admin Dashboard</a>';
+                            echo '<a href="/uoc-sports/public/admin-index" id="nav-admin-portal" class="user-type btn-primary'.$activeClass.'">Admin Dashboard</a>';
                             break;
                     }
 

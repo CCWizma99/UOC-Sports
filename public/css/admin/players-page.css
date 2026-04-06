@@ -1416,3 +1416,392 @@
     font-size: 12px;
     color: #666;
 }
+
+/* =====================================================
+   GRANT CAPTAIN PERMISSION PANEL
+   ===================================================== */
+
+/* Right panel container — mirrors #add-match-result */
+#grant-permission-section,
+#permissions-list-section {
+    width: 100%;
+    margin: 0;
+    background: #fff;
+    padding: 24px;
+    border-radius: 1.5rem;
+    box-shadow: var(--profile-shadow);
+    border: var(--profile-border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Make the right column scroll as a whole with both sections stacked */
+.players-grid-right {
+    overflow-y: auto;
+    gap: 20px;
+}
+
+.players-grid-right::-webkit-scrollbar { width: 6px; }
+.players-grid-right::-webkit-scrollbar-track { background: rgba(75,0,130,0.05); border-radius: 10px; }
+.players-grid-right::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #111, #4b0082); border-radius: 10px; }
+
+#grant-permission-section {
+    flex-shrink: 0;
+}
+
+#permissions-list-section {
+    flex-shrink: 0;
+    margin-top: 0;
+}
+
+/* Section headings */
+#grant-permission-section h2,
+#permissions-list-section h2 {
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: #1a1a1a;
+    margin: 0 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#grant-permission-section > p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+/* ---- Tournament Grant Cards ---- */
+.tournament-grant-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.t-grant-card {
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(75, 0, 130, 0.06);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.t-grant-card:hover {
+    border-color: rgba(75, 0, 130, 0.3);
+    box-shadow: 0 4px 16px rgba(75, 0, 130, 0.1);
+}
+
+.t-grant-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+}
+
+.t-grant-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1a1a1a;
+    margin-bottom: 7px;
+    line-height: 1.3;
+}
+
+.t-grant-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+/* Meta tag pills */
+.t-meta-sport {
+    background: rgba(75, 0, 130, 0.09);
+    color: #4b0082;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.t-meta-date {
+    font-size: 11px;
+    color: #059669;
+    background: rgba(5, 150, 105, 0.08);
+    padding: 3px 9px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.t-meta-captain {
+    font-size: 11px;
+    color: #374151;
+    background: #f3f4f6;
+    padding: 3px 9px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.t-meta-no-captain {
+    font-size: 11px;
+    color: #dc2626;
+    background: #fef2f2;
+    padding: 3px 9px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Status bar at bottom of card */
+.t-grant-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-top: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.active-status {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.revoked-status {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* ---- Grant / Revoke Buttons ---- */
+.btn-grant {
+    padding: 9px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-grant-allow {
+    background: var(--profile-gradient);
+    color: white;
+    box-shadow: 0 3px 10px rgba(75, 0, 130, 0.3);
+}
+
+.btn-grant-allow:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(75, 0, 130, 0.4);
+}
+
+.btn-grant-revoke {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1.5px solid #fca5a5;
+}
+
+.btn-grant-revoke:hover {
+    background: #fee2e2;
+    border-color: #f87171;
+}
+
+.btn-grant-disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+    border: 1.5px solid #e5e7eb;
+}
+
+/* ---- Feedback Messages ---- */
+.grant-msg-success {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1.5px solid #86efac;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+}
+
+.grant-msg-error {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1.5px solid #fca5a5;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+}
+
+/* Empty / loading states */
+#started-tournaments-loading,
+#permissions-loading {
+    padding: 28px 0;
+    text-align: center;
+    color: #4b0082;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#started-tournaments-empty,
+#permissions-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+#started-tournaments-empty i,
+#permissions-empty i {
+    display: block;
+    font-size: 36px;
+    margin-bottom: 12px;
+    opacity: 0.25;
+}
+
+/* ---- Permissions Table ---- */
+#permissions-table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1.5px solid rgba(75, 0, 130, 0.1);
+}
+
+.perm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.perm-table thead tr {
+    background: linear-gradient(135deg, #f8f7ff 0%, #ede9f6 100%);
+}
+
+.perm-table th {
+    color: #4b0082;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 11px 14px;
+    text-align: left;
+    border-bottom: 2px solid rgba(75, 0, 130, 0.12);
+    white-space: nowrap;
+}
+
+.perm-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+    color: #1e1e2e;
+}
+
+.perm-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.perm-table tbody tr:hover td {
+    background: rgba(75, 0, 130, 0.03);
+}
+
+/* Permission status badges */
+.perm-status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.perm-active {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+}
+
+.perm-revoked {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+}
+
+/* Table action buttons */
+.perm-revoke-btn {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1.5px solid #fca5a5;
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.perm-revoke-btn:hover {
+    background: #fee2e2;
+    border-color: #f87171;
+}
+
+.perm-grant-btn {
+    background: rgba(75, 0, 130, 0.08);
+    color: #4b0082;
+    border: 1.5px solid rgba(75, 0, 130, 0.2);
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.perm-grant-btn:hover {
+    background: rgba(75, 0, 130, 0.14);
+    border-color: rgba(75, 0, 130, 0.35);
+}
+
+/* Responsive tweaks */
+@media (max-width: 1200px) {
+    .t-grant-card-top {
+        flex-wrap: wrap;
+    }
+    .btn-grant {
+        width: 100%;
+        justify-content: center;
+        margin-top: 8px;
+    }
+}

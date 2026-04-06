@@ -30,19 +30,21 @@ class Facility {
     }
 
     /* ---------- CHECK SLOT ALREADY BOOKED ---------- */
-    public function isSlotTaken($facility_id, $date, $slot) {
-        $sql = "SELECT booking_id 
-                FROM `facility-booking`
-                WHERE facility_id = :facility_id
-                AND date = :date
-                AND slot = :slot
-                AND status = 'BOOKED'";
+    public function isSlotTaken($rate_id, $date, $slot) {
+        $sql = "SELECT fb.booking_id 
+                FROM `facility-booking` fb
+                INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
+                WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                AND fb.date = :date
+                AND (fb.slot = :slot OR fb.slot = 'FULL' OR :slot2 = 'FULL')
+                AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            ':facility_id' => $facility_id,
+            ':rate_id' => $rate_id,
             ':date' => $date,
-            ':slot' => $slot
+            ':slot' => $slot,
+            ':slot2' => $slot
         ]);
 
         return $stmt->fetch() !== false;
@@ -131,13 +133,15 @@ class Facility {
     
         if (!$facility) return ['date' => $date, 'slots' => []];
     
-        // Get existing bookings
-        $sql2 = "SELECT slot FROM `facility-booking`
-                 WHERE facility_id = :facility_id 
-                 AND date = :date 
-                 AND status = 'BOOKED'";
+        // Get existing bookings for the same PHYSICAL location
+        $sql2 = "SELECT fb.slot 
+                 FROM `facility-booking` fb
+                 INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
+                 WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                 AND fb.date = :date 
+                 AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
         $stmt2 = $this->db->prepare($sql2);
-        $stmt2->execute([':facility_id' => $facility_id, ':date' => $date]);
+        $stmt2->execute([':rate_id' => $facility_id, ':date' => $date]);
         $bookings = $stmt2->fetchAll(PDO::FETCH_COLUMN);
     
         // Prepare slots with availability and prices
@@ -189,25 +193,31 @@ class Facility {
         while ($current <= $end) {
             $date = date('Y-m-d', $current);
             
-            // Get bookings for this date
-            $sql = "SELECT slot FROM `facility-booking`
-                    WHERE facility_id = :facility_id 
-                    AND date = :date 
-                    AND (status = 'BOOKED' OR status = 'RESERVED')";
+            // Get bookings for this PHYSICAL location
+            $sql = "SELECT fb.slot 
+                    FROM `facility-booking` fb
+                    INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
+                    WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                    AND fb.date = :date 
+                    AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
             
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
-                ':facility_id' => $facility_id,
+                ':rate_id' => $facility_id,
                 ':date' => $date
             ]);
             
             $bookings = $stmt->fetchAll(PDO::FETCH_COLUMN);
             
-            // Build slots status
+            // Build slots status - Handle FULL day logic
+            $hasMorning = in_array('MORNING', $bookings);
+            $hasAfternoon = in_array('AFTERNOON', $bookings);
+            $hasFull = in_array('FULL', $bookings);
+            
             $slots = [
-                'MORNING' => in_array('MORNING', $bookings),
-                'AFTERNOON' => in_array('AFTERNOON', $bookings),
-                'FULL' => in_array('FULL', $bookings)
+                'MORNING' => $hasMorning || $hasFull,
+                'AFTERNOON' => $hasAfternoon || $hasFull,
+                'FULL' => $hasFull || $hasMorning || $hasAfternoon
             ];
             
             $chartData[] = [
@@ -537,44 +547,43 @@ public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = n
     /**
  * Check if other users are booking the same facility.
  */
-public function checkParallelStatus($sessionId, $facilityId) {
-    // Cleanup old heartbeats (older than 5 seconds)
-    $this->db->query("DELETE FROM parallel_checker WHERE last_heartbeat < (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)");
+    public function checkParallelStatus($sessionId, $rate_id) {
+        // Cleanup old heartbeats (older than 5 seconds)
+        $this->db->query("DELETE FROM parallel_checker WHERE last_heartbeat < (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)");
 
-    $sql = "SELECT COUNT(*) as count 
-            FROM parallel_checker 
-            WHERE facility_id = :facility_id 
-            AND session_id != :session_id 
-            AND last_heartbeat >= (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)";
+        // Check if any booking attempt exists for the same PHYSICAL location
+        $sql = "SELECT COUNT(*) as count 
+                FROM parallel_checker pc
+                INNER JOIN facility_rates fr1 ON pc.facility_id = fr1.id
+                WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                AND pc.session_id != :session_id 
+                AND pc.last_heartbeat >= (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)";
 
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute([
-        ':facility_id' => $facilityId,
-        ':session_id' => $sessionId
-    ]);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':rate_id' => $rate_id,
+            ':session_id' => $sessionId
+        ]);
 
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    return (int)$row['count'] > 0;
-}
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$row['count'] > 0;
+    }
 
-/**
- * Get slot-level interest from other users for real-time chart updates.
- * Returns which dates/slots other users have selected (not yet booked).
- */
-public function getSlotInterest($sessionId, $facilityId) {
-    // Get other users' selected dates/slots from parallel_checker
-    $sql = "SELECT selected_date, selected_slot
-            FROM parallel_checker
-            WHERE facility_id = :facility_id
-            AND session_id != :session_id
-            AND selected_date IS NOT NULL
-            AND last_heartbeat >= (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)";
+    public function getSlotInterest($sessionId, $facilityId) {
+        // Get other users' selected dates/slots from parallel_checker for same PHYSICAL location
+        $sql = "SELECT pc.selected_date, pc.selected_slot
+                FROM parallel_checker pc
+                INNER JOIN facility_rates fr1 ON pc.facility_id = fr1.id
+                WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                AND pc.session_id != :session_id
+                AND pc.selected_date IS NOT NULL
+                AND pc.last_heartbeat >= (CURRENT_TIMESTAMP - INTERVAL 5 SECOND)";
 
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute([
-        ':facility_id' => $facilityId,
-        ':session_id' => $sessionId
-    ]);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':rate_id' => $facilityId,
+            ':session_id' => $sessionId
+        ]);
 
     $interest = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -594,19 +603,18 @@ public function getSlotInterest($sessionId, $facilityId) {
     return $interest;
 }
 
-/**
- * Get confirmed bookings for a facility (for real-time chart red status).
- */
-public function getBookedSlots($facilityId) {
-    $sql = "SELECT date, slot
-            FROM `facility-booking`
-            WHERE facility_id = :facility_id
-            AND (status = 'BOOKED' OR status = 'RESERVED')";
+    public function getBookedSlots($facilityId) {
+        // Get confirmed bookings for same PHYSICAL location
+        $sql = "SELECT fb.date, fb.slot
+                FROM `facility-booking` fb
+                INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
+                WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                AND (fb.status = 'BOOKED' OR fb.status = 'RESERVED')";
 
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute([':facility_id' => $facilityId]);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':rate_id' => $facilityId]);
 
-    $booked = [];
+        $booked = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $date = $row['date'];
         if (!isset($booked[$date])) {
@@ -629,13 +637,15 @@ public function getBookedSlots($facilityId) {
                 fr.facility_name,
                 fr.facility_type,
                 COUNT(fb.booking_id) as total_bookings,
-                SUM(CASE WHEN fb.status IN ('BOOKED', 'ACCEPTED') THEN 1 ELSE 0 END) as active_bookings,
-                ROUND(COUNT(fb.booking_id) * 100.0 / NULLIF((SELECT COUNT(*) FROM `facility-booking`), 0), 1) as utilization_rate
+                SUM(CASE WHEN fb.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) as bookings_last_30,
+                ROUND(
+                    SUM(CASE WHEN fb.date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) THEN 1 ELSE 0 END) * 100.0 / 30
+                , 1) as utilization_rate
             FROM facility_rates fr
             LEFT JOIN `facility-booking` fb ON fr.id = fb.facility_id
             GROUP BY fr.id, fr.facility_name, fr.facility_type
             HAVING total_bookings > 0
-            ORDER BY total_bookings DESC
+            ORDER BY utilization_rate DESC
             LIMIT 10
         ";
         $stmt = $this->db->query($utilizationSQL);
