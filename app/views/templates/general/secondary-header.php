@@ -61,9 +61,7 @@ switch ($userType) {
     case 'EQP':
         $navLinks = [
             ['name' => 'Home', 'url' => '/uoc-sports/public/equipment-manager'],
-            ['name' => 'Reservations', 'url' => '/uoc-sports/public/equipment-manager/equipment-reservations'],
             ['name' => 'Equipments', 'url' => '/uoc-sports/public/equipment-manager/equipments'],
-            ['name' => 'Schedule', 'url' => '/uoc-sports/public/equipment-manager/practiceschedule'],
             ['name' => 'Lost Items', 'url' => '/uoc-sports/public/equipment-manager/lostitem'],
             ['name' => 'Booking Requests', 'url' => '/uoc-sports/public/equipment-manager/bookingrequests'],
         ];
