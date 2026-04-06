@@ -173,7 +173,7 @@ class AttendanceApiController {
     $date = $input['date'] ?? null;
 
     $query = "
-        SELECT id, session_time, facility
+        SELECT id, start_time AS session_time, facility
         FROM practice_sessions
         WHERE sport_id = :sport_id
     ";
@@ -182,7 +182,7 @@ class AttendanceApiController {
         $query .= " AND session_date = :session_date";
     }
 
-    $query .= " ORDER BY session_time ASC";
+    $query .= " ORDER BY start_time ASC";
 
     $stmt = $this->db->prepare($query);
 

@@ -41,7 +41,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
                 </div>
                 <div class="info-item">
                     <i class="fas fa-clock"></i>
-                    <span><strong>Time:</strong> <span id="sessionTime"></span></span>
+                    <span><strong>Time:</strong> <span id="startTime"></span></span>
                 </div>
                 <div class="info-item">
                     <i class="fas fa-location-dot"></i>
@@ -429,7 +429,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
                 data.sessions.forEach(session => {
                     const option = document.createElement('option');
                     option.value = session.id;
-                    option.textContent = `${session.session_date} at ${session.session_time} - ${session.facility}`;
+                    option.textContent = `${session.session_date} at ${session.start_time} - ${session.facility}`;
                     option.dataset.session = JSON.stringify(session);
                     select.appendChild(option);
                 });
@@ -455,13 +455,13 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
 
         // Show session details
         document.getElementById('sessionDate').textContent = session.session_date;
-        document.getElementById('sessionTime').textContent = session.session_time;
+        document.getElementById('startTime').textContent = session.start_time;
         document.getElementById('sessionFacility').textContent = session.facility;
         document.getElementById('sessionDescription').textContent = session.description || 'Regular practice session';
         document.getElementById('sessionDetails').style.display = 'block';
 
        const now = new Date();
-const sessionDateTime = new Date(session.session_date + " " + session.session_time);
+const sessionDateTime = new Date(session.session_date + " " + session.start_time);
 
 const attendanceSection = document.getElementById('attendanceSection');
 const markingSection = document.getElementById('attendanceMarkingSection');
@@ -477,7 +477,7 @@ if (isNaN(sessionDateTime)) {
 
 if (sessionDateTime > now) {
     markingSection.style.display = 'none';
-    showNotification("You cannot mark attendance before session time.", 'info');
+    showNotification("You cannot mark attendance before start time.", 'info');
 } else {
     markingSection.style.display = 'block';
     await loadTeamMembers();
@@ -835,7 +835,7 @@ const date = `${year}-${month}-${day}`;
             const btn = document.createElement('button');
             btn.className = 'btn btn-secondary';
             btn.style.margin = '5px 0';
-            btn.textContent = `${session.session_time} | ${session.facility}`;
+            btn.textContent = `${session.start_time} | ${session.facility}`;
             btn.onclick = () => showSessionDetails(session);
             sessionsDiv.appendChild(btn);
         });
@@ -876,7 +876,7 @@ function showSessionDetails(session) {
 
     let html = `
         <div class="history-session">
-            <h4>📅 ${session.session_date} | ${session.session_time}</h4>
+            <h4>📅 ${session.session_date} | ${session.start_time}</h4>
             <p><strong>Facility:</strong> ${session.facility}</p>
             <hr>
     `;

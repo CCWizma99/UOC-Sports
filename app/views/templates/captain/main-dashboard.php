@@ -56,16 +56,16 @@
               <th>Date</th>
               <th>Time</th>
               <th>Venue</th>
-              <th>Purpose</th>
+              <th>Purpose</th>  
             </tr>
           </thead>
           <tbody id="practiceBody">
             <?php foreach ($practice_sessions as $session): ?>
             <tr>
               <td class="date-cell"><?php echo isset($session['session_date']) ? htmlspecialchars($session['session_date']) : 'N/A'; ?></td>
-              <td class="time-cell"><?php echo isset($session['session_time']) ? htmlspecialchars($session['session_time']) : 'N/A'; ?></td>
+              <td class="time-cell"><?php echo isset($session['start_time']) ? htmlspecialchars($session['start_time']) : 'N/A'; ?></td>
               <td class="venue-cell"><?php echo isset($session['facility']) ? htmlspecialchars($session['facility']) : 'N/A'; ?></td>
-              <td><span class="purpose-badge"><?php echo isset($session['description']) ? htmlspecialchars($session['description']) : 'N/A'; ?></span></td>
+              <td><span class="purpose-badge"><?php echo isset($session['notes']) ? htmlspecialchars($session['notes']) : 'N/A'; ?></span></td>
             </tr>
             <?php endforeach; ?>
           </tbody>

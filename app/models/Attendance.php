@@ -180,22 +180,22 @@ class Attendance {
 
     $sql = "
         SELECT 
-            ps.id as practice_id,
-            ps.facility,
-            ps.session_date,
-            ps.session_time,
-            ps.description,
-            a.user_id,
-            a.status,
-            u.fname,
-            u.lname,
-            u.student_id
-        FROM practice_sessions ps
-        INNER JOIN attendance a ON ps.id = a.practice_id
-        LEFT JOIN user u ON a.user_id = u.user_id
-        WHERE ps.sport_id = :sport_id
-        ORDER BY ps.session_date DESC, ps.session_time DESC
-        LIMIT $limit
+    ps.id as practice_id,
+    ps.facility,
+    ps.session_date,
+    ps.start_time,
+    ps.description,
+    a.user_id,
+    a.status,
+    u.fname,
+    u.lname,
+    u.student_id
+FROM practice_sessions ps
+LEFT JOIN attendance a ON ps.id = a.practice_id
+LEFT JOIN user u ON a.user_id = u.user_id
+WHERE ps.sport_id = :sport_id
+ORDER BY ps.session_date DESC, ps.start_time DESC
+LIMIT $limit
     ";
 
     $stmt = $this->db->prepare($sql);
@@ -210,7 +210,7 @@ class Attendance {
                     'practice_id' => $practiceId,
                     'facility' => $row['facility'],
                     'session_date' => $row['session_date'],
-                    'session_time' => $row['session_time'],
+                    'start_time' => $row['start_time'],
                     'description' => $row['description'],
                     'attendance' => []
                 ];
@@ -235,16 +235,15 @@ class Attendance {
      * @param string $sportId - Sport ID
      * @return array|null - Last session attendance or null
      */
-    public function getLastSessionAttendance($sportId) {
-        // Get the most recent practice session before today for the sport
+    public function getLastSessionAttendance($sportId,) {
         $stmt = $this->db->prepare("
-            SELECT id, facility, session_date, session_time, description
-            FROM practice_sessions
-            WHERE sport_id = :sport_id
-              AND session_date < CURDATE()
-            ORDER BY session_date DESC, session_time DESC
-            LIMIT 1
-        ");
+    SELECT id, facility, session_date, start_time, notes
+FROM practice_sessions
+WHERE TRIM(sport_id) = :sport_id
+  AND TIMESTAMP(session_date, start_time) < NOW()
+ORDER BY session_date DESC, start_time DESC
+LIMIT 1;
+");
         $stmt->execute(['sport_id' => $sportId]);
         $session = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -276,10 +275,10 @@ class Attendance {
 public function getSessionsByDate($sportId)
 {
     $stmt = $this->db->prepare("
-        SELECT id, session_date, session_time, facility
+        SELECT id, session_date, start_time, facility
         FROM practice_sessions
         WHERE sport_id = :sport_id
-        ORDER BY session_date DESC, session_time ASC
+        ORDER BY session_date DESC, start_time ASC
     ");
     $stmt->execute(['sport_id' => $sportId]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);

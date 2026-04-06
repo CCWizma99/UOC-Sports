@@ -15,7 +15,11 @@ class CaptainController {
         $sportModel = new Sport();
         $sportTeamModel = new SportTeam();
         $scheduleModel = new Schedule();
-        
+        require_once __DIR__ . '/../models/SportCompetition.php';
+        require_once __DIR__ . '/../models/Tournament.php';
+        $competitionModel = new SportCompetition();
+        $tournamentModel = new Tournament();
+
         // Get user display name
         $profile = $userModel->getUserProfile($userId);
         $username = isset($profile['full_name']) ? $profile['full_name'] : (trim(($profile['fname'] ?? '') . ' ' . ($profile['lname'] ?? '')) ?: 'Captain');
@@ -23,14 +27,50 @@ class CaptainController {
         // Get sport assigned to this captain (if any)
         $sport = $sportModel->getSportByCaptain($userId);
         $sportName = $sport && isset($sport['sport_name']) ? $sport['sport_name'] : null;
+        $sportId = $sport['sport_id'] ?? null;
 
-        $practiceSessions = $scheduleModel->getSessionsBySport($sport['sport_id'] ?? null);
+        $practiceSessions = $scheduleModel->getSessionsBySport($sportId);
+        $memberCount = $sportTeamModel->getTeamMemberCount($sportId);
+        $sessionCount = $scheduleModel->getSessionCountById($sportId);
 
-        $memberCount = $sportTeamModel->getTeamMemberCount($sport['sport_id'] ?? null);
+        // Fetch upcoming competitions (next 30 days)
+        $upcomingCompetitions = $competitionModel->getCompetitionsByMonth($sportId, date('m'), 5);
+        // Fetch upcoming tournaments (end_date >= today)
+        $today = date('Y-m-d');
+        $allTournaments = $tournamentModel->getAllTournaments();
+        $upcomingTournaments = array_filter($allTournaments, function($t) use ($today) {
+            return isset($t['end_date']) && $t['end_date'] >= $today;
+        });
 
-        $sessionCount = $scheduleModel->getSessionCountById($sport['sport_id'] ?? null);
+        // Merge and sort by date
+        $events = [];
+        foreach ($upcomingCompetitions as $comp) {
+            $events[] = [
+                'date' => $comp['date'] ?? $comp['created_at'],
+                'time' => isset($comp['date']) ? date('H:i', strtotime($comp['date'])) : '',
+                'name' => $comp['competition_name'] ?? 'Competition',
+            ];
+        }
+        foreach ($upcomingTournaments as $tour) {
+            $events[] = [
+                'date' => $tour['start_date'],
+                'time' => isset($tour['start_date']) ? date('H:i', strtotime($tour['start_date'])) : '',
+                'name' => $tour['tournament_name'] ?? 'Tournament',
+            ];
+        }
+        // Sort events by date
+        usort($events, function($a, $b) {
+            return strtotime($a['date']) <=> strtotime($b['date']);
+        });
 
-        view('captain/index', ['username' => $username, 'sport_name' => $sportName, 'member_count' => $memberCount, 'practice_sessions' => $practiceSessions, 'session_count' => $sessionCount]);
+        view('captain/index', [
+            'username' => $username,
+            'sport_name' => $sportName,
+            'member_count' => $memberCount,
+            'practice_sessions' => $practiceSessions,
+            'session_count' => $sessionCount,
+            'upcoming_events' => $events
+        ]);
     }
     public function MarkAttendance() {
         view('captain/mark-attendance');
