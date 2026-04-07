@@ -110,6 +110,7 @@ $router->post('/admin-tournament/save-recipient', 'TournamentController@saveReci
 $router->get('/admin-tournament/list', 'TournamentController@getTournaments');
 $router->post('/admin-tournament/add-result', 'TournamentController@addResult');
 $router->post('/admin-tournament/add-match-result', 'TournamentController@addMatchResult');
+$router->post('/admin-tournament/complete', 'TournamentController@completeTournament');
 
 // Match & Player Performance API routes
 $router->get('/admin-sport/player-match-history', 'SportApiController@getPlayerMatchHistory');
