@@ -14,6 +14,7 @@
         @import url(/uoc-sports/public/css/admin/sidebar.css);
         @import url(/uoc-sports/public/css/admin/reservation-details.css);
         @import url(/uoc-sports/public/css/admin/footer.css);
+        @import url(/uoc-sports/public/css/ui-notifications.css);
     </style>
 </head>
 <body>
@@ -74,6 +75,10 @@ require '../app/views/templates/admin/sidebar.php';
                     <label>Payment Status:</label>
                     <span id="payment-status"></span>
                 </div>
+                <div class="detail-item" id="proof-container" style="display: none;">
+                    <label>Payment Proof:</label>
+                    <span id="payment-proof"></span>
+                </div>
                 <div class="detail-item full-width">
                     <label>Purpose:</label>
                     <span id="purpose"></span>
@@ -87,6 +92,9 @@ require '../app/views/templates/admin/sidebar.php';
             <div class="action-buttons" id="action-buttons">
                 <button class="btn-message" id="message-btn">
                     <i class="fa-solid fa-envelope"></i> Send Message to Customer
+                </button>
+                <button class="btn-verify" id="verify-payment-btn" style="display: none;">
+                    <i class="fa-solid fa-check-circle"></i> Mark as Paid
                 </button>
             </div>
         </div>
@@ -142,7 +150,46 @@ require '../app/views/templates/admin/sidebar.php';
     </div>
 </div>
 
+<!-- Confirmation Modal -->
+<div id="confirm-modal" class="modal">
+    <div class="modal-content confirmation-content">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-circle-question"></i> Verify Payment?</h3>
+            <span class="close-confirm">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p style="margin: 20px 0; color: #4b5563;">Are you sure you want to mark this reservation as <strong>PAID</strong>? This action should only be taken after verifying the payment proof.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" id="cancel-verify">Cancel</button>
+            <button class="btn-verify" id="confirm-verify">Yes, Mark as Paid</button>
+        </div>
+    </div>
+</div>
+
 <style>
+.modal-content.confirmation-content {
+    max-width: 450px;
+    text-align: center;
+}
+
+.modal-content.confirmation-content .modal-header h3 {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.modal-content.confirmation-content p {
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.modal-content.confirmation-content .modal-footer {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
 .btn-message {
     background: linear-gradient(135deg, #5e2d91 0%, #7b3fa0 100%);
     color: white;
@@ -212,6 +259,45 @@ require '../app/views/templates/admin/sidebar.php';
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(94, 45, 145, 0.3);
 }
+
+.btn-verify {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-verify:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.view-proof-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 6px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.view-proof-btn:hover {
+    background: #bbdefb;
+    transform: translateY(-1px);
+}
 </style>
 
 <?php require '../app/views/templates/admin/footer.php'; ?>
@@ -249,6 +335,28 @@ function loadReservationDetails() {
             document.getElementById('user-email').textContent = data.user_email;
             document.getElementById('user-type').textContent = data.user_type;
             document.getElementById('payment-status').textContent = data.payment_status;
+
+            // Mark as Paid button visibility
+            const verifyBtn = document.getElementById('verify-payment-btn');
+            if (data.payment_status !== 'COMPLETE') {
+                verifyBtn.style.display = 'flex';
+            } else {
+                verifyBtn.style.display = 'none';
+            }
+
+            // Payment Proof
+            const proofContainer = document.getElementById('proof-container');
+            if (data.payment_slip) {
+                proofContainer.style.display = 'flex';
+                document.getElementById('payment-proof').innerHTML = `
+                    <a href="/uoc-sports/app/internal/payment_slips/${data.payment_slip}" target="_blank" class="view-proof-btn">
+                        <i class="fa-solid fa-file-invoice"></i> View Proof
+                    </a>
+                `;
+            } else {
+                proofContainer.style.display = 'none';
+            }
+
             document.getElementById('purpose').textContent = data.purpose;
 
             // Status badge
@@ -345,27 +453,84 @@ document.getElementById('send-message').addEventListener('click', () => {
     const message = document.getElementById('message-body').value.trim();
 
     if (!subject) {
-        alert('Please enter a subject.');
+        UI.showToast('Please enter a subject.', 'warning');
         return;
     }
 
     if (!message) {
-        alert('Please enter a message.');
+        UI.showToast('Please enter a message.', 'warning');
         return;
     }
 
     // For now, just show confirmation - will be connected to DB later
-    alert(`Message queued for sending!\n\nTo: ${currentReservationData.user_email}\nSubject: ${subject}\n\nNote: Message storage will be implemented with upcoming DB changes.`);
+    UI.showToast(`Message queued for sending! To: ${currentReservationData.user_email}`, 'success');
     
     document.getElementById('message-modal').style.display = 'none';
     document.getElementById('message-subject').value = '';
     document.getElementById('message-body').value = '';
 });
 
+// Verify Payment button click handler
+const verifyPaymentBtn = document.getElementById('verify-payment-btn');
+const confirmModal = document.getElementById('confirm-modal');
+const confirmBtn = document.getElementById('confirm-verify');
+const cancelVerifyBtn = document.getElementById('cancel-verify');
+const closeConfirmBtn = document.querySelector('.close-confirm');
+
+if (verifyPaymentBtn) {
+    verifyPaymentBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'flex';
+    });
+}
+
+// Close confirmation modal
+[closeConfirmBtn, cancelVerifyBtn].forEach(btn => {
+    btn.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
+    });
+});
+
+// Final confirmation action
+if (confirmBtn) {
+    confirmBtn.addEventListener('click', () => {
+        confirmModal.style.display = 'none';
+        
+        const originalBtnText = verifyPaymentBtn.innerHTML;
+        verifyPaymentBtn.disabled = true;
+        verifyPaymentBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+
+        const formData = new FormData();
+        formData.append('booking_id', bookingId);
+
+        fetch('/uoc-sports/public/api/facility/verify-payment', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                UI.showToast(data.message, 'success');
+                loadReservationDetails(); // Reload to update status and button visibility
+            } else {
+                UI.showToast(data.message, 'error');
+                verifyPaymentBtn.disabled = false;
+                verifyPaymentBtn.innerHTML = originalBtnText;
+            }
+        })
+        .catch(err => {
+            console.error('Error verifying payment:', err);
+            UI.showToast('An error occurred. Please try again.', 'error');
+            verifyPaymentBtn.disabled = false;
+            verifyPaymentBtn.innerHTML = originalBtnText;
+        });
+    });
+}
+
 // Set active sidebar item
 var currentPage = document.getElementById("sidebar-reservations");
 currentPage.classList.add("active");
 </script>
+<script src="/uoc-sports/public/js/ui-notifications.js"></script>
 <script src="/uoc-sports/public/js/sidebar-toggle.js"></script>
 </body>
 </html>

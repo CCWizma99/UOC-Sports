@@ -129,4 +129,8 @@ class AdminHomeController {
     public function results() {
         view('admin/match-results', ['title' => 'Match Results']);
     }
+
+    public function eventPermissions() {
+        view('admin/event-permissions', ['title' => 'Event Permissions']);
+    }
 }

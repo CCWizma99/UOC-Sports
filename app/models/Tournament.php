@@ -154,4 +154,21 @@ class Tournament {
             return 0;
         }
     }
+
+    /**
+     * Update tournament status
+     */
+    public function updateStatus($tournamentId, $status) {
+        try {
+            $sql = "UPDATE tournament SET status = :status WHERE tournament_id = :tournament_id";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                'status' => $status,
+                'tournament_id' => $tournamentId
+            ]);
+        } catch (PDOException $e) {
+            error_log("Tournament update status error: " . $e->getMessage());
+            return false;
+        }
+    }
 }

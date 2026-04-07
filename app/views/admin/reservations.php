@@ -46,22 +46,21 @@ require '../app/views/templates/admin/sidebar.php';
                     <!-- Location -->
                     <div class="btn" id="location-btn">
                         Location
-                        <div class="dropdown" data-filter="location">
+                        <div class="dropdown" data-filter="location" id="location-dropdown">
+                            <!-- Locations will be loaded here -->
                             <div data-value="">All</div>
-                            <div data-value="Indoor Stadium">Indoor Stadium</div>
-                            <div data-value="Karate/Taekwondo Mats">Karate/Taekwondo Mats</div>
-                            <div data-value="Volleyball Court">Volleyball Court</div>
-                            <div data-value="Baseball Court">Baseball Court</div>
                         </div>
                     </div>
 
                     <!-- User Type -->
                     <div class="btn" id="user-type-btn">
                         User Type
-                        <div class="dropdown" data-filter="user_type">
+                        <div class="dropdown" data-filter="user_type" id="user-type-dropdown">
                             <div data-value="">All</div>
-                            <div data-value="Public">Public</div>
-                            <div data-value="Internal">Internal Users</div>
+                            <div data-value="PUBLIC">External Users</div>
+                            <div data-value="STUDENT">Students</div>
+                            <div data-value="INTERNAL">Internal Users</div>
+                            <div data-value="ADMIN">Admin</div>
                         </div>
                     </div>
                 </div>
@@ -210,6 +209,23 @@ require '../app/views/templates/admin/sidebar.php';
                             </svg>
                         </div>
                     </div>
+
+                    <!-- Mobile Data Table (Alternative to Chart) -->
+                    <div class="mobile-only">
+                        <div class="data-table-wrapper">
+                            <table class="stat-table" id="mobile-stat-table">
+                                <thead>
+                                    <tr>
+                                        <th>Period</th>
+                                        <th>Reservations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -217,37 +233,49 @@ require '../app/views/templates/admin/sidebar.php';
 </div>
 
 <script>
-// Search Reservations Script
-const filters = { date: '', location: '', user_type: '' };
+    // Search Reservations Script
+    const filters = { date: '', location: '', user_type: '' };
 
-// Store original labels
-document.querySelectorAll('.btn').forEach(btn => {
-    btn.setAttribute('data-original', btn.childNodes[0].textContent.trim());
-});
-
-document.querySelectorAll('.btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-        // If clicked inside a date input, skip toggle
-        if (e.target.tagName === 'INPUT' && e.target.type === 'date') {
-            return;
-        }
-
-        e.stopPropagation();
-        document.querySelectorAll('.dropdown').forEach(dd => {
-            if (dd.parentElement !== btn) dd.classList.remove('show');
-        });
-        btn.querySelector('.dropdown').classList.toggle('show');
+    // Store original labels
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.setAttribute('data-original', btn.childNodes[0].textContent.trim());
     });
-});
 
-// Keep dropdown open if clicking inside
-document.querySelectorAll('.dropdown').forEach(dd => {
-    dd.addEventListener('click', e => e.stopPropagation());
-});
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            // If clicked inside a date input, skip toggle
+            if (e.target.tagName === 'INPUT' && e.target.type === 'date') {
+                return;
+            }
 
-// Handle dropdown selections (non-date)
-document.querySelectorAll('.dropdown div[data-value]').forEach(option => {
-    option.addEventListener('click', e => {
+            e.stopPropagation();
+            document.querySelectorAll('.dropdown').forEach(dd => {
+                if (dd.parentElement !== btn) dd.classList.remove('show');
+            });
+            btn.querySelector('.dropdown').classList.toggle('show');
+        });
+    });
+
+    // Keep dropdown open if clicking inside
+    document.querySelectorAll('.dropdown').forEach(dd => {
+        dd.addEventListener('click', e => e.stopPropagation());
+    });
+
+    // Debounce function to limit API calls
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Handle dropdown selections
+    function handleOptionClick(e) {
         const value = e.target.getAttribute('data-value');
         const filterType = e.target.parentElement.getAttribute('data-filter');
         const btn = e.target.closest('.btn');
@@ -257,256 +285,324 @@ document.querySelectorAll('.dropdown div[data-value]').forEach(option => {
         btn.childNodes[0].textContent = value === '' ? originalLabel : e.target.textContent;
 
         e.target.closest('.dropdown').classList.remove('show');
-        performSearch();
-    });
-});
-
-// Handle date selection
-const dateInput = document.getElementById('filter-date');
-if (dateInput) {
-    // Prevent dropdown from closing when clicking the date input
-    ['click', 'mousedown', 'focus'].forEach(evt =>
-        dateInput.addEventListener(evt, e => e.stopPropagation())
-    );
-
-    dateInput.addEventListener('change', e => {
-        filters.date = e.target.value;
-        const btn = e.target.closest('.btn');
-        const originalLabel = btn.getAttribute('data-original');
-        btn.childNodes[0].textContent = e.target.value || originalLabel;
-        performSearch();
-    });
-}
-
-// Close dropdowns when clicking outside
-document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown').forEach(dd => dd.classList.remove('show'));
-});
-
-// Search when typing in the input
-document.getElementById('search-reservation-inp').addEventListener('input', performSearch);
-
-function performSearch() {
-    const query = document.getElementById('search-reservation-inp').value.trim();
-
-    if (query.length === 0 && Object.values(filters).every(f => f === '')) {
-        document.querySelector('.search-output').innerHTML = '';
-        return;
+        debouncedSearch();
     }
 
-    const params = new URLSearchParams({ q: query, ...filters });
-
-    fetch(`/uoc-sports/public/api/search-reservation.php?${params.toString()}`)
-        .then(res => res.json())
-        .then(data => {
-            const outputDiv = document.querySelector('.search-output');
-            if (data.length > 0) {
-                let html = `
-                    <table class="user-table">
-                        <thead>
-                            <tr>
-                                <th>Reservation ID</th>
-                                <th>User</th>
-                                <th>Date</th>
-                                <th>Location</th>
-                                <th>User Type</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-                var className = null;
-                data.forEach(r => {
-                    if (r.payment_status == "COMPLETE"){
-                        className = "pay-complete"
-                    }
-                    else{
-                        className = "pay-incomplete"
-                    }
-                    html += `
-                        <tr class="${className}">
-                            <td>${r.booking_id}</td>
-                            <td>${r.user_name}</td>
-                            <td>${r.date}</td>
-                            <td>${r.facility_id}</td>
-                            <td>${r.user_type}</td>
-                            <td>
-                                <a href="/uoc-sports/public/admin-reservation?id=${r.booking_id}" class="action-link" title="View Reservation">
-                                    <i class="fa-solid fa-circle-arrow-right"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    `;
+    // Fetch and populate locations
+    function loadLocations() {
+        fetch('/uoc-sports/public/api/reservation/locations')
+            .then(res => res.json())
+            .then(data => {
+                const dropdown = document.getElementById('location-dropdown');
+                data.forEach(loc => {
+                    const div = document.createElement('div');
+                    div.setAttribute('data-value', loc.facility_id);
+                    div.textContent = loc.facility_name;
+                    div.addEventListener('click', e => handleOptionClick(e));
+                    dropdown.appendChild(div);
                 });
-                html += `</tbody></table>`;
-                outputDiv.innerHTML = html;
-            } else {
-                outputDiv.innerHTML = '<p>No reservations found.</p>';
-            }
-        })
-        .catch(err => {
-            console.error('Search error:', err);
-            document.querySelector('.search-output').innerHTML = '<p>Error occurred.</p>';
+            })
+            .catch(err => console.error('Error loading locations:', err));
+    }
+
+    // Initial binding for non-dynamic options
+    document.querySelectorAll('.dropdown div[data-value]').forEach(option => {
+        option.addEventListener('click', e => handleOptionClick(e));
+    });
+
+    // Handle date selection
+    const dateInput = document.getElementById('filter-date');
+    if (dateInput) {
+        ['click', 'mousedown', 'focus'].forEach(evt =>
+            dateInput.addEventListener(evt, e => e.stopPropagation())
+        );
+
+        dateInput.addEventListener('change', e => {
+            filters.date = e.target.value;
+            const btn = e.target.closest('.btn');
+            const originalLabel = btn.getAttribute('data-original');
+            btn.childNodes[0].textContent = e.target.value || originalLabel;
+            debouncedSearch();
         });
-}
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown').forEach(dd => dd.classList.remove('show'));
+    });
+
+    // Search when typing in the input (with debounce)
+    const debouncedSearch = debounce(performSearch, 300);
+    document.getElementById('search-reservation-inp').addEventListener('input', debouncedSearch);
+
+    function performSearch() {
+        const query = document.getElementById('search-reservation-inp').value.trim();
+
+        if (query.length === 0 && Object.values(filters).every(f => f === '')) {
+            document.querySelector('.search-output').innerHTML = '';
+            return;
+        }
+
+        const outputDiv = document.querySelector('.search-output');
+
+        outputDiv.innerHTML = '<div class="searching-indicator"><i class="fa-solid fa-spinner fa-spin"></i> Searching...</div>';
+
+        const params = new URLSearchParams({ q: query, ...filters });
+
+        fetch(`/uoc-sports/public/api/reservation/search?${params.toString()}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.length > 0) {
+                    let html = `
+                        <table class="user-table">
+                            <colgroup>
+                                <col class="col-id">
+                                <col class="col-user">
+                                <col class="col-date">
+                                <col class="col-facility">
+                                <col class="col-location">
+                                <col class="col-status">
+                                <col class="col-action">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Date</th>
+                                    <th>Facility</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th style="text-align: center;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    data.forEach(r => {
+                        const statusClass = `status-${r.status.toLowerCase()}`;
+                        const payClass = r.payment_status === "COMPLETE" ? "pay-complete" : "pay-incomplete";
+                        const facilityName = r.facility_name;
+                        
+                        html += `
+                            <tr class="${payClass}">
+                                <td><strong>${r.booking_id}</strong></td>
+                                <td>
+                                    <div class="user-info-cell">
+                                        <span>${r.user_name}</span>
+                                        <small>${r.user_type}</small>
+                                    </div>
+                                </td>
+                                <td>${r.date}</td>
+                                <td>
+                                    <div class="text-truncate" title="${facilityName}" style="max-width: 100%;">
+                                        ${facilityName}
+                                    </div>
+                                </td>
+                                <td><span class="location-tag">${r.physical_location || 'N/A'}</span></td>
+                                <td><span class="status-badge ${statusClass}">${r.status}</span></td>
+                                <td>
+                                    <a href="/uoc-sports/public/admin-reservation?id=${r.booking_id}" class="action-link" title="View Reservation">
+                                        <i class="fa-solid fa-circle-arrow-right"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    html += `</tbody></table>`;
+                    outputDiv.innerHTML = html;
+                } else {
+                    outputDiv.innerHTML = `
+                        <div class="no-results">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <p>No reservations matching your criteria were found.</p>
+                        </div>
+                    `;
+                }
+            })
+
+            .catch(err => {
+                console.error('Search error:', err);
+                outputDiv.innerHTML = '<p style="color: #d9534f; padding: 20px; text-align: center;">An error occurred while searching. Please try again.</p>';
+            });
+    }
+
 </script>
 
 <script>
-// Analytics Modal Script
-let currentPeriod = 'monthly';
-let currentYear = '<?php echo date('Y'); ?>';
+    // Analytics Modal Script
+    let currentPeriod = 'monthly';
+    let currentYear = '<?php echo date('Y'); ?>';
 
-function updateAnalytics(period = null, year = null) {
-    if (period) currentPeriod = period;
-    if (year) currentYear = year;
+    function updateAnalytics(period = null, year = null) {
+        if (period) currentPeriod = period;
+        if (year) currentYear = year;
 
-    // Update active state of buttons
-    document.querySelectorAll('.ajax-filter').forEach(btn => {
-        if (btn.getAttribute('data-period') === currentPeriod) {
-            btn.classList.add('active');
+        // Update active state of buttons
+        document.querySelectorAll('.ajax-filter').forEach(btn => {
+            if (btn.getAttribute('data-period') === currentPeriod) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // Toggle year selector
+        const yearSelector = document.getElementById('year-selector');
+        if (currentPeriod === 'annually') {
+            yearSelector.style.display = 'none';
         } else {
-            btn.classList.remove('active');
+            yearSelector.style.display = 'block';
+        }
+
+        const params = new URLSearchParams({ period: currentPeriod, year: currentYear });
+
+        fetch(`/uoc-sports/public/api/reservation/stats?${params.toString()}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) throw new Error(data.message);
+
+                // Update stats cards
+                document.getElementById('total-reservations-val').textContent = data.total_reservations;
+                document.getElementById('periods-val').textContent = data.chart_data.length;
+                document.getElementById('avg-reservations-val').textContent = data.avg_reservations;
+
+                // Update chart title
+                document.querySelector('.chart-title').textContent = `Facility Reservations - ${currentPeriod.charAt(0).toUpperCase() + currentPeriod.slice(1)} View`;
+
+                // Update SVG Chart
+                updateSvgChart(data.chart_data, data.max_value);
+            })
+            .catch(err => {
+                console.error('Analytics update error:', err);
+            });
+    }
+
+    function updateSvgChart(chartData, maxValue) {
+        const width = 800;
+        const height = 300;
+        const padding = 50;
+        const chartWidth = width - (padding * 2);
+        const chartHeight = height - (padding * 2);
+        const dataCount = chartData.length;
+
+        const points = [];
+        const areaPoints = [];
+
+        if (dataCount > 1) {
+            chartData.forEach((data, index) => {
+                const x = padding + (index * (chartWidth / (dataCount - 1)));
+                const y = padding + (chartHeight - ((data.res_count / maxValue) * chartHeight));
+                points.push(`${x},${y}`);
+                
+                if (index === 0) areaPoints.push(`${x},${height - padding}`);
+                areaPoints.push(`${x},${y}`);
+                if (index === dataCount - 1) areaPoints.push(`${x},${height - padding}`);
+            });
+        } else if (dataCount === 1) {
+            const x = width / 2;
+            const y = padding + (chartHeight - ((chartData[0].res_count / maxValue) * chartHeight));
+            points.push(`${x},${y}`);
+            areaPoints.push(`${x},${height - padding}`, `${x},${y}`, `${x},${height - padding}`);
+        }
+
+        const pathData = points.length ? `M ${points.join(' L ')}` : "";
+        const areaData = areaPoints.length ? `M ${areaPoints.join(' L ')} Z` : "";
+
+        // Update Paths
+        const linePath = document.querySelector('.line-path');
+        const areaPath = document.querySelector('.area-path');
+        
+        linePath.setAttribute('d', pathData);
+        areaPath.setAttribute('d', areaData);
+
+        // Re-trigger animation
+        linePath.style.animation = 'none';
+        linePath.offsetHeight; // trigger reflow
+        linePath.style.animation = null;
+
+        // Update Data circles
+        const svg = document.querySelector('.line-svg');
+        // Remove old circles and labels (keep grid and definitions)
+        svg.querySelectorAll('.data-point, text').forEach(el => {
+            if (!el.classList.contains('y-axis-label')) el.remove(); 
+        });
+
+        // Add new Data Points
+        chartData.forEach((data, index) => {
+            const x = dataCount > 1 ? padding + (index * (chartWidth / (dataCount - 1))) : width / 2;
+            const y = padding + (chartHeight - ((data.res_count / maxValue) * chartHeight));
+
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', '6');
+            circle.setAttribute('class', 'data-point');
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            title.textContent = `${data.period_label}: ${data.res_count} reservations`;
+            circle.appendChild(title);
+            svg.appendChild(circle);
+
+            // X-axis label
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', x);
+            text.setAttribute('y', height - 20);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('fill', '#666');
+            text.setAttribute('font-size', '12');
+            text.textContent = data.period_label.substring(0, 8);
+            svg.appendChild(text);
+        });
+
+        // Update Y-axis labels
+        const yAxisTexts = svg.querySelectorAll('.y-axis-label');
+        yAxisTexts.forEach((text, i) => {
+            const value = Math.round((maxValue / 5) * (5 - i));
+            text.textContent = value;
+        });
+
+        // Update Mobile Data Table
+        const tableBody = document.querySelector('#mobile-stat-table tbody');
+        if (tableBody) {
+            tableBody.innerHTML = '';
+            chartData.forEach(data => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${data.period_label}</td>
+                    <td><strong>${data.res_count}</strong></td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            if (chartData.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="2" style="text-align:center;">No data available</td></tr>';
+            }
+        }
+    }
+
+    // Modal toggle for reservation insights
+    const insightsBtn = document.getElementById('insights-btn');
+    const insightsModal = document.getElementById('insights-modal');
+    const modalClose = document.getElementById('modal-close');
+
+    insightsBtn.addEventListener('click', () => {
+        insightsModal.classList.add('active');
+    });
+
+    modalClose.addEventListener('click', () => {
+        insightsModal.classList.remove('active');
+    });
+
+    insightsModal.addEventListener('click', (e) => {
+        if (e.target === insightsModal) {
+            insightsModal.classList.remove('active');
         }
     });
 
-    // Toggle year selector
-    const yearSelector = document.getElementById('year-selector');
-    if (currentPeriod === 'annually') {
-        yearSelector.style.display = 'none';
-    } else {
-        yearSelector.style.display = 'block';
-    }
-
-    const params = new URLSearchParams({ period: currentPeriod, year: currentYear });
-
-    fetch(`/uoc-sports/public/api/reservation/stats?${params.toString()}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) throw new Error(data.message);
-
-            // Update stats cards
-            document.getElementById('total-reservations-val').textContent = data.total_reservations;
-            document.getElementById('periods-val').textContent = data.chart_data.length;
-            document.getElementById('avg-reservations-val').textContent = data.avg_reservations;
-
-            // Update chart title
-            document.querySelector('.chart-title').textContent = `Facility Reservations - ${currentPeriod.charAt(0).toUpperCase() + currentPeriod.slice(1)} View`;
-
-            // Update SVG Chart
-            updateSvgChart(data.chart_data, data.max_value);
-        })
-        .catch(err => {
-            console.error('Analytics update error:', err);
-        });
-}
-
-function updateSvgChart(chartData, maxValue) {
-    const width = 800;
-    const height = 300;
-    const padding = 50;
-    const chartWidth = width - (padding * 2);
-    const chartHeight = height - (padding * 2);
-    const dataCount = chartData.length;
-
-    const points = [];
-    const areaPoints = [];
-
-    if (dataCount > 1) {
-        chartData.forEach((data, index) => {
-            const x = padding + (index * (chartWidth / (dataCount - 1)));
-            const y = padding + (chartHeight - ((data.res_count / maxValue) * chartHeight));
-            points.push(`${x},${y}`);
-            
-            if (index === 0) areaPoints.push(`${x},${height - padding}`);
-            areaPoints.push(`${x},${y}`);
-            if (index === dataCount - 1) areaPoints.push(`${x},${height - padding}`);
-        });
-    } else if (dataCount === 1) {
-        const x = width / 2;
-        const y = padding + (chartHeight - ((chartData[0].res_count / maxValue) * chartHeight));
-        points.push(`${x},${y}`);
-        areaPoints.push(`${x},${height - padding}`, `${x},${y}`, `${x},${height - padding}`);
-    }
-
-    const pathData = points.length ? `M ${points.join(' L ')}` : "";
-    const areaData = areaPoints.length ? `M ${areaPoints.join(' L ')} Z` : "";
-
-    // Update Paths
-    const linePath = document.querySelector('.line-path');
-    const areaPath = document.querySelector('.area-path');
-    
-    linePath.setAttribute('d', pathData);
-    areaPath.setAttribute('d', areaData);
-
-    // Re-trigger animation
-    linePath.style.animation = 'none';
-    linePath.offsetHeight; // trigger reflow
-    linePath.style.animation = null;
-
-    // Update Data circles
-    const svg = document.querySelector('.line-svg');
-    // Remove old circles and labels (keep grid and definitions)
-    svg.querySelectorAll('.data-point, text').forEach(el => {
-        if (!el.classList.contains('y-axis-label')) el.remove(); 
+    // Load chart data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadLocations();
+        updateAnalytics();
     });
 
-    // Add new Data Points
-    chartData.forEach((data, index) => {
-        const x = dataCount > 1 ? padding + (index * (chartWidth / (dataCount - 1))) : width / 2;
-        const y = padding + (chartHeight - ((data.res_count / maxValue) * chartHeight));
-
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', x);
-        circle.setAttribute('cy', y);
-        circle.setAttribute('r', '6');
-        circle.setAttribute('class', 'data-point');
-        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        title.textContent = `${data.period_label}: ${data.res_count} reservations`;
-        circle.appendChild(title);
-        svg.appendChild(circle);
-
-        // X-axis label
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', x);
-        text.setAttribute('y', height - 20);
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('fill', '#666');
-        text.setAttribute('font-size', '12');
-        text.textContent = data.period_label.substring(0, 8);
-        svg.appendChild(text);
-    });
-
-    // Update Y-axis labels
-    const yAxisTexts = svg.querySelectorAll('.y-axis-label');
-    yAxisTexts.forEach((text, i) => {
-        const value = Math.round((maxValue / 5) * (5 - i));
-        text.textContent = value;
-    });
-}
-
-// Modal toggle for reservation insights
-const insightsBtn = document.getElementById('insights-btn');
-const insightsModal = document.getElementById('insights-modal');
-const modalClose = document.getElementById('modal-close');
-
-insightsBtn.addEventListener('click', () => {
-    insightsModal.classList.add('active');
-});
-
-modalClose.addEventListener('click', () => {
-    insightsModal.classList.remove('active');
-});
-
-insightsModal.addEventListener('click', (e) => {
-    if (e.target === insightsModal) {
-        insightsModal.classList.remove('active');
-    }
-});
-
-// Load chart data on page load
-document.addEventListener('DOMContentLoaded', () => {
-    updateAnalytics();
-});
 </script>
 
 <?php require '../app/views/templates/admin/footer.php'; ?>

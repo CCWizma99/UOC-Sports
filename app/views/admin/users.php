@@ -20,28 +20,12 @@
         @import url(/uoc-sports/public/css/admin/user-stat.css);
         @import url(/uoc-sports/public/css/admin/ui-improvements.css);
 
-        /* Tab System */
-        .tab-wrapper { margin-bottom: 30px; display: flex; gap: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 2px; }
-        .tab-btn { 
-            padding: 12px 24px; border: none; background: transparent; font-weight: 700; color: #64748b; 
-            cursor: pointer; transition: all 0.2s; position: relative; font-size: 15px;
-        }
-        .tab-btn.active { color: #4b0082; }
-        .tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 3px; background: #4b0082; border-radius: 10px; }
-        .tab-content { display: none; width: 100%; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Teams UI */
-        .teams-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .teams-card { background: white; border-radius: 1.2rem; border: 1px solid rgba(75, 0, 130, 0.05); overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); }
+        /* UI Improvements */
         .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; }
         .btn-edit { background: #f1f5f9; color: #4b0082; }
         .btn-delete { background: #fee2e2; color: #ef4444; }
         .btn-edit:hover { background: #e2e8f0; }
         .btn-delete:hover { background: #fecaca; }
-        .team-search { padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; width: 300px; font-size: 14px; outline: none; }
-        .team-search:focus { border-color: #4b0082; box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.05); }
     </style>
 </head>
 <body>
@@ -57,18 +41,10 @@ $selected_year = $_GET['year'] ?? date('Y');
 ?>
 
 <div class="main-content-wrapper">
-    <!-- Tabs Header -->
-    <div class="tab-wrapper">
-        <button class="tab-btn active" onclick="switchMainTab('users-tab', this)">
-            <i class="fa-solid fa-users"></i> Users & Players
-        </button>
-        <button class="tab-btn" onclick="switchMainTab('teams-tab', this)">
-            <i class="fa-solid fa-users-rectangle"></i> Playing Teams Registry
-        </button>
-    </div>
 
-    <!-- Tab 1: Users & Players -->
-    <div id="users-tab" class="tab-content active">
+
+    <!-- Users & Players Section -->
+    <div id="users-container">
         <div class="users-grid-container">
             <div class="users-grid-left">
                 <section id="search-user">
@@ -104,8 +80,14 @@ $selected_year = $_GET['year'] ?? date('Y');
                             Type
                             <div class="dropdown" data-filter="type">
                                 <div data-value="">All</div>
-                                <div data-value="Student">Student</div>
-                                <div data-value="Staff">Staff</div>
+                                <div data-value="STUDENT">Student</div>
+                                <div data-value="INTERNAL">Internal Users</div>
+                                <div data-value="PUBLIC">External Users</div>
+                                <div data-value="COACH">Coach</div>
+                                <div data-value="SPT">Sport Managers</div>
+                                <div data-value="EQP">Equipment Managers</div>
+                                <div data-value="REG">Registrar</div>
+                                <div data-value="ADMIN">Admin</div>
                             </div>
                         </div>
                     </div>
@@ -181,40 +163,6 @@ $selected_year = $_GET['year'] ?? date('Y');
                         <button type="button" class="add-user-btn" id="add-user-submit-btn">Add User</button>
                     </form>
                 </section>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab 2: Playing Teams Registry -->
-    <div id="teams-tab" class="tab-content">
-        <div class="teams-header-row">
-            <h2 style="margin:0; font-size: 22px; color: #1e1e2e; font-weight:800;">
-                <i class="fa-solid fa-users-rectangle" style="color:#4b0082;"></i> Team Registry Management
-            </h2>
-            <div style="display:flex; gap:12px; align-items:center;">
-                <input type="text" id="team-search-inp" class="team-search" placeholder="Search team name..." oninput="filterTeams()">
-                <button class="btn-sm" style="background:#4b0082; color:white; height:42px; padding:0 20px;" onclick="loadTeams()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
-        </div>
-
-        <div class="teams-card">
-            <div class="table-responsive">
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>Team ID</th>
-                            <th>Team Name</th>
-                            <th>First Registered</th>
-                            <th>Created By</th>
-                            <th style="width: 150px;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="teams-tbody">
-                        <tr><td colspan="5" style="text-align:center; padding:60px; color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Initializing team list...</td></tr>
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -443,423 +391,323 @@ function performSearch() {
 </script>
 
 <script>
-let currentPeriod = '<?php echo $current_period; ?>';
-let currentYear = '<?php echo $selected_year; ?>';
+    let currentPeriod = '<?php echo $current_period; ?>';
+    let currentYear = '<?php echo $selected_year; ?>';
 
-function updateAnalytics(period = null, year = null) {
-    if (period) currentPeriod = period;
-    if (year) currentYear = year;
+    function updateAnalytics(period = null, year = null) {
+        if (period) currentPeriod = period;
+        if (year) currentYear = year;
 
-    // Update active state of buttons
-    document.querySelectorAll('.ajax-filter').forEach(btn => {
-        if (btn.getAttribute('data-period') === currentPeriod) {
-            btn.classList.add('active');
+        // Update active state of buttons
+        document.querySelectorAll('.ajax-filter').forEach(btn => {
+            if (btn.getAttribute('data-period') === currentPeriod) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // Toggle year selector
+        const yearSelector = document.getElementById('year-selector');
+        if (currentPeriod === 'annually') {
+            yearSelector.style.display = 'none';
         } else {
-            btn.classList.remove('active');
+            yearSelector.style.display = 'block';
         }
-    });
 
-    // Toggle year selector
-    const yearSelector = document.getElementById('year-selector');
-    if (currentPeriod === 'annually') {
-        yearSelector.style.display = 'none';
-    } else {
-        yearSelector.style.display = 'block';
+        const params = new URLSearchParams({ period: currentPeriod, year: currentYear });
+
+        fetch(`/uoc-sports/public/api/user/registration-stats?${params.toString()}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) throw new Error(data.message);
+
+                // Update stats cards
+                document.getElementById('total-users-val').textContent = data.total_users;
+                document.getElementById('periods-val').textContent = data.chart_data.length;
+                document.getElementById('avg-users-val').textContent = data.avg_users;
+
+                // Update chart title
+                document.querySelector('.chart-title').textContent = `User Registrations - ${currentPeriod.charAt(0).toUpperCase() + currentPeriod.slice(1)} View`;
+
+                // Update SVG Chart
+                updateSvgChart(data.chart_data, data.max_value);
+
+                // Update Data Table
+                const tbody = document.getElementById('stat-table-body');
+                tbody.innerHTML = data.chart_data.map(d => `
+                    <tr>
+                        <td>${d.period_label}</td>
+                        <td><strong>${d.user_count}</strong></td>
+                    </tr>
+                `).join('');
+            })
+            .catch(err => {
+                console.error('Analytics update error:', err);
+            });
     }
 
-    const params = new URLSearchParams({ period: currentPeriod, year: currentYear });
+    function updateSvgChart(chartData, maxValue) {
+        const width = 800;
+        const height = 300;
+        const padding = 50;
+        const chartWidth = width - (padding * 2);
+        const chartHeight = height - (padding * 2);
+        const dataCount = chartData.length;
 
-    fetch(`/uoc-sports/public/api/user/registration-stats?${params.toString()}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) throw new Error(data.message);
+        const points = [];
+        const areaPoints = [];
 
-            // Update stats cards
-            document.getElementById('total-users-val').textContent = data.total_users;
-            document.getElementById('periods-val').textContent = data.chart_data.length;
-            document.getElementById('avg-users-val').textContent = data.avg_users;
-
-            // Update chart title
-            document.querySelector('.chart-title').textContent = `User Registrations - ${currentPeriod.charAt(0).toUpperCase() + currentPeriod.slice(1)} View`;
-
-            // Update SVG Chart
-            updateSvgChart(data.chart_data, data.max_value);
-
-            // Update Data Table
-            const tbody = document.getElementById('stat-table-body');
-            tbody.innerHTML = data.chart_data.map(d => `
-                <tr>
-                    <td>${d.period_label}</td>
-                    <td><strong>${d.user_count}</strong></td>
-                </tr>
-            `).join('');
-        })
-        .catch(err => {
-            console.error('Analytics update error:', err);
-        });
-}
-
-function updateSvgChart(chartData, maxValue) {
-    const width = 800;
-    const height = 300;
-    const padding = 50;
-    const chartWidth = width - (padding * 2);
-    const chartHeight = height - (padding * 2);
-    const dataCount = chartData.length;
-
-    const points = [];
-    const areaPoints = [];
-
-    if (dataCount > 1) {
-        chartData.forEach((data, index) => {
-            const x = padding + (index * (chartWidth / (dataCount - 1)));
-            const y = padding + (chartHeight - ((data.user_count / maxValue) * chartHeight));
+        if (dataCount > 1) {
+            chartData.forEach((data, index) => {
+                const x = padding + (index * (chartWidth / (dataCount - 1)));
+                const y = padding + (chartHeight - ((data.user_count / maxValue) * chartHeight));
+                points.push(`${x},${y}`);
+                
+                if (index === 0) areaPoints.push(`${x},${height - padding}`);
+                areaPoints.push(`${x},${y}`);
+                if (index === dataCount - 1) areaPoints.push(`${x},${height - padding}`);
+            });
+        } else if (dataCount === 1) {
+            const x = width / 2;
+            const y = padding + (chartHeight - ((chartData[0].user_count / maxValue) * chartHeight));
             points.push(`${x},${y}`);
-            
-            if (index === 0) areaPoints.push(`${x},${height - padding}`);
-            areaPoints.push(`${x},${y}`);
-            if (index === dataCount - 1) areaPoints.push(`${x},${height - padding}`);
+            areaPoints.push(`${x},${height - padding}`, `${x},${y}`, `${x},${height - padding}`);
+        }
+
+        const pathData = points.length ? `M ${points.join(' L ')}` : "";
+        const areaData = areaPoints.length ? `M ${areaPoints.join(' L ')} Z` : "";
+
+        // Update Paths
+        const linePath = document.querySelector('.line-path');
+        const areaPath = document.querySelector('.area-path');
+        
+        linePath.setAttribute('d', pathData);
+        areaPath.setAttribute('d', areaData);
+
+        // Re-trigger animation
+        linePath.style.animation = 'none';
+        linePath.offsetHeight; // trigger reflow
+        linePath.style.animation = null;
+
+        // Update Data circles
+        const svg = document.querySelector('.line-svg');
+        // Remove old circles and labels (keep grid and definitions)
+        svg.querySelectorAll('.data-point, text').forEach(el => {
+            if (!el.classList.contains('y-axis-label')) el.remove(); 
         });
-    } else if (dataCount === 1) {
-        const x = width / 2;
-        const y = padding + (chartHeight - ((chartData[0].user_count / maxValue) * chartHeight));
-        points.push(`${x},${y}`);
-        areaPoints.push(`${x},${height - padding}`, `${x},${y}`, `${x},${height - padding}`);
+
+        // Add new Data Points
+        chartData.forEach((data, index) => {
+            const x = dataCount > 1 ? padding + (index * (chartWidth / (dataCount - 1))) : width / 2;
+            const y = padding + (chartHeight - ((data.user_count / maxValue) * chartHeight));
+
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', '6');
+            circle.setAttribute('class', 'data-point');
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            title.textContent = `${data.period_label}: ${data.user_count} users`;
+            circle.appendChild(title);
+            svg.appendChild(circle);
+
+            // X-axis label
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', x);
+            text.setAttribute('y', height - 20);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('fill', '#666');
+            text.setAttribute('font-size', '12');
+            text.textContent = data.period_label.substring(0, 8);
+            svg.appendChild(text);
+        });
+
+        // Update Y-axis labels
+        const yAxisTexts = svg.querySelectorAll('.y-axis-label');
+        yAxisTexts.forEach((text, i) => {
+            const value = Math.round((maxValue / 5) * (5 - i));
+            text.textContent = value;
+        });
     }
 
-    const pathData = points.length ? `M ${points.join(' L ')}` : "";
-    const areaData = areaPoints.length ? `M ${areaPoints.join(' L ')} Z` : "";
+    // Modal toggle for user insights
+    const insightsBtn = document.getElementById('insights-btn');
+    const insightsModal = document.getElementById('insights-modal');
+    const modalClose = document.getElementById('modal-close');
 
-    // Update Paths
-    const linePath = document.querySelector('.line-path');
-    const areaPath = document.querySelector('.area-path');
-    
-    linePath.setAttribute('d', pathData);
-    areaPath.setAttribute('d', areaData);
-
-    // Re-trigger animation
-    linePath.style.animation = 'none';
-    linePath.offsetHeight; // trigger reflow
-    linePath.style.animation = null;
-
-    // Update Data circles
-    const svg = document.querySelector('.line-svg');
-    // Remove old circles and labels (keep grid and definitions)
-    svg.querySelectorAll('.data-point, text').forEach(el => {
-        if (!el.classList.contains('y-axis-label')) el.remove(); 
+    insightsBtn.addEventListener('click', () => {
+        insightsModal.classList.add('active');
     });
 
-    // Add new Data Points
-    chartData.forEach((data, index) => {
-        const x = dataCount > 1 ? padding + (index * (chartWidth / (dataCount - 1))) : width / 2;
-        const y = padding + (chartHeight - ((data.user_count / maxValue) * chartHeight));
-
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', x);
-        circle.setAttribute('cy', y);
-        circle.setAttribute('r', '6');
-        circle.setAttribute('class', 'data-point');
-        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        title.textContent = `${data.period_label}: ${data.user_count} users`;
-        circle.appendChild(title);
-        svg.appendChild(circle);
-
-        // X-axis label
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', x);
-        text.setAttribute('y', height - 20);
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('fill', '#666');
-        text.setAttribute('font-size', '12');
-        text.textContent = data.period_label.substring(0, 8);
-        svg.appendChild(text);
-    });
-
-    // Update Y-axis labels
-    const yAxisTexts = svg.querySelectorAll('.y-axis-label');
-    yAxisTexts.forEach((text, i) => {
-        const value = Math.round((maxValue / 5) * (5 - i));
-        text.textContent = value;
-    });
-}
-
-// Modal toggle for user insights
-const insightsBtn = document.getElementById('insights-btn');
-const insightsModal = document.getElementById('insights-modal');
-const modalClose = document.getElementById('modal-close');
-
-insightsBtn.addEventListener('click', () => {
-    insightsModal.classList.add('active');
-});
-
-modalClose.addEventListener('click', () => {
-    insightsModal.classList.remove('active');
-});
-
-insightsModal.addEventListener('click', (e) => {
-    if (e.target === insightsModal) {
+    modalClose.addEventListener('click', () => {
         insightsModal.classList.remove('active');
-    }
-});
+    });
 
-// Load chart data on page load
-document.addEventListener('DOMContentLoaded', () => {
-    updateAnalytics();
-});
-</script>
-
-
-<?php
-// Note: $sport_data is already provided by the controller
-$sports = $sport_data ?? []; 
-?>
-
-<script>
-document.getElementById('user-type').addEventListener('change', function () {
-    const extraFields = document.getElementById('extra-fields');
-    extraFields.innerHTML = '';
-
-    if (this.value === 'SPT' || this.value === 'COACH') {
-        // Encode PHP array into JS
-        const sports = <?php echo json_encode($sports ?? []); ?>;
-        const label = this.value === 'COACH' ? 'Select Sport to Coach' : 'Select Sport';
-
-        let options = `<option value="">Select Sport</option>`;
-        sports.forEach(sport => {
-            options += `<option value="${sport.sport_id}">${sport.sport_name}</option>`;
-        });
-
-        extraFields.innerHTML = `
-            <div class="input-field">
-                <label for="user-sport">${label}</label>
-                <select id="user-sport" name="sport_id" required>
-                    ${options}
-                </select>
-            </div>
-        `;
-    } 
-    else if (this.value === 'REG') {
-        extraFields.innerHTML = `
-            <div class="input-field">
-                <label for="user-faculty">Select Faculty</label>
-                <select id="user-faculty" name="faculty">
-                    <option value="">Select Faculty</option>
-                    <option value="Science">Science</option>
-                    <option value="Arts">Arts</option>
-                    <option value="Management">Management</option>
-                    <option value="Computing">Computing</option>
-                </select>
-            </div>
-        `;
-    }
-});
-
-// Handle Add User Form Submission via Fetch API (using button click, not form submit)
-document.getElementById('add-user-submit-btn').addEventListener('click', async function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const form = document.getElementById('add-user-form');
-    const submitBtn = this;
-    const originalBtnText = submitBtn.textContent;
-    
-    // Disable button and show loading state
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Adding User...';
-    
-    // Gather form data
-    const formData = {
-        fname: document.getElementById('user-fname').value.trim(),
-        lname: document.getElementById('user-lname').value.trim(),
-        email: document.getElementById('user-email').value.trim(),
-        phone: document.getElementById('user-phone').value.trim(),
-        type: document.getElementById('user-type').value
-    };
-    
-    // Add optional fields if present
-    const sportField = document.getElementById('user-sport');
-    const facultyField = document.getElementById('user-faculty');
-    
-    if (sportField) {
-        formData.sport = sportField.value;
-    }
-    if (facultyField) {
-        formData.faculty = facultyField.value;
-    }
-    
-    // Validate required fields
-    if (!formData.fname || !formData.email || !formData.type) {
-        showNotification('Please fill in all required fields.', 'error');
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
-        return;
-    }
-    
-    try {
-        const response = await fetch('/uoc-sports/public/admin-users/add-internal-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-        
-        const result = await response.json();
-        
-        if (result.status === 'success') {
-            showNotification(result.message || 'User added successfully! Temporary password sent via email.', 'success');
-            form.reset();
-            document.getElementById('extra-fields').innerHTML = '';
-        } else {
-            showNotification(result.message || 'Failed to add user.', 'error');
+    insightsModal.addEventListener('click', (e) => {
+        if (e.target === insightsModal) {
+            insightsModal.classList.remove('active');
         }
-    } catch (error) {
-        console.error('Add user error:', error);
-        showNotification('An error occurred while adding the user.', 'error');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
-    }
-});
+    });
 
-// Notification helper (uses admin notification system if available, falls back to alert)
-function showNotification(message, type = 'info') {
-    if (typeof window.showAdminNotification === 'function') {
-        window.showAdminNotification(message, type);
-    } else {
-        // Fallback: create a simple toast notification
-        const toast = document.createElement('div');
-        toast.className = `toast-notification toast-${type}`;
-        toast.innerHTML = `
-            <span class="toast-icon">${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span>
-            <span class="toast-message">${message}</span>
-        `;
-        toast.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 500;
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            animation: slideIn 0.3s ease;
-            background: ${type === 'success' ? 'linear-gradient(135deg, #28a745, #20c997)' : 
-                        type === 'error' ? 'linear-gradient(135deg, #dc3545, #ff6b6b)' : 
-                        'linear-gradient(135deg, #6c5ce7, #a29bfe)'};
-        `;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.animation = 'slideOut 0.3s ease forwards';
-            setTimeout(() => toast.remove(), 300);
-        }, 4000);
-    }
-}
-</script>
+    // Load chart data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        updateAnalytics();
+    });
+    </script>
 
 
-// Tab switching logic
-function switchMainTab(tabId, btn) {
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    
-    document.getElementById(tabId).classList.add('active');
-    btn.classList.add('active');
-    
-    if (tabId === 'teams-tab') {
-        loadTeams();
-    }
-}
+    <?php
+    // Note: $sport_data is already provided by the controller
+    $sports = $sport_data ?? []; 
+    ?>
 
-// Team Registry Logic
-let allTeams = [];
+    <script>
+    document.getElementById('user-type').addEventListener('change', function () {
+        const extraFields = document.getElementById('extra-fields');
+        extraFields.innerHTML = '';
 
-async function loadTeams() {
-    const tbody = document.getElementById('teams-tbody');
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-spin"></i> Fetching teams...</td></tr>';
-    
-    try {
-        const res = await fetch('/uoc-sports/public/api/playing-teams/get-all');
-        const data = await res.json();
-        if (data.status === 'success') {
-            allTeams = data.data;
-            filterTeams();
-        }
-    } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#ef4444;">Error loading teams.</td></tr>';
-    }
-}
+        if (this.value === 'SPT' || this.value === 'COACH') {
+            // Encode PHP array into JS
+            const sports = <?php echo json_encode($sports ?? []); ?>;
+            const label = this.value === 'COACH' ? 'Select Sport to Coach' : 'Select Sport';
 
-function filterTeams() {
-    const query = document.getElementById('team-search-inp').value.toLowerCase();
-    const tbody = document.getElementById('teams-tbody');
-    
-    const filtered = allTeams.filter(t => t.team_name.toLowerCase().includes(query));
-    
-    if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:#64748b;">No teams found.</td></tr>';
-        return;
-    }
-    
-    tbody.innerHTML = filtered.map(t => `
-        <tr>
-            <td><code style="background:#f1f5f9; padding:4px 8px; border-radius:6px; color:#4b0082;">PT-${String(t.team_id).padStart(4, '0')}</code></td>
-            <td style="font-weight:700; color:#1e293b;">${t.team_name}</td>
-            <td style="font-size:13px; color:#64748b;">${new Date(t.created_at).toLocaleDateString()}</td>
-            <td><span class="role-badge">${t.fname ? t.fname + ' ' + t.lname : 'SYSTEM'}</span></td>
-            <td>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn-sm btn-edit" onclick="editTeam('${t.team_id}', '${t.team_name.replace(/'/g, "\\'")}')" title="Rename Team"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="btn-sm btn-delete" onclick="deleteTeam('${t.team_id}', '${t.team_name.replace(/'/g, "\\'")}')" title="Delete Team"><i class="fas fa-trash"></i></button>
+            let options = `<option value="">Select Sport</option>`;
+            sports.forEach(sport => {
+                options += `<option value="${sport.sport_id}">${sport.sport_name}</option>`;
+            });
+
+            extraFields.innerHTML = `
+                <div class="input-field">
+                    <label for="user-sport">${label}</label>
+                    <select id="user-sport" name="sport_id" required>
+                        ${options}
+                    </select>
                 </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-async function editTeam(id, currentName) {
-    const newName = prompt(`Enter new name for "${currentName}":`, currentName);
-    if (!newName || newName.trim() === currentName) return;
-    
-    try {
-        const res = await fetch('/uoc-sports/public/api/playing-teams/update', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ team_id: id, team_name: newName.trim() })
-        });
-        const data = await res.json();
-        if (data.status === 'success') {
-            showNotification(data.message, 'success');
-            loadTeams();
-        } else {
-            showNotification(data.message, 'error');
+            `;
+        } 
+        else if (this.value === 'REG') {
+            extraFields.innerHTML = `
+                <div class="input-field">
+                    <label for="user-faculty">Select Faculty</label>
+                    <select id="user-faculty" name="faculty">
+                        <option value="">Select Faculty</option>
+                        <option value="Science">Science</option>
+                        <option value="Arts">Arts</option>
+                        <option value="Management">Management</option>
+                        <option value="Computing">Computing</option>
+                    </select>
+                </div>
+            `;
         }
-    } catch (e) { showNotification('Network error.', 'error'); }
-}
+    });
 
-async function deleteTeam(id, name) {
-    if (!confirm(`Are you absolutely sure you want to delete "${name}"?\nThis will fail if the team is used in match results.`)) return;
-    
-    try {
-        const res = await fetch('/uoc-sports/public/api/playing-teams/delete', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ team_id: id })
-        });
-        const data = await res.json();
-        if (data.status === 'success') {
-            showNotification(data.message, 'success');
-            loadTeams();
-        } else {
-            showNotification(data.message, 'error', true); // Persistent alert
+    // Handle Add User Form Submission via Fetch API (using button click, not form submit)
+    document.getElementById('add-user-submit-btn').addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const form = document.getElementById('add-user-form');
+        const submitBtn = this;
+        const originalBtnText = submitBtn.textContent;
+        
+        // Disable button and show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Adding User...';
+        
+        // Gather form data
+        const formData = {
+            fname: document.getElementById('user-fname').value.trim(),
+            lname: document.getElementById('user-lname').value.trim(),
+            email: document.getElementById('user-email').value.trim(),
+            phone: document.getElementById('user-phone').value.trim(),
+            type: document.getElementById('user-type').value
+        };
+        
+        // Add optional fields if present
+        const sportField = document.getElementById('user-sport');
+        const facultyField = document.getElementById('user-faculty');
+        
+        if (sportField) {
+            formData.sport = sportField.value;
         }
-    } catch (e) { showNotification('Network error.', 'error'); }
-}
+        if (facultyField) {
+            formData.faculty = facultyField.value;
+        }
+        
+        // Validate required fields
+        if (!formData.fname || !formData.email || !formData.type) {
+            showNotification('Please fill in all required fields.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+            return;
+        }
+        
+        try {
+            const response = await fetch('/uoc-sports/public/admin-users/add-internal-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                showNotification(result.message || 'User added successfully! Temporary password sent via email.', 'success');
+                form.reset();
+                document.getElementById('extra-fields').innerHTML = '';
+            } else {
+                showNotification(result.message || 'Failed to add user.', 'error');
+            }
+        } catch (error) {
+            console.error('Add user error:', error);
+            showNotification('An error occurred while adding the user.', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+        }
+    });
+
+    // Notification helper (uses admin notification system if available, falls back to alert)
+    function showNotification(message, type = 'info') {
+        if (typeof window.showAdminNotification === 'function') {
+            window.showAdminNotification(message, type);
+        } else {
+            // Fallback: create a simple toast notification
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon">${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span>
+                <span class="toast-message">${message}</span>
+            `;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                animation: slideIn 0.3s ease;
+                background: ${type === 'success' ? 'linear-gradient(135deg, #28a745, #20c997)' : 
+                            type === 'error' ? 'linear-gradient(135deg, #dc3545, #ff6b6b)' : 
+                            'linear-gradient(135deg, #6c5ce7, #a29bfe)'};
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+    }
 </script>
 
 <?php require '../app/views/templates/admin/footer.php'; ?>

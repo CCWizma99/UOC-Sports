@@ -356,6 +356,15 @@ class TournamentController extends BaseController {
             $matchId = $sportModel->addMatchResult($matchData, $details);
             
             if ($matchId) {
+                // Auto-complete tournament if it's the Final match
+                $lowerMatchName = strtolower($matchName);
+                if (strpos($lowerMatchName, 'final') !== false && 
+                    strpos($lowerMatchName, 'semi') === false && 
+                    strpos($lowerMatchName, 'quarter') === false) {
+                    $tournamentModel = new Tournament();
+                    $tournamentModel->updateStatus($tournamentId, 'COMPLETE');
+                }
+
                 echo json_encode([
                     'status' => 'success',
                     'message' => 'Match result added successfully.',
@@ -505,6 +514,33 @@ class TournamentController extends BaseController {
                 echo json_encode(['status' => 'success', 'message' => 'Permission revoked successfully.']);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Failed to revoke permission.']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Mark a tournament as COMPLETE
+     */
+    public function completeTournament() {
+        header('Content-Type: application/json');
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $tournamentId = trim($input['tournament_id'] ?? '');
+
+            if (empty($tournamentId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Tournament ID is required.']);
+                return;
+            }
+
+            $tournamentModel = new Tournament();
+            $success = $tournamentModel->updateStatus($tournamentId, 'COMPLETE');
+
+            if ($success) {
+                echo json_encode(['status' => 'success', 'message' => 'Tournament marked as complete.']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to mark tournament as complete.']);
             }
         } catch (Exception $e) {
             echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);

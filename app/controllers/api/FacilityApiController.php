@@ -283,4 +283,125 @@ class FacilityApiController {
             ]);
         }
     }
+
+    /**
+     * Handle manual payment slip upload
+     */
+    public function submitPaymentSlip() {
+        header('Content-Type: application/json');
+
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Please log in to submit payment proof.']);
+            return;
+        }
+
+        try {
+            $booking_id = $_POST['booking_id'] ?? '';
+            $user_id = $_SESSION['user_id'];
+
+            if (empty($booking_id)) {
+                echo json_encode(['success' => false, 'message' => 'Invalid booking ID.']);
+                return;
+            }
+
+            // Check if file was uploaded
+            if (!isset($_FILES['paymentSlip']) || $_FILES['paymentSlip']['error'] !== UPLOAD_ERR_OK) {
+                echo json_encode(['success' => false, 'message' => 'No file uploaded or upload error.']);
+                return;
+            }
+
+            $file = $_FILES['paymentSlip'];
+            
+            // Validate file size (max 5MB)
+            if ($file['size'] > 5 * 1024 * 1024) {
+                echo json_encode(['success' => false, 'message' => 'File size exceeds 5MB limit.']);
+                return;
+            }
+
+            // Validate file type
+            $allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+            $fileType = $file['type'];
+            if (!in_array($fileType, $allowedTypes)) {
+                echo json_encode(['success' => false, 'message' => 'Only JPG, PNG, and PDF files are allowed.']);
+                return;
+            }
+
+            // Generate unique filename
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $newFilename = "SLIP_" . $booking_id . "_" . time() . "." . $extension;
+            $uploadDir = __DIR__ . '/../../internal/payment_slips/';
+            $uploadPath = $uploadDir . $newFilename;
+
+            // Ensure directory exists
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Move uploaded file
+            if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                $model = new Facility();
+                $success = $model->updatePaymentSlip($booking_id, $newFilename);
+
+                if ($success) {
+                    echo json_encode([
+                        'success' => true, 
+                        'message' => 'Payment proof submitted successfully! Admin will verify and confirm your booking.',
+                        'filename' => $newFilename
+                    ]);
+                } else {
+                    // Cleanup file if DB update fails
+                    unlink($uploadPath);
+                    echo json_encode(['success' => false, 'message' => 'Failed to update database record.']);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to save the uploaded file.']);
+            }
+
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin: Manually verify payment slip
+     */
+    public function verifyPayment() {
+        header('Content-Type: application/json');
+
+        // Security Check: Ensure user is logged in and is an ADMIN
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'ADMIN') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized. Admin access required.']);
+            return;
+        }
+
+        try {
+            $booking_id = $_POST['booking_id'] ?? '';
+            
+            if (empty($booking_id)) {
+                echo json_encode(['success' => false, 'message' => 'Booking ID is required.']);
+                return;
+            }
+
+            $model = new Facility();
+            
+            // Generate a manual verification ID
+            $payment_id = "VERIFIED_BY_ADMIN_" . time();
+            
+            $success = $model->updatePaymentStatus($booking_id, 'COMPLETE', $payment_id);
+
+            if ($success) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Payment verified successfully. Booking status updated to COMPLETE.',
+                    'payment_id' => $payment_id
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to update payment status in database.']);
+            }
+
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+        }
+    }
 }
