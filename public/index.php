@@ -143,6 +143,9 @@ $router->post('/equipment-manager/create-booking-request', 'EquipmentBookingRequ
 $router->post('/equipment-manager/update-booking-request', 'EquipmentBookingRequestController@update');
 $router->post('/equipment-manager/update-booking-status', 'EquipmentBookingRequestController@updateStatus');
 $router->post('/equipment-manager/delete-booking-request', 'EquipmentBookingRequestController@delete');
+$router->post('/equipment-manager/send-request-notification', 'EquipmentBookingRequestController@sendRequestNotification');
+$router->get('/equipment-manager/request-notifications', 'EquipmentBookingRequestController@getRequestNotifications');
+$router->post('/equipment-manager/delete-request-notification', 'EquipmentBookingRequestController@deleteRequestNotification');
 $router->post('/equipment-manager/approve-booking', 'EquipmentBookingRequestController@approve');
 $router->post('/equipment-manager/reject-booking', 'EquipmentBookingRequestController@reject');
 $router->post('/equipment-manager/complete-booking', 'EquipmentBookingRequestController@complete');

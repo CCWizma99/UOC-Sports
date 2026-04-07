@@ -98,8 +98,8 @@
             <thead>
                 <tr>
                     
-                    <th onclick="sortTable(1)">User ID<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(2)">Student Name<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(1)">Requester ID<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(2)">Requester Name<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Sport<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(4)">Equipment Category<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(5)">Requested Date<span class="sort-indicator"></span></th>
@@ -184,6 +184,11 @@
                          <td><?= htmlspecialchars($request['notes'] ?? 'N/A') ?></td>
                         <td>
                             <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                                <button class="btn-edit" 
+                                        title="Send Special Notification"
+                                        onclick='openNotificationModal(<?= json_encode($request["request_id"]) ?>, <?= json_encode($request["student_id"] ?? "") ?>, <?= json_encode($request["requester_name"] ?? ($request["student_name"] ?? "")) ?>)'>
+                                    <i class="fas fa-bell"></i>
+                                </button>
                                 <button class="btn-edit" onclick="window.location.href='/uoc-sports/public/equipment-manager/add-booking?id=<?= $request['request_id'] ?>'">
                                  Edit
                                 </button>
@@ -205,6 +210,47 @@
             </div>
 
             </div>
+
+<!-- Special Notification Modal -->
+<div id="notificationModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1200; align-items: center; justify-content: center;">
+    <div style="background: #fff; width: min(92vw, 560px); border-radius: 10px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); overflow: hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding: 1rem 1.2rem; background: #2b0c4d; color: #fff;">
+            <h3 style="margin:0; font-size:1rem;">Send Special Notification</h3>
+            <button type="button" onclick="closeNotificationModal()" style="background:transparent; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">&times;</button>
+        </div>
+
+        <div style="padding: 1rem 1.2rem; display:flex; flex-direction:column; gap:0.75rem;">
+            <input id="notificationRequestId" type="hidden">
+
+            <div>
+                <label for="notificationStudentId" style="display:block; font-weight:600; margin-bottom:0.25rem;">Requester ID</label>
+                <input id="notificationStudentId" type="text" readonly style="width:100%; padding:0.55rem; border:1px solid #d1d5db; border-radius:6px; background:#f9fafb;">
+            </div>
+
+            <div>
+                <label for="notificationRequesterName" style="display:block; font-weight:600; margin-bottom:0.25rem;">Requester Name</label>
+                <input id="notificationRequesterName" type="text" readonly style="width:100%; padding:0.55rem; border:1px solid #d1d5db; border-radius:6px; background:#f9fafb;">
+            </div>
+
+            <div>
+                <label for="notificationMessage" style="display:block; font-weight:600; margin-bottom:0.25rem;">Message</label>
+                <textarea id="notificationMessage" rows="4" placeholder="Type special notification message for this requester..." style="width:100%; padding:0.55rem; border:1px solid #d1d5db; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+
+            <div>
+                <label style="display:block; font-weight:600; margin-bottom:0.25rem;">Sent Notifications</label>
+                <div id="notificationHistory" style="max-height:160px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:6px; background:#fafafa; padding:0.5rem;"></div>
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.6rem; padding: 0.9rem 1.2rem 1.1rem; border-top:1px solid #e5e7eb;">
+            <button type="button" onclick="closeNotificationModal()" style="padding:0.5rem 0.9rem; border:1px solid #d1d5db; border-radius:6px; background:#fff; cursor:pointer;">Cancel</button>
+            <button type="button" onclick="sendSpecialNotification()" style="padding:0.5rem 0.9rem; border:none; border-radius:6px; background:#2b0c4d; color:#fff; cursor:pointer;">
+                <i class="fas fa-paper-plane"></i> Send
+            </button>
+        </div>
+    </div>
+</div>
 
 <script>
 function updateStatus(requestId, newStatus, dropdownElement) {
@@ -257,6 +303,143 @@ function updateStatus(requestId, newStatus, dropdownElement) {
 
 function editRequest(requestId) {
     window.location.href = '/uoc-sports/public/equipment-manager/edit-booking-request?id=' + requestId;
+}
+
+function openNotificationModal(requestId, studentId, requesterName) {
+    document.getElementById('notificationRequestId').value = requestId || '';
+    document.getElementById('notificationStudentId').value = studentId || '';
+    document.getElementById('notificationRequesterName').value = requesterName || '';
+    document.getElementById('notificationMessage').value = '';
+    loadNotificationHistory();
+    document.getElementById('notificationModal').style.display = 'flex';
+}
+
+function closeNotificationModal() {
+    document.getElementById('notificationModal').style.display = 'none';
+}
+
+function loadNotificationHistory() {
+    const requestId = document.getElementById('notificationRequestId').value.trim();
+    const studentId = document.getElementById('notificationStudentId').value.trim();
+    const requesterName = document.getElementById('notificationRequesterName').value.trim();
+    const historyEl = document.getElementById('notificationHistory');
+
+    if (!requestId || !studentId || !requesterName) {
+        historyEl.innerHTML = '<p style="margin:0; color:#6b7280; font-size:0.85rem;">No request details available.</p>';
+        return;
+    }
+
+    historyEl.innerHTML = '<p style="margin:0; color:#6b7280; font-size:0.85rem;">Loading notifications...</p>';
+
+    const url = new URL('/uoc-sports/public/equipment-manager/request-notifications', window.location.origin);
+    url.searchParams.set('request_id', requestId);
+    url.searchParams.set('student_id', studentId);
+    url.searchParams.set('requester_name', requesterName);
+
+    fetch(url.toString())
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                historyEl.innerHTML = '<p style="margin:0; color:#ef4444; font-size:0.85rem;">' + (data.message || 'Failed to fetch notifications') + '</p>';
+                return;
+            }
+
+            if (!Array.isArray(data.notifications) || data.notifications.length === 0) {
+                historyEl.innerHTML = '<p style="margin:0; color:#6b7280; font-size:0.85rem;">No notifications sent yet.</p>';
+                return;
+            }
+
+            historyEl.innerHTML = data.notifications.map((item, index) => {
+                const safeMsg = String(item.message || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const safeId = String(item.notification_id || '').replace(/"/g, '&quot;');
+                return '<div style="padding:0.45rem 0.5rem; border-bottom:' + (index === data.notifications.length - 1 ? 'none' : '1px solid #e5e7eb') + ';">'
+                    + '<div style="display:flex; align-items:flex-start; justify-content:space-between; gap:0.6rem;">'
+                    + '<p style="margin:0; font-size:0.83rem; color:#1f2937; flex:1;">' + safeMsg + '</p>'
+                    + '<button type="button" title="Delete notification" onclick="deleteNotificationHistoryItem(\'' + safeId + '\')" style="border:none; background:transparent; color:#dc2626; font-size:1rem; line-height:1; cursor:pointer; padding:0;">&times;</button>'
+                    + '</div>'
+                    + '</div>';
+            }).join('');
+        })
+        .catch(error => {
+            historyEl.innerHTML = '<p style="margin:0; color:#ef4444; font-size:0.85rem;">Error fetching notifications: ' + error.message + '</p>';
+        });
+}
+
+function deleteNotificationHistoryItem(notificationId) {
+    if (!notificationId) {
+        return;
+    }
+
+    if (!confirm('Delete this notification?')) {
+        return;
+    }
+
+    const requestId = document.getElementById('notificationRequestId').value.trim();
+    const studentId = document.getElementById('notificationStudentId').value.trim();
+    const requesterName = document.getElementById('notificationRequesterName').value.trim();
+
+    fetch('/uoc-sports/public/equipment-manager/delete-request-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            notification_id: notificationId,
+            request_id: requestId,
+            student_id: studentId,
+            requester_name: requesterName
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadNotificationHistory();
+        } else {
+            alert('Error: ' + (data.message || 'Failed to delete notification'));
+        }
+    })
+    .catch(error => {
+        alert('Error deleting notification: ' + error.message);
+    });
+}
+
+function sendSpecialNotification() {
+    const requestId = document.getElementById('notificationRequestId').value.trim();
+    const studentId = document.getElementById('notificationStudentId').value.trim();
+    const requesterName = document.getElementById('notificationRequesterName').value.trim();
+    const message = document.getElementById('notificationMessage').value.trim();
+
+    if (!requestId || !studentId || !requesterName) {
+        alert('Missing request details. Please try again.');
+        return;
+    }
+
+    if (!message) {
+        alert('Please type a notification message.');
+        return;
+    }
+
+    fetch('/uoc-sports/public/equipment-manager/send-request-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            request_id: requestId,
+            student_id: studentId,
+            requester_name: requesterName,
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Notification sent successfully.');
+            document.getElementById('notificationMessage').value = '';
+            loadNotificationHistory();
+        } else {
+            alert('Error: ' + (data.message || 'Failed to send notification'));
+        }
+    })
+    .catch(error => {
+        alert('Error sending notification: ' + error.message);
+    });
 }
 
 function deleteRequest(requestId) {
