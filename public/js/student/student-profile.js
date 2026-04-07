@@ -31,7 +31,6 @@ function saveProfile(event) {
     document.getElementById('email').textContent = newEmail;
     document.getElementById('phone').textContent = newPhone;
 
-    console.log("SENDING DATA TO SERVER FOR DATABASE UPDATE...");
     
     closeEditModal(); 
 }

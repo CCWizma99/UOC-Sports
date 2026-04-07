@@ -37,7 +37,7 @@
     <div class="stat-card orange">
       <div class="stat-icon">🎯</div>
       <div class="stat-label">Upcoming Events</div>
-      <div class="stat-value">2</div>
+      <div class="stat-value"><?php echo count($upcoming_events); ?></div>
       <div class="stat-subtitle">Next 30 days</div>
     </div>
   </div>
@@ -63,9 +63,9 @@
             <?php foreach ($practice_sessions as $session): ?>
             <tr>
               <td class="date-cell"><?php echo isset($session['session_date']) ? htmlspecialchars($session['session_date']) : 'N/A'; ?></td>
-              <td class="time-cell"><?php echo isset($session['session_time']) ? htmlspecialchars($session['session_time']) : 'N/A'; ?></td>
+              <td class="time-cell"><?php echo isset($session['start_time']) ? htmlspecialchars($session['start_time']) : 'N/A'; ?></td>
               <td class="venue-cell"><?php echo isset($session['facility']) ? htmlspecialchars($session['facility']) : 'N/A'; ?></td>
-              <td><span class="purpose-badge"><?php echo isset($session['description']) ? htmlspecialchars($session['description']) : 'N/A'; ?></span></td>
+              <td><span class="purpose-badge"><?php echo isset($session['notes']) ? htmlspecialchars($session['notes']) : 'N/A'; ?></span></td>
             </tr>
             <?php endforeach; ?>
           </tbody>
@@ -91,21 +91,13 @@
                 </tr>
               </thead>
               <tbody id="upcomingEvents">
+                <?php foreach($upcoming_events as $event): ?>
                 <tr>
-                  <td class="date-cell">05 Jan 2026</td>
-                  <td class="venue-cell">09:00 AM</td>
-                  <td><span >Inter-Faculty Friendly</span></td>
+                  <td class="date-cell"><?php echo htmlspecialchars($event['date']) ?></td>
+                  <td class="venue-cell"><?php echo htmlspecialchars($event['time']) ?></td>
+                  <td><span><?php echo htmlspecialchars($event['name']) ?></span></td>
                 </tr>
-                <tr>
-                  <td class="date-cell">18 Jan 2026</td>
-                  <td class="venue-cell">02:30 PM</td>
-                  <td><span >Training Camp</span></td>
-                </tr>
-                <tr>
-                  <td class="date-cell">28 Jan 2026</td>
-                  <td class="venue-cell">06:00 PM</td>
-                  <td><span >Friendly Match vs Alumni</span></td>
-                </tr>
+                <?php endforeach; ?>
               </tbody>
             </table>
           </div>

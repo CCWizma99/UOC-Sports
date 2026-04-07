@@ -10,6 +10,7 @@
         @import url(/uoc-sports/public/css/general/header.css);
         @import url(/uoc-sports/public/css/general/payment.css);
         @import url(/uoc-sports/public/css/general/footer.css);
+        @import url(/uoc-sports/public/css/ui-notifications.css);
 
         .mesh-sporty {
             background: 
@@ -53,24 +54,42 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Here you would send the form data to your PHP backend
+            const submitBtn = form.querySelector('.btn-submit');
+            const originalBtnText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+            
             const formData = new FormData(form);
+            formData.append('booking_id', '<?php echo $booking['booking_id']; ?>');
             
-            // Simulate form submission
-            alert('Payment proof submitted successfully! You will receive a confirmation email once verified by admin.');
-            
-            // In production, connect to PHP backend:
-            // fetch('submit_payment.php', {
-            //     method: 'POST',
-            //     body: formData
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     if(data.success) {
-            //         alert('Payment proof submitted successfully!');
-            //         window.location.href = 'confirmation.php';
-            //     }
-            // });
+            fetch('/uoc-sports/public/api/facility/submit-payment-slip', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    UI.showToast(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = '/uoc-sports/public/profile';
+                    }, 2000);
+                } else {
+                    UI.showToast(data.message, 'error');
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                UI.showToast('An error occurred while submitting. Please try again.', 'error');
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            });
         });
-</script>
+    </script>
+    <script src="/uoc-sports/public/js/ui-notifications.js"></script>
 </html>

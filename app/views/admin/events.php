@@ -160,6 +160,34 @@ require '../app/views/templates/admin/sidebar.php';
     </div>
 </div>
 
+<!-- Event Completion Modal -->
+<div id="completionModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeCompletionModal()">&times;</span>
+        <div class="modal-header-icon xy-center">
+            <i class="fas fa-check-double"></i>
+        </div>
+        <h3>Finalize Tournament</h3>
+        <p id="completionModalTournamentName" class="modal-subtitle"></p>
+        
+        <div class="modal-body">
+            <div class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>This will mark the event as <strong>COMPLETE</strong>. This action will finalize all results and potentially restrict further modifications by captains.</p>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-complete" id="confirmCompletionBtn">
+                    <i class="fas fa-check-circle"></i> Confirm Completion
+                </button>
+                <button type="button" class="btn-secondary" onclick="closeCompletionModal()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 let currentTournamentId = null;
 
@@ -372,6 +400,7 @@ async function loadTournaments() {
                 const startDate = tournament.start_date ? new Date(tournament.start_date).toLocaleDateString() : '-';
                 const endDate = tournament.end_date ? new Date(tournament.end_date).toLocaleDateString() : '-';
                 const status = tournament.status || 'INCOMPLETE';
+                const isComplete = status === 'COMPLETE';
                 
                 const card = document.createElement('div');
                 card.className = 'event-card';
@@ -393,10 +422,15 @@ async function loadTournaments() {
                             </div>
                         </div>
                     </div>
-                    <div class="event-card-footer">
+                    <div class="event-card-footer" style="display: flex; gap: 10px;">
                         <button class="btn-invite" onclick="openInvitationModal('${tournament.tournament_id}', '${tournament.tournament_name}')">
-                            <i class="fas fa-envelope"></i> Send Invitation
+                            <i class="fas fa-envelope"></i> Invite
                         </button>
+                        ${!isComplete ? `
+                        <button class="btn-complete" onclick="markAsComplete('${tournament.tournament_id}', '${tournament.tournament_name.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-check-circle"></i> Complete
+                        </button>
+                        ` : ''}
                     </div>
                 `;
                 
@@ -518,6 +552,53 @@ async function sendModalInvitation() {
     }
 }
 
+// Mark tournament as complete
+let tournamentIdToComplete = null;
+
+function markAsComplete(tournamentId, tournamentName) {
+    tournamentIdToComplete = tournamentId;
+    document.getElementById('completionModalTournamentName').textContent = tournamentName;
+    document.getElementById('completionModal').style.display = 'flex';
+}
+
+function closeCompletionModal() {
+    document.getElementById('completionModal').style.display = 'none';
+    tournamentIdToComplete = null;
+}
+
+document.getElementById('confirmCompletionBtn').addEventListener('click', async () => {
+    if (!tournamentIdToComplete) return;
+    
+    const btn = document.getElementById('confirmCompletionBtn');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    
+    try {
+        const response = await fetch('/uoc-sports/public/admin-tournament/complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tournament_id: tournamentIdToComplete })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            showNotification(data.message, 'success');
+            closeCompletionModal();
+            loadTournaments(); // Refresh list
+        } else {
+            showNotification(data.message, 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
+    } catch (error) {
+        showNotification('Error completing tournament: ' + error.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
+});
+
 // Show message in modal
 function showModalMessage(message, type) {
     const messageDiv = document.getElementById('modalMessage');
@@ -528,9 +609,13 @@ function showModalMessage(message, type) {
 
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('invitationModal');
-    if (event.target === modal) {
+    const invModal = document.getElementById('invitationModal');
+    const compModal = document.getElementById('completionModal');
+    if (event.target === invModal) {
         closeInvitationModal();
+    }
+    if (event.target === compModal) {
+        closeCompletionModal();
     }
 }
 

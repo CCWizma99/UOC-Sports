@@ -11,18 +11,16 @@ async function loadStudentRankings() {
         const url = sportId 
             ? `/uoc-sports/public/api/get-student-rankings.php?sport_id=${sportId}`
             : '/uoc-sports/public/api/get-student-rankings.php';
-            
-        console.log('Fetching rankings from:', url);
+
         const response = await fetch(url);
         const data = await response.json();
-        
-        console.log('Rankings response:', data);
+
         
         if (data.success) {
             students = data.rankings || [];
-            console.log('Loaded', students.length, 'students');
             renderStudents();
         } else {
+
             console.error('Failed to load rankings:', data.message);
             showError('Failed to load student rankings: ' + (data.message || 'Unknown error'));
         }
@@ -455,3 +453,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+

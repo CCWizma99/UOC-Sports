@@ -2,17 +2,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get sport ID from URL or window variable
     const urlParams = new URLSearchParams(window.location.search);
     const sportIdFromUrl = urlParams.get('sport');
-    
-    console.log('=== Expense Chart Initialization ===');
-    console.log('URL:', window.location.href);
-    console.log('Sport from URL:', sportIdFromUrl);
-    console.log('window.selectedSportId:', window.selectedSportId);
+
+
+
+
     
     // Update window.selectedSportId if URL has sport parameter
     if (sportIdFromUrl) {
         window.selectedSportId = sportIdFromUrl;
-        console.log('Updated window.selectedSportId to:', window.selectedSportId);
     }
+
     
     loadExpenseChart();
     loadBalanceData();
@@ -31,11 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const yearSelect = document.getElementById("year");
     if (yearSelect) {
         yearSelect.addEventListener("change", () => {
-            console.log('Year changed to:', yearSelect.value);
             loadExpenseChart();
             loadBalanceData();
         });
     }
+
     
     // Competition month filter
     if (competitionMonthSelect) {
@@ -146,7 +145,6 @@ function loadExpenseChart() {
     const urlParams = new URLSearchParams(window.location.search);
     const sportId = urlParams.get('sport') || window.selectedSportId || '';
 
-    console.log('Loading expense chart:', { sportId, selectedYear });
 
     // Fetch real data from backend
     fetch(`/uoc-sports/public/api/get-expense-data.php?sport_id=${sportId}&year=${selectedYear}`)
@@ -157,10 +155,10 @@ function loadExpenseChart() {
             return res.json();
         })
         .then(response => {
-            console.log('Expense data response:', response);
             if (response.success) {
                 createLineChart(response.data, sportId, selectedYear);
             } else {
+
                 console.error("Error loading expense data:", response.message);
                 createLineChart([], sportId, selectedYear);
             }
@@ -423,8 +421,7 @@ function loadBalanceData() {
         updateBalanceDisplay(0, 0, 0, 0);
         return;
     }
-    
-    console.log('Loading balance data:', { sportId, selectedYear });
+
     
     // Fetch balance data from backend
     fetch(`/uoc-sports/public/api/get-budget-balance.php?sport_id=${sportId}&year=${selectedYear}`)
@@ -435,7 +432,6 @@ function loadBalanceData() {
             return res.json();
         })
         .then(response => {
-            console.log('Balance data response:', response);
             if (response.success && response.data) {
                 const { allocated_amount, spent_amount, remaining_amount, spent_percentage } = response.data;
                 updateBalanceDisplay(
@@ -445,6 +441,7 @@ function loadBalanceData() {
                     parseFloat(spent_percentage) || 0
                 );
             } else {
+
                 console.warn('No balance data:', response.message);
                 updateBalanceDisplay(0, 0, 0, 0);
             }
@@ -472,6 +469,6 @@ function updateBalanceDisplay(remaining, allocated, spent, percentage) {
     if (percentElement) {
         percentElement.textContent = `${percentage.toFixed(1)}% Expenses`;
     }
-    
-    console.log('Balance updated:', { remaining, allocated, spent, percentage });
+
 }
+

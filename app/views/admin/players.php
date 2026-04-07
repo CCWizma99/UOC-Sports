@@ -94,8 +94,13 @@ require '../app/views/templates/admin/sidebar.php';
         <div class="players-grid-right">
             <!-- ===== GRANT CAPTAIN PERMISSION PANEL ===== -->
             <section id="grant-permission-section">
-                <h2><i class="fas fa-unlock-alt" style="color:#5e2d91;margin-right:8px;"></i>Allow Captain to Add Results</h2>
-                <p style="font-size:13px;color:#6b7280;margin:0 0 20px;">Select a tournament that has already started to grant its captain permission to submit match results. An email notification will be sent automatically.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;"><i class="fas fa-unlock-alt" style="color:#5e2d91;margin-right:8px;"></i>Allow Captain to Add Results</h2>
+                    <a href="./admin-event-permissions" class="btn-history" style="font-size: 12px; color: #5e2d91; text-decoration: none; display: flex; align-items: center; gap: 5px; background: #f3f0f7; padding: 6px 12px; border-radius: 8px; font-weight: 600; transition: all 0.2s;">
+                        <i class="fas fa-history"></i> View History
+                    </a>
+                </div>
+                <p style="font-size:13px;color:#6b7280;margin:0 0 20px;">Select a tournament that has already started to grant its captain permission to submit match results.</p>
 
                 <!-- Tournament Cards (started events) -->
                 <div id="started-tournaments-loading" style="padding:20px;color:#8b5cf6;font-size:13px;">
@@ -104,22 +109,10 @@ require '../app/views/templates/admin/sidebar.php';
                 <div id="started-tournaments-list" style="display:none;"></div>
                 <div id="started-tournaments-empty" style="display:none;padding:24px;text-align:center;color:#9ca3af;font-size:13px;">
                     <i class="fas fa-calendar-times" style="font-size:32px;opacity:0.3;display:block;margin-bottom:10px;"></i>
-                    No tournaments have started yet. Events are available for granting permission once their start date is reached.
+                    No tournaments have started yet.
                 </div>
 
                 <div id="grant-msg" style="display:none;margin-top:14px;"></div>
-            </section>
-
-            <!-- ===== GRANTED PERMISSIONS LIST ===== -->
-            <section id="permissions-list-section" style="margin-top:28px;">
-                <h2><i class="fas fa-list-check" style="color:#5e2d91;margin-right:8px;"></i>Granted Permissions</h2>
-                <div id="permissions-loading" style="padding:16px;color:#8b5cf6;font-size:13px;">
-                    <i class="fas fa-spinner fa-spin"></i> Loading...
-                </div>
-                <div id="permissions-table-wrap" style="display:none;margin-top:12px;"></div>
-                <div id="permissions-empty" style="display:none;padding:20px;text-align:center;color:#9ca3af;font-size:13px;">
-                    No permissions granted yet.
-                </div>
             </section>
         </div>
     </div>
@@ -309,9 +302,30 @@ function performSearch() {
 }
 </script>
 
+<div id="custom-confirm-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 420px; animation: modalSlideIn 0.2s ease;">
+        <div class="modal-header" style="padding: 18px 22px;">
+            <h3 id="confirm-modal-title" style="margin: 0; color: #1e1e2e; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-question" style="color: #4b0082;"></i> Confirm Action
+            </h3>
+            <span class="close-modal" onclick="closeConfirmModal()" style="cursor: pointer; font-size: 22px; color: #9ca3af; line-height: 1;">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 22px; font-size: 14px; color: #4b5563; white-space: pre-line; line-height: 1.5;" id="confirm-modal-message">
+            Are you sure?
+        </div>
+        <div class="modal-footer" style="padding: 16px 22px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #f3f4f6; background: #faf9fc; border-radius: 0 0 1.5rem 1.5rem;">
+            <button onclick="closeConfirmModal()" style="background: #e5e7eb; color: #374151; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;">
+                Cancel
+            </button>
+            <button id="confirm-modal-action-btn" style="border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; color: white; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 // ========== Grant Captain Permission Script ==========
-
 async function loadStartedTournaments() {
     try {
         const res  = await fetch('admin-tournament/started-tournaments');
@@ -328,7 +342,6 @@ async function loadStartedTournaments() {
                 const hasCaptain   = t.captain_id && t.captain_id !== '';
                 const isActive     = t.permission_status === 'ACTIVE';
                 const isRevoked    = t.permission_status === 'REVOKED';
-                const hasPermission = (isActive || isRevoked);
 
                 const startDate = t.start_date ? new Date(t.start_date).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) : 'N/A';
 
@@ -343,7 +356,7 @@ async function loadStartedTournaments() {
                 } else {
                     html += `<span class="t-meta-no-captain"><i class="fas fa-user-slash"></i> No captain assigned</span>`;
                 }
-                html += `</div></div>`; // end name+meta
+                html += `</div></div>`;
 
                 if (!hasCaptain) {
                     html += `<button class="btn-grant btn-grant-disabled" disabled title="Assign a captain first">No Captain</button>`;
@@ -355,16 +368,14 @@ async function loadStartedTournaments() {
                     html += isRevoked ? '<i class="fas fa-rotate-right"></i> Re-grant' : '<i class="fas fa-unlock"></i> Grant Access';
                     html += `</button>`;
                 }
-
-                html += `</div>`; // end card-top
+                html += `</div>`;
 
                 if (isActive) {
-                    html += `<div class="t-grant-status active-status"><i class="fas fa-check-circle"></i> Permission ACTIVE — Captain can submit results</div>`;
+                    html += `<div class="t-grant-status active-status"><i class="fas fa-check-circle"></i> Permission ACTIVE</div>`;
                 } else if (isRevoked) {
                     html += `<div class="t-grant-status revoked-status"><i class="fas fa-ban"></i> Permission revoked</div>`;
                 }
-
-                html += `</div>`; // end card
+                html += `</div>`;
             });
             html += '</div>';
             list.innerHTML = html;
@@ -374,7 +385,6 @@ async function loadStartedTournaments() {
         }
     } catch (e) {
         console.error('Error loading started tournaments:', e);
-        document.getElementById('started-tournaments-loading').innerHTML = '<p style="color:#dc2626;font-size:13px;">Failed to load tournaments.</p>';
     }
 }
 
@@ -382,12 +392,7 @@ async function grantPermission(tournamentId, tournamentName) {
     const msg = document.getElementById('grant-msg');
     msg.style.display = 'none';
 
-    const confirmed = await showConfirmModal(
-        'Grant Access', 
-        `Grant the captain permission to add results for:\n"${tournamentName}"?\n\nAn email will be sent to the captain.`, 
-        'Grant', 
-        false
-    );
+    const confirmed = await showConfirmModal('Grant Access', `Grant the captain permission to add results for:\n"${tournamentName}"?`, 'Grant', false);
     if (!confirmed) return;
 
     try {
@@ -397,18 +402,10 @@ async function grantPermission(tournamentId, tournamentName) {
             body:    JSON.stringify({ tournament_id: tournamentId })
         });
         const data = await res.json();
-
-        showGrantMsg(data.status === 'success' ? 'success' : 'error',
-            data.status === 'success'
-                ? `✓ ${data.message}${ data.captain_name ? ' ('+data.captain_name+')' : '' }`
-                : '✗ ' + (data.message || 'Failed to grant permission.'));
-
-        if (data.status === 'success') {
-            setTimeout(() => { loadStartedTournaments(); loadGrantedPermissions(); }, 600);
-        }
+        showGrantMsg(data.status === 'success' ? 'success' : 'error', data.message);
+        if (data.status === 'success') loadStartedTournaments();
     } catch (e) {
-        showGrantMsg('error', '✗ Network error. Please try again.');
-        console.error(e);
+        showGrantMsg('error', 'Network error.');
     }
 }
 
@@ -416,12 +413,7 @@ async function revokePermission(permId, tournamentName) {
     const msg = document.getElementById('grant-msg');
     msg.style.display = 'none';
 
-    const confirmed = await showConfirmModal(
-        'Revoke Access', 
-        `Revoke captain\'s permission for:\n"${tournamentName}"?\n\nThe captain will no longer be able to submit results.`, 
-        'Revoke', 
-        true
-    );
+    const confirmed = await showConfirmModal('Revoke Access', `Revoke captain's permission for:\n"${tournamentName}"?`, 'Revoke', true);
     if (!confirmed) return;
 
     try {
@@ -431,16 +423,10 @@ async function revokePermission(permId, tournamentName) {
             body:    JSON.stringify({ permission_id: permId })
         });
         const data = await res.json();
-
-        showGrantMsg(data.status === 'success' ? 'success' : 'error',
-            data.status === 'success' ? '✓ Permission revoked.' : '✗ ' + (data.message || 'Failed.'));
-
-        if (data.status === 'success') {
-            setTimeout(() => { loadStartedTournaments(); loadGrantedPermissions(); }, 600);
-        }
+        showGrantMsg(data.status === 'success' ? 'success' : 'error', 'Permission revoked.');
+        if (data.status === 'success') loadStartedTournaments();
     } catch (e) {
-        showGrantMsg('error', '✗ Network error.');
-        console.error(e);
+        showGrantMsg('error', 'Network error.');
     }
 }
 
@@ -452,124 +438,35 @@ function showGrantMsg(type, text) {
     setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
-async function loadGrantedPermissions() {
-    try {
-        const res  = await fetch('admin-tournament/granted-permissions');
-        const data = await res.json();
-        const loading = document.getElementById('permissions-loading');
-        const wrap    = document.getElementById('permissions-table-wrap');
-        const empty   = document.getElementById('permissions-empty');
-
-        loading.style.display = 'none';
-
-        if (data.status === 'success' && data.data && data.data.length > 0) {
-            let html = `<table class="perm-table">
-                <thead><tr>
-                    <th>Tournament</th>
-                    <th>Sport</th>
-                    <th>Captain</th>
-                    <th>Granted At</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr></thead><tbody>`;
-
-            data.data.forEach(p => {
-                const grantedAt   = new Date(p.granted_at).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
-                const statusClass = p.status === 'ACTIVE' ? 'perm-active' : 'perm-revoked';
-                const emailIcon   = p.email_sent == 1 ? '<i class="fas fa-check-circle" style="color:#16a34a;"></i> Sent' : '<i class="fas fa-times-circle" style="color:#dc2626;"></i> Not sent';
-
-                html += `<tr>
-                    <td>${p.tournament_name}</td>
-                    <td><span class="t-meta-sport">${p.sport_name}</span></td>
-                    <td>${p.captain_name}<br><small style="color:#9ca3af;">${p.captain_email}</small></td>
-                    <td>${grantedAt}</td>
-                    <td style="font-size:12px;">${emailIcon}</td>
-                    <td><span class="perm-status-badge ${statusClass}">${p.status}</span></td>
-                    <td>`;
-
-                if (p.status === 'ACTIVE') {
-                    html += `<button class="perm-revoke-btn" onclick="revokePermission(${p.id}, '${p.tournament_name.replace(/'/g, "\\'")}')">
-                        <i class="fas fa-ban"></i> Revoke
-                    </button>`;
-                } else {
-                    html += `<button class="perm-grant-btn" onclick="grantPermission('${p.tournament_id}', '${p.tournament_name.replace(/'/g, "\\'")}')">
-                        <i class="fas fa-rotate-right"></i> Re-grant
-                    </button>`;
-                }
-                html += `</td></tr>`;
-            });
-
-            html += '</tbody></table>';
-            wrap.innerHTML = html;
-            wrap.style.display = 'block';
-        } else {
-            empty.style.display = 'block';
-        }
-    } catch(e) {
-        console.error('Error loading permissions:', e);
-        document.getElementById('permissions-loading').innerHTML = '<p style="color:#dc2626;font-size:13px;">Failed to load.</p>';
-    }
-}
-
-
+// ========== Event Initialization ==========
 document.addEventListener('DOMContentLoaded', () => {
     loadStartedTournaments();
-    loadGrantedPermissions();
 });
 
 // Custom Modal Logic
 let confirmResolver = null;
-
 function showConfirmModal(title, message, confirmText, isDanger) {
     document.getElementById('confirm-modal-title').innerHTML = isDanger ? 
         `<i class="fa-solid fa-circle-exclamation" style="color: #dc2626;"></i> ${title}` : 
         `<i class="fa-solid fa-circle-check" style="color: #16a34a;"></i> ${title}`;
-    
     document.getElementById('confirm-modal-message').innerText = message;
-    
     const actionBtn = document.getElementById('confirm-modal-action-btn');
     actionBtn.innerText = confirmText;
-    
     if (isDanger) {
         actionBtn.style.background = '#dc2626';
-        actionBtn.style.boxShadow = '0 3px 10px rgba(220, 38, 38, 0.3)';
     } else {
         actionBtn.style.background = 'linear-gradient(135deg, #16a34a, #22c55e)';
-        actionBtn.style.boxShadow = '0 3px 10px rgba(22, 163, 74, 0.3)';
     }
-
-    actionBtn.onmouseover = () => { actionBtn.style.transform = 'translateY(-1px)'; }
-    actionBtn.onmouseout = () => { actionBtn.style.transform = 'translateY(0)'; }
-
     document.getElementById('custom-confirm-modal').style.display = 'flex';
-
-    return new Promise(resolve => {
-        confirmResolver = resolve;
-    });
+    return new Promise(resolve => { confirmResolver = resolve; });
 }
-
 function closeConfirmModal() {
     document.getElementById('custom-confirm-modal').style.display = 'none';
-    if (confirmResolver) {
-        confirmResolver(false);
-        confirmResolver = null;
-    }
+    if (confirmResolver) { confirmResolver(false); confirmResolver = null; }
 }
-
 document.getElementById('confirm-modal-action-btn').addEventListener('click', () => {
     document.getElementById('custom-confirm-modal').style.display = 'none';
-    if (confirmResolver) {
-        confirmResolver(true);
-        confirmResolver = null;
-    }
-});
-
-// Close modal when clicking outside
-document.getElementById('custom-confirm-modal').addEventListener('click', e => {
-    if(e.target === document.getElementById('custom-confirm-modal')) {
-        closeConfirmModal();
-    }
+    if (confirmResolver) { confirmResolver(true); confirmResolver = null; }
 });
 </script>
 

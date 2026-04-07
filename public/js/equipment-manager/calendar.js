@@ -21,20 +21,15 @@ class EquipmentCalendar {
         // Remove old listeners if they exist
         if (this.container) {
             const calendarDays = this.container.querySelectorAll('.calendar-day:not(.other-month)');
-            console.log('Attaching event listeners to', calendarDays.length, 'calendar days');
+
             
             calendarDays.forEach((day, index) => {
-                const hasReservations = day.getAttribute('data-reservations');
-                if (hasReservations) {
-                    console.log(`Day ${index + 1} has reservations data`);
-                }
-                
                 day.addEventListener('mouseenter', (e) => this.handleMouseEnter(e));
                 day.addEventListener('mousemove', (e) => this.handleMouseMove(e));
                 day.addEventListener('mouseleave', () => this.handleMouseLeave());
             });
-            
-            console.log('Event listeners attached successfully');
+
+
         }
     }
 
@@ -60,7 +55,7 @@ class EquipmentCalendar {
             display: block;
         `;
         document.body.appendChild(this.tooltip);
-        console.log('Equipment calendar tooltip created and appended to body:', this.tooltip);
+
     }
 
     async fetchEquipmentReservations() {
@@ -76,17 +71,15 @@ class EquipmentCalendar {
             if (this.sportId) {
                 url += '&sport_id=' + this.sportId;
             }
-            
-            console.log('Fetching equipment reservations from:', url);
+
             
             const response = await fetch(url);
             const result = await response.json();
             
             if (result.success) {
                 this.equipmentReservations = result.data;
-                console.log('Equipment reservations loaded successfully:', this.equipmentReservations);
-                console.log('Number of dates with reservations:', Object.keys(this.equipmentReservations).length);
             } else {
+
                 console.error('Error loading equipment reservations:', result.message);
                 this.equipmentReservations = {};
             }
@@ -111,8 +104,7 @@ class EquipmentCalendar {
 
     showTooltip(event, reservations) {
         if (!reservations || reservations.length === 0) return;
-        
-        console.log('Showing tooltip with reservations:', reservations);
+
         
         let tooltipHTML = `
             <div style="font-weight: 600; color: #6b1fa0; margin-bottom: 10px; font-size: 1rem; border-bottom: 2px solid #a855f7; padding-bottom: 8px;">
@@ -264,12 +256,7 @@ class EquipmentCalendar {
             const hasReservations = this.equipmentReservations[dateKey] && this.equipmentReservations[dateKey].length > 0;
             
             // Determine if date is past or future
-            const isPast = date < today;
-            const isFuture = date > today;
-            
-            if (hasReservations) {
-                console.log(`Date ${dateKey} has ${this.equipmentReservations[dateKey].length} reservations`);
-            }
+
             
             let classes = 'calendar-day';
             if (isToday) classes += ' today';
@@ -292,24 +279,24 @@ class EquipmentCalendar {
     }
 
     handleMouseEnter(event) {
-        console.log('Mouse entered calendar day');
+
         const target = event.currentTarget;
         const reservationsData = target.getAttribute('data-reservations');
-        console.log('Reservations data attribute:', reservationsData);
-        console.log('Has reservations:', reservationsData && reservationsData !== '');
+
+
         
         if (reservationsData && reservationsData !== '') {
             try {
                 const reservations = JSON.parse(reservationsData);
-                console.log('Parsed reservations:', reservations);
-                console.log('Number of reservations:', reservations.length);
+
+
                 this.showTooltip(event, reservations);
             } catch (e) {
                 console.error('Error parsing reservations data:', e);
                 console.error('Raw reservations data:', reservationsData);
             }
         } else {
-            console.log('No reservations data for this date');
+
         }
     }
 
@@ -339,8 +326,9 @@ class EquipmentCalendar {
 // Make equipment calendar global and initialize when DOM is loaded
 let equipmentCalendar;
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing equipment calendar...');
+
     equipmentCalendar = new EquipmentCalendar('equipmentCalendar');
     window.equipmentCalendar = equipmentCalendar; // Make it globally accessible for debugging
-    console.log('Equipment calendar initialized:', equipmentCalendar);
+
 });
+
