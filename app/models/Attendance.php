@@ -175,75 +175,80 @@ class Attendance {
      * @return array - Historical attendance records grouped by session
      */
     public function getAttendanceHistory($sportId, $limit = 10) {
-        $limit = (int)$limit;   // force integer
-    $limit = $limit * 50;  // if you still want multiplier
+    $limit = (int)$limit; // Ensure integer
 
-    $sql = "
-        SELECT 
-    ps.id as practice_id,
-    ps.facility,
-    ps.session_date,
-    ps.start_time,
-    ps.description,
-    a.user_id,
-    a.status,
-    u.fname,
-    u.lname,
-    u.student_id
-FROM practice_sessions ps
-LEFT JOIN attendance a ON ps.id = a.practice_id
-LEFT JOIN user u ON a.user_id = u.user_id
-WHERE ps.sport_id = :sport_id
-ORDER BY ps.session_date DESC, ps.start_time DESC
-LIMIT $limit
-    ";
+    // Step 1: Fetch last N session IDs for the sport
+    $sessionStmt = $this->db->prepare("
+        SELECT id, facility, session_date, start_time, description
+        FROM practice_sessions
+        WHERE sport_id = :sport_id
+        ORDER BY session_date DESC, start_time DESC
+        LIMIT :limit
+    ");
+    $sessionStmt->bindValue(':sport_id', $sportId, PDO::PARAM_STR);
+    $sessionStmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $sessionStmt->execute();
+    $sessions = $sessionStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute(['sport_id' => $sportId]);
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        // Group by session
-        $grouped = [];
-        foreach ($results as $row) {
-            $practiceId = $row['practice_id'];
-            if (!isset($grouped[$practiceId])) {
-                $grouped[$practiceId] = [
-                    'practice_id' => $practiceId,
-                    'facility' => $row['facility'],
-                    'session_date' => $row['session_date'],
-                    'start_time' => $row['start_time'],
-                    'description' => $row['description'],
-                    'attendance' => []
-                ];
-            }
-            
-            if ($row['user_id']) {
-                $grouped[$practiceId]['attendance'][] = [
-                    'user_id' => $row['user_id'],
-                    'fname' => $row['fname'],
-                    'lname' => $row['lname'],
-                    'student_id' => $row['student_id'],
-                    'status' => $row['status']
-                ];
-            }
-        }
-        
-        return array_values(array_slice($grouped, 0, $limit));
+    if (!$sessions) {
+        return [];
     }
+
+    // Step 2: Fetch attendance for these session IDs
+    $sessionIds = array_column($sessions, 'id');
+    $in  = str_repeat('?,', count($sessionIds) - 1) . '?'; // Prepare placeholders
+
+    $attendanceStmt = $this->db->prepare("
+        SELECT a.practice_id, a.user_id, a.status, u.fname, u.lname, u.student_id
+        FROM attendance a
+        LEFT JOIN user u ON a.user_id = u.user_id
+        WHERE a.practice_id IN ($in)
+        ORDER BY u.lname, u.fname
+    ");
+    $attendanceStmt->execute($sessionIds);
+    $attendanceRows = $attendanceStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Step 3: Group attendance by session
+    $grouped = [];
+    foreach ($sessions as $s) {
+        $grouped[$s['id']] = [
+            'practice_id' => $s['id'],
+            'facility' => $s['facility'],
+            'session_date' => $s['session_date'],
+            'start_time' => $s['start_time'],
+            'description' => $s['description'],
+            'attendance' => []
+        ];
+    }
+
+    foreach ($attendanceRows as $row) {
+        $grouped[$row['practice_id']]['attendance'][] = [
+            'user_id' => $row['user_id'],
+            'fname' => $row['fname'],
+            'lname' => $row['lname'],
+            'student_id' => $row['student_id'],
+            'status' => $row['status']
+        ];
+    }
+
+    return array_values($grouped);
+}
 
     /**
      * Get last session attendance for a sport
      * @param string $sportId - Sport ID
      * @return array|null - Last session attendance or null
      */
-    public function getLastSessionAttendance($sportId,) {
+    public function getLastSessionAttendance($sportId) {
+        // Get the most recent practice session before today for the sport
         $stmt = $this->db->prepare("
-    SELECT id, facility, session_date, start_time, notes
-FROM practice_sessions
-WHERE TRIM(sport_id) = :sport_id
-  AND TIMESTAMP(session_date, start_time) < NOW()
-ORDER BY session_date DESC, start_time DESC
-LIMIT 1;
-");
+            SELECT id, facility, session_date, start_time, description
+            FROM practice_sessions
+            WHERE sport_id = :sport_id
+              AND session_date < CURDATE()
+            ORDER BY session_date DESC, start_time DESC
+            LIMIT 1
+        ");
         $stmt->execute(['sport_id' => $sportId]);
         $session = $stmt->fetch(PDO::FETCH_ASSOC);
 

@@ -477,7 +477,7 @@ if (isNaN(sessionDateTime)) {
 
 if (sessionDateTime > now) {
     markingSection.style.display = 'none';
-    showNotification("You cannot mark attendance before start time.", 'info');
+    showNotification("You cannot mark attendance before session time.", 'info');
 } else {
     markingSection.style.display = 'block';
     await loadTeamMembers();
@@ -864,7 +864,7 @@ function filterSessionsByDate(selectedDate) {
         const btn = document.createElement('button');
         btn.className = 'btn btn-secondary';
         btn.style.margin = '5px 0';
-        btn.textContent = `${session.session_time} | ${session.facility}`;
+        btn.textContent = `${session.start_time} | ${session.facility}`;
         btn.onclick = () => showSessionDetails(session);
         sessionsDiv.appendChild(btn);
     });

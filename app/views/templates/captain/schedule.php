@@ -67,18 +67,21 @@
         Schedule Practice
     </button>
 
+    <button type="button" class="btn-primary" onclick="clearScheduleForm()">
+    Clear 
+</button>
+
 </form>
         </div>
 
         <!-- Table Section -->
         <div class="table-section">
-            <div class="table-header">
-                <h2>Scheduled Practices</h2>
-
-                <button class="btn-secondary" onclick="openPreviousSessions()">
+           <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>Scheduled Practices</h2>
+    <button class="btn-secondary" onclick="openPreviousSessions()">
         <i class="fas fa-calendar-alt"></i> Previous Sessions
     </button>
-            </div>
+</div>
             <div class="table-wrapper">
                 <table class="practice-table">
                     <thead>
@@ -220,19 +223,27 @@
         </div>
     </div>
 
-<!-- Previous Sessions Modal -->
-<div class="modal-overlay" id="previousModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3><i class="fas fa-calendar"></i> Previous Sessions</h3>
-            <button class="modal-close" onclick="closePreviousModal()">
-                <i class="fas fa-times"></i>
-            </button>
+<div class="calendar-modal-overlay" id="calendarModal">
+    <div class="calendar-modal">
+        <div class="calendar-modal-header">
+            <h3>Session Details</h3>
+            <button class="calendar-modal-close" onclick="closeCalendarModal()">×</button>
         </div>
+        <div class="calendar-modal-body" id="calendarSessionDetails">
+            <!-- Session details injected here -->
+        </div>
+    </div>
+</div>
 
+<!-- Previous Sessions Calendar Modal -->
+<div class="modal-overlay" id="previousModal">
+    <div class="modal" style="width: 80%; max-width: 800px;">
+        <div class="modal-header">
+            <h3>Previous Practice Sessions</h3>
+            <button class="modal-close" onclick="closePreviousModal()">×</button>
+        </div>
         <div class="modal-body">
-            <div id="calendar"></div>
-            <div id="sessionDetails" style="margin-top:20px;"></div>
+            <div id="calendar" style="min-height: 400px;"></div>
         </div>
     </div>
 </div>
@@ -328,7 +339,6 @@ onclick="deleteSession(${session.id})">
             if (session) {
 
                 document.getElementById('edit-id').value = session.id;
-                document.getElementById('edit-facility').value = session.facility;
                 document.getElementById('edit-date').value = session.session_date;
 
                 // IMPORTANT: Use correct IDs
@@ -410,7 +420,7 @@ onclick="deleteSession(${session.id})">
                             </div>
                             <div class="detail-row">
                                 <span class="detail-label">Time:</span>
-                                <span class="detail-value">${formatTime(session.session_time)}</span>
+                                <span class="detail-value">${formatTime(session.start_time)}</span>
                             </div>
                             ${session.description ? `
                             <div class="detail-row">
@@ -458,50 +468,72 @@ function closePreviousModal() {
 }
 
 async function loadPreviousCalendar() {
-
+    // Fetch previous sessions
     const response = await fetch(`${ATTENDANCE_API_BASE}/previous-sessions/${SPORT_ID}`);
     const data = await response.json();
 
     const calendarEl = document.getElementById('calendar');
     calendarEl.innerHTML = "";
 
+    // Initialize FullCalendar
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         height: 500,
         events: data.sessions.map(session => ({
-    title: "Practice Session",
-    start: session.session_date,
-    className: "previous-session",
-    extendedProps: session
-})),
+            title: "Practice Session",
+            start: session.session_date,
+            className: "previous-session",
+            extendedProps: session
+        })),
 
         eventClick: function(info) {
             const session = info.event.extendedProps;
 
-            document.getElementById('sessionDetails').innerHTML = `
+            // Inject session details into modal body
+            document.getElementById('calendarSessionDetails').innerHTML = `
                 <div class="detail-row">
-                    <strong>Date:</strong> ${session.session_date}
+                    <span class="detail-label">Date:</span>
+                    <span class="detail-value">${session.session_date}</span>
                 </div>
                 <div class="detail-row">
-                    <strong>Start:</strong> ${session.start_time}
+                    <span class="detail-label">Start:</span>
+                    <span class="detail-value">${session.start_time}</span>
                 </div>
                 <div class="detail-row">
-                    <strong>End:</strong> ${session.end_time}
+                    <span class="detail-label">End:</span>
+                    <span class="detail-value">${session.end_time}</span>
                 </div>
                 <div class="detail-row">
-                    <strong>Location:</strong> ${session.location}
+                    <span class="detail-label">Location:</span>
+                    <span class="detail-value">${session.location}</span>
                 </div>
                 <div class="detail-row">
-                    <strong>Equipment:</strong> ${session.need_equipment}
+                    <span class="detail-label">Equipment:</span>
+                    <span class="detail-value">${session.need_equipment}</span>
                 </div>
                 <div class="detail-row">
-                    <strong>Notes:</strong> ${session.notes || '-'}
+                    <span class="detail-label">Notes:</span>
+                    <span class="detail-value">${session.notes || '-'}</span>
                 </div>
             `;
+
+            // Show modal
+            document.getElementById('calendarModal').classList.add('active');
         }
     });
 
     calendar.render();
 }
+
+// Function to close modal
+function closeCalendarModal() {
+    document.getElementById('calendarModal').classList.remove('active');
+}
+
+function clearScheduleForm() {
+    const form = document.getElementById('scheduleForm');
+    form.reset(); // resets all input, select, textarea fields
+}
+
     </script>
 
