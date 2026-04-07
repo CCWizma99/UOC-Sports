@@ -210,15 +210,34 @@ function getStudentChartCanvasId(userId) {
     return `student-event-chart-${safeUserId}`;
 }
 
-function getCategoryPalette(size) {
-    const colors = [
-        '#2563eb', // blue
-        '#16a34a', // green
-        '#f97316', // orange
-        '#eab308', // yellow
-        '#7c3aed'  // purple
-    ];
-    return Array.from({ length: size }, (_, index) => colors[index % colors.length]);
+// Map specific competition categories to their designated colors
+function getCategoryColor(category) {
+    const colorMap = {
+        'Inter Faculty': '#16a34a',        // green
+        'Inter University': '#2563eb',     // blue
+        'Freshers': '#f97316',         // orange
+        'National': '#8b5cf6',             // violet
+        'International': '#ec4899',        // pink
+        'Other': '#6b7280'                 // gray
+    };
+    return colorMap[category] || '#6b7280'; // default to gray if not found
+}
+
+function getCategoryPalette(labels) {
+    // If labels is a number (backward compatibility), return generic palette
+    if (typeof labels === 'number') {
+        const colors = [
+            '#2563eb', // blue
+            '#16a34a', // green
+            '#f97316', // orange
+            '#eab308', // yellow
+            '#7c3aed'  // purple
+        ];
+        return Array.from({ length: labels }, (_, index) => colors[index % colors.length]);
+    }
+    
+    // If labels is an array, map each label to its specific color
+    return labels.map(label => getCategoryColor(label));
 }
 
 function createStudentCardPieChart(canvas, achievements, userId) {
@@ -250,7 +269,7 @@ function createStudentCardPieChart(canvas, achievements, userId) {
             labels,
             datasets: [{
                 data: values,
-                backgroundColor: getCategoryPalette(labels.length),
+                backgroundColor: getCategoryPalette(labels),
                 borderColor: '#ffffff',
                 borderWidth: 2
             }]
