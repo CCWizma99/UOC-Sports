@@ -70,7 +70,17 @@ class EquipmentManagerController {
     }
 
     public function addBooking() {
-        view('equipment-manager/add-booking');
+        $editData = null;
+        $isEdit = false;
+        
+        if (isset($_GET['id'])) {
+            require_once '../app/models/EquipmentBookigRequest.php';
+            $bookingModel = new EquipmentBookigRequest();
+            $editData = $bookingModel->getRequestById($_GET['id']);
+            $isEdit = true;
+        }
+        
+        view('equipment-manager/add-booking', ['editData' => $editData, 'isEdit' => $isEdit]);
     }
 
     public function saveBooking() {
@@ -84,12 +94,16 @@ class EquipmentManagerController {
             require_once '../app/models/EquipmentBookigRequest.php';
             $model = new EquipmentBookigRequest();
 
+            // Check if this is an update (edit mode)
+            $isEdit = !empty($_POST['request_id']);
+            $requestId = $_POST['request_id'] ?? null;
+
             // Get user identification
             $studentId = !empty($_POST['student_id']) ? $_POST['student_id'] : null;
             $requesterName = $_POST['requester_name'] ?? '';
 
-            // Check if user already has an active or accepted reservation
-            if ($model->hasActiveReservation($studentId, $requesterName)) {
+            // Check if user already has an active or accepted reservation (skip check if editing same request)
+            if (!$isEdit && $model->hasActiveReservation($studentId, $requesterName)) {
                 $_SESSION['error_message'] = 'This user already has an active or accepted equipment reservation. Please complete or cancel the existing reservation before creating a new one.';
                 header('Location: /uoc-sports/public/equipment-manager/add-booking');
                 exit();
@@ -102,7 +116,7 @@ class EquipmentManagerController {
             // Validate that at least one equipment is selected
             if (empty($selectedEquipment)) {
                 $_SESSION['error_message'] = 'Please select at least one equipment item';
-                header('Location: /uoc-sports/public/equipment-manager/add-booking');
+                header('Location: /uoc-sports/public/equipment-manager/add-booking' . ($isEdit ? '?id=' . $requestId : ''));
                 exit();
             }
 
@@ -115,14 +129,14 @@ class EquipmentManagerController {
                 'end_time' => $_POST['end_time'] ?? '',
                 'reserved_location' => $_POST['reserved_location'] ?? '',
                 'requester_name' => $_POST['requester_name'] ?? '',
-                'status' => 'PENDING'
+                'status' => $isEdit ? ($_POST['status'] ?? 'PENDING') : 'PENDING'
             ];
 
             // Validate required fields
             if (empty($commonData['requester_name']) || empty($commonData['request_date']) || 
                 empty($commonData['start_time']) || empty($commonData['end_time'])) {
                 $_SESSION['error_message'] = 'Please fill in all required fields';
-                header('Location: /uoc-sports/public/equipment-manager/add-booking');
+                header('Location: /uoc-sports/public/equipment-manager/add-booking' . ($isEdit ? '?id=' . $requestId : ''));
                 exit();
             }
 
@@ -141,28 +155,45 @@ class EquipmentManagerController {
                 return $item['equipment_name'] . ' (x' . $item['quantity'] . ')';
             }, $equipmentItems));
 
-            // Prepare single request data with multiple equipment items
+            // Prepare request data with multiple equipment items
             $data = array_merge($commonData, [
                 'category_name' => $categoryNameSummary,
                 'equipment_items' => $equipmentItems,
                 'notes' => $_POST['notes'] ?? ''
             ]);
 
-            // Create the booking request
-            $requestId = $model->createRequest($data);
-
-            if ($requestId) {
-                $_SESSION['success_message'] = 'Booking request created successfully with ' . count($equipmentItems) . ' equipment item(s)!';
-                header('Location: /uoc-sports/public/equipment-manager/bookingrequests');
+            if ($isEdit) {
+                // Update existing booking request
+                $result = $model->updateRequest($requestId, $data);
+                
+                if ($result) {
+                    $_SESSION['success_message'] = 'Booking request updated successfully with ' . count($equipmentItems) . ' equipment item(s)!';
+                    header('Location: /uoc-sports/public/equipment-manager/bookingrequests');
+                } else {
+                    $_SESSION['error_message'] = 'Failed to update booking request';
+                    header('Location: /uoc-sports/public/equipment-manager/add-booking?id=' . $requestId);
+                }
             } else {
-                $_SESSION['error_message'] = 'Failed to create booking request';
-                header('Location: /uoc-sports/public/equipment-manager/add-booking');
+                // Create new booking request
+                $newRequestId = $model->createRequest($data);
+
+                if ($newRequestId) {
+                    $_SESSION['success_message'] = 'Booking request created successfully with ' . count($equipmentItems) . ' equipment item(s)!';
+                    header('Location: /uoc-sports/public/equipment-manager/bookingrequests');
+                } else {
+                    $_SESSION['error_message'] = 'Failed to create booking request';
+                    header('Location: /uoc-sports/public/equipment-manager/add-booking');
+                }
             }
 
         } catch (Exception $e) {
-            error_log("Error creating booking: " . $e->getMessage());
-            $_SESSION['error_message'] = 'An error occurred while creating the booking';
-            header('Location: /uoc-sports/public/equipment-manager/add-booking');
+            error_log("Error saving booking: " . $e->getMessage());
+            $_SESSION['error_message'] = 'An error occurred while saving the booking';
+            $redirectUrl = '/uoc-sports/public/equipment-manager/add-booking';
+            if (isset($requestId) && $requestId) {
+                $redirectUrl .= '?id=' . $requestId;
+            }
+            header('Location: ' . $redirectUrl);
         }
         exit();
     }

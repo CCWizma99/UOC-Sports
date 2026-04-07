@@ -17,13 +17,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     continue;
                 }
                 
-                // Get the item name from the second column (index 1)
-                const itemNameCell = row.cells[1];
+                // Get the item name from the first column (index 0)
+                const itemNameCell = row.cells[0];
                 
                 if (itemNameCell) {
                     const itemName = itemNameCell.textContent || itemNameCell.innerText;
                     
-                    // Check if the search term exists anywhere in the item name
+                    // Check if the search term exists anywhere in the item name (case-insensitive)
                     if (itemName.toLowerCase().indexOf(searchTerm) > -1) {
                         row.style.display = '';
                     } else {

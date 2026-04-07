@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `active_booking_attempts` (
   `last_active_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`,`facility_id`,`date`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `attendance`
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `attendance` (
   `user_id` varchar(12) NOT NULL,
   `status` varchar(12) NOT NULL,
   PRIMARY KEY (`attendance_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `attendance` (`attendance_id`, `practice_id`, `user_id`, `status`) VALUES
 ('ATDFD77F382E', 8, 'L3NCL2J4', 'ABSENT'),
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `budget` (
   `allocation_date` date NOT NULL,
   `description` text,
   PRIMARY KEY (`budget_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `budget` (`budget_id`, `sport_id`, `year`, `allocated_amount`, `spent_amount`, `allocation_date`, `description`) VALUES
 ('ANUTKD01', 'TKDA', 2025, 400000, 178000, '2024-12-15', NULL),
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `captain_sport` (
   `date_relieved` date DEFAULT NULL,
   PRIMARY KEY (`user_id`,`sport_id`,`date_started`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `coach_sport`
@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS `coach_sport` (
   `date_relieved` date DEFAULT NULL,
   PRIMARY KEY (`user_id`,`sport_id`,`date_started`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `comment`
@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `comment_from` varchar(12) NOT NULL,
   `reply_to` varchar(12) NOT NULL,
   `content` varchar(300) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `competition`
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS `competition` (
   `date` date NOT NULL,
   PRIMARY KEY (`competition_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `competition` (`competition_id`, `competition_name`, `sport_id`, `participant_pdf`, `participants`, `created_at`, `date`) VALUES
 (1, 'Inter University Basketball Competition', 'BAS', '', '', '2026-01-25 19:35:25', '0000-00-00'),
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS `equipment` (
   `max_allow` int NOT NULL,
   `image_name` varchar(48) NOT NULL,
   PRIMARY KEY (`equipment_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `equipment` (`equipment_id`, `sport_id`, `equipment_name`, `max_allow`, `image_name`) VALUES
 ('EQ001', 'BAD', 'Badminton Racket', 2, ''),
@@ -247,7 +247,7 @@ CREATE TABLE IF NOT EXISTS `equipment-requests` (
   PRIMARY KEY (`request_id`),
   KEY `equipment_id` (`equipment_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `equipment-requests` (`request_id`, `student_id`, `category_name`, `equipment_id`, `request_date`, `start_time`, `end_time`, `purpose`, `status`, `notes`, `sport_id`, `reserved_location`, `requester_name`, `equipment_items`) VALUES
 ('req_6937e152', 'FMX6Z8DF', 'Badminton Re', NULL, '2025-12-29', '08:00:00', '10:00:00', 'For the Taekwondo Provincial matches practices', 'COMPLETED', '-', 'BAD', 'Ground', 'K S Silva', NULL),
@@ -269,7 +269,7 @@ CREATE TABLE IF NOT EXISTS `equipment_categories` (
   `category_name` varchar(64) NOT NULL,
   `description` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`category_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `equipment_categories` (`category_id`, `category_name`, `description`) VALUES
 ('CAT001', 'Balls', 'Various types of balls for different sports'),
@@ -295,7 +295,7 @@ CREATE TABLE IF NOT EXISTS `equipment_inventory` (
   `added_date` date NOT NULL,
   `remarks` varchar(256) NOT NULL,
   PRIMARY KEY (`stock_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `equipment_inventory` (`stock_id`, `equipment_id`, `sport_id`, `quantity`, `usable`, `added_date`, `remarks`) VALUES
 ('STK69354', 'EQ020', 'NET', 4, 4, '2025-12-07', '-'),
@@ -426,7 +426,7 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
   `payment_slip` varchar(255) DEFAULT NULL,
   `rejection_reason` varchar(256) NOT NULL,
   PRIMARY KEY (`booking_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, `slot`, `purpose`, `status`, `payment_status`, `payment_id`, `rejection_reason`) VALUES
 ('BK711559', 'H4J1OHSX', '9', '2025-12-11', 'FULL', 'To practice for Inter Provincial Matches held in January 2026', 'BOOKED', 'INCOMPLETE', NULL, ''),
@@ -518,7 +518,7 @@ CREATE TABLE IF NOT EXISTS `faculty` (
   `registrar_id` varchar(12) DEFAULT NULL COMMENT 'User ID of the faculty registrar',
   `registrar_email` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`faculty_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `faculty` (`faculty_id`, `faculty_name`, `registrar_id`, `registrar_email`) VALUES
 ('1', 'University of Colombo School of Computing (UCSC)', 'REG003', 'kasun.silva@ucsc.uoc.lk'),
@@ -548,7 +548,7 @@ CREATE TABLE IF NOT EXISTS `good_condemn_notes` (
   KEY `sport_id` (`sport_id`),
   KEY `equipment_id` (`equipment_id`),
   KEY `stock_id` (`stock_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `good_condemn_notes` (`gcn_id`, `sport_id`, `equipment_id`, `stock_id`, `quantity`, `created_at`) VALUES
 (1, 'BAD', 'EQ001', 'STK00001', 3, '2025-09-01 10:00:00'),
@@ -581,7 +581,7 @@ CREATE TABLE IF NOT EXISTS `good_issue_notes` (
   KEY `sport_id` (`sport_id`),
   KEY `equipment_id` (`equipment_id`),
   KEY `stock_id` (`stock_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `good_issue_notes` (`gin_id`, `sport_id`, `equipment_id`, `date`, `quantity`, `unit`, `stock_id`, `sport_manager_id`, `captain_id`, `equipment_manager_id`, `created_at`) VALUES
 (1, 'BAD', 'EQ001', '2025-07-10', 5, 'Nos', 'STK00001', 'usr_694d89fa', '5Q1XZO2Y', 'usr_68f82fe0', '2025-07-10 08:00:00'),
@@ -620,7 +620,7 @@ CREATE TABLE IF NOT EXISTS `good_received_notes` (
   KEY `equipment_id` (`equipment_id`),
   KEY `supplier_id` (`supplier_id`),
   KEY `stock_id` (`stock_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `good_received_notes` (`grn_id`, `sport_id`, `equipment_id`, `description`, `date`, `po_number`, `supplier_id`, `invoice_no`, `quantity`, `unit`, `unit_price`, `reference_info`, `stock_id`, `created_at`) VALUES
 (1, 'BAD', 'EQ001', 'Badminton Rackets - Yonex Astrox 88D', '2025-06-15', 'PO-2025-001', 6, 'INV-YNX-0456', 20, 'Nos', '8500.00', 'Annual procurement', 'STK00001', '2025-06-15 10:00:00'),
@@ -655,7 +655,7 @@ CREATE TABLE IF NOT EXISTS `injury_report` (
   `need_substitude` varchar(3) NOT NULL,
   `substitude_id` varchar(12) NOT NULL,
   PRIMARY KEY (`report_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `injury_report` (`report_id`, `user_id`, `coach_id`, `practice_id`, `date`, `description`, `need_substitude`, `substitude_id`) VALUES
 ('IRP6971E85EA', 'P001', 'NPM8O9RE', '4', '2026-01-01', 'test (Minor)', 'YES', 'P002');
@@ -674,7 +674,7 @@ CREATE TABLE IF NOT EXISTS `inquiry` (
   `date` date NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'NOT-RESOLVED',
   PRIMARY KEY (`inquiry_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `inquiry` (`inquiry_id`, `user_id`, `email`, `subject`, `message`, `date`, `status`) VALUES
 ('INQA1A688463', 'H4J1OHSX', 'maximal@gmail.com', 'Testing contact', 'Something Something', '2025-12-15', 'RESOLVED'),
@@ -710,7 +710,7 @@ CREATE TABLE IF NOT EXISTS `lost_found` (
   `reporter_contact` varchar(15) NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'NOT-RESOLVED',
   PRIMARY KEY (`case_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `lost_found_images`
@@ -720,7 +720,7 @@ DROP TABLE IF EXISTS `lost_found_images`;
 CREATE TABLE IF NOT EXISTS `lost_found_images` (
   `case_id` varchar(12) NOT NULL,
   `image_name` varchar(32) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `lost_item`
@@ -738,7 +738,7 @@ CREATE TABLE IF NOT EXISTS `lost_item` (
   `itemStatus` varchar(20) NOT NULL DEFAULT 'unclaimed',
   `image` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`lostItem_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `manager_sport`
@@ -752,7 +752,7 @@ CREATE TABLE IF NOT EXISTS `manager_sport` (
   `date_relieved` date DEFAULT NULL,
   PRIMARY KEY (`user_id`,`sport_id`,`date_started`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `match_ball_court`
@@ -893,7 +893,7 @@ CREATE TABLE IF NOT EXISTS `match_participant` (
   PRIMARY KEY (`id`),
   KEY `match_id` (`match_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `match_racket`
@@ -1022,7 +1022,7 @@ CREATE TABLE IF NOT EXISTS `message` (
   KEY `sender_id` (`sender_id`),
   KEY `recipient_id` (`recipient_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `message` (`message_id`, `sender_id`, `recipient_id`, `recipient_type`, `sport_id`, `title`, `message`, `sent_at`, `is_read`) VALUES
 ('MSG699AD6597', '5Q1XZO2Y', 'H4J1OHSX', '', 'VOL', 'Requesting Javelins', 'Hello sir, can we have the Javelins I requested today?', '2026-02-22 10:11:37', 0);
@@ -1040,7 +1040,7 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post` (
   `date_posted` date NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`post_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `newsfeed_post` (`post_id`, `title`, `description`, `commenting`, `date_posted`, `status`) VALUES
 ('P0001', 'Track & Field and Ground Marking Workshop', 'A workshop on Track & Field and Ground Marking was held on the 30th and 31st of March 2025 at the University of Colombo ground premises. This workshop was conducted by Mr Palitha Jayathilaka, Senior Technical Official at the Sri Lanka Athletic Association, to update our staff members on the new methods and changes in ground marking. Participants who completed this workshop successfully received a valuable certificate.', 'YES', '2025-12-09', 'ACTIVE'),
@@ -1059,7 +1059,7 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post_image` (
   `image_path` varchar(255) NOT NULL,
   PRIMARY KEY (`image_id`),
   KEY `post_id` (`post_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `newsfeed_post_image` (`image_id`, `post_id`, `image_path`) VALUES
 (14, 'P0001', 'images/posts/img_6937eab81c8785.14752532.jpg'),
@@ -1080,7 +1080,7 @@ CREATE TABLE IF NOT EXISTS `parallel_checker` (
   `selected_slot` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `session_id` (`session_id`,`facility_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `parallel_checker` (`id`, `session_id`, `facility_id`, `last_heartbeat`, `selected_date`, `selected_slot`) VALUES
 (19, '2v06gb8fktdgpiulcj5b5397ac', 1, '2026-03-29 17:05:28', '2026-03-31', NULL);
@@ -1099,7 +1099,7 @@ CREATE TABLE IF NOT EXISTS `payment` (
   `payment_method` varchar(24) NOT NULL,
   `payment_status` varchar(12) NOT NULL DEFAULT 'DONE',
   PRIMARY KEY (`payment_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `playing_teams`
@@ -1136,7 +1136,7 @@ CREATE TABLE IF NOT EXISTS `practice_sessions` (
   `location` varchar(100) NOT NULL,
   `need_equipment` varchar(10) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `practice_sessions` (`id`, `sport_id`, `added_by`, `facility`, `session_date`, `start_time`, `notes`, `status`, `created_at`, `updated_at`, `end_time`, `location`, `need_equipment`) VALUES
 (9, 'SCR', 'SPT', 'Select the Location', '2026-01-25', '14:30:00', '', 'ACTIVE', '2026-01-25 08:57:16', NULL, '00:00:00', '', ''),
@@ -1161,7 +1161,7 @@ CREATE TABLE IF NOT EXISTS `remember_tokens` (
   `expires_at` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `remember_tokens` (`id`, `user_id`, `token`, `expires_at`) VALUES
 (1, 0, 'd125df99b6f85a0d3861dc2db2ca31c3a9e4da797d1503cd6dd738381a807173', 1762935327);
@@ -1174,7 +1174,7 @@ DROP TABLE IF EXISTS `saved_emails`;
 CREATE TABLE IF NOT EXISTS `saved_emails` (
   `email` varchar(64) NOT NULL,
   `recepient_name` varchar(64) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `saved_emails` (`email`, `recepient_name`) VALUES
 ('sports@usj.ac.lk', 'USJ');
@@ -1191,8 +1191,11 @@ CREATE TABLE IF NOT EXISTS `sport` (
   `coach_id` varchar(12) NOT NULL,
   `captain_id` varchar(12) NOT NULL,
   `manager_id` varchar(12) NOT NULL,
-  PRIMARY KEY (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+  `faculty_id` varchar(4) DEFAULT NULL COMMENT 'Faculty that manages this sport',
+  PRIMARY KEY (`sport_id`),
+  KEY `faculty_id` (`faculty_id`),
+  CONSTRAINT `sport_ibfk_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `sport` (`sport_id`, `sport_name`, `sport_category`, `coach_id`, `captain_id`, `manager_id`) VALUES
 ('BAD', 'Badminton', 'RACKET', '', '', ''),
@@ -1311,7 +1314,7 @@ CREATE TABLE IF NOT EXISTS `sports-team` (
   `joined_date` date NOT NULL,
   `in_team` varchar(7) NOT NULL DEFAULT 'NO',
   PRIMARY KEY (`sport_id`,`student_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`, `in_team`) VALUES
 ('TKD', 'L3NCL2J4', '2025-12-03', 'NO'),
@@ -1333,7 +1336,7 @@ CREATE TABLE IF NOT EXISTS `student_id_cards` (
   `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `student_id` (`student_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `suppliers`
@@ -1349,7 +1352,7 @@ CREATE TABLE IF NOT EXISTS `suppliers` (
   `email` varchar(128) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`supplier_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `suppliers` (`supplier_id`, `supplier_name`, `address`, `telephone_1`, `telephone_2`, `email`, `created_at`) VALUES
 (1, 'Lanka Sports Pvt Ltd', 'No. 45, Galle Road, Colombo 03', '0112345678', '0112345679', 'info@lankasports.lk', '2026-02-22 04:31:04'),
@@ -1375,7 +1378,7 @@ CREATE TABLE IF NOT EXISTS `tournament` (
   `status` varchar(10) NOT NULL DEFAULT 'INCOMPLETE',
   PRIMARY KEY (`tournament_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `tournament` (`tournament_id`, `tournament_name`, `sport_id`, `start_date`, `end_date`, `status`) VALUES
 ('TOUR_693ea72aa6387', 'Vice Chancellors Invitational Badminton Championship', 'BAD', '2026-01-01', '2026-02-26', 'INCOMPLETE'),
@@ -1428,7 +1431,7 @@ CREATE TABLE IF NOT EXISTS `tournament_result` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`result_id`),
   KEY `match_id` (`match_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `transaction`
@@ -1445,7 +1448,7 @@ CREATE TABLE IF NOT EXISTS `transaction` (
   `remarks` varchar(256) NOT NULL,
   `change_reason` varchar(256) NOT NULL,
   PRIMARY KEY (`transaction_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `transaction` (`transaction_id`, `budget_id`, `amount`, `purpose`, `timestamp`, `proof_doc`, `remarks`, `change_reason`) VALUES
 ('1', '1', 50000, 'Purchase of cricket bats', '2025-01-20 05:00:00', 'proof_cricket_ba', '', ''),
@@ -1478,7 +1481,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `status` varchar(6) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `Email` (`email`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `must_change_pass`, `joined_date`, `contact_no`, `profile_img`, `sport_id`, `student_id`, `faculty_id`, `status`) VALUES
 ('1', 'Chamal', 'Chamuditha', 'PUBLIC', 'chamal@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, '', '', NULL, '', 'ACTIVE'),
@@ -1538,7 +1541,7 @@ CREATE TABLE IF NOT EXISTS `user_points` (
   `user_id` varchar(12) NOT NULL,
   `user_points` int DEFAULT '0',
   PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `user_points` (`user_id`, `user_points`) VALUES
 ('STU010', 17),
@@ -1559,7 +1562,7 @@ CREATE TABLE IF NOT EXISTS `achievement` (
   PRIMARY KEY (`achievement_id`),
   KEY `fk_achievement_user` (`user_id`),
   KEY `fk_achievement_competition` (`competition_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `achievement` (`achievement_id`, `user_id`, `sport_id`, `competition_id`, `achievement`, `points`) VALUES
 (6, 'STU010', 'CRI', '101', '2nd place', 3),
@@ -1619,7 +1622,7 @@ CREATE TABLE IF NOT EXISTS `verification_requests` (
   PRIMARY KEY (`request_id`),
   KEY `requested_by` (`requested_by`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 -- Table structure for table `verification_request_students`
@@ -1637,6 +1640,129 @@ CREATE TABLE IF NOT EXISTS `verification_request_students` (
   PRIMARY KEY (`request_id`,`student_id`),
   KEY `faculty_id` (`faculty_id`),
   KEY `verification_status` (`verification_status`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Triggers for role history tracking
+--
+
+DELIMITER $$
+
+-- Trigger for Manager history
+DROP TRIGGER IF EXISTS `trg_sport_manager_history`$$
+CREATE TRIGGER `trg_sport_manager_history` AFTER UPDATE ON `sport`
+FOR EACH ROW
+BEGIN
+    IF OLD.manager_id != NEW.manager_id THEN
+        -- Close old tenure
+        IF OLD.manager_id != '' THEN
+            UPDATE manager_sport 
+            SET date_relieved = CURDATE() 
+            WHERE sport_id = OLD.sport_id 
+              AND user_id = OLD.manager_id 
+              AND date_relieved IS NULL;
+        END IF;
+        -- Start new tenure
+        IF NEW.manager_id != '' THEN
+            INSERT INTO manager_sport (user_id, sport_id, date_started)
+            VALUES (NEW.manager_id, NEW.sport_id, CURDATE());
+        END IF;
+    END IF;
+END $$
+
+-- Trigger for Coach history
+DROP TRIGGER IF EXISTS `trg_sport_coach_history`$$
+CREATE TRIGGER `trg_sport_coach_history` AFTER UPDATE ON `sport`
+FOR EACH ROW
+BEGIN
+    IF OLD.coach_id != NEW.coach_id THEN
+        -- Close old tenure
+        IF OLD.coach_id != '' THEN
+            UPDATE coach_sport 
+            SET date_relieved = CURDATE() 
+            WHERE sport_id = OLD.sport_id 
+              AND user_id = OLD.coach_id 
+              AND date_relieved IS NULL;
+        END IF;
+        -- Start new tenure
+        IF NEW.coach_id != '' THEN
+            INSERT INTO coach_sport (user_id, sport_id, date_started)
+            VALUES (NEW.coach_id, NEW.sport_id, CURDATE());
+        END IF;
+    END IF;
+END $$
+
+-- Trigger for Captain history
+DROP TRIGGER IF EXISTS `trg_sport_captain_history`$$
+CREATE TRIGGER `trg_sport_captain_history` AFTER UPDATE ON `sport`
+FOR EACH ROW
+BEGIN
+    IF OLD.captain_id != NEW.captain_id THEN
+        -- Close old tenure
+        IF OLD.captain_id != '' THEN
+            UPDATE captain_sport 
+            SET date_relieved = CURDATE() 
+            WHERE sport_id = OLD.sport_id 
+              AND user_id = OLD.captain_id 
+              AND date_relieved IS NULL;
+        END IF;
+        -- Start new tenure
+        IF NEW.captain_id != '' THEN
+            INSERT INTO captain_sport (user_id, sport_id, date_started)
+            VALUES (NEW.captain_id, NEW.sport_id, CURDATE());
+        END IF;
+    END IF;
+END $$
+
+-- Trigger for Good Received Notes (GRN) to update equipment inventory
+DROP TRIGGER IF EXISTS `trg_grn_after_insert`$$
+CREATE TRIGGER `trg_grn_after_insert` AFTER INSERT ON `good_received_notes`
+FOR EACH ROW
+BEGIN
+    UPDATE `equipment_inventory`
+    SET `quantity` = `quantity` + NEW.quantity,
+        `usable`   = `usable` + NEW.quantity
+    WHERE `stock_id` = NEW.stock_id;
+END$$
+
+-- Trigger for Good Condemn Notes (GCN) to update equipment inventory
+DROP TRIGGER IF EXISTS `trg_gcn_after_insert`$$
+CREATE TRIGGER `trg_gcn_after_insert` AFTER INSERT ON `good_condemn_notes`
+FOR EACH ROW
+BEGIN
+    UPDATE `equipment_inventory`
+    SET `quantity` = GREATEST(0, CAST(`quantity` AS SIGNED) - CAST(NEW.quantity AS SIGNED)),
+        `usable`   = GREATEST(0, CAST(`usable` AS SIGNED) - CAST(NEW.quantity AS SIGNED))
+    WHERE `stock_id` = NEW.stock_id;
+END$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sport_expenses`
+--
+
+DROP TABLE IF EXISTS `sport_expenses`;
+CREATE TABLE IF NOT EXISTS `sport_expenses` (
+  `expense_id` int NOT NULL AUTO_INCREMENT,
+  `sport` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expense_title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `amount` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `receipt` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `submitted_by` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `expense_date` datetime NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`expense_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

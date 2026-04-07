@@ -61,6 +61,60 @@ $userName = $_SESSION['user_name'] ?? 'User';
             </div>
         </div>
 
+        <!-- Faculty Selector (for scoped dashboards) -->
+        <div class="faculty-selector-container" style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px; background: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); flex-wrap: wrap;">
+                <label for="faculty-select" style="font-weight: 600; color: #1a1a2e; flex-shrink: 0;">
+                    <i class="fas fa-building"></i> Faculty:
+                </label>
+                <select id="faculty-select" style="padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 0.95rem; cursor: pointer; flex: 0 1 300px;">
+                    <option value="">-- All Faculties --</option>
+                    <?php if (!empty($faculties)): ?>
+                        <?php foreach ($faculties as $faculty): ?>
+                            <option value="<?= htmlspecialchars($faculty['faculty_id']) ?>"
+                                    <?= ($selectedFacultyId === $faculty['faculty_id']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($faculty['faculty_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+                <span id="faculty-status" style="font-size: 0.82rem; color: #666; font-style: italic; flex-shrink: 0;"></span>
+                
+                <!-- Export Buttons -->
+                <div style="flex: 1; text-align: right; min-width: 300px;">
+                    <button id="export-csv-btn" onclick="exportDashboard('csv')" 
+                            style="padding: 8px 16px; background: #059669; color: white; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; margin-right: 8px; display: inline-flex; align-items: center; gap: 6px; transition: background 0.3s;"
+                            onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+                        <i class="fas fa-download"></i> <span>Export CSV</span>
+                    </button>
+                    <button id="export-pdf-btn" onclick="exportDashboard('pdf')" 
+                            style="padding: 8px 16px; background: #dc2626; color: white; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.3s;"
+                            onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                        <i class="fas fa-file-pdf"></i> <span>Export PDF</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Range Filter (Phase 3) -->
+        <div class="date-filter-container" style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px; background: white; padding: 14px 18px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); flex-wrap: wrap;">
+                <label style="font-weight: 600; color: #1a1a2e; flex-shrink: 0;">
+                    <i class="fas fa-calendar"></i> Date Range:
+                </label>
+                <input type="date" id="start-date" value="<?php echo date('Y-01-01'); ?>" 
+                       style="padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 0.95rem; cursor: pointer;">
+                <span style="color: #666; flex-shrink: 0;">to</span>
+                <input type="date" id="end-date" value="<?php echo date('Y-m-d'); ?>" 
+                       style="padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 0.95rem; cursor: pointer;">
+                <button onclick="applyDateFilter()" 
+                        style="padding: 8px 16px; background: #0891b2; color: white; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.3s;"
+                        onmouseover="this.style.background='#0e7490'" onmouseout="this.style.background='#0891b2'">
+                    <i class="fas fa-filter"></i> Apply Filter
+                </button>
+            </div>
+        </div>
+
         <!-- KPI Cards Row -->
         <div class="kpi-row" id="kpi-cards">
             <div class="kpi-card loading">

@@ -57,8 +57,9 @@ class SportPracticeSessionController {
             exit();
         }
 
-        // Get sport parameter to preserve in redirects
-        $sportParam = isset($_POST['sport_param']) ? '?sport=' . urlencode($_POST['sport_param']) : (isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '');
+        // Get sport parameter to preserve in redirects - prioritize POST sport_param, then GET
+        $sportId = $_POST['sport_param'] ?? $_GET['sport'] ?? null;
+        $sportParam = $sportId ? '?sport=' . urlencode($sportId) : '';
 
         try {
             $model = new SportPracticeSession();
@@ -151,15 +152,20 @@ class SportPracticeSessionController {
     public function update() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $_SESSION['error_message'] = 'Invalid request method';
-            header('Location: /uoc-sports/public/sport-manager/practicesessions');
+            $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
+            header('Location: /uoc-sports/public/sport-manager/practicesessions' . $sportParam);
             exit();
         }
 
         $id = $_POST['id'] ?? null;
+        
+        // Get sport parameter to preserve in redirects
+        $sportId = $_POST['sport_param'] ?? $_GET['sport'] ?? null;
+        $sportParam = $sportId ? '?sport=' . urlencode($sportId) : '';
 
         if (!$id) {
             $_SESSION['error_message'] = 'Invalid practice session';
-            header('Location: /uoc-sports/public/sport-manager/practicesessions');
+            header('Location: /uoc-sports/public/sport-manager/practicesessions' . $sportParam);
             exit();
         }
 
@@ -191,8 +197,6 @@ class SportPracticeSessionController {
             $_SESSION['error_message'] = 'An error occurred: ' . $e->getMessage();
         }
 
-        // Preserve sport filter if it exists
-        $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
         header('Location: /uoc-sports/public/sport-manager/practicesessions' . $sportParam);
         exit();
     }

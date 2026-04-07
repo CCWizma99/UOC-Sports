@@ -9,6 +9,42 @@ require_once '../core/Router.php';
 
 require_once '../core/helpers.php';
 
+// --- ADMIN AUTHENTICATION ENFORCEMENT ---
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
+    $token = $_COOKIE['remember_token'];
+    $hashed = hash('sha256', $token);
+
+    $stmt = $db->prepare("SELECT user_id FROM remember_tokens WHERE token = ? AND expires_at > ?");
+    $stmt->execute([$hashed, time()]);
+    $row = $stmt->fetch();
+
+    if ($row) {
+        $_SESSION['user_id'] = $row['user_id'];
+        $stmtUser = $db->prepare("SELECT fname, type FROM users WHERE user_id = ?");
+        $stmtUser->execute([$row['user_id']]);
+        $user = $stmtUser->fetch();
+
+        if ($user) {
+            $_SESSION['user_name'] = $user['fname'];
+            $_SESSION['user_type'] = $user['type'];
+            $_SESSION['color'] = "green";
+        }
+    }
+}
+
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'ADMIN') {
+    // Return 403 for API requests
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
+        exit;
+    }
+    // Redirect for normal requests
+    header("Location: /uoc-sports/public/sign-in");
+    exit;
+}
+// ----------------------------------------
+
 $router = new Router();
 
 $router->get('/admin-index', 'AdminHomeController@index');

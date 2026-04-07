@@ -44,6 +44,7 @@ function showError(message) {
 // Render student cards
 function renderStudents(studentsToRender = students) {
     const container = document.getElementById('studentsContainer');
+    destroyStudentCardCharts();
     
     if (studentsToRender.length === 0) {
         container.innerHTML = `
@@ -78,6 +79,13 @@ function renderStudents(studentsToRender = students) {
                     ${student.total_achievements || 0} Achievement${student.total_achievements !== 1 ? 's' : ''} recorded
                 </p>
             </div>
+
+            <div style="background: #f9f7ff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.6rem; margin-top: 0.75rem;">
+                <p style="margin: 0 0 0.5rem 0; color: #2b0c4d; font-size: 0.75rem; font-weight: 600;">Event Category Split</p>
+                <div style="position: relative; height: 200px; width: 100%;">
+                    <canvas id="${getStudentChartCanvasId(student.user_id)}"></canvas>
+                </div>
+            </div>
             
             <!-- Action Buttons -->
             <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
@@ -87,6 +95,8 @@ function renderStudents(studentsToRender = students) {
             </div>
         </div>
     `).join('');
+
+    loadStudentCardCharts(studentsToRender);
 }
 
 // Get initials from name
@@ -94,8 +104,8 @@ function getInitials(name) {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
 }
 
-// Chart instance
-let performanceChart = null;
+// Chart instances per student card
+const studentCardCharts = new Map();
 
 // Show achievements at top of page
 async function showAchievements(userId) {
@@ -113,147 +123,210 @@ async function showAchievements(userId) {
         const response = await fetch(`/uoc-sports/public/api/get-student-achievements.php?user_id=${userId}`);
         const data = await response.json();
         
+        console.log('Student Achievements Data:', data); // Debug log
+        
         if (data.success) {
             const student = students.find(s => s.user_id === userId);
             nameElement.textContent = `${student?.fname || ''} ${student?.lname || ''}'s Achievements`;
             
             if (data.achievements.length === 0) {
                 contentElement.innerHTML = '<p style="margin: 0; color: #6b7280; text-align: center; padding: 2rem;">No achievements recorded yet</p>';
-                // Hide chart if no data
-                if (performanceChart) {
-                    performanceChart.destroy();
-                    performanceChart = null;
-                }
             } else {
-                // Create performance chart
-                createPerformanceChart(data.achievements);
-                
                 // Display achievements list
-                contentElement.innerHTML = data.achievements.map(achievement => `
+                contentElement.innerHTML = data.achievements.map(achievement => {
+                    // Get year with fallback logic
+                    let year = 'N/A';
+                    if (achievement.tournament_year) {
+                        year = achievement.tournament_year;
+                    } else if (achievement.competition_date && achievement.competition_date !== '0000-00-00') {
+                        try {
+                            const date = new Date(achievement.competition_date);
+                            if (!isNaN(date.getTime())) {
+                                year = date.getFullYear();
+                            }
+                        } catch (e) {
+                            console.warn('Error parsing date:', e);
+                        }
+                    }
+                    
+                    const competitionLabel = achievement.competition_name 
+                        ? `${achievement.competition_name} ${year !== 'N/A' ? '(' + year + ')' : ''}` 
+                        : '<em style="color: #ef4444;">No Competition Linked</em>';
+                    
+                    return `
                     <div style="background: white; border-left: 4px solid #2b0c4d; border-radius: 6px; padding: 1rem; margin-bottom: 0.75rem;">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; gap: 0.5rem;">
-                            <h5 style="margin: 0; color: #2b0c4d; font-size: 0.95rem; font-weight: 700;">
-                                ${achievement.competition_name || 'Competition'}
-                            </h5>
+                            <div>
+                                <p style="margin: 0 0 0.25rem 0; color: #6b7280; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Competition</p>
+                                <h5 style="margin: 0; color: #2b0c4d; font-size: 0.95rem; font-weight: 700;">
+                                    ${competitionLabel}
+                                </h5>
+                            </div>
                             <span style="background: ${getAchievementColor(achievement.achievement)}; color: #ffffff; padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-size: 0.7rem; font-weight: 700; white-space: nowrap;">
                                 ${achievement.achievement}
                             </span>
                         </div>
-                        <p style="margin: 0 0 0.25rem 0; color: #374151; font-size: 0.85rem; font-weight: 500;">
-                            ${achievement.sport_name || 'Sport'}
-                        </p>
                         <p style="margin: 0; color: #6b7280; font-size: 0.75rem;">
                             Points: ${achievement.points || 0} / 12
                         </p>
                     </div>
-                `).join('');
+                `}).join('');
             }
         } else {
-            contentElement.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem;">Failed to load achievements</p>`;
+            contentElement.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem;">Failed to load achievements: ${data.message || 'Unknown error'}</p>`;
         }
     } catch (error) {
         console.error('Error loading achievements:', error);
-        contentElement.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem;">Error loading achievements</p>`;
+        contentElement.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem;">Error loading achievements: ${error.message}</p>`;
     }
 }
 
-// Create performance analysis chart
-function createPerformanceChart(achievements) {
-    const ctx = document.getElementById('performanceChart');
-    
-    if (!ctx) return;
-    
-    // Destroy existing chart if any
-    if (performanceChart) {
-        performanceChart.destroy();
+function extractEventCategory(achievement) {
+    if (achievement.event_category) return achievement.event_category;
+    if (achievement.competition_category) return achievement.competition_category;
+    if (achievement.category) return achievement.category;
+
+    const competitionName = achievement.competition_name || '';
+    if (!competitionName) return 'Other';
+
+    const lowerName = competitionName.toLowerCase();
+    if (lowerName.includes('inter university') || lowerName.includes('inter-university')) return 'Inter University';
+    if (lowerName.includes('inter faculty') || lowerName.includes('inter-faculty')) return 'Inter Faculty';
+    if (lowerName.includes('championship')) return 'Championship';
+    if (lowerName.includes('tournament')) return 'Tournament';
+    if (lowerName.includes('league')) return 'League';
+    if (lowerName.includes('cup')) return 'Cup';
+    if (lowerName.includes('open')) return 'Open';
+    if (lowerName.includes('national')) return 'National';
+    if (lowerName.includes('international')) return 'International';
+
+    return competitionName.split(' ')[0] || 'Other';
+}
+
+function getStudentChartCanvasId(userId) {
+    const safeUserId = String(userId).replace(/[^a-zA-Z0-9_-]/g, '_');
+    return `student-event-chart-${safeUserId}`;
+}
+
+function getCategoryPalette(size) {
+    const colors = [
+        '#2563eb', // blue
+        '#16a34a', // green
+        '#f97316', // orange
+        '#eab308', // yellow
+        '#7c3aed'  // purple
+    ];
+    return Array.from({ length: size }, (_, index) => colors[index % colors.length]);
+}
+
+function createStudentCardPieChart(canvas, achievements, userId) {
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    const categoryCounts = achievements.reduce((acc, achievement) => {
+        const category = extractEventCategory(achievement);
+        acc[category] = (acc[category] || 0) + 1;
+        return acc;
+    }, {});
+
+    const labels = Object.keys(categoryCounts);
+    const values = Object.values(categoryCounts);
+
+    if (labels.length === 0) {
+        return;
     }
-    
-    // Prepare data
-    const labels = achievements.map((a, idx) => a.competition_name || `Competition ${idx + 1}`);
-    const achievedPoints = achievements.map(a => a.points || 0);
-    
-    performanceChart = new Chart(ctx, {
-        type: 'line',
+
+    const key = String(userId);
+    const existingChart = studentCardCharts.get(key);
+    if (existingChart) {
+        existingChart.destroy();
+        studentCardCharts.delete(key);
+    }
+
+    const chart = new Chart(canvas, {
+        type: 'pie',
         data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Points Achieved',
-                    data: achievedPoints,
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    borderColor: 'rgb(16, 185, 129)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    pointBackgroundColor: 'rgb(16, 185, 129)',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
-                }
-            ]
+            labels,
+            datasets: [{
+                data: values,
+                backgroundColor: getCategoryPalette(labels.length),
+                borderColor: '#ffffff',
+                borderWidth: 2
+            }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: true,
-                    position: 'top',
+                    display: false,
+                    position: 'bottom',
+                    labels: {
+                        padding: 8,
+                        font: {
+                            size: 9,
+                            weight: '600'
+                        },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
                 },
                 tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y + ' points';
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Competitions',
-                        font: {
-                            size: 12,
-                            weight: 'bold'
-                        }
-                    },
-                    ticks: {
-                        maxRotation: 45,
-                        minRotation: 45
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    min: 0,
-                    max: 12,
-                    title: {
-                        display: true,
-                        text: 'Points',
-                        font: {
-                            size: 12,
-                            weight: 'bold'
-                        }
-                    },
-                    ticks: {
-                        stepSize: 2
-                    }
+                    enabled: false
                 }
             }
         }
     });
+
+    studentCardCharts.set(key, chart);
+}
+
+async function loadStudentCardChart(userId) {
+    const canvasId = getStudentChartCanvasId(userId);
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    try {
+        const response = await fetch(`/uoc-sports/public/api/get-student-achievements.php?user_id=${userId}`);
+        const data = await response.json();
+
+        // Card may have been removed by a new filter render before the request completed.
+        const currentCanvas = document.getElementById(canvasId);
+        if (!currentCanvas) return;
+
+        if (!data.success || !Array.isArray(data.achievements) || data.achievements.length === 0) {
+            const container = currentCanvas.parentElement;
+            if (container) {
+                container.innerHTML = '<p style="margin: 0; color: #6b7280; font-size: 0.72rem; text-align: center; padding-top: 1.2rem;">No chart data</p>';
+            }
+            return;
+        }
+
+        createStudentCardPieChart(currentCanvas, data.achievements, userId);
+    } catch (error) {
+        console.error('Error loading student chart:', error);
+    }
+}
+
+function loadStudentCardCharts(studentsToRender) {
+    studentsToRender.forEach(student => {
+        loadStudentCardChart(student.user_id);
+    });
+}
+
+function destroyStudentCardCharts() {
+    studentCardCharts.forEach(chart => chart.destroy());
+    studentCardCharts.clear();
 }
 
 // Get achievement color based on type
 function getAchievementColor(achievement) {
     const colors = {
-        '1st place': '#ffd700',
-        '2nd place': '#c0c0c0',
+        '1st place': '#FFA07A',
+        '2nd place': '#4ECDC4',
         '3rd place': '#cd7f32',
         '4th place': '#6b7280',
         'Best performance': '#10b981',
-        'Participation': '#3b82f6'
+        'Participation': '#45B7D1'
     };
     return colors[achievement] || '#2b0c4d';
 }
@@ -261,11 +334,6 @@ function getAchievementColor(achievement) {
 // Close achievements display
 function closeAchievementsDisplay() {
     document.getElementById('achievementsDisplay').style.display = 'none';
-    // Destroy chart when closing
-    if (performanceChart) {
-        performanceChart.destroy();
-        performanceChart = null;
-    }
 }
 
 // View student achievements (keeping old function for compatibility)
@@ -290,6 +358,8 @@ async function viewAchievements(userId) {
         const response = await fetch(`/uoc-sports/public/api/get-student-achievements.php?user_id=${userId}`);
         const data = await response.json();
         
+        console.log('Modal Achievements Data:', data); // Debug log
+        
         if (data.success) {
             if (data.achievements.length === 0) {
                 achievementsList.innerHTML = `
@@ -298,31 +368,38 @@ async function viewAchievements(userId) {
                     </div>
                 `;
             } else {
-                achievementsList.innerHTML = data.achievements.map((achievement, index) => `
+                achievementsList.innerHTML = data.achievements.map((achievement, index) => {
+                    const year = achievement.tournament_year || (achievement.competition_date ? new Date(achievement.competition_date).getFullYear() : 'N/A');
+                    const competitionLabel = achievement.competition_name 
+                        ? `${achievement.competition_name} (${year})` 
+                        : '<em style="color: #ef4444;">No Competition Linked</em>';
+                    
+                    return `
                     <div style="background: linear-gradient(135deg, #f9f7ff 0%, #ffffff 100%); border: 2px solid #e5e7eb; border-left: 4px solid #2b0c4d; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; transition: all 0.3s;" onmouseover="this.style.boxShadow='0 4px 15px rgba(43,12,77,0.1)'; this.style.transform='translateX(4px)';" onmouseout="this.style.boxShadow='none'; this.style.transform='translateX(0)';">
                         <div style="display: flex; align-items: start; gap: 1rem;">
                             <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #2b0c4d 0%, #6b1fa0 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 4px 10px rgba(43,12,77,0.2);">
                                 ${index + 1}
                             </div>
                             <div style="flex: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
-                                    <h4 style="margin: 0; color: #2b0c4d; font-size: 1.1rem; font-weight: 700;">
-                                        ${achievement.competition_name || 'Competition'}
+                                <div style="margin-bottom: 0.5rem;">
+                                    <p style="margin: 0 0 0.25rem 0; color: #6b7280; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Competition Name</p>
+                                    <h4 style="margin: 0 0 0.5rem 0; color: #2b0c4d; font-size: 1.1rem; font-weight: 700;">
+                                        ${competitionLabel}
                                     </h4>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
                                     <span style="background: ${getAchievementColor(achievement.achievement)}; color: #ffffff; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                                         ${achievement.achievement}
                                     </span>
                                 </div>
-                                <p style="margin: 0 0 0.5rem 0; color: #374151; font-size: 0.95rem; font-weight: 500;">
-                                    ${achievement.sport_name || 'Sport'}
-                                </p>
+                                
                                 <p style="margin: 0; color: #6b7280; font-size: 0.85rem;">
                                     Points Earned: ${achievement.points || 0}
                                 </p>
                             </div>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             }
         } else {
             achievementsList.innerHTML = `<p style="color: #ef4444; text-align: center; padding: 2rem;">Failed to load achievements</p>`;
