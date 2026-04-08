@@ -139,6 +139,7 @@ $router->post('/equipment-manager/save-booking', 'EquipmentManagerController@sav
 $router->post('/post/delete-comment', 'PostController@deleteComment');
 $router->get('/equipment-manager/bookingrequests', 'EquipmentBookingRequestController@index');
 $router->get('/equipment-manager/booking-request-details', 'EquipmentBookingRequestController@getDetails');
+$router->get('/equipment-manager/check-active-reservation', 'EquipmentBookingRequestController@checkActiveReservation');
 $router->post('/equipment-manager/create-booking-request', 'EquipmentBookingRequestController@create');
 $router->post('/equipment-manager/update-booking-request', 'EquipmentBookingRequestController@update');
 $router->post('/equipment-manager/update-booking-status', 'EquipmentBookingRequestController@updateStatus');

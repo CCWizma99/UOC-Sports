@@ -127,6 +127,39 @@ class EquipmentBookingRequestController {
     }
 
     /**
+     * Check whether user already has an active/accepted reservation (AJAX)
+     */
+    public function checkActiveReservation() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            exit();
+        }
+
+        $studentId = trim($_GET['student_id'] ?? '');
+        $requesterName = trim($_GET['requester_name'] ?? '');
+
+        if ($studentId === '' && $requesterName === '') {
+            echo json_encode(['success' => true, 'has_active_reservation' => false]);
+            exit();
+        }
+
+        $model = new EquipmentBookigRequest();
+        $hasActiveReservation = $model->hasActiveReservation($studentId, $requesterName);
+
+        if ($hasActiveReservation) {
+            echo json_encode([
+                'success' => true,
+                'has_active_reservation' => true,
+                'message' => 'This user already has an active or accepted equipment reservation. Please complete or cancel the existing reservation before creating a new one.'
+            ]);
+        } else {
+            echo json_encode(['success' => true, 'has_active_reservation' => false]);
+        }
+    }
+
+    /**
      * Update request status (AJAX)
      */
     public function updateStatus() {

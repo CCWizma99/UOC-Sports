@@ -37,6 +37,7 @@ try {
     // For each equipment, get pending and accepted request counts
     foreach ($equipment as &$equip) {
         $equipmentName = $equip['equipment_name'];
+        $equip['available_count'] = (int)$equip['available_count'];
         
         // Count pending and accepted requests for this equipment
         $countQuery = "SELECT 
@@ -77,6 +78,8 @@ try {
         
         // Check for time overlaps if date and time provided
         $equip['overlapping_slots'] = [];
+        $equip['slot_reserved_count'] = 0;
+        $equip['slot_available_count'] = $equip['available_count'];
         if ($requestDate && $startTime && $endTime) {
             $overlapQuery = "SELECT 
                                 request_id,
@@ -120,6 +123,8 @@ try {
             $overlaps = $overlapStmt->fetchAll(PDO::FETCH_ASSOC);
             
             // Parse quantity for each overlapping slot
+            $slotReservedCount = 0;
+            $hasPracticeOverlap = false;
             foreach ($overlaps as &$overlap) {
                 $requestedQty = 1;
                 if (!empty($overlap['equipment_items'])) {
@@ -135,6 +140,7 @@ try {
                 }
                 $overlap['requested_quantity'] = $requestedQty;
                 $overlap['source_type'] = 'booking';
+                $slotReservedCount += (int)$requestedQty;
             }
             
             // Also check for practice sessions with need_equipment='Yes'
@@ -193,11 +199,14 @@ try {
                     $practice['source_type'] = 'practice';
                     $practice['request_id'] = 'PS-' . $practice['id'];
                     $overlaps[] = $practice;
+                    $hasPracticeOverlap = true;
                     error_log("Added practice session PS-" . $practice['id'] . " to overlaps");
                 }
             }
             
             $equip['overlapping_slots'] = $overlaps;
+            $equip['slot_reserved_count'] = $hasPracticeOverlap ? $equip['available_count'] : $slotReservedCount;
+            $equip['slot_available_count'] = max(0, $equip['available_count'] - $equip['slot_reserved_count']);
         }
     }
 

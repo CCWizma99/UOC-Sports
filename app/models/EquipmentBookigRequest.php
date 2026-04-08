@@ -65,7 +65,7 @@ class EquipmentBookigRequest {
                 $params[] = $filters['date_to'];
             }
             
-            $query .= " ORDER BY er.request_date DESC, er.start_time DESC";
+            $query .= " ";
             
             error_log("EquipmentBookigRequest Query: " . $query);
             error_log("EquipmentBookigRequest Params: " . print_r($params, true));
@@ -92,10 +92,8 @@ class EquipmentBookigRequest {
      */
     public function getRequestById($requestId) {
         $query = "SELECT 
-                    er.*,
-                    COALESCE(s.sport_name, er.sport_id) as sport_name,
-                    COALESCE(er.requester_name, CONCAT(u.fname, ' ', u.lname), 'N/A') as student_name,
-                    u.email as student_email
+                    er.*
+                    
                 FROM `equipment-requests` er
                 LEFT JOIN user u ON er.student_id = u.user_id
                 LEFT JOIN sport s ON er.sport_id = s.sport_id
