@@ -11,6 +11,10 @@ class EquipmentCalendar {
     }
 
     async init() {
+        if (!this.container) {
+            console.error('Equipment calendar container not found:', this.container);
+            return;
+        }
         this.createTooltip();
         await this.fetchEquipmentReservations();
         this.render();
@@ -256,6 +260,8 @@ class EquipmentCalendar {
             const hasReservations = this.equipmentReservations[dateKey] && this.equipmentReservations[dateKey].length > 0;
             
             // Determine if date is past or future
+            const isPast = date < today;
+            const isFuture = date > today;
 
             
             let classes = 'calendar-day';

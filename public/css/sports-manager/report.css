@@ -64,6 +64,20 @@
     margin: 0;
 }
 
+/* Compact wrappers for add-expense, add-practice and add-participants pages */
+.page-form-container:has(#addPracticeForm),
+.page-form-container:has(#addParticipantsForm),
+.page-form-container:has(#addExpenseForm) {
+    padding: 1.4rem;
+}
+
+.page-form-container:has(#addPracticeForm) .page-header,
+.page-form-container:has(#addParticipantsForm) .page-header,
+.page-form-container:has(#addExpenseForm) .page-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.8rem;
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -335,7 +349,7 @@
 
 .container-header h2 {
     color: var(--primary-purple);
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     margin-bottom: 0.5rem;
     margin-top: 0;
     display: flex;
@@ -345,7 +359,7 @@
 
 .container-header p {
     color: rgba(0, 0, 0, 0.441);
-    font-size: 1rem;
+    font-size: 0.9em;
     margin: 0;
 }
 

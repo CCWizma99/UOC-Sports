@@ -27,6 +27,7 @@
             <!-- Add practice Form -->
              <div class="page-header">
                 <div>
+                    <p class="page-path">Sport Manager / Expenses / Add an Expense</p>
                     <h2><?php echo isset($isEdit) && $isEdit ? 'Edit' : 'Add'; ?> Expense</h2>
                     <p>Mange sports expenses</p>
                 </div>
@@ -109,10 +110,7 @@
                         <input type="text" id="submittedBy" name="submittedBy" value="<?php echo isset($editData) ? htmlspecialchars($editData['submitted_by']) : (isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : ''); ?>" readonly required>
                     </div>
 
-                    <div class="form-group full-width">
-                        <label for="notes">Special Notes </label>
-                        <textarea id="notes" name="notes" placeholder="Enter special notes" rows="4" ><?php echo isset($editData) ? htmlspecialchars($editData['notes']) : ''; ?></textarea>
-                    </div>
+                   
                 </div>
                         
                 <div class="form-actions">

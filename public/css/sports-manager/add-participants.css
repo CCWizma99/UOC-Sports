@@ -9,7 +9,7 @@
 }
 
 .page-header {
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
 }
 
 .page-header h2 {
@@ -22,11 +22,25 @@
     font-size: 0.95rem;
 }
 
+.page-header .page-path {
+    margin: 0 0 0.35rem 0;
+    color: #8b728f;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    margin-bottom: 1rem;
+}
+
 .form {
     background: white;
-    padding: 2rem;
+    padding: 0.9rem;
     
 
+}
+
+.form-row {
+    gap: 0.75rem 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .form-grid {
@@ -39,6 +53,7 @@
 .form-group {
     display: flex;
     flex-direction: column;
+    margin-bottom: 0.5rem;
 }
 
 .form-group.full-width {
@@ -47,18 +62,24 @@
 
 .form-group label {
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
     color: #374151;
     font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group select {
-    padding: 0.75rem;
+    padding: 0.55rem 0.7rem;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
+}
+
+.form-group textarea {
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    min-height: 70px;
 }
 
 .form-group input:focus,
@@ -69,7 +90,22 @@
 }
 
 .form-group input[type="file"] {
-    padding: 0.5rem;
+    padding: 0.35rem;
+}
+
+.file-note {
+    margin-top: 0.25rem;
+    font-size: 0.82rem;
+}
+
+.form-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.form-actions button {
+    padding: 0.6rem 1.5rem;
+    min-width: 130px;
 }
 
 

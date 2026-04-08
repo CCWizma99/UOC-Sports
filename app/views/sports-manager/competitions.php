@@ -273,7 +273,7 @@
                             if (!empty($competition['participants'])) {
                                 echo htmlspecialchars($competition['participants']);
                             } else {
-                                echo '<span style="color: #9ca3af; font-style: italic;">N/A</span>';
+                                echo '<span style="color: #9ca3af; font-style: italic;">Empty Selection</span>';
                             }
                             ?>
                             </span>

@@ -28,6 +28,9 @@
             <!-- Add practice Form -->
              <div class="page-header">
                 <div>
+
+                    <p class="page-path">Sport Manager / Practice Sessions / Add Practice Session</p>
+
                     <h2>Add Practice Session</h2>
                     <p>Schedule a new practice session</p>
                 </div>
