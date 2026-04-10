@@ -42,7 +42,7 @@ class CaptainController {
         $upcomingCompetitions = $competitionModel->getCompetitionsByMonth($sportId, date('m'), 5);
 
         $today = date('Y-m-d');
-        $allTournaments = $tournamentModel->getAllTournaments();
+        $allTournaments = $tournamentModel->getTournamentsBySportId($sportId);
 
         $upcomingTournaments = array_filter($allTournaments, function($t) use ($today) {
             return isset($t['end_date']) && $t['end_date'] >= $today;
@@ -52,24 +52,22 @@ class CaptainController {
 
         foreach ($upcomingCompetitions as $comp) {
             $events[] = [
-                'date' => $comp['date'] ?? ($comp['created_at'] ?? ''),
-                'time' => isset($comp['date']) ? date('H:i', strtotime($comp['date'])) : 'TBD',
+                'date' => $comp['date'] ?? $comp['created_at'],
+                'time' => isset($comp['date']) ? date('H:i', strtotime($comp['date'])) : '',
                 'name' => $comp['competition_name'] ?? 'Competition',
             ];
         }
 
         foreach ($upcomingTournaments as $tour) {
             $events[] = [
-                'date' => $tour['start_date'] ?? '',
-                'time' => 'All Day',
+                'start_date' => $tour['start_date'],
+                'end_date' => $tour['end_date'],
                 'name' => $tour['tournament_name'] ?? 'Tournament',
             ];
         }
 
         usort($events, function($a, $b) {
-            $timeA = !empty($a['date']) ? strtotime($a['date']) : 0;
-            $timeB = !empty($b['date']) ? strtotime($b['date']) : 0;
-            return $timeA <=> $timeB;
+            return strtotime($a['date']) <=> strtotime($b['date']);
         });
 
         view('captain/index', [

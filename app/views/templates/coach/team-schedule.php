@@ -82,8 +82,8 @@
                             <tr>
                                 <td class="facility-cell"><?= htmlspecialchars($schedule['facility']) ?></td>
                                 <td class="date-cell"><?= htmlspecialchars($schedule['session_date']) ?></td>
-                                <td class="time-cell"><?= htmlspecialchars($schedule['session_time']) ?></td>
-                                <td class="description-cell"><?= htmlspecialchars($schedule['description']) ?></td>
+                                <td class="time-cell"><?= htmlspecialchars($schedule['start_time']) ?></td>
+                                <td class="description-cell"><?= htmlspecialchars($schedule['notes']) ?></td>
                             </tr>
                             <?php endforeach; ?>
                         <?php else: ?>

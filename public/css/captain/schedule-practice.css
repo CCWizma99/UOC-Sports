@@ -1,3 +1,29 @@
+/* ===== EDIT MODAL 2 COLUMN LAYOUT ===== */
+
+.modal-body form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px; /* small gap, no big spacing */
+}
+
+/* Make full width elements */
+.modal-body .form-group.full-width {
+    grid-column: span 2;
+}
+
+/* Keep datetime row side by side */
+.modal-body .datetime {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Remove extra spacing inside modal */
+.modal-body .form-group {
+    margin-bottom: 0;
+}
+
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -50,8 +76,19 @@
     font-weight: 700;
     color: #1a202c;
     margin-bottom: 24px;
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 16px;
+}
+/* ===== 2 COLUMN FORM LAYOUT ===== */
+
+.form-section form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 30px;
+}
+
+/* Make textarea and button full width */
+.form-group.full-width,
+.form-section button {
+    grid-column: span 2;
 }
 
 .form-group {
@@ -89,12 +126,14 @@
     box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.1);
 }
 
+/* ===== TIME SIDE BY SIDE ===== */
+
 .datetime {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+    grid-column: span 2;
 }
-
 .form-group textarea {
     resize: vertical;
     min-height: 120px;
@@ -259,13 +298,16 @@
 }
 
 /* Table Section */
+/* ===== SMALLER TABLE WITH MARGIN ===== */
+
 .table-section {
     background: white;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    margin: 20px;
+    
 }
-
 .table-header {
     background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
     padding: 25px 30px;
@@ -303,9 +345,10 @@
 }
 
 .practice-table {
-    width: 100%;
+    width: 95%;
+    margin: 0 auto;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .practice-table thead {
@@ -315,7 +358,7 @@
 }
 
 .practice-table thead th {
-    padding: 18px 20px;
+    padding: 14px 16px;
     text-align: left;
     font-weight: 600;
     color: #2d3748;
@@ -335,7 +378,7 @@
 }
 
 .practice-table tbody td {
-    padding: 16px 20px;
+    padding: 14px 16px;
     vertical-align: middle;
 }
 
@@ -459,14 +502,14 @@
 /* Modal Container */
 .modal {
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 600px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideUp 0.3s ease;
-    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    max-width: 520px; /* smaller width */
+    width: 95%;
+    padding: 0; /* reduced padding */
+    
+    max-height: unset; /* remove height restriction */
+    overflow: hidden; /* no scroll */
 }
 
 @keyframes slideUp {
@@ -485,8 +528,8 @@
 .modal-header {
     background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
     color: white;
-    padding: 24px 30px;
-    border-radius: 16px 16px 0 0;
+    padding: 15px 20px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -527,11 +570,15 @@
 
 /* Modal Body */
 .modal-body {
-    padding: 30px;
+    padding: 20px;
+}
+
+.modal-body form {
+    gap: 12px;
 }
 
 .modal-body .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 0;
 }
 
 .modal-body .form-group:last-child {
@@ -607,8 +654,8 @@
 
 /* Modal Footer */
 .modal-footer {
-    padding: 20px 30px;
-    background: #f7fafc;
+    padding: 15px 20px;
+    background: transparent;
     border-radius: 0 0 16px 16px;
     display: flex;
     gap: 12px;
@@ -887,4 +934,269 @@
     .session-details .detail-value {
         font-size: 13px;
     }
+}
+
+/* Previous Sessions Button */
+.previous-btn {
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.previous-btn:hover {
+    background-color: #1a252f;
+    transform: translateY(-2px);
+}
+
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    margin:0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+/* Modal box */
+
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #555;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+
+/* Calendar container */
+#calendar {
+    margin-top: 20px;
+}
+/* Highlight previous session dates */
+.fc-event.previous-session {
+    background-color: #e74c3c !important;
+    border: none !important;
+    color: #fff !important;
+    font-size: 12px;
+    padding: 3px;
+    border-radius: 6px;
+}
+
+/* Hover effect */
+.fc-event.previous-session:hover {
+    background-color: #c0392b !important;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .previous-btn {
+        width: 100%;
+    }
+}
+
+.table-header .btn-secondary {
+    height: 40px;
+    padding: 0 15px;
+}
+
+/* Previous Sessions Button - Updated for Consistency */
+.btn-secondary {
+    padding: 14px 28px;
+    background: white;
+    color:linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(107, 63, 160, 0.3);
+    background: rgb(224, 223, 223);
+}
+
+.btn-secondary:active {
+    transform: translateY(-1px);
+}
+
+/* Calendar Session Modal */
+.calendar-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.calendar-modal-overlay.active {
+    display: flex;
+}
+
+.calendar-modal {
+    background: white;
+    border-radius: 16px;
+    max-width: 400px;
+    width: 90%;
+    padding: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: slideUp 0.3s ease;
+}
+
+.calendar-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-modal-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2b0c4d;
+}
+
+.calendar-modal-close {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.calendar-modal-close:hover {
+    background: rgba(107,63,160,0.2);
+    transform: rotate(90deg);
+}
+
+.calendar-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.calendar-modal-body .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.calendar-modal-body .detail-row:last-child {
+    border-bottom: none;
+}
+
+.calendar-modal-body .detail-label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 14px;
+}
+
+.calendar-modal-body .detail-value {
+    color: #2d3748;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+@media (max-width: 480px) {
+    .calendar-modal {
+        width: 95%;
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .calendar-modal-header h3 {
+        font-size: 16px;
+    }
+
+    .calendar-modal-body .detail-label,
+    .calendar-modal-body .detail-value {
+        font-size: 13px;
+    }
+
+    .calendar-modal-close {
+        width: 24px;
+        height: 24px;
+        font-size: 16px;
+    }
+}
+
+/* Make calendar events look clickable */
+#calendar .fc-event,
+#calendar .fc-event:hover {
+    cursor: pointer;
+}
+
+.btn-clear {
+    background-color: #e74c3c; /* red */
+    color: #fff; /* white text */
+    border: none;
+    padding: 10px 30px; /* top-bottom 10px, left-right 20px */
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-clear:hover {
+    background-color: #c0392b; /* darker red on hover */
+    transform: translateY(-2px); /* subtle lift effect */
+}
+
+.btn-clear:active {
+    background-color: #a93226; /* even darker when clicked */
+    transform: translateY(0); /* pressed effect */
 }

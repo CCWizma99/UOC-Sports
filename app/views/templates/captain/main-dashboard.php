@@ -56,7 +56,7 @@
               <th>Date</th>
               <th>Time</th>
               <th>Venue</th>
-              <th>Purpose</th>
+              <th>Purpose</th>  
             </tr>
           </thead>
           <tbody id="practiceBody">
@@ -78,24 +78,24 @@
       <!-- Upcoming Events Table -->
       <div class="info-card">
         <div class="info-card-header">
-          <h3>Upcoming Events</h3>
+          <h3>Upcoming Tournaments</h3>
         </div>
         <div class="info-card-content">
           <div class="table-wrapper" >
             <table class="events-table" >
               <thead>
                 <tr >
-                  <th >Date</th>
-                  <th >Time</th>
-                  <th >Event</th>
+                  <th >Start Date</th>
+                  <th >End Date</th>
+                  <th >Tournament</th>
                 </tr>
               </thead>
               <tbody id="upcomingEvents">
-                <?php foreach($upcoming_events as $event): ?>
+                <?php foreach ($upcoming_events as $event): ?>
                 <tr>
-                  <td class="date-cell"><?php echo htmlspecialchars($event['date']) ?></td>
-                  <td class="venue-cell"><?php echo htmlspecialchars($event['time']) ?></td>
-                  <td><span><?php echo htmlspecialchars($event['name']) ?></span></td>
+                  <td class="date-cell"><?php echo htmlspecialchars($event['start_date'])?></td>
+                  <td class="venue-cell"><?php echo htmlspecialchars($event['end_date'])?></td>
+                  <td><span ><?php echo htmlspecialchars($event['name'])?></span></td>
                 </tr>
                 <?php endforeach; ?>
               </tbody>

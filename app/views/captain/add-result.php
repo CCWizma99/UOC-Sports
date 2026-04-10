@@ -355,7 +355,7 @@ async function selectTournament(el) {
     container.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading form fields...</div>';
 
     try {
-        const res  = await fetch(`/uoc-sports/public/captain/get-sport-fields?sport_id=${sportId}`);
+        const res  = await fetch(`/uoc-sports/public/add-result/get-sport-fields?sport_id=${sportId}`);
         const data = await res.json();
         if (data.status === 'success' && data.data) {
             renderSportFields(data.data, container);
