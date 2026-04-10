@@ -18,14 +18,14 @@ function approve(btn) {
     const row = btn.closest(".table-row");
     row.classList.add("approved");
     row.classList.remove("rejected");
-    alert("Approved successfully!");
+
 }
 
 function reject(btn) {
     const row = btn.closest(".table-row");
     row.classList.add("rejected");
     row.classList.remove("approved");
-    alert("Rejected successfully!");
+
 }
 
 function searchTable() {

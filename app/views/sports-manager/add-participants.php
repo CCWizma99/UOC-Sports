@@ -24,10 +24,30 @@
 <div class="main-wrapper">        
         <div class="page-form-container">
 
+            <?php
+            $existingParticipantsMap = [];
+            if (!empty($existingParticipants) && is_array($existingParticipants)) {
+                foreach ($existingParticipants as $participantName) {
+                    $existingParticipantsMap[strtolower(trim($participantName))] = true;
+                }
+            }
+
+            $cancelUrl = '/uoc-sports/public/sport-manager/competitions';
+            $cancelSport = $selectedSport ?? ($competition['sport_id'] ?? null);
+            if (!empty($cancelSport)) {
+                $cancelUrl .= '?sport=' . urlencode($cancelSport);
+            }
+
+            if (!empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], '/uoc-sports/public/sport-manager/') !== false) {
+                $cancelUrl = $_SERVER['HTTP_REFERER'];
+            }
+            ?>
+
             
             <!-- Add Participants Form -->
              <div class="page-header">
                 <div>
+                    <p class="page-path">Sport Manager / Competitions / <?= isset($competition) ? 'Add More Participants' : 'Add Participants' ?></p>
                     <h2><?= isset($competition) ? 'Add More Participants' : 'Add Participants' ?></h2>
                     <p><?= isset($competition) ? 'Add more participants to "' . htmlspecialchars($competition['competition_name']) . '"' : 'Add participants to the competition by uploading a file or selecting from students' ?></p>
                 </div>
@@ -95,14 +115,19 @@
                         <?php if (!empty($students)): ?>
                             <div class="participants-grid">
                                 <?php foreach ($students as $student): ?>
+                                    <?php
+                                    $participantFullName = trim(($student['first_name'] ?? '') . ' ' . ($student['last_name'] ?? ''));
+                                    $isParticipantSelected = isset($existingParticipantsMap[strtolower($participantFullName)]);
+                                    ?>
                                     <label class="participant-checkbox-label">
                                         <input type="checkbox" 
                                                name="selectedParticipants[]" 
-                                               value="<?= htmlspecialchars($student['first_name'] . ' ' . $student['last_name']) ?>"
+                                               value="<?= htmlspecialchars($participantFullName) ?>"
+                                               <?= $isParticipantSelected ? 'checked' : '' ?>
                                                class="participant-checkbox">
                                         <div class="participant-info">
                                             <div class="participant-name">
-                                                <?= htmlspecialchars($student['first_name'] . ' ' . $student['last_name']) ?>
+                                                <?= htmlspecialchars($participantFullName) ?>
                                             </div>
                                             <div class="participant-details">
                                                 ID: <?= htmlspecialchars($student['student_id']) ?> | <?= htmlspecialchars($student['email']) ?>
@@ -123,7 +148,7 @@
                 </div>
                         
                 <div class="form-actions">
-                    <button type="button" onclick="window.location.href='/uoc-sports/public/sport-manager/competitions/'">
+                    <button type="button" onclick="window.location.href='<?= htmlspecialchars($cancelUrl) ?>'">
                        Cancel
                     </button>
                     <button type="submit">

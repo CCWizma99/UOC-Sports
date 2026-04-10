@@ -37,7 +37,7 @@
     <div class="stat-card orange">
       <div class="stat-icon">🎯</div>
       <div class="stat-label">Upcoming Events</div>
-      <div class="stat-value">2</div>
+      <div class="stat-value"><?php echo count($upcoming_events); ?></div>
       <div class="stat-subtitle">Next 30 days</div>
     </div>
   </div>

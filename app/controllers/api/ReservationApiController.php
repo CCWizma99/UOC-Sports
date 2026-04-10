@@ -48,4 +48,42 @@ class ReservationApiController extends BaseController {
             ]);
         }
     }
+
+    public function search() {
+        header('Content-Type: application/json');
+
+        $query = $_GET['q'] ?? '';
+        $filters = [
+            'date' => $_GET['date'] ?? '',
+            'location' => $_GET['location'] ?? '',
+            'user_type' => $_GET['user_type'] ?? ''
+        ];
+
+        try {
+            $results = $this->facilityModel->searchReservations($query, $filters);
+            echo json_encode($results);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Search failed',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getLocations() {
+        header('Content-Type: application/json');
+
+        try {
+            $locations = $this->facilityModel->getPhysicalFacilities();
+            echo json_encode($locations);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Failed to fetch locations',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }
+

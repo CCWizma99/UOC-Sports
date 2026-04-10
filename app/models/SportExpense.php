@@ -31,11 +31,11 @@ class SportExpense {
         }
         
         $sql = "INSERT INTO sport_expenses 
-                (sport, expense_title, sport_event, amount, receipt, submitted_by, notes, expense_date)
-                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
+                (sport, expense_title, sport_event, amount, receipt, submitted_by, expense_date)
+                VALUES (?, ?, ?, ?, ?, ?, NOW())";
         
         $stmt = $this->conn->prepare($sql);
-        $notes = $data['notes'] ?? '';
+  
         $amount = $data['amount'] ?? 0;
         $sport_event = !empty($data['sport_event']) ? $data['sport_event'] : NULL;
         
@@ -46,7 +46,7 @@ class SportExpense {
             $amount,
             $receipt_image,
             $data['submitted_by'],
-            $notes
+       
         ]);
         
         $insertId = $this->conn->lastInsertId();
@@ -95,11 +95,11 @@ class SportExpense {
                     amount = ?,
                     receipt = ?,
                     submitted_by = ?,
-                    notes = ?
+                    
                 WHERE expense_id = ?";
         
         $stmt = $this->conn->prepare($sql);
-        $notes = $data['notes'] ?? '';
+        
         $amount = $data['amount'] ?? 0;
         $sport_event = !empty($data['sport_event']) ? $data['sport_event'] : NULL;
         
@@ -110,7 +110,7 @@ class SportExpense {
             $amount,
             $receipt_image,
             $data['submitted_by'],
-            $notes,
+            
             $expense_id
         ]);
         
@@ -124,7 +124,7 @@ class SportExpense {
      */
     public function getAll($filters = []) {
         $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
-                       notes, expense_date 
+                       expense_date 
                 FROM sport_expenses";
         
         $conditions = [];
@@ -162,8 +162,7 @@ class SportExpense {
      * @return array
      */
     public function getExpensesCurrentMonth() {
-        $sql = "SELECT expense_id, sport, expense_title, amount, receipt, submitted_by, 
-                       notes, expense_date 
+        $sql = "SELECT expense_id, sport, expense_title, amount, receipt, submitted_by, expense_date 
                 FROM sport_expenses
                 WHERE YEAR(expense_date) = YEAR(CURDATE())
                 AND MONTH(expense_date) = MONTH(CURDATE())
@@ -218,7 +217,7 @@ class SportExpense {
                 WHERE expense_title LIKE :query 
                    OR sport LIKE :query 
                    OR submitted_by LIKE :query
-                   OR notes LIKE :query
+                
                 ORDER BY expense_date DESC";
         
         $stmt = $this->conn->prepare($sql);
@@ -249,7 +248,7 @@ class SportExpense {
      */
     public function getBySport($sport) {
         $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
-                       notes, expense_date 
+                     expense_date 
                 FROM sport_expenses
                 WHERE sport = ?
                 ORDER BY expense_date DESC";
@@ -267,7 +266,7 @@ class SportExpense {
      */
     public function getByDateRange($startDate, $endDate) {
         $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
-                       notes, expense_date 
+                     expense_date 
                 FROM sport_expenses
                 WHERE expense_date BETWEEN ? AND ?
                 ORDER BY expense_date DESC";
@@ -295,7 +294,7 @@ class SportExpense {
      */
     public function getRecent($limit = 5) {
         $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
-                       notes, expense_date 
+                      expense_date 
                 FROM sport_expenses
                 ORDER BY expense_date DESC
                 LIMIT ?";

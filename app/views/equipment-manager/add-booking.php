@@ -34,6 +34,10 @@
                
             </div>
 
+            <div id="activeReservationWarning" class="alert-message alert-error" style="display:none;">
+                <i class="fas fa-exclamation-circle"></i> <span id="activeReservationWarningText"></span>
+            </div>
+
             <?php if (isset($_SESSION['success_message'])): ?>
                 <div class="alert-message alert-success">
                     <i class="fas fa-check-circle"></i> <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
@@ -151,8 +155,65 @@ const currentRequestId = editData ? editData.request_id : '';
 
 // Auto-fill functionality for User ID and Requester Name
 let userLookupTimeout = null;
+let reservationCheckTimeout = null;
+let lastReservationAlertKey = '';
+
+function showActiveReservationWarning(message) {
+    const warningBox = document.getElementById('activeReservationWarning');
+    const warningText = document.getElementById('activeReservationWarningText');
+    warningText.textContent = message;
+    warningBox.style.display = 'block';
+}
+
+function hideActiveReservationWarning() {
+    const warningBox = document.getElementById('activeReservationWarning');
+    const warningText = document.getElementById('activeReservationWarningText');
+    warningText.textContent = '';
+    warningBox.style.display = 'none';
+}
 
 console.log('Auto-fill functionality loaded');
+
+function checkActiveReservationEarly() {
+    if (isEdit) {
+        return;
+    }
+
+    const studentId = document.getElementById('user_id').value.trim();
+    const requesterName = document.getElementById('requester_name').value.trim();
+
+    if (!studentId && !requesterName) {
+        lastReservationAlertKey = '';
+        hideActiveReservationWarning();
+        return;
+    }
+
+    const currentKey = `${studentId}|${requesterName}`;
+
+    fetch('/uoc-sports/public/equipment-manager/check-active-reservation?student_id=' + encodeURIComponent(studentId) + '&requester_name=' + encodeURIComponent(requesterName))
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                return;
+            }
+
+            if (data.has_active_reservation) {
+                if (lastReservationAlertKey !== currentKey) {
+                    showActiveReservationWarning(data.message || 'This user already has an active or accepted equipment reservation.');
+                    lastReservationAlertKey = currentKey;
+                }
+                return;
+            }
+
+            if (lastReservationAlertKey === currentKey) {
+                lastReservationAlertKey = '';
+            }
+            hideActiveReservationWarning();
+        })
+        .catch(error => {
+            console.error('Error checking active reservation:', error);
+        });
+}
 
 // Lookup user by ID and fill requester name
 document.getElementById('user_id').addEventListener('input', function(e) {
@@ -164,8 +225,13 @@ document.getElementById('user_id').addEventListener('input', function(e) {
     clearTimeout(userLookupTimeout);
     
     if (userId.length === 0) {
+        clearTimeout(reservationCheckTimeout);
+        reservationCheckTimeout = setTimeout(checkActiveReservationEarly, 300);
         return;
     }
+
+    clearTimeout(reservationCheckTimeout);
+    reservationCheckTimeout = setTimeout(checkActiveReservationEarly, 300);
     
     // Debounce the API call (wait 500ms after user stops typing)
     userLookupTimeout = setTimeout(() => {
@@ -181,6 +247,7 @@ document.getElementById('user_id').addEventListener('input', function(e) {
                     // Fill the requester name field
                     document.getElementById('requester_name').value = data.user.full_name;
                     console.log('Filled requester name:', data.user.full_name);
+                    checkActiveReservationEarly();
                     
                     // Show a subtle indicator that user was found
                     const userIdField = document.getElementById('user_id');
@@ -207,6 +274,7 @@ document.getElementById('requester_name').addEventListener('blur', function(e) {
     console.log('Requester name blur event:', requesterName);
     
     if (requesterName.length === 0) {
+        checkActiveReservationEarly();
         return;
     }
     
@@ -214,8 +282,11 @@ document.getElementById('requester_name').addEventListener('blur', function(e) {
     const nameParts = requesterName.split(' ');
     if (nameParts.length < 2) {
         console.log('Name has fewer than 2 parts, skipping lookup');
+        checkActiveReservationEarly();
         return;
     }
+
+    checkActiveReservationEarly();
     
     console.log('Fetching user by name:', requesterName);
     fetch('/uoc-sports/public/api/lookup-user.php?name=' + encodeURIComponent(requesterName))
@@ -238,6 +309,7 @@ document.getElementById('requester_name').addEventListener('blur', function(e) {
                         userIdField.style.borderColor = '';
                     }, 1000);
                 }
+                checkActiveReservationEarly();
             } else {
                 console.log('User not found for name:', requesterName);
                 // User not found, but allow proceeding with manual entry
@@ -293,6 +365,11 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                     console.log('Equipment item:', equipment.equipment_name, 'Overlapping slots:', equipment.overlapping_slots);
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'equipment-item-card';
+
+                    const slotAvailableCount = Number.isFinite(Number(equipment.slot_available_count))
+                        ? parseInt(equipment.slot_available_count, 10)
+                        : parseInt(equipment.available_count, 10);
+                    const maxSelectableQty = Math.max(0, slotAvailableCount);
                     
                     // Main row with checkbox and label
                     const mainRow = document.createElement('div');
@@ -313,7 +390,7 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                     
                     const label = document.createElement('label');
                     label.htmlFor = 'eq_' + equipment.equipment_id;
-                    label.textContent = equipment.equipment_name + ' (Usable Count: ' + equipment.available_count + ')';
+                    label.textContent = equipment.equipment_name + ' (Available for selected slot: ' + maxSelectableQty + ')';
                     label.className = 'equipment-label';
                     
                     const quantityDiv = document.createElement('div');
@@ -328,20 +405,43 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                     quantityInput.id = 'qty_' + equipment.equipment_id;
                     quantityInput.name = 'quantity[' + equipment.equipment_name + ']';
                     quantityInput.min = '1';
-                    quantityInput.max = equipment.available_count;
-                    quantityInput.value = preSelectedMap[equipment.equipment_name] || '1';
+                    quantityInput.max = maxSelectableQty;
+                    const preSelectedQty = parseInt(preSelectedMap[equipment.equipment_name] || '1', 10);
+                    quantityInput.value = maxSelectableQty > 0 ? Math.min(preSelectedQty, maxSelectableQty) : '0';
                     quantityInput.disabled = !checkbox.checked;
                     quantityInput.className = 'equipment-quantity-input';
+
+                    if (maxSelectableQty === 0) {
+                        checkbox.checked = false;
+                        checkbox.disabled = true;
+                        quantityInput.disabled = true;
+                        itemDiv.classList.remove('selected');
+                    }
                     
                     // Enable/disable quantity input based on checkbox
                     checkbox.addEventListener('change', function() {
                         quantityInput.disabled = !this.checked;
                         if (this.checked) {
+                            if (parseInt(quantityInput.value, 10) < 1) {
+                                quantityInput.value = '1';
+                            }
                             itemDiv.classList.add('selected');
                         } else {
                             itemDiv.classList.remove('selected');
                             quantityInput.value = '1';
                         }
+                    });
+
+                    quantityInput.addEventListener('input', function() {
+                        const max = parseInt(quantityInput.max, 10);
+                        let value = parseInt(quantityInput.value || '1', 10);
+                        if (!Number.isFinite(value) || value < 1) {
+                            value = 1;
+                        }
+                        if (Number.isFinite(max) && max > 0 && value > max) {
+                            value = max;
+                        }
+                        quantityInput.value = String(value);
                     });
                     
                     quantityDiv.appendChild(quantityLabel);

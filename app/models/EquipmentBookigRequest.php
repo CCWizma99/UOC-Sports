@@ -23,6 +23,7 @@ class EquipmentBookigRequest {
                         er.start_time,
                         er.end_time,
                         COALESCE(er.reserved_location, '') as reserved_location,
+                        COALESCE(er.requester_name, CONCAT(u.fname, ' ', u.lname), 'N/A') as requester_name,
                         COALESCE(er.requester_name, CONCAT(u.fname, ' ', u.lname), 'N/A') as student_name,
                         COALESCE(er.notes, '') as notes,
                         er.status,
@@ -64,7 +65,7 @@ class EquipmentBookigRequest {
                 $params[] = $filters['date_to'];
             }
             
-            $query .= " ORDER BY er.request_date DESC, er.start_time DESC";
+            $query .= " ";
             
             error_log("EquipmentBookigRequest Query: " . $query);
             error_log("EquipmentBookigRequest Params: " . print_r($params, true));
@@ -91,10 +92,8 @@ class EquipmentBookigRequest {
      */
     public function getRequestById($requestId) {
         $query = "SELECT 
-                    er.*,
-                    COALESCE(s.sport_name, er.sport_id) as sport_name,
-                    COALESCE(er.requester_name, CONCAT(u.fname, ' ', u.lname), 'N/A') as student_name,
-                    u.email as student_email
+                    er.*
+                    
                 FROM `equipment-requests` er
                 LEFT JOIN user u ON er.student_id = u.user_id
                 LEFT JOIN sport s ON er.sport_id = s.sport_id
@@ -348,4 +347,66 @@ class EquipmentBookigRequest {
         $stmt->execute([$sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Save a special notification for a booking request
+     */
+    public function createRequestNotification($data) {
+        $notificationId = 'ern_' . substr(uniqid('', true), -10);
+
+        $query = "INSERT INTO equipment_request_notifications
+                (notification_id, request_id, student_id, requester_name, message)
+                  SELECT ?, er.request_id, er.student_id,
+                         COALESCE(er.requester_name, CONCAT(u.fname, ' ', u.lname), ''),
+                    ?
+                  FROM `equipment-requests` er
+                  LEFT JOIN user u ON er.student_id = u.user_id
+                  WHERE er.request_id = ?
+                    AND er.student_id = ?
+                    AND COALESCE(er.requester_name, CONCAT(u.fname, ' ', u.lname), '') = ?
+                  LIMIT 1";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([
+            $notificationId,
+            $data['message'],
+            $data['request_id'],
+            $data['student_id'],
+            $data['requester_name']
+        ]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Get sent notifications for a specific booking request
+     */
+    public function getRequestNotifications($requestId, $studentId, $requesterName) {
+        $query = "SELECT notification_id, request_id, student_id, requester_name, message
+                  FROM equipment_request_notifications
+                  WHERE request_id = ?
+                    AND student_id = ?
+                    AND requester_name = ?
+                  ORDER BY notification_id DESC";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$requestId, $studentId, $requesterName]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+        /**
+         * Delete one notification for a specific booking request context
+         */
+        public function deleteRequestNotification($notificationId, $requestId, $studentId, $requesterName) {
+                $query = "DELETE FROM equipment_request_notifications
+                                    WHERE notification_id = ?
+                                        AND request_id = ?
+                                        AND student_id = ?
+                                        AND requester_name = ?
+                                    LIMIT 1";
+
+                $stmt = $this->db->prepare($query);
+                $stmt->execute([$notificationId, $requestId, $studentId, $requesterName]);
+                return $stmt->rowCount() > 0;
+        }
 }

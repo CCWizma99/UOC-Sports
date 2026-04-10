@@ -77,8 +77,21 @@
     /* Push selector to the far right if present */
 }
 
+.sport-selector-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+.sport-select-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
 .sport-selector select {
-    padding: 5px 10px;
+    padding: 5px 32px 5px 10px;
     border: 1px solid #d0d7de;
     border-radius: 6px;
     background-color: #f6f8fa;
@@ -87,10 +100,27 @@
     outline: none;
     cursor: pointer;
     font-weight: 500;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .sport-selector select:hover {
     background-color: #eff2f5;
+}
+
+.sport-select-wrap::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #4b236b;
+    transform: translateY(-35%);
+    pointer-events: none;
 }
 
 /* Global Reset Overrides */
@@ -120,6 +150,10 @@ body {
     .sport-selector {
         margin-left: 0;
         margin-top: 5px;
+    }
+
+    .sport-selector-label {
+        margin-right: 8px;
     }
 
     .header-nav-wrapper {

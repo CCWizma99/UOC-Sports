@@ -20,20 +20,15 @@ class Calendar {
         // Remove old listeners if they exist
         if (this.container) {
             const calendarDays = this.container.querySelectorAll('.calendar-day:not(.other-month)');
-            console.log('Attaching event listeners to', calendarDays.length, 'calendar days');
+
             
             calendarDays.forEach((day, index) => {
-                const hasSessions = day.getAttribute('data-sessions');
-                if (hasSessions) {
-                    console.log(`Day ${index + 1} has sessions data`);
-                }
-                
                 day.addEventListener('mouseenter', (e) => this.handleMouseEnter(e));
                 day.addEventListener('mousemove', (e) => this.handleMouseMove(e));
                 day.addEventListener('mouseleave', () => this.handleMouseLeave());
             });
-            
-            console.log('Event listeners attached successfully');
+
+
         }
     }
 
@@ -59,7 +54,7 @@ class Calendar {
             display: block;
         `;
         document.body.appendChild(this.tooltip);
-        console.log('Tooltip created and appended to body:', this.tooltip);
+
     }
 
     async fetchPracticeSessions() {
@@ -68,16 +63,15 @@ class Calendar {
         
         try {
             const url = `/uoc-sports/public/api/practice-sessions/calendar.php?month=${month}&year=${year}${this.sportId ? '&sport_id=' + this.sportId : ''}`;
-            console.log('Fetching practice sessions from:', url);
+
             
             const response = await fetch(url);
             const result = await response.json();
             
             if (result.success) {
                 this.practiceSessions = result.data;
-                console.log('Practice sessions loaded successfully:', this.practiceSessions);
-                console.log('Number of dates with sessions:', Object.keys(this.practiceSessions).length);
             } else {
+
                 console.error('Error loading practice sessions:', result.message);
                 this.practiceSessions = {};
             }
@@ -101,11 +95,11 @@ class Calendar {
     }
 
     showTooltip(event, sessions) {
-        console.log('showTooltip called with sessions:', sessions);
-        console.log('Tooltip element:', this.tooltip);
+
+
         
         if (!sessions || sessions.length === 0) {
-            console.log('No sessions to show');
+
             return;
         }
 
@@ -122,7 +116,7 @@ class Calendar {
         `;
         
         sessions.forEach((session, index) => {
-            console.log('Processing session:', session);
+
             
             // Add separator between sessions
             if (index > 0) {
@@ -164,15 +158,15 @@ class Calendar {
         this.tooltip.innerHTML = tooltipContent;
         this.tooltip.style.opacity = '1';
         this.tooltip.style.visibility = 'visible';
-        console.log('Tooltip displaying ' + sessions.length + ' session(s)');
         this.positionTooltip(event);
     }
+
 
     hideTooltip() {
         if (this.tooltip) {
             this.tooltip.style.opacity = '0';
             this.tooltip.style.visibility = 'hidden';
-            console.log('Tooltip hidden');
+
         }
     }
 
@@ -247,12 +241,7 @@ class Calendar {
             const hasSessions = this.practiceSessions[dateKey] && this.practiceSessions[dateKey].length > 0;
             
             // Determine if date is past or future
-            const isPast = date < today;
-            const isFuture = date > today;
-            
-            if (hasSessions) {
-                console.log(`Date ${dateKey} has ${this.practiceSessions[dateKey].length} sessions`);
-            }
+
             
             let classes = 'calendar-day';
             if (isToday) classes += ' today';
@@ -275,24 +264,24 @@ class Calendar {
     }
 
     handleMouseEnter(event) {
-        console.log('Mouse entered calendar day');
+
         const target = event.currentTarget;
         const sessionsData = target.getAttribute('data-sessions');
-        console.log('Sessions data attribute:', sessionsData);
-        console.log('Has sessions:', sessionsData && sessionsData !== '');
+
+
         
         if (sessionsData && sessionsData !== '') {
             try {
                 const sessions = JSON.parse(sessionsData);
-                console.log('Parsed sessions:', sessions);
-                console.log('Number of sessions:', sessions.length);
+
+
                 this.showTooltip(event, sessions);
             } catch (e) {
                 console.error('Error parsing sessions data:', e);
                 console.error('Raw sessions data:', sessionsData);
             }
         } else {
-            console.log('No sessions data for this date');
+
         }
     }
 
@@ -322,8 +311,9 @@ class Calendar {
 // Make calendar global and initialize when DOM is loaded
 let calendar;
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing calendar...');
+
     calendar = new Calendar('calendar');
     window.calendar = calendar; // Make it globally accessible for debugging
-    console.log('Calendar initialized:', calendar);
+
 });
+

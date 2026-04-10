@@ -46,13 +46,20 @@ class SportCompetitionsController {
         $competitionId = $_GET['competition_id'] ?? null;
         $competition = null;
         $students = [];
+        $existingParticipants = [];
         
         // If competition_id is provided, fetch the competition details
         if ($competitionId) {
             $competition = $model->getById($competitionId);
             // Get students for the competition's sport
             if ($competition) {
+                if (!$selectedSport && !empty($competition['sport_id'])) {
+                    $selectedSport = $competition['sport_id'];
+                }
                 $students = $model->getStudentsBySport($competition['sport_id']);
+                if (!empty($competition['participants'])) {
+                    $existingParticipants = array_filter(array_map('trim', explode(',', $competition['participants'])));
+                }
             }
         } elseif ($selectedSport) {
             // Get students for the selected sport from URL
@@ -63,7 +70,8 @@ class SportCompetitionsController {
             'sports' => $sports, 
             'selectedSport' => $selectedSport,
             'competition' => $competition,
-            'students' => $students
+            'students' => $students,
+            'existingParticipants' => $existingParticipants
         ]);
     }
 
@@ -73,7 +81,8 @@ class SportCompetitionsController {
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $_SESSION['error_message'] = 'Invalid request method';
-            header('Location: /uoc-sports/public/sport-manager/add-participants');
+            $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
+            header('Location: /uoc-sports/public/sport-manager/add-participants' . $sportParam);
             exit();
         }
 
@@ -82,6 +91,7 @@ class SportCompetitionsController {
             
             // Check if updating existing competition
             $competitionId = $_POST['competition_id'] ?? null;
+            $requestedSport = $_GET['sport'] ?? ($_POST['sport_param'] ?? null);
 
             // Get sport_id from sport name
             $sportName = $_POST['sport'] ?? '';
@@ -89,7 +99,15 @@ class SportCompetitionsController {
             
             if (!$sportId) {
                 $_SESSION['error_message'] = 'Invalid sport selected';
-                header('Location: /uoc-sports/public/sport-manager/add-participants');
+                $query = [];
+                if ($requestedSport) {
+                    $query[] = 'sport=' . urlencode($requestedSport);
+                }
+                if ($competitionId) {
+                    $query[] = 'competition_id=' . urlencode($competitionId);
+                }
+                $redirectUrl = '/uoc-sports/public/sport-manager/add-participants' . (!empty($query) ? '?' . implode('&', $query) : '');
+                header('Location: ' . $redirectUrl);
                 exit();
             }
 
@@ -104,17 +122,22 @@ class SportCompetitionsController {
             // Validate required fields
             if (empty($data['competition_name'])) {
                 $_SESSION['error_message'] = 'Please enter competition name';
-                header('Location: /uoc-sports/public/sport-manager/add-participants');
+                $query = ['sport=' . urlencode($sportId)];
+                if ($competitionId) {
+                    $query[] = 'competition_id=' . urlencode($competitionId);
+                }
+                header('Location: /uoc-sports/public/sport-manager/add-participants?' . implode('&', $query));
                 exit();
             }
 
             // If updating existing competition, get current data
+            $existingParticipants = '';
             if ($competitionId) {
                 $existingCompetition = $model->getById($competitionId);
                 if ($existingCompetition) {
                     // Keep existing PDF if no new upload
                     $data['participant_pdf'] = $existingCompetition['participant_pdf'];
-                    // Keep existing participants to append to
+                    // Keep existing participants for comparison/update
                     $existingParticipants = $existingCompetition['participants'];
                 }
             }
@@ -136,71 +159,56 @@ class SportCompetitionsController {
                     $fileUploaded = true;
                 } else {
                     $_SESSION['error_message'] = $uploadResult['message'];
-                    header('Location: /uoc-sports/public/sport-manager/add-participants');
+                    $query = ['sport=' . urlencode($sportId)];
+                    if ($competitionId) {
+                        $query[] = 'competition_id=' . urlencode($competitionId);
+                    }
+                    header('Location: /uoc-sports/public/sport-manager/add-participants?' . implode('&', $query));
                     exit();
                 }
             }
 
-            // Handle selected participants from checkboxes
-            $hasNewParticipants = false;
-            if (!empty($_POST['selectedParticipants']) && is_array($_POST['selectedParticipants'])) {
-                $newParticipants = $_POST['selectedParticipants'];
-                
-                // If updating, check for duplicates
-                if ($competitionId && !empty($existingParticipants)) {
-                    // Convert existing participants to array
-                    $existingArray = array_map('trim', explode(',', $existingParticipants));
-                    
-                    // Filter out duplicates
-                    $uniqueNewParticipants = [];
-                    $duplicates = [];
-                    
-                    foreach ($newParticipants as $participant) {
-                        if (!in_array($participant, $existingArray)) {
-                            $uniqueNewParticipants[] = $participant;
-                        } else {
-                            $duplicates[] = $participant;
-                        }
+            // Handle selected participants from checkboxes (full sync for updates)
+            $selectedParticipants = [];
+            if (isset($_POST['selectedParticipants']) && is_array($_POST['selectedParticipants'])) {
+                foreach ($_POST['selectedParticipants'] as $participant) {
+                    $trimmed = trim($participant);
+                    if ($trimmed !== '') {
+                        $selectedParticipants[] = $trimmed;
                     }
-                    
-                    // If all participants are duplicates, show error and stop
-                    if (empty($uniqueNewParticipants) && !empty($duplicates)) {
-                        $_SESSION['error_message'] = 'All selected participant(s) are already in this competition. No changes were made.';
-                        $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
-                        header('Location: /uoc-sports/public/sport-manager/competitions' . $sportParam);
-                        exit();
-                    }
-                    
-                    // If some duplicates but also new participants, show warning
-                    if (!empty($duplicates)) {
-                        $_SESSION['warning_message'] = count($duplicates) . ' participant(s) were already in this competition and were skipped.';
-                    }
-                    
-                    // Only add unique participants
-                    if (!empty($uniqueNewParticipants)) {
-                        $data['participants'] = $existingParticipants . ', ' . implode(', ', $uniqueNewParticipants);
-                        $hasNewParticipants = true;
-                    } else {
-                        $data['participants'] = $existingParticipants;
-                    }
-                } else {
-                    // New competition - just add all participants
-                    $data['participants'] = implode(', ', $newParticipants);
-                    $hasNewParticipants = true;
                 }
+            }
+
+            // Remove duplicates while preserving order
+            $selectedParticipants = array_values(array_unique($selectedParticipants));
+            $data['participants'] = !empty($selectedParticipants) ? implode(', ', $selectedParticipants) : null;
+
+            $hasParticipantChanges = false;
+            if ($competitionId) {
+                $existingArray = array_values(array_filter(array_map('trim', explode(',', (string)$existingParticipants))));
+                $normalize = function($arr) {
+                    $normalized = array_map(function($name) {
+                        return strtolower(trim($name));
+                    }, $arr);
+                    sort($normalized);
+                    return $normalized;
+                };
+                $hasParticipantChanges = $normalize($existingArray) !== $normalize($selectedParticipants);
+            } else {
+                $hasParticipantChanges = !empty($selectedParticipants);
             }
 
             // Validate that at least one method is provided (for new competitions only)
             if (!$competitionId && empty($data['participant_pdf']) && empty($data['participants'])) {
                 $_SESSION['error_message'] = 'Please upload a file or select participants';
-                header('Location: /uoc-sports/public/sport-manager/add-participants');
+                header('Location: /uoc-sports/public/sport-manager/add-participants?sport=' . urlencode($sportId));
                 exit();
             }
 
             // For updates, ensure something changed
-            if ($competitionId && !$fileUploaded && !$hasNewParticipants) {
-                $_SESSION['error_message'] = 'No changes were made. Please upload a file or select new participants.';
-                $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
+            if ($competitionId && !$fileUploaded && !$hasParticipantChanges) {
+                $_SESSION['error_message'] = 'No changes were made.';
+                $sportParam = ($requestedSport ?: $sportId) ? '?sport=' . urlencode($requestedSport ?: $sportId) : '';
                 header('Location: /uoc-sports/public/sport-manager/competitions' . $sportParam);
                 exit();
             }
@@ -217,17 +225,22 @@ class SportCompetitionsController {
 
             if ($result) {
                 $_SESSION['success_message'] = $successMessage;
-                $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
+                $sportParam = ($requestedSport ?: $sportId) ? '?sport=' . urlencode($requestedSport ?: $sportId) : '';
                 header('Location: /uoc-sports/public/sport-manager/competitions' . $sportParam);
             } else {
                 $_SESSION['error_message'] = 'Failed to save competition participants';
-                header('Location: /uoc-sports/public/sport-manager/add-participants');
+                $query = ['sport=' . urlencode($sportId)];
+                if ($competitionId) {
+                    $query[] = 'competition_id=' . urlencode($competitionId);
+                }
+                header('Location: /uoc-sports/public/sport-manager/add-participants?' . implode('&', $query));
             }
 
         } catch (Exception $e) {
             error_log("Error creating competition: " . $e->getMessage());
             $_SESSION['error_message'] = 'An error occurred: ' . $e->getMessage();
-            header('Location: /uoc-sports/public/sport-manager/add-participants');
+            $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
+            header('Location: /uoc-sports/public/sport-manager/add-participants' . $sportParam);
         }
         exit();
     }

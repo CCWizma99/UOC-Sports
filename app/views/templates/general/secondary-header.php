@@ -128,14 +128,17 @@ switch ($userType) {
 
             <?php if ($userType === 'SPT' && !empty($managedSports)): ?>
             <div class="sport-selector">
-                <select id="secondary-sport-selector" onchange="switchSport(this.value)">
-                    <?php foreach ($managedSports as $sport): ?>
-                        <option value="<?= htmlspecialchars($sport['sport_id']) ?>" 
-                                <?= $sport['sport_id'] == $selectedSportId ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($sport['sport_name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <label for="secondary-sport-selector" class="sport-selector-label">Sport:</label>
+                <div class="sport-select-wrap">
+                    <select id="secondary-sport-selector" onchange="switchSport(this.value)">
+                        <?php foreach ($managedSports as $sport): ?>
+                            <option value="<?= htmlspecialchars($sport['sport_id']) ?>" 
+                                    <?= $sport['sport_id'] == $selectedSportId ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($sport['sport_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
             <script>
                 function switchSport(sportId) {

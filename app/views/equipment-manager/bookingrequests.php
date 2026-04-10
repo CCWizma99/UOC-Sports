@@ -98,8 +98,8 @@
             <thead>
                 <tr>
                     
-                    <th onclick="sortTable(1)">User ID<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(2)">Student Name<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(1)">Requester ID<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(2)">Requester Name<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Sport<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(4)">Equipment Category<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(5)">Requested Date<span class="sort-indicator"></span></th>
@@ -184,6 +184,11 @@
                          <td><?= htmlspecialchars($request['notes'] ?? 'N/A') ?></td>
                         <td>
                             <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
+                                <button class="btn-edit" 
+                                        title="Send Special Notification"
+                                        onclick='openNotificationModal(<?= json_encode($request["request_id"]) ?>, <?= json_encode($request["student_id"] ?? "") ?>, <?= json_encode($request["requester_name"] ?? ($request["student_name"] ?? "")) ?>)'>
+                                    <i class="fas fa-bell"></i>
+                                </button>
                                 <button class="btn-edit" onclick="window.location.href='/uoc-sports/public/equipment-manager/add-booking?id=<?= $request['request_id'] ?>'">
                                  Edit
                                 </button>
@@ -206,142 +211,48 @@
 
             </div>
 
-<script>
-function updateStatus(requestId, newStatus, dropdownElement) {
-    console.log('updateStatus called with:', requestId, newStatus);
-    
-    const originalStatus = dropdownElement.getAttribute('data-original-status');
-    
-    if (!confirm('Are you sure you want to update the status to ' + newStatus + '?')) {
-        console.log('User cancelled status update');
-        // Reset dropdown to original value
-        dropdownElement.value = originalStatus;
-        return;
-    }
-    
-    console.log('Sending request to:', '/uoc-sports/public/equipment-manager/update-booking-status');
-    
-    fetch('/uoc-sports/public/equipment-manager/update-booking-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            request_id: requestId, 
-            status: newStatus 
-        })
-    })
-    .then(response => {
-        console.log('Response status:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Response data:', data);
-        if (data.success) {
-            alert('Status updated successfully!');
-            // Update the original status data attribute
-            dropdownElement.setAttribute('data-original-status', newStatus);
-            // Update dropdown color class
-            dropdownElement.className = 'status-dropdown status-' + newStatus.toLowerCase();
-        } else {
-            alert('Error: ' + data.message);
-            // Reset dropdown to original value
-            dropdownElement.value = originalStatus;
-        }
-    })
-    .catch(error => {
-        console.error('Fetch error:', error);
-        alert('Error updating status: ' + error.message);
-        // Reset dropdown to original value
-        dropdownElement.value = originalStatus;
-    });
-}
+<!-- Special Notification Modal -->
+<div id="notificationModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1200; align-items: center; justify-content: center;">
+    <div style="background: #fff; width: min(92vw, 560px); border-radius: 10px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); overflow: hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding: 1rem 1.2rem; background: #2b0c4d; color: #fff;">
+            <h3 style="margin:0; font-size:1rem;">Send Special Notification</h3>
+            <button type="button" onclick="closeNotificationModal()" style="background:transparent; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">&times;</button>
+        </div>
 
-function editRequest(requestId) {
-    window.location.href = '/uoc-sports/public/equipment-manager/edit-booking-request?id=' + requestId;
-}
+        <div style="padding: 1rem 1.2rem; display:flex; flex-direction:column; gap:0.75rem;">
+            <input id="notificationRequestId" type="hidden">
 
-function deleteRequest(requestId) {
-    if (!confirm('Are you sure you want to delete this request? This action cannot be undone.')) {
-        return;
-    }
-    
-    fetch('/uoc-sports/public/equipment-manager/delete-booking-request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ request_id: requestId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Request deleted successfully');
-            location.reload();
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(error => {
-        alert('Error deleting request');
-        console.error('Error:', error);
-    });
-}
+            <div>
+                <label for="notificationStudentId" style="display:block; font-weight:600; margin-bottom:0.25rem;">Requester ID</label>
+                <input id="notificationStudentId" type="text" readonly style="width:100%; padding:0.55rem; border:1px solid #d1d5db; border-radius:6px; background:#f9fafb;">
+            </div>
 
-function filterRequests() {
-    const status = document.getElementById('statusFilter').value;
-    const sport = document.getElementById('sportFilter').value;
-    const url = new URL(window.location.href);
-    
-    if (status) {
-        url.searchParams.set('status', status);
-    } else {
-        url.searchParams.delete('status');
-    }
-    
-    if (sport) {
-        url.searchParams.set('sport_id', sport);
-    } else {
-        url.searchParams.delete('sport_id');
-    }
-    
-    window.location.href = url.toString();
-}
+            <div>
+                <label for="notificationRequesterName" style="display:block; font-weight:600; margin-bottom:0.25rem;">Requester Name</label>
+                <input id="notificationRequesterName" type="text" readonly style="width:100%; padding:0.55rem; border:1px solid #d1d5db; border-radius:6px; background:#f9fafb;">
+            </div>
 
-// Search functionality
-document.getElementById('searchInput').addEventListener('keyup', function() {
-    const searchValue = this.value.toLowerCase();
-    const tableRows = document.querySelectorAll('#tableBody tr');
-    
-    tableRows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(searchValue) ? '' : 'none';
-    });
-});
+            <div>
+                <label for="notificationMessage" style="display:block; font-weight:600; margin-bottom:0.25rem;">Message</label>
+                <textarea id="notificationMessage" rows="4" placeholder="Type special notification message for this requester..." style="width:100%; padding:0.55rem; border:1px solid #d1d5db; border-radius:6px; resize:vertical;"></textarea>
+            </div>
 
-// Sort table function
-let sortDirection = {};
-function sortTable(columnIndex) {
-    const table = document.querySelector('.data-table table');
-    const tbody = table.querySelector('tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    
-    if (!sortDirection[columnIndex]) {
-        sortDirection[columnIndex] = 'asc';
-    } else {
-        sortDirection[columnIndex] = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
-    }
-    
-    rows.sort((a, b) => {
-        const aValue = a.cells[columnIndex]?.textContent.trim() || '';
-        const bValue = b.cells[columnIndex]?.textContent.trim() || '';
-        
-        if (sortDirection[columnIndex] === 'asc') {
-            return aValue.localeCompare(bValue, undefined, { numeric: true });
-        } else {
-            return bValue.localeCompare(aValue, undefined, { numeric: true });
-        }
-    });
-    
-    rows.forEach(row => tbody.appendChild(row));
-}
-</script>
+            <div>
+                <label style="display:block; font-weight:600; margin-bottom:0.25rem;">Sent Notifications</label>
+                <div id="notificationHistory" style="max-height:160px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:6px; background:#fafafa; padding:0.5rem;"></div>
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.6rem; padding: 0.9rem 1.2rem 1.1rem; border-top:1px solid #e5e7eb;">
+            <button type="button" onclick="closeNotificationModal()" style="padding:0.5rem 0.9rem; border:1px solid #d1d5db; border-radius:6px; background:#fff; cursor:pointer;">Cancel</button>
+            <button type="button" onclick="sendSpecialNotification()" style="padding:0.5rem 0.9rem; border:none; border-radius:6px; background:#2b0c4d; color:#fff; cursor:pointer;">
+                <i class="fas fa-paper-plane"></i> Send
+            </button>
+        </div>
+    </div>
+</div>
+
+  <script src="/uoc-sports/public/js/equipment-manager/bookingrequest.js"></script>
 
 <style>
 .status-badge {

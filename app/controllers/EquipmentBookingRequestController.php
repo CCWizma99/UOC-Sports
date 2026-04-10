@@ -127,6 +127,39 @@ class EquipmentBookingRequestController {
     }
 
     /**
+     * Check whether user already has an active/accepted reservation (AJAX)
+     */
+    public function checkActiveReservation() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            exit();
+        }
+
+        $studentId = trim($_GET['student_id'] ?? '');
+        $requesterName = trim($_GET['requester_name'] ?? '');
+
+        if ($studentId === '' && $requesterName === '') {
+            echo json_encode(['success' => true, 'has_active_reservation' => false]);
+            exit();
+        }
+
+        $model = new EquipmentBookigRequest();
+        $hasActiveReservation = $model->hasActiveReservation($studentId, $requesterName);
+
+        if ($hasActiveReservation) {
+            echo json_encode([
+                'success' => true,
+                'has_active_reservation' => true,
+                'message' => 'This user already has an active or accepted equipment reservation. Please complete or cancel the existing reservation before creating a new one.'
+            ]);
+        } else {
+            echo json_encode(['success' => true, 'has_active_reservation' => false]);
+        }
+    }
+
+    /**
      * Update request status (AJAX)
      */
     public function updateStatus() {
@@ -324,6 +357,116 @@ class EquipmentBookingRequestController {
             echo json_encode(['success' => true, 'message' => 'Request marked as completed']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to complete request']);
+        }
+    }
+
+    /**
+     * Send special notification for a booking request (AJAX)
+     */
+    public function sendRequestNotification() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            exit();
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (empty($data['request_id']) || empty($data['student_id']) || empty($data['requester_name']) || empty($data['message'])) {
+            echo json_encode(['success' => false, 'message' => 'Request ID, student ID, requester name and message are required']);
+            exit();
+        }
+
+        try {
+            $model = new EquipmentBookigRequest();
+            $saved = $model->createRequestNotification([
+                'request_id' => trim($data['request_id']),
+                'student_id' => trim($data['student_id']),
+                'requester_name' => trim($data['requester_name']),
+                'message' => trim($data['message'])
+            ]);
+
+            if ($saved) {
+                echo json_encode(['success' => true, 'message' => 'Notification sent successfully']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to send notification']);
+            }
+        } catch (Exception $e) {
+            error_log('Error in sendRequestNotification: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Server error while sending notification: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Fetch sent notifications for a booking request (AJAX)
+     */
+    public function getRequestNotifications() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            exit();
+        }
+
+        $requestId = trim($_GET['request_id'] ?? '');
+        $studentId = trim($_GET['student_id'] ?? '');
+        $requesterName = trim($_GET['requester_name'] ?? '');
+
+        if ($requestId === '' || $studentId === '' || $requesterName === '') {
+            echo json_encode(['success' => false, 'message' => 'request_id, student_id and requester_name are required']);
+            exit();
+        }
+
+        try {
+            $model = new EquipmentBookigRequest();
+            $notifications = $model->getRequestNotifications($requestId, $studentId, $requesterName);
+
+            echo json_encode([
+                'success' => true,
+                'notifications' => $notifications
+            ]);
+        } catch (Exception $e) {
+            error_log('Error in getRequestNotifications: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Server error while fetching notifications: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Delete one sent notification for a booking request (AJAX)
+     */
+    public function deleteRequestNotification() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            exit();
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        $notificationId = trim($data['notification_id'] ?? '');
+        $requestId = trim($data['request_id'] ?? '');
+        $studentId = trim($data['student_id'] ?? '');
+        $requesterName = trim($data['requester_name'] ?? '');
+
+        if ($notificationId === '' || $requestId === '' || $studentId === '' || $requesterName === '') {
+            echo json_encode(['success' => false, 'message' => 'notification_id, request_id, student_id and requester_name are required']);
+            exit();
+        }
+
+        try {
+            $model = new EquipmentBookigRequest();
+            $deleted = $model->deleteRequestNotification($notificationId, $requestId, $studentId, $requesterName);
+
+            if ($deleted) {
+                echo json_encode(['success' => true, 'message' => 'Notification deleted successfully']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Notification not found or already deleted']);
+            }
+        } catch (Exception $e) {
+            error_log('Error in deleteRequestNotification: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Server error while deleting notification: ' . $e->getMessage()]);
         }
     }
 

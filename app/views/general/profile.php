@@ -196,7 +196,8 @@
                         'time' => $booking['start_time'] . ' - ' . $booking['end_time'],
                         'status' => $booking['display_status'],
                         'purpose' => $booking['purpose'],
-                        'price' => $booking['price']
+                        'price' => $booking['price'],
+                        'payment_slip' => $booking['payment_slip']
                     ];
                 }
             }
@@ -336,8 +337,11 @@
 
                         <div class="booking-actions-modern">
                             <span class="status-dot ${statusClass}" title="${b.status}"></span>
-                            ${b.status === 'PENDING' ? 
+                            ${b.status === 'PENDING' && !b.payment_slip ? 
                                 '<button class="btn-pay-icon" onclick="payNow(\'' + b.id + '\')" title="Pay Now"><i class="fas fa-credit-card"></i></button>' : 
+                                ''}
+                            ${b.payment_slip ? 
+                                '<a href="/uoc-sports/app/internal/payment_slips/' + b.payment_slip + '" target="_blank" class="btn-view-slip" title="View Submitted Proof"><i class="fas fa-file-invoice"></i></a>' : 
                                 ''}
                         </div>
                     </div>

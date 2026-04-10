@@ -1,0 +1,307 @@
+@import url(/uoc-sports/public/css/global.css);
+@import url(/uoc-sports/public/css/admin/header.css);
+@import url(/uoc-sports/public/css/admin/link-bar.css);
+@import url(/uoc-sports/public/css/admin/sidebar.css);
+@import url(/uoc-sports/public/css/admin/footer.css);
+
+.main-content-wrapper {
+    margin-left: 240px;
+    padding: 25px 40px;
+    min-height: calc(100vh - 120px);
+    background-color: #fdfbff;
+    transition: margin-left 0.3s ease;
+    margin-top: 110px;
+    /* Account for header (70px) + link-bar (40px) */
+    overflow-y: auto;
+}
+
+@media (max-width: 1024px) {
+    .main-content-wrapper {
+        margin-left: 0;
+        padding: 20px;
+        margin-top: 110px;
+    }
+}
+
+.page-title h1 {
+    color: #1e1e2e;
+    font-size: 26px;
+    margin: 0 0 4px 0;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-title h1 i {
+    color: #4b0082;
+    font-size: 22px;
+}
+
+.page-title p {
+    color: #64748b;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Badges */
+.status-badge {
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-published {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #d1fae5;
+}
+
+.status-unpublished {
+    background: #fff1f2;
+    color: #e11d48;
+    border: 1px solid #ffe4e6;
+}
+
+/* Filters */
+.record-filters {
+    margin-bottom: 24px;
+    background: white;
+    padding: 20px;
+    border-radius: 1rem;
+    border: 1px solid rgba(75, 0, 130, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-container {
+    position: relative;
+    flex: 1;
+    min-width: 300px;
+}
+
+.search-container i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.record-filters input {
+    padding: 12px 16px 12px 40px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    width: 100%;
+    font-size: 14px;
+    transition: all 0.2s;
+    outline: none;
+    font-family: inherit;
+}
+
+.record-filters input:focus {
+    border-color: #4b0082;
+    box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.05);
+}
+
+.record-filters select {
+    padding: 12px 40px 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    outline: none;
+    font-size: 14px;
+    cursor: pointer;
+    appearance: none;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") no-repeat right 12px center/16px;
+    font-family: inherit;
+}
+
+/* Table Aesthetics */
+.record-card {
+    background: white;
+    border-radius: 1.2rem;
+    border: 1px solid rgba(75, 0, 130, 0.05);
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+.user-table thead th {
+    background: #faf9ff;
+    color: #4b0082;
+    padding: 16px 20px;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid rgba(75, 0, 130, 0.05);
+}
+
+.user-table tbody td {
+    padding: 18px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.user-table tbody tr:hover {
+    background: #fcfaff;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #f8fafc;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+/* Action Buttons */
+.action-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-family: inherit;
+}
+
+.btn-view {
+    background: #f8fafc;
+    color: #4b0082;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-view:hover {
+    background: #f1f5f9;
+    transform: translateY(-1px);
+}
+
+.btn-pub {
+    background: #4b0082;
+    color: white;
+}
+
+.btn-pub:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(75, 0, 130, 0.2);
+}
+
+.btn-unpub {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.btn-unpub:hover {
+    background: #e2e8f0;
+}
+
+.btn-release {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    color: white;
+}
+
+.btn-release:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* Force table text alignment */
+.user-table th,
+.user-table td {
+    text-align: left;
+    vertical-align: middle;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    width: 90%;
+    overflow: hidden;
+    position: relative;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.detail-row {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.2s;
+}
+
+.detail-row:hover {
+    background: #faf9fc;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #475569;
+    padding: 12px 16px;
+    width: 40%;
+    background: #f8fafc;
+}
+
+.detail-value {
+    padding: 12px 16px;
+    color: #1e293b;
+}

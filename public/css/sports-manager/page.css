@@ -45,7 +45,7 @@
 
 .page-header h2 {
     color: var(--primary-purple);
-    font-size: 2rem;
+    font-size: 1.5rem;
     margin-bottom: 0.5rem;
     margin-top: 0;
     font-weight: 700;
@@ -53,9 +53,19 @@
 
 .page-header p {
     color: #9ca3af;
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin: 0;
 }
+
+.page-header .page-path {
+    margin: 0 0 0.35rem 0;
+    color: #8b728f;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    margin-bottom: 1rem;
+}
+
 
 .form {
     display: flex;
@@ -163,6 +173,66 @@
     color: #111827;
     border-color: #6b7280;
     transition: all 0.3s ease;
+}
+
+/* Compact form sizing for add-expense, add-practice and add-participants pages */
+#addPracticeForm.form,
+#addParticipantsForm.form,
+#addExpenseForm.form {
+    gap: 0;
+}
+
+#addPracticeForm .form-row,
+#addParticipantsForm .form-row,
+#addExpenseForm .form-row {
+    gap: 0.6rem 1.2rem;
+}
+
+#addPracticeForm .form-group,
+#addParticipantsForm .form-group,
+#addExpenseForm .form-group {
+    margin-bottom: 0.45rem;
+}
+
+#addPracticeForm .form-group label,
+#addParticipantsForm .form-group label,
+#addExpenseForm .form-group label {
+    margin-bottom: 0.3rem;
+    font-size: 0.92rem;
+}
+
+#addPracticeForm .form-group input,
+#addPracticeForm .form-group select,
+#addPracticeForm .form-group textarea,
+#addParticipantsForm .form-group input,
+#addParticipantsForm .form-group select,
+#addParticipantsForm .form-group textarea,
+#addExpenseForm .form-group input,
+#addExpenseForm .form-group select,
+#addExpenseForm .form-group textarea {
+    padding: 0.52rem 0.72rem;
+    font-size: 0.92rem;
+}
+
+#addPracticeForm .form-group textarea,
+#addParticipantsForm .form-group textarea,
+#addExpenseForm .form-group textarea {
+    min-height: 68px;
+}
+
+#addPracticeForm .form-actions,
+#addParticipantsForm .form-actions,
+#addExpenseForm .form-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    gap: 0.9rem;
+}
+
+#addPracticeForm .form-actions button,
+#addParticipantsForm .form-actions button,
+#addExpenseForm .form-actions button {
+    padding: 0.58rem 1.4rem;
+    min-width: 130px;
 }
 
 

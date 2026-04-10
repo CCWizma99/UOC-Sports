@@ -37,7 +37,12 @@ $router->post('/payment/notify', 'PaymentController@notify');
 $router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
 
 // Reservation Stats API
+$router->get('/api/reservation/search', 'ReservationApiController@search');
+$router->get('/api/reservation/locations', 'ReservationApiController@getLocations');
+$router->post('/api/facility/submit-payment-slip', 'FacilityApiController@submitPaymentSlip');
+$router->post('/api/facility/verify-payment', 'FacilityApiController@verifyPayment');
 $router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
+
 
 $router->get('/student', 'StudentController@index');
 $router->get('/student/sports', 'StudentController@sports');
@@ -140,10 +145,14 @@ $router->post('/equipment-manager/save-booking', 'EquipmentManagerController@sav
 $router->post('/post/delete-comment', 'PostController@deleteComment');
 $router->get('/equipment-manager/bookingrequests', 'EquipmentBookingRequestController@index');
 $router->get('/equipment-manager/booking-request-details', 'EquipmentBookingRequestController@getDetails');
+$router->get('/equipment-manager/check-active-reservation', 'EquipmentBookingRequestController@checkActiveReservation');
 $router->post('/equipment-manager/create-booking-request', 'EquipmentBookingRequestController@create');
 $router->post('/equipment-manager/update-booking-request', 'EquipmentBookingRequestController@update');
 $router->post('/equipment-manager/update-booking-status', 'EquipmentBookingRequestController@updateStatus');
 $router->post('/equipment-manager/delete-booking-request', 'EquipmentBookingRequestController@delete');
+$router->post('/equipment-manager/send-request-notification', 'EquipmentBookingRequestController@sendRequestNotification');
+$router->get('/equipment-manager/request-notifications', 'EquipmentBookingRequestController@getRequestNotifications');
+$router->post('/equipment-manager/delete-request-notification', 'EquipmentBookingRequestController@deleteRequestNotification');
 $router->post('/equipment-manager/approve-booking', 'EquipmentBookingRequestController@approve');
 $router->post('/equipment-manager/reject-booking', 'EquipmentBookingRequestController@reject');
 $router->post('/equipment-manager/complete-booking', 'EquipmentBookingRequestController@complete');
