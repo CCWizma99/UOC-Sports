@@ -22,7 +22,7 @@ class SportEquipment {
                     COALESCE(SUM(ei.quantity), 0) as quantity,
                     COALESCE(SUM(ei.usable), 0) as usable_count
                 FROM equipment e
-                LEFT JOIN equipment_categories ec ON e.equipment_id = ec.equipment_id
+                LEFT JOIN equipment_categories ec ON e.category_id = ec.category_id
                 LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
                 WHERE e.sport_id = ?
                 GROUP BY e.equipment_id, e.equipment_name, e.sport_id, e.max_allow, ec.category_id, ec.category_name

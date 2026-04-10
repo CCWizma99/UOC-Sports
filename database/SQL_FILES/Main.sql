@@ -150,6 +150,7 @@ DROP TABLE IF EXISTS `equipment`;
 CREATE TABLE IF NOT EXISTS `equipment` (
   `equipment_id` varchar(12) NOT NULL,
   `sport_id` varchar(4) NOT NULL,
+  `category_id` varchar(8) DEFAULT NULL,
   `equipment_name` varchar(32) NOT NULL,
   `max_allow` int NOT NULL,
   `image_name` varchar(48) NOT NULL,
@@ -1293,6 +1294,7 @@ CREATE TABLE IF NOT EXISTS `sport_expenses` (
   `expense_id` int NOT NULL AUTO_INCREMENT,
   `sport` varchar(100) NOT NULL,
   `expense_title` varchar(255) NOT NULL,
+  `sport_event` varchar(255) DEFAULT NULL,
   `amount` decimal(10,2) NOT NULL DEFAULT '0.00',
   `receipt` varchar(255) DEFAULT NULL,
   `submitted_by` varchar(100) NOT NULL,
