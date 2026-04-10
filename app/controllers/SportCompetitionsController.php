@@ -11,6 +11,16 @@ class SportCompetitionsController {
         
         // Get selected sport from URL parameter
         $selectedSportId = $_GET['sport'] ?? null;
+
+        // Persist selected sport from header selector
+        if ($selectedSportId) {
+            $_SESSION['selected_sport_id'] = $selectedSportId;
+        }
+
+        // Use session value when URL parameter is absent
+        if (!$selectedSportId && isset($_SESSION['selected_sport_id'])) {
+            $selectedSportId = $_SESSION['selected_sport_id'];
+        }
         
         // If no sport selected, get the first managed sport as default
         if (!$selectedSportId && $userId) {
@@ -21,6 +31,11 @@ class SportCompetitionsController {
                                   ORDER BY s.sport_name LIMIT 1");
             $stmt->execute([$userId]);
             $selectedSportId = $stmt->fetchColumn();
+
+            // Persist fallback sport for subsequent navigation
+            if ($selectedSportId) {
+                $_SESSION['selected_sport_id'] = $selectedSportId;
+            }
         }
         
         // Filter by sport if selected
@@ -294,33 +309,33 @@ class SportCompetitionsController {
     /**
      * Delete competition
      */
-    public function delete() {
-        $id = $_POST['id'] ?? $_GET['id'] ?? null;
+    // public function delete() {
+    //     $id = $_POST['id'] ?? $_GET['id'] ?? null;
 
-        if (!$id) {
-            $_SESSION['error_message'] = 'Invalid competition';
-            header('Location: /uoc-sports/public/sport-manager/competitions');
-            exit();
-        }
+    //     if (!$id) {
+    //         $_SESSION['error_message'] = 'Invalid competition';
+    //         header('Location: /uoc-sports/public/sport-manager/competitions');
+    //         exit();
+    //     }
 
-        try {
-            $model = new SportCompetition();
-            $result = $model->delete($id);
+    //     try {
+    //         $model = new SportCompetition();
+    //         $result = $model->delete($id);
 
-            if ($result) {
-                $_SESSION['success_message'] = 'Competition deleted successfully!';
-            } else {
-                $_SESSION['error_message'] = 'Failed to delete competition';
-            }
+    //         if ($result) {
+    //             $_SESSION['success_message'] = 'Competition deleted successfully!';
+    //         } else {
+    //             $_SESSION['error_message'] = 'Failed to delete competition';
+    //         }
 
-        } catch (Exception $e) {
-            error_log("Error deleting competition: " . $e->getMessage());
-            $_SESSION['error_message'] = 'An error occurred while deleting the competition';
-        }
+    //     } catch (Exception $e) {
+    //         error_log("Error deleting competition: " . $e->getMessage());
+    //         $_SESSION['error_message'] = 'An error occurred while deleting the competition';
+    //     }
 
-        // Preserve sport filter if it exists
-        $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
-        header('Location: /uoc-sports/public/sport-manager/competitions' . $sportParam);
-        exit();
-    }
+    //     // Preserve sport filter if it exists
+    //     $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
+    //     header('Location: /uoc-sports/public/sport-manager/competitions' . $sportParam);
+    //     exit();
+    // }
 }

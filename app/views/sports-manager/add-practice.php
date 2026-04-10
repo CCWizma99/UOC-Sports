@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Equipment Report</title>
+  <title>Sports manager - Add Practice Session</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
@@ -14,6 +14,20 @@
 
     @import url("/uoc-sports/public/css/sports-manager/report.css");
     @import url("/uoc-sports/public/css/sports-manager/page.css");
+
+        .conflict-alert {
+            display: none;
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left: 4px solid #dc2626;
+            color: #991b1b;
+            font-weight: 600;
+            font-size: 14px;
+            align-items: center;
+            gap: 8px;
+        }
   </style>
 </head>
 <body>
@@ -53,9 +67,13 @@
                 <?php if (isset($_GET['sport'])): ?>
                     <input type="hidden" name="sport_param" value="<?php echo htmlspecialchars($_GET['sport']); ?>">
                 <?php endif; ?>
+                <div id="practiceConflictAlert" class="conflict-alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="practiceConflictAlertText"></span>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="Sport name">Sport *</label>
+                        <label for="Sport name">Sport <span class="required-star">*</span></label>
                         <select id="sport" name="sport" required>
                             <option value="">Select Sport</option>
                             <?php if (!empty($sports)): ?>
@@ -95,22 +113,22 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="practiceSessionDate">Practice Session Date *</label>
+                        <label for="practiceSessionDate">Practice Session Date <span class="required-star">*</span></label>
                         <input type="date" id="practiceSessionDate" name="date" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="startTime">Start Time *</label>
+                        <label for="startTime">Start Time <span class="required-star">*</span></label>
                         <input type="time" id="startTime" name="stime" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="endTime">End Time *</label>
+                        <label for="endTime">End Time <span class="required-star">*</span></label>
                         <input type="time" id="endTime" name="etime" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="needEquipment">Need Equipment *</label>
+                        <label for="needEquipment">Need Equipment <span class="required-star">*</span></label>
                         <select id="needEquipment" name="need_equipment" required>
                             <option value="No">No</option>
                             <option value="Yes">Yes</option>
@@ -118,7 +136,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Location *</label>
+                        <label for="location">Location <span class="required-star">*</span></label>
                         <select id="location" name="location" required>
                             <option>Select the Location</option>
                             <option value="Indoor Court">Indoor Tennis Court</option>
@@ -132,14 +150,11 @@
                         </select>
                     </div>
 
-                    <div class="form-group full-width">
-                        <label for="expenseDescription">Special Notes *</label>
-                        <textarea id="expenseDescription" name="notes" rows="4" placeholder="Enter any special notes..."></textarea>
-                    </div>
+
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" onclick="window.location.href='/uoc-sports/public/sport-manager/practicesessions'">
+                          <button type="button" onclick="window.location.href='/uoc-sports/public/sport-manager/practicesessions<?= isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '' ?>'">
                        Cancel
                     </button>
                     <button type="submit">
@@ -149,6 +164,83 @@
             </form>
         </div>
 </div>
+
+<script>
+const addPracticeForm = document.getElementById('addPracticeForm');
+const locationField = document.getElementById('location');
+const dateField = document.getElementById('practiceSessionDate');
+const startTimeField = document.getElementById('startTime');
+const endTimeField = document.getElementById('endTime');
+const conflictAlert = document.getElementById('practiceConflictAlert');
+const conflictAlertText = document.getElementById('practiceConflictAlertText');
+let hasPracticeConflict = false;
+let conflictCheckTimer = null;
+
+function showPracticeConflict(message) {
+    hasPracticeConflict = true;
+    conflictAlertText.textContent = message;
+    conflictAlert.style.display = 'flex';
+}
+
+function hidePracticeConflict() {
+    hasPracticeConflict = false;
+    conflictAlertText.textContent = '';
+    conflictAlert.style.display = 'none';
+}
+
+function checkPracticeConflictLive() {
+    const location = locationField.value.trim();
+    const date = dateField.value.trim();
+    const startTime = startTimeField.value.trim();
+    const endTime = endTimeField.value.trim();
+
+    if (!location || !date || !startTime || !endTime) {
+        hidePracticeConflict();
+        return;
+    }
+
+    const params = new URLSearchParams({
+        location: location,
+        date: date,
+        start_time: startTime,
+        end_time: endTime
+    });
+
+    fetch('/uoc-sports/public/sport-manager/check-practice-conflict?' + params.toString())
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                return;
+            }
+
+            if (data.has_conflict) {
+                showPracticeConflict(data.message || 'This facility is already booked for the selected date and time.');
+            } else {
+                hidePracticeConflict();
+            }
+        })
+        .catch(() => {
+            // Keep silent for network errors, avoid noisy UX
+        });
+}
+
+function queuePracticeConflictCheck() {
+    clearTimeout(conflictCheckTimer);
+    conflictCheckTimer = setTimeout(checkPracticeConflictLive, 250);
+}
+
+[locationField, dateField, startTimeField, endTimeField].forEach((field) => {
+    field.addEventListener('change', queuePracticeConflictCheck);
+    field.addEventListener('input', queuePracticeConflictCheck);
+});
+
+addPracticeForm.addEventListener('submit', function(e) {
+    if (hasPracticeConflict) {
+        e.preventDefault();
+        conflictAlert.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+});
+</script>
 
  <?php
     require "../app/views/templates/general/footer.php";

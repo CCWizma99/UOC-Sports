@@ -32,6 +32,7 @@
 <div class="page-form-container">
     <div class="page-header">
         <div>
+            <p class="page-path">Equipment Manager / Lost items / Add Lost Item</p>
             <h2><?php echo $isEdit ? 'Edit Lost Item' : 'Add Lost Item'; ?></h2>
             <p><?php echo $isEdit ? 'Update the lost item details' : 'Fill in the details to add a new lost item record'; ?></p>
         </div>
@@ -56,56 +57,47 @@
         <?php endif; ?>
          <div class="form-row">
         <div class="form-group">
-            <label for="item_name">Item Name *</label>
+            <label for="item_name">Item Name <span class="required-star">*</span></label>
             <input type="text" id="item_name" name="itemName" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['itemName']) : ''; ?>" required>    
         </div>  
 
         <div class="form-group">
-            <label for="date_found">Date Found *</label>
+            <label for="date_found">Date Found <span class="required-star">*</span></label>
             <input type="date" id="date_found" name="foundDate" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['foundDate']) : ''; ?>" required>
         </div>
 
         <div class="form-group">
-            <label for="location_found">Location Found *</label>
+            <label for="location_found">Location Found <span class="required-star">*</span></label>
             <input type="text" id="location_found" name="foundLocation" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['foundLocation']) : ''; ?>" required>
         </div>
 
         <div class="form-group">
-            <label for="found_by">Found By *</label>
+            <label for="found_by">Found By <span class="required-star">*</span></label>
             <input type="text" id="found_by" name="foundBy" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['foundBy']) : ''; ?>" required>      
         </div>
         
         <div class="form-group">
-            <label for="contact_number">Contact Number *</label>
-            <input type="text" id="contact_number" name="contactNumber" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['contactNumber']) : ''; ?>" required>
+            <label for="contact_number">Contact Number <span class="required-star">*</span></label>
+            <input type="text" id="contact_number" name="contactNumber" pattern="[0-9]{10}" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['contactNumber']) : ''; ?>" required>
         </div>
 
         <div class="form-group">
-            <label for="status">Status *</label>
+            <label for="status">Status <span class="required-star">*</span></label>
             <select id="status" name="itemStatus" required>
                 <option value="unclaimed" <?php echo ($isEdit && $editData && $editData['itemStatus'] == 'unclaimed') ? 'selected' : ''; ?>>Unclaimed</option>
                 <option value="claimed" <?php echo ($isEdit && $editData && $editData['itemStatus'] == 'claimed') ? 'selected' : ''; ?>>Claimed</option>
                 <option value="discarded" <?php echo ($isEdit && $editData && $editData['itemStatus'] == 'discarded') ? 'selected' : ''; ?>>Discarded</option>
             </select>
         </div>
+
+        
         
         <div class="form-group full-width">
-            <label for="description">Description *</label>
-            <textarea id="description" name="description" rows="2" required><?php echo $isEdit && $editData ? htmlspecialchars($editData['description']) : ''; ?></textarea>
+            <label for="description">Description </label>
+            <textarea id="description" name="description" rows="2" ><?php echo $isEdit && $editData ? htmlspecialchars($editData['description']) : ''; ?></textarea>
         </div>
 
-        <div class="form-group full-width">
-            <label for="image">Item Image *<?php echo $isEdit ? ' (Leave empty to keep current image)' : ''; ?></label>
-            <input type="file" id="image" name="item" accept="image/*">
-            <?php if ($isEdit && $editData && !empty($editData['image'])): ?>
-                <div style="margin-top: 0.5rem;">
-                    <small>Current image:</small><br>
-                    <img src="/uoc-sports/app/internal/lostitem/<?php echo htmlspecialchars($editData['image']); ?>" 
-                         alt="Current image" 
-                         style="max-width: 120px; border-radius: 6px; margin-top: 0.5rem;">
-                </div>
-            <?php endif; ?>
-        </div>
+        
           </div>
         <div class="form-actions">
             <button type="button" class="btn-add" onclick="window.location.href='/uoc-sports/public/equipment-manager/lostitem'">Back</button>

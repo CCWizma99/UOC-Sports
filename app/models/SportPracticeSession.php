@@ -21,7 +21,7 @@ class SportPracticeSession {
                     ps.session_date,
                     ps.start_time,
                     ps.end_time,
-                    ps.notes,
+                  
                     ps.need_equipment,
                     ps.status,
                     ps.created_at,
@@ -89,8 +89,8 @@ class SportPracticeSession {
         }
         
         $query = "INSERT INTO practice_sessions 
-                  (sport_id, added_by, facility, location, session_date, start_time, end_time, notes, need_equipment, status)
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                  (sport_id, added_by, facility, location, session_date, start_time, end_time, need_equipment, status)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $this->db->prepare($query);
         $result = $stmt->execute([
@@ -101,7 +101,6 @@ class SportPracticeSession {
             $data['session_date'],
             $data['start_time'],
             $data['end_time'],
-            $data['notes'] ?? '',
             $data['need_equipment'] ?? 'No',
             $data['status'] ?? 'PENDING'
         ]);
@@ -129,7 +128,6 @@ class SportPracticeSession {
                       session_date = ?,
                       start_time = ?,
                       end_time = ?,
-                      notes = ?,
                       need_equipment = ?,
                       status = ?
                   WHERE id = ?";
@@ -142,7 +140,7 @@ class SportPracticeSession {
             $data['session_date'],
             $data['start_time'],
             $data['end_time'],
-            $data['notes'] ?? '',
+         
             $data['need_equipment'] ?? 'No',
             $data['status'] ?? 'ACTIVE',
             $id

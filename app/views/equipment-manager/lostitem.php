@@ -49,11 +49,12 @@
                     
                     <th onclick="sortTable(1)">Item Name<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(2)">Found Date<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(3)">Description<span class="sort-indicator"></span></th>
+                    
                     <th onclick="sortTable(4)">Found Location<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(5)">Found By<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(6)">Contact Number<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(7)">Item Image<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(3)">Description<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(8)">Status<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(9)">Action<span class="sort-indicator"></span></th>
                 </tr>
@@ -66,7 +67,7 @@
                         
                         <td><?= $lst['itemName'] ?></td>
                         <td><?= $lst['foundDate'] ?></td>
-                        <td><?= $lst['description'] ?></td>
+                        
                         <td><?= $lst['foundLocation'] ?></td>
                         <td><?= $lst['foundBy'] ?></td>
                         <td><?= $lst['contactNumber'] ?></td>
@@ -77,6 +78,7 @@
                                 No Image
                               <?php endif; ?>
                         </td>
+                        <td><?= $lst['description'] ?></td>
                         <td>
                             <select class="status-dropdown" onchange="updateStatus('<?= $lst['lostItem_id'] ?>', this.value)">
                                 <option value="unclaimed" <?= $lst['itemStatus'] === 'unclaimed' ? 'selected' : '' ?>>Unclaimed</option>

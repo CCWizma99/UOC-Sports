@@ -31,7 +31,7 @@ class EquipmentBookigRequest {
                     FROM `equipment-requests` er
                     LEFT JOIN user u ON er.student_id = u.user_id
                     LEFT JOIN sport s ON er.sport_id = s.sport_id
-                    WHERE 1=1";
+                    WHERE 1=1 ";
             
             $params = [];
             
@@ -65,7 +65,7 @@ class EquipmentBookigRequest {
                 $params[] = $filters['date_to'];
             }
             
-            $query .= " ";
+            $query .= "ORDER BY er.request_date DESC";
             
             error_log("EquipmentBookigRequest Query: " . $query);
             error_log("EquipmentBookigRequest Params: " . print_r($params, true));

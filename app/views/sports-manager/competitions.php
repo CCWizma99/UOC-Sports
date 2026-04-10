@@ -95,6 +95,208 @@
         white-space: nowrap;
     }
 
+    .expand-btn {
+        width: 36px;
+        height: 36px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #334155;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .expand-btn:hover {
+        background: #f3e8ff;
+        border-color: #a855f7;
+        color: #6b21a8;
+    }
+
+    .expand-btn i {
+        transition: transform 0.2s ease;
+    }
+
+    .competition-row.is-expanded .expand-btn i {
+        transform: rotate(90deg);
+    }
+
+    .competition-main-cell {
+        cursor: pointer;
+    }
+
+    .competition-details-row {
+        display: none;
+    }
+
+    .competition-details-row.is-visible {
+        display: table-row;
+    }
+
+    .competition-details-cell {
+        background: #faf5ff;
+        border-top: none;
+        padding: 18px 20px 20px;
+    }
+
+    .details-panel {
+        border: 1px solid #eadcff;
+        border-left: 4px solid #a855f7;
+        border-radius: 14px;
+        background: linear-gradient(145deg, #ffffff 0%, #fcf5ff 100%);
+        padding: 18px;
+        box-shadow: 0 8px 20px rgba(107, 33, 168, 0.1);
+    }
+
+    .details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .details-header-title {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: #6b21a8;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .details-meta {
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b21a8;
+        background: #f3e8ff;
+        padding: 5px 10px;
+        border-radius: 999px;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 240px;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .details-title {
+        margin: 0 0 10px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #7e22ce;
+    }
+
+    .participant-items {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .participant-items li {
+        background: #f3e8ff;
+        color: #6b21a8;
+        border: 1px solid #d8b4fe;
+        border-radius: 999px;
+        padding: 6px 11px;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    .no-participants {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+        font-style: italic;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 10px;
+        padding: 12px;
+    }
+
+    .details-file {
+        display: flex;
+        justify-content: center;
+    }
+
+    .file-card {
+        width: 100%;
+        background: #f8fafc;
+        border: 1px solid #eadcff;
+        border-radius: 12px;
+        padding: 14px;
+    }
+
+    .file-label {
+        margin: 0 0 10px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #6b21a8;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .file-empty {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        font-style: italic;
+        background: #ffffff;
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .details-file .btn-view {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-decoration: none;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        border: 2px solid #3b82f6;
+        transition: all 0.2s ease;
+    }
+
+    .details-file .btn-view:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+    }
+
+    @media (max-width: 900px) {
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .details-file {
+            justify-content: stretch;
+        }
+
+        .details-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
     .date-cell {
         font-weight: 500;
         color: #374151;
@@ -226,54 +428,39 @@
         <table>
             <thead>
                 <tr>
-                    
+                    <th></th>
                     <th onclick="sortTable(1)">Competition Name<span class="sort-indicator"></span></th>
-                    
-                    <th onclick="sortTable(3)">Competition Date <span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(4)">Participant File<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(5)">Count<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(6)">Participants<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(7)">Action<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(2)">Competition Date <span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(3)">Count<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(4)">Action<span class="sort-indicator"></span></th>
                 </tr>
             </thead>
 
             <tbody id="tableBody">
             <?php if(!empty($competitions)): ?>
                 <?php foreach($competitions as $competition): ?>
-                    <tr>
-                   
-                        <td><?= htmlspecialchars($competition['competition_name']) ?></td>
-                       
-                        <td class="date-cell"><?= htmlspecialchars(date('M d, Y', strtotime($competition['date']))) ?></td>
+                    <?php
+                        $participants = [];
+                        if (!empty($competition['participants'])) {
+                            $participants = array_values(array_filter(array_map('trim', explode(',', $competition['participants']))));
+                        }
+                    ?>
+                    <tr class="competition-row" data-competition-id="<?= (int)$competition['competition_id'] ?>">
                         <td>
-                            <?php if (!empty($competition['participant_pdf'])): ?>
-                                <a href="/uoc-sports/app/internal/Sport_competitions/<?= htmlspecialchars($competition['participant_pdf']) ?>" 
-                                   target="_blank" class="btn-view">
-                                  View PDF
-                                </a>
-                            <?php else: ?>
-                                <span style="color: #9ca3af; font-style: italic;">No file</span>
-                            <?php endif; ?>
+                            <button type="button" class="expand-btn" aria-label="Expand competition details" aria-expanded="false" onclick="toggleCompetitionDetails(<?= (int)$competition['competition_id'] ?>)">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
                         </td>
-                        <td>
+                        <td class="competition-main-cell" onclick="toggleCompetitionDetails(<?= (int)$competition['competition_id'] ?>)"><?= htmlspecialchars($competition['competition_name']) ?></td>
+                        <td class="date-cell competition-main-cell" onclick="toggleCompetitionDetails(<?= (int)$competition['competition_id'] ?>)"><?= htmlspecialchars(date('M d, Y', strtotime($competition['date']))) ?></td>
+                        <td class="competition-main-cell" onclick="toggleCompetitionDetails(<?= (int)$competition['competition_id'] ?>)">
                             <span class="participant-count">
                             <?php 
-                            if (!empty($competition['participants'])) {
-                                $participantCount = count(explode(',', $competition['participants']));
+                            if (!empty($participants)) {
+                                $participantCount = count($participants);
                                 echo $participantCount;
                             } else {
                                 echo '0';
-                            }
-                            ?>
-                            </span>
-                        </td>
-                        <td>
-                            <span class="participant-list" title="<?= htmlspecialchars($competition['participants'] ?? 'N/A') ?>">
-                            <?php 
-                            if (!empty($competition['participants'])) {
-                                echo htmlspecialchars($competition['participants']);
-                            } else {
-                                echo '<span style="color: #9ca3af; font-style: italic;">Empty Selection</span>';
                             }
                             ?>
                             </span>
@@ -284,20 +471,51 @@
                                    class="view-all-link">
                                      Add Participant
                                 </a>
-                                <form method="POST" action="/uoc-sports/public/sport-manager/delete-competition" style="display: inline; margin: 0;">
-                                    <input type="hidden" name="id" value="<?= $competition['competition_id'] ?>">
-                                    <button type="button" class="delete-btn" onclick="return confirm('Are you sure you want to delete this competition?')">
-                                         Delete
-                                    </button>
-                                </form>
                             </div>
                         </td>
-                     </tr>
+                    </tr>
+                    <tr class="competition-details-row" id="competition-details-<?= (int)$competition['competition_id'] ?>" style="display: none;">
+                        <td colspan="5" class="competition-details-cell">
+                            <div class="details-panel">
+                                <div class="details-header">
+                                    <h4 class="details-header-title"><i class="fa-solid fa-list-check"></i> Competition Details</h4>
+                                    <span class="details-meta"><?= count($participants) ?> Participant<?= count($participants) === 1 ? '' : 's' ?></span>
+                                </div>
+                                <div class="details-grid">
+                                    <div>
+                                        <p class="details-title">Participants</p>
+                                        <?php if (!empty($participants)): ?>
+                                            <ul class="participant-items">
+                                                <?php foreach($participants as $participant): ?>
+                                                    <li><?= htmlspecialchars($participant) ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php else: ?>
+                                            <p class="no-participants">No participants added yet.</p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="details-file">
+                                        <div class="file-card">
+                                            <p class="file-label"><i class="fa-solid fa-file-pdf"></i> Participant Document</p>
+                                            <?php if (!empty($competition['participant_pdf'])): ?>
+                                                <a href="/uoc-sports/app/internal/Sport_competitions/<?= htmlspecialchars($competition['participant_pdf']) ?>" 
+                                                   target="_blank" class="btn-view">
+                                                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Open PDF
+                                                </a>
+                                            <?php else: ?>
+                                                <p class="file-empty">No PDF uploaded</p>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
                   <?php endforeach; ?>
 
                     <?php else: ?>
                             <tr>
-                                <td colspan="8" style="text-align: center; padding: 2rem; color: #6b7280;">
+                                <td colspan="5" style="text-align: center; padding: 2rem; color: #6b7280;">
                                     No competitions found. <a href="/uoc-sports/public/sport-manager/add-participants">Add your first competition</a>
                                 </td>
                             </tr>

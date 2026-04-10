@@ -4,12 +4,17 @@ class Calendar {
         this.container = document.getElementById(containerId);
         this.currentDate = new Date();
         this.practiceSessions = {};
-        this.sportId = window.selectedSportId || null;
+        const urlParams = new URLSearchParams(window.location.search);
+        this.sportId = urlParams.get('sport') || window.selectedSportId || null;
         this.tooltip = null;
         this.init();
     }
 
     async init() {
+        if (!this.container) {
+            console.error('Sports manager calendar container not found');
+            return;
+        }
         this.createTooltip();
         await this.fetchPracticeSessions();
         this.render();
@@ -94,11 +99,24 @@ class Calendar {
         return `${displayHour}:${minutes} ${ampm}`;
     }
 
+    getVisibleSessions(sessions) {
+        return Array.isArray(sessions) ? sessions : [];
+    }
+
+    getStatusColor(status) {
+        const normalized = String(status || '').toUpperCase();
+        if (normalized === 'ACTIVE') return '#3b82f6';
+        if (normalized === 'ACCEPTED') return '#10b981';
+        if (normalized === 'PENDING') return '#f59e0b';
+        if (normalized === 'COMPLETED') return '#6b7280';
+        if (normalized === 'CANCELED' || normalized === 'CANCELLED') return '#ef4444';
+        return '#6b7280';
+    }
+
     showTooltip(event, sessions) {
+        const visibleSessions = this.getVisibleSessions(sessions);
 
-
-        
-        if (!sessions || sessions.length === 0) {
+        if (!visibleSessions || visibleSessions.length === 0) {
 
             return;
         }
@@ -111,11 +129,11 @@ class Calendar {
         // Header with session count
         let tooltipContent = `
             <div style="font-weight: 700; color: #2b0c4d; margin-bottom: 8px; border-bottom: 2px solid #a855f7; padding-bottom: 6px; font-size: 0.9rem;">
-                Practice Sessions (${sessions.length})
+                Practice Sessions (${visibleSessions.length})
             </div>
         `;
         
-        sessions.forEach((session, index) => {
+        visibleSessions.forEach((session, index) => {
 
             
             // Add separator between sessions
@@ -128,6 +146,11 @@ class Calendar {
                     <div style="color: #6b1fa0; font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">
                         <i class="fas fa-clock" style="margin-right: 6px; color: #a855f7;"></i>
                         ${this.formatTime(session.start_time)} - ${this.formatTime(session.end_time)}
+                    </div>
+                    <div style="margin-bottom: 4px;">
+                        <span style="display:inline-block; padding: 2px 8px; border-radius: 8px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; color: #fff; background: ${this.getStatusColor(session.status)};">
+                            ${session.status || 'UNKNOWN'}
+                        </span>
                     </div>
                     <div style="color: #4b5563; margin-bottom: 3px; font-size: 0.8rem;">
                         <i class="fas fa-map-marker-alt" style="margin-right: 6px; color: #10b981; width: 14px;"></i>
@@ -238,9 +261,12 @@ class Calendar {
             
             const dateKey = this.formatDate(date);
             const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-            const hasSessions = this.practiceSessions[dateKey] && this.practiceSessions[dateKey].length > 0;
+            const daySessions = this.getVisibleSessions(this.practiceSessions[dateKey]);
+            const hasSessions = daySessions.length > 0;
             
             // Determine if date is past or future
+            const isPast = date < today;
+            const isFuture = date > today;
 
             
             let classes = 'calendar-day';
@@ -251,7 +277,7 @@ class Calendar {
                 if (isFuture) classes += ' future-date';
             }
             
-            const sessionsData = hasSessions ? JSON.stringify(this.practiceSessions[dateKey]) : '';
+            const sessionsData = hasSessions ? JSON.stringify(daySessions) : '';
             
             calendarHTML += `<div class="${classes}" 
                 data-date="${dateKey}" 

@@ -11,13 +11,13 @@ try {
     
     $db = Database::getConnection();
     
-    // Build query to get accepted and completed practice sessions
+    // Build query to get practice sessions for dashboard calendar
     $query = "SELECT 
                 ps.id,
                 ps.sport_id,
                 s.sport_name,
                 ps.location,
-                ps.session_date,
+                DATE(ps.session_date) AS session_date,
                 ps.start_time,
                 ps.end_time,
                 ps.status,
@@ -25,8 +25,7 @@ try {
                 ps.notes
               FROM practice_sessions ps
               LEFT JOIN sport s ON ps.sport_id = s.sport_id
-              WHERE ps.status IN ('ACCEPTED', 'COMPLETED')
-                AND MONTH(ps.session_date) = ?
+                            WHERE MONTH(ps.session_date) = ?
                 AND YEAR(ps.session_date) = ?";
     
     $params = [$month, $year];
@@ -46,10 +45,11 @@ try {
     // Group sessions by date
     $groupedSessions = [];
     foreach ($sessions as $session) {
-        $date = $session['session_date'];
+        $date = date('Y-m-d', strtotime($session['session_date']));
         if (!isset($groupedSessions[$date])) {
             $groupedSessions[$date] = [];
         }
+        $session['session_date'] = $date;
         $groupedSessions[$date][] = $session;
     }
     

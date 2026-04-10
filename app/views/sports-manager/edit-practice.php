@@ -14,6 +14,20 @@
 
     @import url("/uoc-sports/public/css/sports-manager/report.css");
     @import url("/uoc-sports/public/css/sports-manager/page.css");
+
+        .conflict-alert {
+            display: none;
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left: 4px solid #dc2626;
+            color: #991b1b;
+            font-weight: 600;
+            font-size: 14px;
+            align-items: center;
+            gap: 8px;
+        }
   </style>
 </head>
 <body>
@@ -38,6 +52,10 @@
                 <?php if (isset($selectedSport)): ?>
                     <input type="hidden" name="sport_param" value="<?= htmlspecialchars($selectedSport) ?>">
                 <?php endif; ?>
+                <div id="practiceConflictAlert" class="conflict-alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="practiceConflictAlertText"></span>
+                </div>
                 
                 <div class="form-row">
                     <div class="form-group">
@@ -123,6 +141,87 @@
             </form>
         </div>
 </div>
+
+<script>
+const editPracticeForm = document.getElementById('editPracticeForm');
+const locationField = document.getElementById('location');
+const dateField = document.getElementById('practiceSessionDate');
+const startTimeField = document.getElementById('startTime');
+const endTimeField = document.getElementById('endTime');
+const conflictAlert = document.getElementById('practiceConflictAlert');
+const conflictAlertText = document.getElementById('practiceConflictAlertText');
+const currentSessionId = <?= (int)$session['id'] ?>;
+let hasPracticeConflict = false;
+let conflictCheckTimer = null;
+
+function showPracticeConflict(message) {
+    hasPracticeConflict = true;
+    conflictAlertText.textContent = message;
+    conflictAlert.style.display = 'flex';
+}
+
+function hidePracticeConflict() {
+    hasPracticeConflict = false;
+    conflictAlertText.textContent = '';
+    conflictAlert.style.display = 'none';
+}
+
+function checkPracticeConflictLive() {
+    const location = locationField.value.trim();
+    const date = dateField.value.trim();
+    const startTime = startTimeField.value.trim();
+    const endTime = endTimeField.value.trim();
+
+    if (!location || !date || !startTime || !endTime) {
+        hidePracticeConflict();
+        return;
+    }
+
+    const params = new URLSearchParams({
+        location: location,
+        date: date,
+        start_time: startTime,
+        end_time: endTime,
+        exclude_id: String(currentSessionId)
+    });
+
+    fetch('/uoc-sports/public/sport-manager/check-practice-conflict?' + params.toString())
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                return;
+            }
+
+            if (data.has_conflict) {
+                showPracticeConflict(data.message || 'This facility is already booked for the selected date and time.');
+            } else {
+                hidePracticeConflict();
+            }
+        })
+        .catch(() => {
+            // Keep silent for network errors, avoid noisy UX
+        });
+}
+
+function queuePracticeConflictCheck() {
+    clearTimeout(conflictCheckTimer);
+    conflictCheckTimer = setTimeout(checkPracticeConflictLive, 250);
+}
+
+[locationField, dateField, startTimeField, endTimeField].forEach((field) => {
+    field.addEventListener('change', queuePracticeConflictCheck);
+    field.addEventListener('input', queuePracticeConflictCheck);
+});
+
+queuePracticeConflictCheck();
+
+editPracticeForm.addEventListener('submit', function(e) {
+    if (hasPracticeConflict) {
+        e.preventDefault();
+        conflictAlert.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+});
+</script>
 
  <?php
     require "../app/views/templates/general/footer.php";

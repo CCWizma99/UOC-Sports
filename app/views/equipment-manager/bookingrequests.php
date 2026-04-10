@@ -173,6 +173,8 @@
                             <select class="status-dropdown status-<?= strtolower($request['status']) ?>" 
                                     data-request-id="<?= $request['request_id'] ?>" 
                                     data-original-status="<?= $request['status'] ?>"
+                                    data-student-id="<?= htmlspecialchars($request['student_id'] ?? '') ?>"
+                                    data-requester-name="<?= htmlspecialchars($request['requester_name'] ?? ($request['student_name'] ?? '')) ?>"
                                     onchange="updateStatus('<?= $request['request_id'] ?>', this.value, this)">
                                 <option value="PENDING" <?= $request['status'] === 'PENDING' ? 'selected' : '' ?>>PENDING</option>
                                 <option value="ACCEPTED" <?= $request['status'] === 'ACCEPTED' ? 'selected' : '' ?>>ACCEPTED</option>
@@ -215,12 +217,13 @@
 <div id="notificationModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1200; align-items: center; justify-content: center;">
     <div style="background: #fff; width: min(92vw, 560px); border-radius: 10px; box-shadow: 0 16px 40px rgba(0,0,0,0.25); overflow: hidden;">
         <div style="display:flex; align-items:center; justify-content:space-between; padding: 1rem 1.2rem; background: #2b0c4d; color: #fff;">
-            <h3 style="margin:0; font-size:1rem;">Send Special Notification</h3>
+            <h3 id="notificationModalTitle" style="margin:0; font-size:1rem;">Rejected Reason</h3>
             <button type="button" onclick="closeNotificationModal()" style="background:transparent; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">&times;</button>
         </div>
 
         <div style="padding: 1rem 1.2rem; display:flex; flex-direction:column; gap:0.75rem;">
             <input id="notificationRequestId" type="hidden">
+            <input id="notificationMode" type="hidden" value="notification">
 
             <div>
                 <label for="notificationStudentId" style="display:block; font-weight:600; margin-bottom:0.25rem;">Requester ID</label>
@@ -233,8 +236,8 @@
             </div>
 
             <div>
-                <label for="notificationMessage" style="display:block; font-weight:600; margin-bottom:0.25rem;">Message</label>
-                <textarea id="notificationMessage" rows="4" placeholder="Type special notification message for this requester..." style="width:100%; padding:0.55rem; border:1px solid #d1d5db; border-radius:6px; resize:vertical;"></textarea>
+                <label id="notificationMessageLabel" for="notificationMessage" style="display:block; font-weight:600; margin-bottom:0.25rem;">Rejected Reason *</label>
+                <textarea id="notificationMessage" rows="4" placeholder="Type rejected reason for this requester..." style="width:100%; padding:0.55rem; border:1px solid #d1d5db; border-radius:6px; resize:vertical;"></textarea>
             </div>
 
             <div>
@@ -245,8 +248,8 @@
 
         <div style="display:flex; justify-content:flex-end; gap:0.6rem; padding: 0.9rem 1.2rem 1.1rem; border-top:1px solid #e5e7eb;">
             <button type="button" onclick="closeNotificationModal()" style="padding:0.5rem 0.9rem; border:1px solid #d1d5db; border-radius:6px; background:#fff; cursor:pointer;">Cancel</button>
-            <button type="button" onclick="sendSpecialNotification()" style="padding:0.5rem 0.9rem; border:none; border-radius:6px; background:#2b0c4d; color:#fff; cursor:pointer;">
-                <i class="fas fa-paper-plane"></i> Send
+            <button id="notificationSubmitBtn" type="button" onclick="sendSpecialNotification()" style="padding:0.5rem 0.9rem; border:none; border-radius:6px; background:#2b0c4d; color:#fff; cursor:pointer;">
+                <i class="fas fa-paper-plane"></i> Submit Reason & Reject
             </button>
         </div>
     </div>

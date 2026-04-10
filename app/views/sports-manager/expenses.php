@@ -62,8 +62,10 @@
                     <th onclick="sortTable(3)">Expense Title<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Sports Event<span class="sort-indicator"></span></th>  
                     <th onclick="sortTable(4)">Amount<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(5)">Date & Time<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(5)">Last Updated Date & Time<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(6)">Receipt<span class="sort-indicator"></span></th>
+                    <th>Action</th>
+                 
 
 
                     
@@ -79,7 +81,7 @@
                         <td><?= htmlspecialchars($expense['expense_title']) ?></td>
                         <td><?= !empty($expense['sport_event']) ? htmlspecialchars($expense['sport_event']) : '<span style="color: #9ca3af;">N/A</span>' ?></td>
                         <td>Rs <?= number_format($expense['amount'], 2) ?></td>
-                        <td><?= htmlspecialchars($expense['expense_date']) ?></td>
+                        <td><?= htmlspecialchars(date('Y-m-d H:i', strtotime($expense['updated_at']))) ?></td>
                         
                         <td>
                             <?php if (!empty($expense['receipt'])): ?>
@@ -91,11 +93,18 @@
                                 <span>No receipt</span>
                             <?php endif; ?>
                         </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="/uoc-sports/public/sport-manager/add-expense?id=<?= urlencode($expense['expense_id']) ?><?= isset($_GET['sport']) ? '&sport=' . urlencode($_GET['sport']) : '' ?>" class="action-btn edit-btn">
+                                    Edit
+                                </a>
+                            </div>
+                        </td>
                      </tr>
                   <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 2rem; color: #6b7280;">No expenses found.</td>
+                        <td colspan="7" style="text-align: center; padding: 2rem; color: #6b7280;">No expenses found.</td>
                     </tr>
                 <?php endif; ?>
 
@@ -103,7 +112,7 @@
                 </table>
             </div>
 
-            </div>
+</div>
 
 </body>
 
@@ -113,7 +122,7 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
     const searchTerm = this.value.toLowerCase(); // Case insensitive
     const tableBody = document.getElementById('tableBody');
     const rows = tableBody.getElementsByTagName('tr');
-    
+
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const cells = row.getElementsByTagName('td');
@@ -133,8 +142,9 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
 });
 </script>
 
-</html>
-
-            <?php
+<?php
     require "../app/views/templates/general/footer.php";
 ?>
+</html>
+
+        

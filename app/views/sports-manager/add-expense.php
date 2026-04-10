@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add new expense</title>
+  <title>Sports manager - Add new expense</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
@@ -55,7 +55,7 @@
                 <?php endif; ?>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="Sport name">Sport *</label>
+                        <label for="Sport name">Sport <span class="required-star">*</span></label>
                         <?php 
                         // Priority: editData > selectedSportFromUrl > selectedSportName
                         $sportToSelect = isset($editData['sport']) ? $editData['sport'] : 
@@ -66,7 +66,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="sportEvent">Sports Event *</label>
+                        <label for="sportEvent">Sports Event <span class="required-star">*</span></label>
                         <select id="sportEvent" name="sportEvent" required>
                             <option value="">Select Event</option>
                             <option value="Practice Session" <?php echo (isset($editData) && $editData['sport_event'] == 'Practice Session') ? 'selected' : ''; ?>>Practice Session</option>
@@ -78,7 +78,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="expense">Expense Category *</label>
+                        <label for="expense">Expense Category <span class="required-star">*</span></label>
                         <select id="expense" name="expense" required>
                             <option value="">Select Expense Category</option>                            
                             <option value="Travel & Transportation" <?php echo (isset($editData) && $editData['expense_title'] == 'Travel & Transportation') ? 'selected' : ''; ?>>Travel & Transportation</option>
@@ -93,12 +93,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="amount">Amount (Rs) *</label>
+                        <label for="amount">Amount (Rs) <span class="required-star">*</span></label>
                         <input type="number" id="amount" name="amount" placeholder="Enter amount" step="0.01" min="0" value="<?php echo isset($editData) ? htmlspecialchars($editData['amount']) : ''; ?>" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="receipt">Upload Receipt (PDF) <?php echo (isset($isEdit) && $isEdit) ? '' : '*'; ?></label>
+                        <label for="receipt">Upload Receipt (PDF) <?php echo (isset($isEdit) && $isEdit) ? '' : '<span class="required-star">*</span>'; ?></label>
                         <input type="file" id="receipt" name="receipt" accept=".pdf,application/pdf" <?php echo (isset($isEdit) && $isEdit) ? '' : 'required'; ?>>
                         <?php if (isset($editData) && !empty($editData['receipt'])): ?>
                             <small>Current: <?php echo htmlspecialchars($editData['receipt']); ?></small>
@@ -106,7 +106,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="submittedBy">Submitted By *</label>
+                        <label for="submittedBy">Submitted By <span class="required-star">*</span></label>
                         <input type="text" id="submittedBy" name="submittedBy" value="<?php echo isset($editData) ? htmlspecialchars($editData['submitted_by']) : (isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : ''); ?>" readonly required>
                     </div>
 

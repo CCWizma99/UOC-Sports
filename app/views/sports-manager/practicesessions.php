@@ -292,6 +292,8 @@
                 }
             }
         ?>
+
+        
         <?php if (isset($selectedSportId) && $selectedSportId): ?>
             <div class="filter-info">
                 <span class="info-badge">

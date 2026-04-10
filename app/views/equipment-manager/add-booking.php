@@ -14,6 +14,8 @@
 
     @import url("/uoc-sports/public/css/equipment-manager/report.css");
     @import url("/uoc-sports/public/css/equipment-manager/page.css");
+
+
   </style>
 </head>
 <body>
@@ -28,7 +30,8 @@
             <!-- Add practice Form -->
              <div class="page-header">
                 <div>
-                    <h2><?= isset($isEdit) && $isEdit ? 'Edit Booking' : 'Reserve Equipment' ?></h2>
+                    <p class="page-path">Equipment Manager / Equipment Resevation / Add Booking</p>
+                    <h2><?= isset($isEdit) && $isEdit ? 'Edit Booking' : 'Reserve an Equipment' ?></h2>
                     <p><?= isset($isEdit) && $isEdit ? 'Update equipment reservation' : 'Manage equipment reservations' ?></p>
                 </div>
                
@@ -57,7 +60,7 @@
                 <?php endif; ?>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="user_id">User ID/ Student ID/ Staff ID* </label>
+                        <label for="user_id">User ID/ Student ID/ Staff ID <span class="required-star">*</span></label>
                         <input type="text" id="user_id" name="student_id" placeholder="Enter user ID" value="<?= isset($editData) ? htmlspecialchars($editData['student_id'] ?? '') : '' ?>" required>    
                     </div>
                     
@@ -67,7 +70,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="sport">Sport *</label>
+                        <label for="sport">Sport <span class="required-star">*</span></label>
                         <select id="sport" name="sport" required>
                             <option value="">Select Sport</option>
                             <?php 
@@ -88,30 +91,30 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="reservation_date">Requested Date *</label>
+                        <label for="reservation_date">Requested Date <span class="required-star">*</span></label>
                         <input type="date" id="reservation_date" name="request_date" value="<?= isset($editData) ? htmlspecialchars($editData['request_date'] ?? '') : '' ?>" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="start_time">Start Time *</label>
+                        <label for="start_time">Start Time <span class="required-star">*</span></label>
                         <input type="time" id="start_time" name="start_time" value="<?= isset($editData) ? htmlspecialchars($editData['start_time'] ?? '') : '' ?>" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="end_time">End Time *</label>
+                        <label for="end_time">End Time <span class="required-star">*</span></label>
                         <input type="time" id="end_time" name="end_time" value="<?= isset($editData) ? htmlspecialchars($editData['end_time'] ?? '') : '' ?>" required>      
                     </div>
 
                     <div class="form-group equipment-selection-container">
-                        <label>Equipment Selection *</label>
+                        <label>Equipment Selection <span class="required-star">*</span></label>
                         <div id="equipment-checkboxes">
                             <p class="equipment-empty-message">Select a sport first to see available equipment</p>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="reserved_location">Reserved Location</label>
-                        <select id="reserved_location" name="reserved_location">
+                        <label for="reserved_location">Reserved Location <span class="required-star">*</span></label>
+                        <select id="reserved_location" name="reserved_location" required>
                             <?php 
                             $selectedLocation = isset($editData) ? $editData['reserved_location'] : '';
                             $locations = ['', 'Badminton Court', 'Tennis Court', 'Baseball Pitch', 'Cricket Pitch', 

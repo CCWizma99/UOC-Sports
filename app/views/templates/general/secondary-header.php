@@ -70,7 +70,10 @@ switch ($userType) {
         // Sport manager needs managed sports for the selector
         $userId = $_SESSION['user_id'] ?? null;
         $managedSports = [];
-        $selectedSportId = $_GET['sport'] ?? null;
+        $selectedSportId = $_GET['sport'] ?? ($_SESSION['selected_sport_id'] ?? null);
+        if (isset($_GET['sport']) && $_GET['sport'] !== '') {
+            $_SESSION['selected_sport_id'] = $_GET['sport'];
+        }
         if ($userId) {
             $db = Database::getConnection();
             $stmt = $db->prepare("SELECT s.sport_id, s.sport_name 
@@ -86,7 +89,7 @@ switch ($userType) {
         }
         $sportParam = $selectedSportId ? '?sport=' . urlencode($selectedSportId) : '';
         $navLinks = [
-            ['name' => 'Home', 'url' => '/uoc-sports/public/sport-manager'],
+            ['name' => 'Home', 'url' => '/uoc-sports/public/sport-manager' . $sportParam],
             ['name' => 'Expenses', 'url' => '/uoc-sports/public/sport-manager/expenses' . $sportParam],
             ['name' => 'Practice Sessions', 'url' => '/uoc-sports/public/sport-manager/practicesessions' . $sportParam],
             ['name' => 'Competitions', 'url' => '/uoc-sports/public/sport-manager/competitions' . $sportParam],

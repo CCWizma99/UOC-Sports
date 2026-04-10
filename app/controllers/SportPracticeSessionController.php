@@ -11,6 +11,16 @@ class SportPracticeSessionController {
         
         // Get selected sport from URL parameter
         $selectedSportId = $_GET['sport'] ?? null;
+
+        // Persist selected sport from header selector
+        if ($selectedSportId) {
+            $_SESSION['selected_sport_id'] = $selectedSportId;
+        }
+
+        // Use session value when URL parameter is absent
+        if (!$selectedSportId && isset($_SESSION['selected_sport_id'])) {
+            $selectedSportId = $_SESSION['selected_sport_id'];
+        }
         
         // If no sport selected, get the first managed sport as default
         if (!$selectedSportId && $userId) {
@@ -18,7 +28,7 @@ class SportPracticeSessionController {
             $stmt = $db->prepare("SELECT s.sport_id FROM manager_sport ms
                                   JOIN sport s ON ms.sport_id = s.sport_id
                                   WHERE ms.user_id = ?
-                                  ORDER BY s.sport_name LIMIT 1");
+                                  ORDER BY s.sport_name DESC LIMIT 1");
             $stmt->execute([$userId]);
             $selectedSportId = $stmt->fetchColumn();
         }
@@ -72,7 +82,7 @@ class SportPracticeSessionController {
                 'session_date' => $_POST['date'] ?? '',
                 'start_time' => $_POST['stime'] ?? '',
                 'end_time' => $_POST['etime'] ?? '',
-                'notes' => $_POST['notes'] ?? '',
+               
                 'need_equipment' => $_POST['need_equipment'] ?? 'No',
                 'added_by' => $_SESSION['user_type'] ?? 'MANAGER',
                 'status' => 'PENDING'
@@ -179,7 +189,7 @@ class SportPracticeSessionController {
                 'session_date' => $_POST['date'] ?? '',
                 'start_time' => $_POST['stime'] ?? '',
                 'end_time' => $_POST['etime'] ?? '',
-                'notes' => $_POST['notes'] ?? '',
+               
                 'need_equipment' => $_POST['need_equipment'] ?? 'No',
                 'status' => $_POST['status'] ?? 'ACTIVE'
             ];
@@ -254,7 +264,7 @@ class SportPracticeSessionController {
         }
 
         // Validate status value
-        $validStatuses = ['ACTIVE', 'ACCEPTED', 'CANCELED', 'PENDING'];
+        $validStatuses = ['ACTIVE', 'ACCEPTED', 'CANCELED', 'PENDING', 'COMPLETED'];
         if (!in_array($status, $validStatuses)) {
             echo json_encode(['success' => false, 'message' => 'Invalid status value']);
             exit();
@@ -273,6 +283,61 @@ class SportPracticeSessionController {
         } catch (Exception $e) {
             error_log("Error updating practice session status: " . $e->getMessage());
             echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+        }
+        exit();
+    }
+
+    /**
+     * Check practice session conflicts via AJAX
+     */
+    public function checkConflict() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            exit();
+        }
+
+        $location = trim($_GET['location'] ?? '');
+        $date = trim($_GET['date'] ?? '');
+        $startTime = trim($_GET['start_time'] ?? '');
+        $endTime = trim($_GET['end_time'] ?? '');
+        $excludeId = isset($_GET['exclude_id']) && $_GET['exclude_id'] !== '' ? (int)$_GET['exclude_id'] : null;
+
+        if ($location === '' || $date === '' || $startTime === '' || $endTime === '') {
+            echo json_encode([
+                'success' => true,
+                'has_conflict' => false,
+                'message' => ''
+            ]);
+            exit();
+        }
+
+        if ($endTime <= $startTime) {
+            echo json_encode([
+                'success' => true,
+                'has_conflict' => true,
+                'message' => 'End time must be later than start time.'
+            ]);
+            exit();
+        }
+
+        try {
+            $model = new SportPracticeSession();
+            $hasConflict = $model->checkTimeConflict($location, $date, $startTime, $endTime, $excludeId);
+
+            echo json_encode([
+                'success' => true,
+                'has_conflict' => $hasConflict,
+                'message' => $hasConflict ? 'This facility is already booked for the selected date and time.' : ''
+            ]);
+        } catch (Exception $e) {
+            error_log('Error checking practice conflict: ' . $e->getMessage());
+            echo json_encode([
+                'success' => false,
+                'has_conflict' => false,
+                'message' => 'Unable to validate time conflict right now.'
+            ]);
         }
         exit();
     }
