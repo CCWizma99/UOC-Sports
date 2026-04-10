@@ -10,7 +10,7 @@ class InjuryReport {
     }
 
     private function generateReportId() {
-        return 'IRP' . strtoupper(uniqid());
+        return 'IRP' . strtoupper(bin2hex(random_bytes(4)));
     }
 
     /**
@@ -47,7 +47,7 @@ class InjuryReport {
      */
     public function getReportsBySport($sportId) {
         $stmt = $this->db->prepare(
-            "SELECT ir.report_id, ir.user_id, ir.coach_id, ir.practice_id, ir.date, ir.description, ir.need_substitude, ir.substitude_id, u.fname, u.lname, ps.facility, ps.session_date, ps.session_time
+            "SELECT ir.report_id, ir.user_id, ir.coach_id, ir.practice_id, ir.date, ir.description, ir.need_substitude, ir.substitude_id, u.fname, u.lname, ps.facility, ps.session_date, ps.start_time
              FROM injury_report ir
              LEFT JOIN user u ON ir.user_id = u.user_id
              LEFT JOIN practice_sessions ps ON ir.practice_id = ps.id

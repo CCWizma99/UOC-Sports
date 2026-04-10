@@ -353,5 +353,26 @@ class User {
             return 0;
         }
     }
-    
+
+    /**
+     * Get all eligible students for a sport (not in the team, active status)
+     * @param string $sportId
+     * @return array
+     */
+    public function getEligibleStudents($sportId) {
+        $stmt = $this->db->prepare("
+            SELECT u.user_id, u.fname, u.lname, u.student_id, u.email, u.contact_no, f.faculty_name
+            FROM user u
+            LEFT JOIN faculty f ON u.faculty_id = f.faculty_id
+            WHERE u.type = 'STUDENT'
+              AND u.status = 'ACTIVE'
+              AND (u.sport_id = :sport_id OR u.sport_id IS NULL)
+              AND u.user_id NOT IN (
+                SELECT st.student_id FROM `sports-team` st WHERE st.sport_id = :sport_id
+              )
+            ORDER BY u.lname, u.fname
+        ");
+        $stmt->execute(['sport_id' => $sportId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

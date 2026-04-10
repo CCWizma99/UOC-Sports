@@ -155,20 +155,19 @@ class Tournament {
         }
     }
 
-    /**
-     * Update tournament status
-     */
-    public function updateStatus($tournamentId, $status) {
+    public function getTournamentsBySportId($sportId) {
         try {
-            $sql = "UPDATE tournament SET status = :status WHERE tournament_id = :tournament_id";
+            $sql = "SELECT t.*, s.sport_name 
+                    FROM tournament t 
+                    LEFT JOIN sport s ON t.sport_id = s.sport_id 
+                    WHERE t.sport_id = :sport_id 
+                    ORDER BY t.start_date DESC";
             $stmt = $this->db->prepare($sql);
-            return $stmt->execute([
-                'status' => $status,
-                'tournament_id' => $tournamentId
-            ]);
+            $stmt->execute(['sport_id' => $sportId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Tournament update status error: " . $e->getMessage());
-            return false;
+            error_log("Get tournaments by sport ID error: " . $e->getMessage());
+            return [];
         }
     }
 }
