@@ -1,3 +1,29 @@
+/* ===== EDIT MODAL 2 COLUMN LAYOUT ===== */
+
+.modal-body form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px; /* small gap, no big spacing */
+}
+
+/* Make full width elements */
+.modal-body .form-group.full-width {
+    grid-column: span 2;
+}
+
+/* Keep datetime row side by side */
+.modal-body .datetime {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Remove extra spacing inside modal */
+.modal-body .form-group {
+    margin-bottom: 0;
+}
+
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -476,14 +502,14 @@
 /* Modal Container */
 .modal {
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 600px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: slideUp 0.3s ease;
-    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    max-width: 520px; /* smaller width */
+    width: 95%;
+    padding: 0; /* reduced padding */
+    
+    max-height: unset; /* remove height restriction */
+    overflow: hidden; /* no scroll */
 }
 
 @keyframes slideUp {
@@ -502,8 +528,8 @@
 .modal-header {
     background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
     color: white;
-    padding: 24px 30px;
-    border-radius: 16px 16px 0 0;
+    padding: 15px 20px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -544,11 +570,15 @@
 
 /* Modal Body */
 .modal-body {
-    padding: 30px;
+    padding: 20px;
+}
+
+.modal-body form {
+    gap: 12px;
 }
 
 .modal-body .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 0;
 }
 
 .modal-body .form-group:last-child {
@@ -624,8 +654,8 @@
 
 /* Modal Footer */
 .modal-footer {
-    padding: 20px 30px;
-    background: #f7fafc;
+    padding: 15px 20px;
+    background: transparent;
     border-radius: 0 0 16px 16px;
     display: flex;
     gap: 12px;
@@ -927,6 +957,7 @@
 /* Modal overlay */
 .modal-overlay {
     position: fixed;
+    margin:0;
     top: 0;
     left: 0;
     width: 100%;
@@ -943,15 +974,7 @@
 }
 
 /* Modal box */
-.modal{
-    background: #ffffff;
-    width: 600px;
-    max-width: 95%;
-    padding: 30px;
-    border-radius: 12px;
-    position: relative;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
+
 
 .close-btn {
     position: absolute;

@@ -78,34 +78,26 @@
       <!-- Upcoming Events Table -->
       <div class="info-card">
         <div class="info-card-header">
-          <h3>Upcoming Events</h3>
+          <h3>Upcoming Tournaments</h3>
         </div>
         <div class="info-card-content">
           <div class="table-wrapper" >
             <table class="events-table" >
               <thead>
                 <tr >
-                  <th >Date</th>
-                  <th >Time</th>
-                  <th >Event</th>
+                  <th >Start Date</th>
+                  <th >End Date</th>
+                  <th >Tournament</th>
                 </tr>
               </thead>
               <tbody id="upcomingEvents">
+                <?php foreach ($upcoming_events as $event): ?>
                 <tr>
-                  <td class="date-cell">05 Jan 2026</td>
-                  <td class="venue-cell">09:00 AM</td>
-                  <td><span >Inter-Faculty Friendly</span></td>
+                  <td class="date-cell"><?php echo htmlspecialchars($event['start_date'])?></td>
+                  <td class="venue-cell"><?php echo htmlspecialchars($event['end_date'])?></td>
+                  <td><span ><?php echo htmlspecialchars($event['name'])?></span></td>
                 </tr>
-                <tr>
-                  <td class="date-cell">18 Jan 2026</td>
-                  <td class="venue-cell">02:30 PM</td>
-                  <td><span >Training Camp</span></td>
-                </tr>
-                <tr>
-                  <td class="date-cell">28 Jan 2026</td>
-                  <td class="venue-cell">06:00 PM</td>
-                  <td><span >Friendly Match vs Alumni</span></td>
-                </tr>
+                <?php endforeach; ?>
               </tbody>
             </table>
           </div>

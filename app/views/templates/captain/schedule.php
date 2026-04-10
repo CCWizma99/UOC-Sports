@@ -172,7 +172,7 @@
                 </div>
 
                 <!-- Notes -->
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label>Special Notes</label>
                     <textarea id="edit-notes" name="notes" rows="2"></textarea>
                 </div>

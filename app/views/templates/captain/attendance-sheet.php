@@ -282,9 +282,50 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
 /* ===== Modal Improvements ===== */
 
 .modal-content {
-    border-radius: 14px;
-    padding: 20px;
+    border-radius: 16px;
+    padding: 0; /* remove big white spacing */
+    overflow: hidden;
+    background: #f8fafc; /* soft background instead of white block */
 }
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    color: white;
+    border-bottom: none;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.modal-header button {
+    background: transparent;   /* remove white box */
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: 0.2s;
+}
+
+.modal-header button:hover {
+    opacity: 0.7;
+}
+
+.modal-body {
+    padding: 20px;
+    border-radius: 12px;
+}
+
+
+
+
 
 /* Session Card */
 .history-session {
@@ -295,6 +336,23 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
     box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     border-left: 5px solid #5e2d91;
     transition: 0.3s ease;
+}
+
+#historySessions button {
+    width: 40%;
+    text-align: left;
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    transition: 0.2s;
+    font-weight: 500;
+}
+
+#historySessions button:hover {
+    background:linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
+    color: white;
+    border-color: #5e2d91;
 }
 
 .history-session:hover {
@@ -320,11 +378,17 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 12px;
-    border-radius: 8px;
-    margin-bottom: 6px;
-    background: #f7fafc;
-    font-size: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: white;
+    border: 1px solid #edf2f7;
+    transition: 0.2s;
+}
+
+.attendance-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
 }
 
 /* Present Badge */
@@ -339,7 +403,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
 
 /* Status Text Styling */
 .attendance-status {
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
@@ -358,6 +422,29 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
 /* Date Picker Styling */
 .filter-section {
     margin-bottom: 20px;
+}
+
+.filter-section label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.flatpickr-calendar {
+    z-index: 99999 !important; /* ensure it stays above modal */
+}
+
+.history-session {
+    background: white;
+    padding: 20px;
+    margin-top: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    border-left: 4px solid #5e2d91;
+}
+
+.history-session h4 {
+    margin-bottom: 10px;
 }
 
 #historyDate {
@@ -419,7 +506,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
     // Load upcoming practice sessions
     async function loadUpcomingSessions() {
         try {
-            const response = await fetch(`/uoc-sports/public/api/attendance/upcoming-sessions/${SPORT_ID}`);
+            const response = await fetch(`/uoc-sports/public/api/attendance/previous-sessions/${SPORT_ID}`);
             const data = await response.json();
 
             const select = document.getElementById('practiceSession');
@@ -787,25 +874,35 @@ function initializeCalendar() {
     )];
 
     flatpickr("#historyDate", {
-        dateFormat: "Y-m-d",
-        maxDate: "today",
+    dateFormat: "Y-m-d",
+    maxDate: "today",
 
-        onDayCreate: function(dObj, dStr, fp, dayElem) {
-const year = dayElem.dateObj.getFullYear();
-const month = String(dayElem.dateObj.getMonth() + 1).padStart(2, '0');
-const day = String(dayElem.dateObj.getDate()).padStart(2, '0');
+    appendTo: document.body,   // move outside modal
+    static: false,             // must be false
+    position: "auto",          // dynamic positioning
 
-const date = `${year}-${month}-${day}`;
+    onOpen: function(selectedDates, dateStr, instance) {
+        instance.calendarContainer.style.position = "fixed"; // ⭐ FORCE FIXED
+    },
 
-            if (availableDates.includes(date)) {
-                dayElem.classList.add("has-session");
-            }
-        },
+    onDayCreate: function(dObj, dStr, fp, dayElem) {
+        const year = dayElem.dateObj.getFullYear();
+        const month = String(dayElem.dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dayElem.dateObj.getDate()).padStart(2, '0');
 
-        onChange: function(selectedDates, dateStr) {
-            filterSessionsByDate(dateStr);
+        const date = `${year}-${month}-${day}`;
+
+        if (availableDates.includes(date)) {
+            dayElem.classList.add("has-session");
         }
-    });
+    },
+
+    onChange: function(selectedDates, dateStr) {
+        filterSessionsByDate(dateStr);
+    }
+});
+
+       
 }
 
 

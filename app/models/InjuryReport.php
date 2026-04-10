@@ -10,7 +10,7 @@ class InjuryReport {
     }
 
     private function generateReportId() {
-        return 'IRP' . strtoupper(uniqid());
+        return 'IRP' . strtoupper(bin2hex(random_bytes(4)));
     }
 
     /**

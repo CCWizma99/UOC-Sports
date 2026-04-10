@@ -42,7 +42,7 @@ class CaptainController {
         $upcomingCompetitions = $competitionModel->getCompetitionsByMonth($sportId, date('m'), 5);
 
         $today = date('Y-m-d');
-        $allTournaments = $tournamentModel->getAllTournaments();
+        $allTournaments = $tournamentModel->getTournamentsBySportId($sportId);
 
         $upcomingTournaments = array_filter($allTournaments, function($t) use ($today) {
             return isset($t['end_date']) && $t['end_date'] >= $today;
@@ -60,8 +60,8 @@ class CaptainController {
 
         foreach ($upcomingTournaments as $tour) {
             $events[] = [
-                'date' => $tour['start_date'],
-                'time' => date('H:i', strtotime($tour['start_date'])),
+                'start_date' => $tour['start_date'],
+                'end_date' => $tour['end_date'],
                 'name' => $tour['tournament_name'] ?? 'Tournament',
             ];
         }

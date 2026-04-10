@@ -63,6 +63,9 @@ $router->get('/captain/add-members', 'CaptainController@AddMembers');
 $router->post('/captain/add-members', 'CaptainController@AddMembers');
 $router->get('/captain/add-result', 'CaptainController@AddResult');
 
+$router->get('/add-result/get-sport-fields', 'SportApiController@getSportFields');
+
+
 // Captain Match Result API routes
 $router->get('/captain/get-permitted-tournaments', 'CaptainApiController@getPermittedTournaments');
 $router->post('/captain/submit-result', 'CaptainApiController@submitResult');

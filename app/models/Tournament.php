@@ -154,4 +154,20 @@ class Tournament {
             return 0;
         }
     }
+
+    public function getTournamentsBySportId($sportId) {
+        try {
+            $sql = "SELECT t.*, s.sport_name 
+                    FROM tournament t 
+                    LEFT JOIN sport s ON t.sport_id = s.sport_id 
+                    WHERE t.sport_id = :sport_id 
+                    ORDER BY t.start_date DESC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['sport_id' => $sportId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Get tournaments by sport ID error: " . $e->getMessage());
+            return [];
+        }
+    }
 }
