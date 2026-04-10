@@ -99,7 +99,7 @@ class EquipmentBookingRequestController {
         $studentId = $data['student_id'] ?? null;
         $requesterName = $data['requester_name'] ?? null;
         
-        if ($model->hasActiveReservation($studentId, $requesterName)) {
+        if ($model->hasActiveReservation([$studentId])) {
             echo json_encode(['success' => false, 'message' => 'This user already has an active or accepted equipment reservation. Please complete or cancel the existing reservation before creating a new one.']);
             exit();
         }
@@ -146,7 +146,7 @@ class EquipmentBookingRequestController {
         }
 
         $model = new EquipmentBookigRequest();
-        $hasActiveReservation = $model->hasActiveReservation($studentId, $requesterName);
+        $hasActiveReservation = $model->hasActiveReservation([$studentId]);
 
         if ($hasActiveReservation) {
             echo json_encode([

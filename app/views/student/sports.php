@@ -31,38 +31,222 @@
             padding: 20px 40px;
         }
 
-        .portal-card {
-            min-height: 75vh;
-        }
-
-        .section-header {
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .section-header h2 {
-            color: #5e2d91;
-            font-size: 1.5rem;
-            margin: 0;
+        .main-portal-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            width: 92%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            height: calc(100vh - 220px);
+            min-height: 500px;
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.02);
+            position: relative;
         }
 
         .grid-layout {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            gap: 2rem;
             height: 100%;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .portal-card {
+            background: #fdfbff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+            border: 1px solid #f3f0f7;
+        }
+
+        .sports-grid {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Custom Scrollbar for compact lists */
+        .sports-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sports-grid::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .sports-grid::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        .sports-grid::-webkit-scrollbar-thumb:hover {
+            background: #5e2d91;
+        }
+
+        .section-header {
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f3f0f7;
+            padding-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            color: #5e2d91;
+            font-size: 1.4rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+        }
+
+        .sport-card {
+            gap: 8px;
+            padding: 8px;
+        }
+
+        .sport-card .sport-info h4 {
+            font-size: 0.85rem;
+        }
+
+        .sport-card .sport-info p {
+            font-size: 0.75rem;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 10px 10px 35px;
+            border: 2px solid #f3f0f7;
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: #5e2d91;
+            box-shadow: 0 0 0 4px rgba(94, 45, 145, 0.05);
+        }
+
+        .sports-grid-images {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: flex-start;
+            gap: 8px;
+            padding-right: 0px;
+            overflow-y: hidden;
+            flex: 1;
+        }
+
+        .sports-grid-images::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sports-grid-images::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .sports-grid-images::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        .sport-image-card {
+            flex: 0 1 calc(25% - 9px);
+            min-width: 120px;
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #f0f0f5;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        .sport-image-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(94, 45, 145, 0.15);
+            border-color: #d1bced;
+        }
+
+        .sport-image-card .sport-img {
+            width: 100%;
+            height: 75px;
+            background-size: cover;
+            background-position: center;
+            transition: all 0.3s;
+        }
+
+        .sport-info-box {
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sport-info-box .sport-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #444;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .sport-info-box .join-btn {
+            background: #f0ebf7;
+            color: #5e2d91;
+            border: none;
+            padding: 4px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .sport-image-card:hover .join-btn {
+            background: #5e2d91;
+            color: white;
         }
 
         @media (max-width: 1024px) {
+            .main-portal-card {
+                width: 95%;
+                height: auto;
+                padding: 1rem;
+            }
             .grid-layout {
                 grid-template-columns: 1fr;
+                height: auto;
+                overflow: visible;
             }
-            .page-container {
-                padding: 20px;
+            .portal-card {
+                height: 500px;
             }
         }
     </style>
@@ -72,31 +256,34 @@
     <?php require APP_ROOT . '/app/views/templates/student/sub_header.php'; ?>
 
     <div class="page-container">
-        <div class="grid-layout">
-            <!-- Enrolled Sports -->
-            <div class="portal-card">
-                <section id="enrolled-sports-section">
-                    <h2><i class="fas fa-medal"></i> My Enrolled Sports</h2>
-                    <div id="enrolled-sports-list" class="sports-grid">
-                        <p>Loading...</p>
-                    </div>
-                </section>
-            </div>
+        <div class="main-portal-card">
+            <div class="grid-layout">
+                <!-- Available Sports -->
+                <div class="portal-card">
+                    <section id="available-sports-section">
+                        <h2><i class="fas fa-plus-circle"></i> Available Sports</h2>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="sport-search" placeholder="Search for sports..." autocomplete="off">
+                        </div>
+                        <div id="available-sports-list" class="sports-grid">
+                            <p>Loading...</p>
+                        </div>
+                    </section>
+                </div>
 
-            <!-- Available Sports -->
-            <div class="portal-card">
-                <section id="available-sports-section">
-                    <h2><i class="fas fa-plus-circle"></i> Available Sports</h2>
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="sport-search" placeholder="Search for sports..." autocomplete="off">
-                    </div>
-                    <div id="available-sports-list" class="sports-grid">
-                        <p>Loading...</p>
-                    </div>
-                </section>
+                <!-- Enrolled Sports -->
+                <div class="portal-card">
+                    <section id="enrolled-sports-section">
+                        <h2><i class="fas fa-medal"></i> My Enrolled Sports</h2>
+                        <div id="enrolled-sports-list" class="sports-grid">
+                            <p>Loading...</p>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
+    </div>
         
         <div id="enroll-message" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: none;"></div>
     </div>
@@ -150,6 +337,28 @@
         let enrolledSports = [];
         let sportsLoaded = false;
 
+        const sportImages = {
+            'basketball': 'https://images.unsplash.com/photo-1519861531473-9200262188bf?w=500&q=80',
+            'football': 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=500&q=80',
+            'tennis': 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=500&q=80',
+            'swimming': 'https://images.unsplash.com/photo-1519315901367-f34f92742302?w=500&q=80',
+            'volleyball': 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=500&q=80',
+            'cricket': 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=500&q=80',
+            'badminton': 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=500&q=80',
+            'table tennis': 'https://images.unsplash.com/photo-1609710228159-0fa9bd7c0822?w=500&q=80',
+            'rugby': 'https://images.unsplash.com/photo-1588693766782-595b2d7cbab5?w=500&q=80',
+            'athletics': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&q=80',
+            'default': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&q=80'
+        };
+
+        function getSportImage(name) {
+            const lowerName = name.toLowerCase();
+            for (let key in sportImages) {
+                if (lowerName.includes(key)) return sportImages[key];
+            }
+            return sportImages['default'];
+        }
+
         window.closeConfirmModal = () => { confirmModal.style.display = 'none'; };
         window.closeEncouragementModal = () => { encouragementModal.style.display = 'none'; };
 
@@ -191,8 +400,9 @@
                 if (data.status === 'success') {
                     availableSports = data.data;
                     sportsLoaded = true;
-                    // Don't show all initially
-                    availableList.innerHTML = '<p class="no-sports" style="text-align:center; color:#666; padding:20px;">Use the search bar to find sports to join.</p>';
+                    if (searchInput.value.trim().length === 0) {
+                        renderSuggestedSports(availableSports.slice(0, 6));
+                    }
                 }
             } catch (error) { console.error(error); }
         }
@@ -236,15 +446,42 @@
             });
         }
 
+        function renderSuggestedSports(sports) {
+            availableList.className = 'sports-grid-images';
+            availableList.innerHTML = '';
+            if (sports.length === 0) {
+                availableList.innerHTML = '<p class="no-sports">No sports available to suggest.</p>';
+                return;
+            }
+            sports.forEach(sport => {
+                const img = getSportImage(sport.sport_name);
+                const div = document.createElement('div');
+                div.className = 'sport-image-card';
+                div.innerHTML = `
+                    <div class="sport-img" style="background-image: url('${img}')"></div>
+                    <div class="sport-info-box">
+                        <span class="sport-name" title="${sport.sport_name}">${sport.sport_name}</span>
+                        <button class="join-btn" onclick="enrollInSport('${sport.sport_id}', '${sport.sport_name}')">Join <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                `;
+                availableList.appendChild(div);
+            });
+        }
+
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.toLowerCase().trim();
             if (!sportsLoaded && query.length > 0) loadAvailableSports(); 
             
             if (query.length === 0) {
-                availableList.innerHTML = '<p class="no-sports" style="text-align:center; color:#666; padding:20px;">Use the search bar to find sports to join.</p>';
+                if (availableSports.length > 0) {
+                    renderSuggestedSports(availableSports.slice(0, 6));
+                } else {
+                    availableList.innerHTML = '<p class="no-sports" style="text-align:center; color:#666; padding:20px;">Use the search bar to find sports to join.</p>';
+                }
                 return;
             }
             
+            availableList.className = 'sports-grid';
             const filtered = availableSports.filter(s => s.sport_name.toLowerCase().startsWith(query));
             renderAvailableSports(filtered);
         });

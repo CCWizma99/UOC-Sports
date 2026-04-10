@@ -220,34 +220,83 @@ class EquipmentApiController {
     public function addReservation() {
         header('Content-Type: application/json');
 
-        try {
-            $equipment_id = $_POST['equipment_id'] ?? '';
-            $student_id = $_POST['student_id'] ?? '';
-            $date = $_POST['date'] ?? '';
-            $start_time = $_POST['start_time'] ?? '';
-            $end_time = $_POST['end_time'] ?? '';
-            $purpose = $_POST['purpose'] ?? '';
-            $notes = $_POST['notes'] ?? '';
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized. Please sign in.']);
+            return;
+        }
 
-            if (empty($equipment_id) || empty($student_id) || empty($date) || empty($start_time) || empty($end_time)) {
-                echo json_encode(['status' => 'error', 'message' => 'All fields are required.']);
+        try {
+            require_once '../app/models/EquipmentBookigRequest.php';
+            $bookingModel = new EquipmentBookigRequest();
+            $userModel = new User();
+
+            // Fetch student full name for requester_name
+            $userProfile = $userModel->getUserProfile($_SESSION['user_id']);
+            $requesterName = $userProfile['full_name'] ?? 'N/A';
+            $studentId = $userProfile['student_id'] ?? '';
+
+            // Get form data
+            $sportId = $_POST['sport'] ?? '';
+            $requestDate = $_POST['date'] ?? '';
+            $startTime = $_POST['start_time'] ?? '';
+            $endTime = $_POST['end_time'] ?? '';
+            $reservedLocation = $_POST['reserved_location'] ?? '';
+            $notes = $_POST['notes'] ?? '';
+            
+            // Get selected equipment and quantities
+            $selectedEquipment = $_POST['equipment'] ?? [];
+            $quantities = $_POST['quantity'] ?? [];
+
+            if (empty($sportId) || empty($requestDate) || empty($startTime) || empty($endTime) || empty($selectedEquipment)) {
+                echo json_encode(['status' => 'error', 'message' => 'Please fill all required fields and select at least one equipment item.']);
                 return;
             }
 
-            if (strtotime($end_time) <= strtotime($start_time)) {
+            if (strtotime($endTime) <= strtotime($startTime)) {
                 echo json_encode(['status' => 'error', 'message' => 'End time must be after start time.']);
                 return;
             }
 
-            $model = new Equipment();
-            if ($model->isTimeOverlapping($equipment_id, $date, $start_time, $end_time)) {
-                echo json_encode(['status' => 'error', 'message' => 'Time slot overlaps with an existing reservation.']);
-                return;
+            // Prepare equipment items array with quantities
+            $equipmentItems = [];
+            foreach ($selectedEquipment as $equipmentName) {
+                // In student portal, equipmentName might be the ID if I change the form, 
+                // but let's stick to the name for now as the manager does.
+                $quantity = isset($quantities[$equipmentName]) ? intval($quantities[$equipmentName]) : 1;
+                $equipmentItems[] = [
+                    'equipment_name' => $equipmentName,
+                    'quantity' => $quantity
+                ];
             }
 
-            $request_id = $model->addReservation($equipment_id, $student_id, $date, $start_time, $end_time, $purpose, $notes);
+            // Create summary for category_name field (for backward compatibility)
+            $categoryNameSummary = implode(', ', array_map(function($item) {
+                return $item['equipment_name'] . ' (x' . $item['quantity'] . ')';
+            }, $equipmentItems));
 
-            echo json_encode(['status' => 'success', 'message' => 'Reservation successful!', 'request_id' => $request_id]);
+            // Prepare request data
+            $data = [
+                'student_id' => $_SESSION['user_id'],
+                'sport_id' => $sportId,
+                'request_date' => $requestDate,
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+                'reserved_location' => $reservedLocation,
+                'requester_name' => $requesterName,
+                'status' => 'PENDING',
+                'category_name' => $categoryNameSummary,
+                'equipment_items' => $equipmentItems,
+                'notes' => $notes
+            ];
+
+            $requestId = $bookingModel->createRequest($data);
+
+            if ($requestId) {
+                echo json_encode(['status' => 'success', 'message' => 'Booking request created successfully!', 'request_id' => $requestId]);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to create booking request.']);
+            }
+
         } catch (Exception $e) {
             echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
         }
@@ -266,64 +315,73 @@ class EquipmentApiController {
         header('Content-Type: application/json');
     
         if (!isset($_SESSION['user_id'])) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Unauthorized'
-            ]);
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
             return;
         }
     
-        $userModel = new User();
-        $studentData = $userModel->getStudentId($_SESSION['user_id']);
-    
-        if (!$studentData || !isset($studentData['student_id'])) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Student ID not found'
-            ]);
-            return;
+        try {
+            require_once '../app/models/EquipmentBookigRequest.php';
+            $bookingModel = new EquipmentBookigRequest();
+            $userModel = new User();
+            $studentData = $userModel->getStudentId($_SESSION['user_id']);
+            
+            if (!$studentData || !isset($studentData['student_id'])) {
+                echo json_encode(['status' => 'error', 'message' => 'Student ID not found']);
+                return;
+            }
+            
+            $requests = $bookingModel->getRequestsByStudent($_SESSION['user_id']);
+            
+            // Format for frontend
+            $formattedData = array_map(function($req) {
+                return [
+                    'request_id' => $req['request_id'],
+                    'equipment_name' => $req['category_name'] ?: 'Equipment Set',
+                    'request_date' => $req['request_date'],
+                    'start_time' => $req['start_time'],
+                    'end_time' => $req['end_time'],
+                    'status' => $req['status'],
+                    'image_name' => 'default_equipment.png' // Generic icon as multiple items might be present
+                ];
+            }, $requests);
+            echo json_encode(['status' => 'success', 'data' => $formattedData]);
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
         }
-    
-        $studentId = $studentData['student_id'];
-    
-        $reservationModel = new Equipment();
-        $equipmentResults = $reservationModel->getReservedItems($studentId);
-    
-        echo json_encode([
-            'status' => 'success',
-            'data' => $equipmentResults
-        ]);
     }    
 
     public function cancelReservation() {
         header('Content-Type: application/json');
         if (!isset($_SESSION['user_id'])) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Unauthorized'
-            ]);
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
             return;
         }
 
-        $userModel = new User();
-        $studentId = $userModel->getStudentId($_SESSION['user_id']);
-        $reservationId = $_POST['reservation_id'] ?? null;
-
-        if (!$reservationId) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Invalid reservation ID'
-            ]);
-            return;
+        try {
+            $requestId = $_POST['request_id'] ?? '';
+            $userModel = new User();
+            $userProfile = $userModel->getUserProfile($_SESSION['user_id']);
+            $studentIdAlphanumeric = $userProfile['student_id'] ?? '';
+            $currentUserId = $_SESSION['user_id'];
+            
+            require_once '../app/models/EquipmentBookigRequest.php';
+            $bookingModel = new EquipmentBookigRequest();
+            
+            // Verify ownership before deletion
+            $request = $bookingModel->getRequestById($requestId);
+            
+            if ($request && ($request['student_id'] === $currentUserId || $request['student_id'] === $studentIdAlphanumeric)) {
+                if ($bookingModel->deleteRequest($requestId)) {
+                    echo json_encode(['status' => 'success', 'message' => 'Reservation request deleted successfully.']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Failed to delete reservation request.']);
+                }
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Request not found or access denied.']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
         }
-
-        $reservationModel = new Equipment();
-        $success = $reservationModel->cancelReservation($reservationId, $studentId);
-
-        echo json_encode([
-            'status' => $success ? 'success' : 'error',
-            'message' => $success ? 'Reservation cancelled successfully.' : 'Failed to cancel reservation.'
-        ]);
     }
 
     /**

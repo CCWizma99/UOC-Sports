@@ -49,10 +49,13 @@
                 $isFacilityPage = strpos($currentPage, '/facility-reservation') !== false;
                 $facilityActiveClass = $isFacilityPage ? ' active-portal' : '';
             ?>
-
+            
+            <?php $userType = $user['type'] ?? null; ?>
+            <?php if ($userType !== 'SPT' && $userType !== 'EQP' && $userType !== 'REG' && $userType !== 'COACH'): ?>
             <a href="/uoc-sports/public/facility-reservation" id="nav-res" class="btn-primary<?php echo $facilityActiveClass; ?>">
                 Facility Reservation
             </a>
+            <?php endif; ?>
 
             <?php
                 $isResultsPage = strpos($currentPage, '/results') !== false;
@@ -143,7 +146,7 @@
 
 <?php require_once APP_ROOT . '/app/views/templates/general/secondary-header.php'; ?>
 
-<?php if ($pendingBooking): ?>
+<?php if (false && $pendingBooking): ?>
 <!-- Pending Payment Reminder Modal -->
 <div id="pendingPaymentModal" class="pending-payment-modal">
     <div class="pending-payment-content">

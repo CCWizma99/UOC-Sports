@@ -103,7 +103,7 @@ class EquipmentManagerController {
             $requesterName = $_POST['requester_name'] ?? '';
 
             // Check if user already has an active or accepted reservation (skip check if editing same request)
-            if (!$isEdit && $model->hasActiveReservation($studentId, $requesterName)) {
+            if (!$isEdit && $model->hasActiveReservation([$studentId])) {
                 $_SESSION['error_message'] = 'This user already has an active or accepted equipment reservation. Please complete or cancel the existing reservation before creating a new one.';
                 header('Location: /uoc-sports/public/equipment-manager/add-booking');
                 exit();

@@ -293,11 +293,17 @@
 }
 
 #reserve-equipment .input-div input,
+#reserve-equipment .input-div select,
 #reserve-equipment .input-div textarea {
     padding: 0.5rem 0.75rem;
     border: 2px solid #e9ecef;
     border-radius: 6px;
     font-size: 0.85rem;
+    background: white;
+    color: #333;
+    width: 100%;
+    box-sizing: border-box;
+    appearance: auto;
 }
 
 #reserve-equipment .input-div textarea {

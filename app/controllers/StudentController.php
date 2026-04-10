@@ -30,10 +30,18 @@ class StudentController {
             header('Location: /uoc-sports/public/sign-in');
             exit;
         }
-        // Get student ID for the view
+        // Get student ID and sports list for the view
         $userModel = new User();
         $student = $userModel->getStudentId($_SESSION['user_id']);
-        $data = ['student_id' => $student['student_id']];
+        
+        require_once '../app/models/EquipmentBookigRequest.php';
+        $bookingModel = new EquipmentBookigRequest();
+        $sports = $bookingModel->getAllSports();
+        
+        $data = [
+            'student_id' => $student['student_id'],
+            'sports' => $sports
+        ];
         
         view('student/equipment', $data);
     }
