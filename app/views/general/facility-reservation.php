@@ -81,7 +81,7 @@
         <!-- RIGHT PANEL: RESERVATION FORM -->
         <div class="right-panel">
             <section class="section facility-reservation-container">
-                <h3><i class="fas fa-calendar-plus"></i> Reserve a Facility <span style="font-size: 0.7rem; color: #4b0082; background: #eee; padding: 2px 5px; border-radius: 4px; vertical-align: middle; margin-left: 10px;">Updated UI</span></h3>
+                <h3><i class="fas fa-calendar-plus"></i> Reserve a Facility</h3>
 
                 <div id="parallelBookingAlert" class="parallel-booking-alert">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -859,7 +859,7 @@ async function renderMonthlyCalendar() {
             }
             
             html += `
-                <div class="calendar-day ${bookedClass} ${todayClass}" title="${tooltip}" onclick="selectDateFromCalendar('${dateStr}')">
+                <div class="calendar-day ${bookedClass} ${todayClass}" title="${tooltip}" onclick="selectDateFromCalendar('${dateStr}', ${dayBookings.length > 0})">
                     <span class="day-number">${d}</span>
                     ${dayBookings.length > 0 ? `<span class="booking-indicator">${dayBookings.length}</span>` : ''}
                 </div>
@@ -879,7 +879,11 @@ function changeCalendarMonth(offset) {
     renderMonthlyCalendar();
 }
 
-function selectDateFromCalendar(dateStr) {
+function selectDateFromCalendar(dateStr, isBooked) {
+    if (isBooked) {
+        window.location.href = '/uoc-sports/public/my-bookings?date=' + dateStr;
+        return;
+    }
     const dateInput = document.getElementById('date');
     dateInput.value = dateStr;
     

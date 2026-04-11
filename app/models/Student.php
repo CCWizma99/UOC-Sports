@@ -86,47 +86,57 @@ class Student {
      */
     public function getDashboardStats($userId, $studentId) {
         // 1. Enrolled Sports
+        // sports-team.student_id may store system user_id or alphanumeric university student_id
         $sql1 = "SELECT s.sport_name 
                  FROM `sports-team` st
                  JOIN sport s ON st.sport_id = s.sport_id
-                 WHERE st.student_id = :student_id";
+                 WHERE (st.student_id = :user_id OR st.student_id = :student_id)";
         $stmt1 = $this->db->prepare($sql1);
-        $stmt1->execute(['student_id' => $studentId]);
+        $stmt1->execute([
+            'user_id' => $userId, 
+            'student_id' => ($studentId ?: '')
+        ]);
         $sportsList = $stmt1->fetchAll(PDO::FETCH_COLUMN);
 
-        // 2. Upcoming Practice Sessions (for enrolled sports)
-        $sql2 = "SELECT s.sport_name, ps.session_date, ps.session_time
+        // 2. Upcoming Practice Sessions (for enrolled sports) — used only for calendar
+        // practice_sessions uses start_time (not session_time)
+        $sql2 = "SELECT s.sport_name, ps.session_date, ps.start_time
                  FROM practice_sessions ps
                  JOIN sport s ON ps.sport_id = s.sport_id
-                 WHERE ps.sport_id IN (SELECT sport_id FROM `sports-team` WHERE student_id = :student_id)
+                 WHERE ps.sport_id IN (SELECT sport_id FROM `sports-team` WHERE (student_id = :user_id OR student_id = :student_id))
                  AND ps.session_date >= CURDATE()
-                 ORDER BY ps.session_date ASC, ps.session_time ASC";
+                 AND ps.status IN ('ACTIVE', 'ACCEPTED', 'PENDING')
+                 ORDER BY ps.session_date ASC, ps.start_time ASC";
         $stmt2 = $this->db->prepare($sql2);
-        $stmt2->execute(['student_id' => $studentId]);
+        $stmt2->execute([
+            'user_id' => $userId, 
+            'student_id' => ($studentId ?: '')
+        ]);
         $sessionsList = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
         // 3. Reserved Equipment
-        // Uses equipment_id FK to join equipment-requests with equipment table
+        // equipment-requests.student_id may hold either user_id or university student_id
+        // Query by both to cover all cases
         $sql3 = "SELECT COALESCE(e.equipment_name, r.category_name) as equipment_name, r.request_date 
                  FROM `equipment-requests` r 
                  LEFT JOIN equipment e ON r.equipment_id = e.equipment_id
-                 WHERE r.student_id = :student_id 
-                 AND r.status IN ('ACTIVE', 'ACCEPTED')
+                 WHERE (r.student_id = :user_id OR r.student_id = :student_id)
+                 AND r.status IN ('ACTIVE', 'ACCEPTED', 'PENDING')
                  ORDER BY r.request_date DESC";
         $equipmentList = [];
         try {
             $stmt3 = $this->db->prepare($sql3);
-            $stmt3->execute(['student_id' => $studentId]);
+            $stmt3->execute(['user_id' => $userId, 'student_id' => ($studentId ?: '')]);
             $equipmentList = $stmt3->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Dashboard Stats Error (Equipment): " . $e->getMessage());
         }
 
-        // 4. Active Facility Reservations
-        // Adjusted table names and columns based on Facility model research
+        // 4. Active Facility Reservations (upcoming or today)
+        // facility-booking.facility_id is an integer matching facility_rates.id
         $sql4 = "SELECT fr.facility_name, fb.date, fb.slot 
                  FROM `facility-booking` fb 
-                 JOIN facility_rates fr ON fb.facility_id = fr.id
+                 JOIN facility_rates fr ON CAST(fb.facility_id AS UNSIGNED) = fr.id
                  WHERE fb.user_id = :user_id 
                  AND fb.status IN ('BOOKED', 'ACCEPTED') 
                  AND fb.date >= CURDATE()
@@ -141,14 +151,14 @@ class Student {
         }
 
         return [
-            'sports_count' => count($sportsList),
-            'sports_list' => array_slice($sportsList, 0, 3), // Show first 3 for summary
-            'sessions_count' => count($sessionsList),
-            'sessions_list' => array_slice($sessionsList, 0, 3), // Show first 3 for summary
+            'sports_count'    => count($sportsList),
+            'sports_list'     => array_slice($sportsList, 0, 3),
+            'sessions_count'  => count($sessionsList),
+            'sessions_list'   => array_slice($sessionsList, 0, 3),
             'equipment_count' => count($equipmentList),
-            'equipment_list' => array_slice($equipmentList, 0, 3), // Show first 3 for summary
-            'facilities_count' => count($facilityList),
-            'facilities_list' => array_slice($facilityList, 0, 3)  // Show first 3 for summary
+            'equipment_list'  => array_slice($equipmentList, 0, 3),
+            'facilities_count'=> count($facilityList),
+            'facilities_list' => array_slice($facilityList, 0, 3)
         ];
     }
 
@@ -156,16 +166,18 @@ class Student {
      * Get upcoming activities (practice sessions) for enrolled sports
      */
     public function getUpcomingActivities($userId, $studentId, $limit = 5) {
+        // NOTE: sports-team.student_id stores user_id values (system ID)
         $sql = "SELECT ps.*, s.sport_name 
                 FROM practice_sessions ps
                 JOIN sport s ON ps.sport_id = s.sport_id
-                WHERE ps.sport_id IN (SELECT sport_id FROM `sports-team` WHERE student_id = :student_id)
+                WHERE ps.sport_id IN (SELECT sport_id FROM `sports-team` WHERE student_id = :user_id)
                 AND ps.session_date >= CURDATE()
-                ORDER BY ps.session_date ASC, ps.session_time ASC
+                AND ps.status IN ('ACTIVE', 'ACCEPTED', 'PENDING')
+                ORDER BY ps.session_date ASC, ps.start_time ASC
                 LIMIT :limit";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':student_id', $studentId);
+        $stmt->bindValue(':user_id', $userId);
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->execute();
         

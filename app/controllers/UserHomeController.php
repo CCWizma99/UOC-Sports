@@ -98,6 +98,14 @@ class UserHomeController {
         ]);
     }
     
+    public function myBookings() {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /uoc-sports/public/sign-in');
+            exit;
+        }
+        view('general/my-bookings');
+    }
+    
     public function getFaculties() {
         header('Content-Type: application/json');
         try {
