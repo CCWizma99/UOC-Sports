@@ -35,13 +35,136 @@
             gap: 0.5rem;
         }
 
-        @media (max-width: 1024px) {
-            .grid-layout {
-                grid-template-columns: 1fr;
-            }
-            .page-container {
-                padding: 20px;
-            }
+        .equipment-selection-box {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .equipment-item-card {
+            display: grid;
+            grid-template-columns: 20px 1fr auto;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #fff;
+            border-radius: 6px;
+            border: 1.5px solid #e9ecef;
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
+        }
+
+        .equipment-item-card:hover {
+            border-color: #b39ddb;
+            background: #f8f4ff;
+        }
+
+        .equipment-item-card.selected {
+            border-color: #6a0dad;
+            background: #f3eaff;
+        }
+
+        .equipment-item-card.unavailable {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .equipment-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #6a0dad;
+            flex-shrink: 0;
+        }
+
+        .equipment-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .equipment-name-text {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #222;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .equipment-avail-text {
+            font-size: 0.72rem;
+            color: #888;
+            margin-top: 1px;
+        }
+
+        .equipment-qty-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .equipment-qty-wrapper span {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .equipment-quantity-input {
+            width: 52px !important;
+            padding: 4px 6px !important;
+            border: 1.5px solid #ccc !important;
+            border-radius: 5px !important;
+            font-size: 0.82rem !important;
+            background: #fff !important;
+            color: #333 !important;
+            text-align: center;
+            margin: 0 !important;
+        }
+
+        .equipment-quantity-input:disabled {
+            background: #f0f0f0 !important;
+            color: #aaa !important;
+            border-color: #ddd !important;
+        }
+
+        .cancel-reservation {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .cancel-reservation:hover {
+            background: #ff6b81;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+        }
+
+        .cancel-reservation i {
+            font-size: 0.9rem;
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 20px;
+            opacity: 0.6;
+            font-style: italic;
         }
     </style>
 </head>
@@ -51,63 +174,76 @@
 
     <div class="page-container">
         <div class="grid-layout">
-            <!-- Reserved Items Section (Now on Left) -->
+            <!-- Reserve Equipment Form (Now on Left) -->
+            <div class="portal-card">
+                <section id="reserve-equipment">
+                    <h2><i class="fas fa-clipboard-list"></i> Reserve Equipment</h2>
+                    <form id="reserve-equipment-form">
+                        <div class="input-row">
+                            <div class="input-div">
+                                <label for="sport"><i class="fas fa-running"></i> Sport *</label>
+                                <select id="sport" name="sport" required>
+                                    <option value="">Select Sport</option>
+                                    <?php foreach ($data['sports'] as $sport): ?>
+                                        <option value="<?= $sport['sport_id'] ?>"><?= $sport['sport_name'] ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="input-div">
+                                <label for="reserved_location"><i class="fas fa-map-marker-alt"></i> Location</label>
+                                <select id="reserved_location" name="reserved_location">
+                                    <option value="">Select Location</option>
+                                    <?php 
+                                    $locations = ['Badminton Court', 'Tennis Court', 'Baseball Pitch', 'Cricket Pitch', 
+                                                 'Football Ground', 'Basketball Court', 'Volleyball Court', 'Swimming Pool', 'Gym', 'Ground'];
+                                    foreach ($locations as $location):
+                                    ?>
+                                        <option value="<?= $location ?>"><?= $location ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-row">
+                            <div class="input-div">
+                                <label for="date"><i class="fas fa-calendar"></i> Date *</label>
+                                <input type="date" id="date" name="date" required>
+                            </div>
+                            <div class="input-div">
+                                <label for="start-time"><i class="fas fa-clock"></i> Start *</label>
+                                <input type="time" id="start-time" name="start_time" required>
+                            </div>
+                            <div class="input-div">
+                                <label for="end-time"><i class="fas fa-clock"></i> End *</label>
+                                <input type="time" id="end-time" name="end_time" required>
+                            </div>
+                        </div>
+
+                        <div class="input-div">
+                            <label><i class="fas fa-box"></i> Equipment Selection *</label>
+                            <div id="equipment-selection-container" class="equipment-selection-box">
+                                <p class="empty-msg">Please select a sport and date first</p>
+                            </div>
+                        </div>
+
+                        <div class="input-div">
+                            <label for="notes"><i class="fas fa-sticky-note"></i> Notes</label>
+                            <textarea id="notes" name="notes" rows="2" placeholder="Additional notes..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle" style="margin-right: 6px;"></i>Reserve</button>
+                        <div id="reserve-message"></div>
+                    </form>
+                </section>
+            </div>
+
+            <!-- Reserved Items Section (Now on Right) -->
             <div class="portal-card">
                 <section id="reserved-section" class="reserved-section">
                     <h2><i class="fas fa-box-open"></i> My Reserved Items</h2>
                     <div class="reserved-container" id="reserved-container">
                         <p>Loading reserved items...</p>
                     </div>
-                </section>
-            </div>
-
-            <!-- Reserve Equipment Form (Now on Right) -->
-            <div class="portal-card">
-                <section id="reserve-equipment">
-                    <h2><i class="fas fa-clipboard-list"></i> Reserve Equipment</h2>
-                    <form id="reserve-equipment-form">
-                        <div class="input-div" style="position: relative;">
-                            <label for="equipment-search"><i class="fas fa-search"></i> Search Equipment</label>
-                            <input type="text" id="equipment-search" name="equipment_name" placeholder="Start typing..." autocomplete="off" required>
-                            <ul id="suggestions"></ul>
-                        </div>
-
-                        <div id="reserved-times-div" class="reserved-times-box">
-                            <h3><i class="fas fa-calendar-alt"></i> Reserved Times</h3>
-                            <table id="reserved-times" class="styled-table">
-                                <thead><tr><th>Date</th><th>Start</th><th>End</th><th>By</th></tr></thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-
-                        <div class="input-div">
-                            <label for="student-id"><i class="fas fa-id-card"></i> Student ID</label>
-                            <input type="text" id="student-id" name="student_id" value="<?= htmlspecialchars($data['student_id'] ?? '')?>" readonly>
-                        </div>
-
-                        <div class="input-row">
-                            <div class="input-div">
-                                <label for="date"><i class="fas fa-calendar"></i> Date</label>
-                                <input type="date" id="date" name="date" required>
-                            </div>
-                            <div class="input-div">
-                                <label for="start-time"><i class="fas fa-clock"></i> Start</label>
-                                <input type="time" id="start-time" name="start_time" required>
-                            </div>
-                            <div class="input-div">
-                                <label for="end-time"><i class="fas fa-clock"></i> End</label>
-                                <input type="time" id="end-time" name="end_time" required>
-                            </div>
-                        </div>
-
-                        <div class="input-div">
-                            <label for="purpose"><i class="fas fa-bullseye"></i> Purpose</label>
-                            <textarea id="purpose" name="purpose" rows="2" placeholder="Purpose..." required></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Reserve</button>
-                        <div id="reserve-message"></div>
-                    </form>
                 </section>
             </div>
         </div>
@@ -117,79 +253,109 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const searchInput = document.getElementById("equipment-search");
-        const suggestions = document.getElementById("suggestions");
+        const sportSelect = document.getElementById("sport");
+        const equipmentContainer = document.getElementById("equipment-selection-container");
+        const reserveForm = document.getElementById("reserve-equipment-form");
         const msg = document.getElementById("reserve-message");
-        const timesDiv = document.getElementById("reserved-times-div");
-        const timesTable = document.getElementById("reserved-times").querySelector("tbody");
-        let selectedEquipmentId = null;
 
-        suggestions.style.display = "none";
-
-        searchInput.addEventListener("input", async () => {
-            const q = searchInput.value.trim();
-            if (q.length < 1) {
-                suggestions.innerHTML = "";
-                suggestions.style.display = "none";
-                return;
-            }
-
-            const res = await fetch(`/uoc-sports/public/reserve-equipments/search?q=${encodeURIComponent(q)}`);
-            const data = await res.json();
-            suggestions.innerHTML = "";
-            suggestions.style.display = "none";
-
-            if (data.status === "success" && data.data.length > 0) {
-                suggestions.style.display = "block";
-                data.data.forEach(eq => {
-                    const li = document.createElement("li");
-                    const img = document.createElement("img");
-                    img.className = "suggestion-image";
-                    img.src = eq.image_name ? `/uoc-sports/public/images/equipment-types/${eq.image_name}` : `https://via.placeholder.com/35?text=${eq.equipment_name.charAt(0)}`;
-                    img.alt = eq.equipment_name;
-                    img.onerror = function() { this.src = `https://via.placeholder.com/35?text=${eq.equipment_name.charAt(0)}`; };
-                    
-                    const details = document.createElement("div");
-                    details.className = "suggestion-details";
-                    details.innerHTML = `<div class="suggestion-name">${eq.equipment_name}</div><div class="suggestion-sport">${eq.sport_name}</div>`;
-                    
-                    const availability = document.createElement("div");
-                    availability.className = "suggestion-availability";
-                    const qty = parseInt(eq.available_quantity);
-                    if (qty > 10) availability.textContent = `${qty} available`;
-                    else if (qty > 0) availability.textContent = `${qty} left`;
-                    else availability.textContent = "Unavailable";
-                    
-                    li.appendChild(img); li.appendChild(details); li.appendChild(availability);
-                    li.addEventListener("click", () => selectEquipment(eq));
-                    suggestions.appendChild(li);
-                });
-            }
-        });
-
-        function selectEquipment(eq) {
-            searchInput.value = eq.equipment_name;
-            selectedEquipmentId = eq.equipment_id;
-            suggestions.innerHTML = "";
-            suggestions.style.display = "none";
-            loadReservedTimes(eq.equipment_id);
-        }
-
-        async function loadReservedTimes(equipmentId) {
-            const res = await fetch(`/uoc-sports/public/reserve-equipments/get-times?equipment_id=${equipmentId}`);
-            const data = await res.json();
-            timesTable.innerHTML = "";
-            if (data.status === "success" && data.data.length > 0) {
-                timesDiv.style.display = "block";
-                data.data.forEach(row => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `<td>${row.request_date}</td><td>${row.start_time}</td><td>${row.end_time}</td><td>${row.student_id}</td>`;
-                    timesTable.appendChild(tr);
-                });
+        // Load equipment only when BOTH sport and date are selected
+        function tryLoadEquipment() {
+            const sportId = sportSelect.value;
+            const date = document.getElementById('date').value;
+            if (sportId && date) {
+                loadEquipmentBySport(sportId);
+            } else if (!sportId && !date) {
+                equipmentContainer.innerHTML = '<p class="empty-msg">Please select a sport and date first</p>';
+            } else if (!sportId) {
+                equipmentContainer.innerHTML = '<p class="empty-msg">Please select a sport first</p>';
             } else {
-                timesDiv.style.display = "none";
+                equipmentContainer.innerHTML = '<p class="empty-msg">Please select a date first</p>';
             }
         }
+
+        sportSelect.addEventListener("change", tryLoadEquipment);
+
+        async function loadEquipmentBySport(sportId) {
+            equipmentContainer.innerHTML = '<p class="empty-msg">Loading equipment...</p>';
+
+            try {
+                const date = document.getElementById('date').value;
+                const startTime = document.getElementById('start-time').value;
+                const endTime = document.getElementById('end-time').value;
+
+                let apiUrl = `/uoc-sports/public/api/get-equipment-with-requests.php?sport_id=${sportId}`;
+                if (date) apiUrl += `&request_date=${date}`;
+                if (startTime) apiUrl += `&start_time=${startTime}`;
+                if (endTime) apiUrl += `&end_time=${endTime}`;
+
+                const res = await fetch(apiUrl);
+                const data = await res.json();
+
+                equipmentContainer.innerHTML = "";
+
+                if (data.success && data.equipment && data.equipment.length > 0) {
+                    data.equipment.forEach(item => {
+                        const available = parseInt(item.slot_available_count || item.available_count || 0);
+                        
+                        const itemCard = document.createElement("div");
+                        itemCard.className = "equipment-item-card";
+                        if (available <= 0) itemCard.style.opacity = "0.5";
+
+                        itemCard.innerHTML = `
+                            <input type="checkbox" name="equipment[]" value="${item.equipment_name}" 
+                                   class="equipment-checkbox" id="eq_${item.equipment_id}"
+                                   ${available <= 0 ? 'disabled' : ''}>
+                            <div class="equipment-info">
+                                <span class="equipment-name-text">${item.equipment_name}</span>
+                                <span class="equipment-avail-text">${available > 0 ? available + ' available' : 'Out of stock'}</span>
+                            </div>
+                            <div class="equipment-qty-wrapper">
+                                <span>Qty</span>
+                                <input type="number" name="quantity[${item.equipment_name}]" 
+                                       class="equipment-quantity-input" value="1" min="1" max="${available}" 
+                                       id="qty_${item.equipment_id}" disabled>
+                            </div>
+                        `;
+
+                        // Click whole card to toggle checkbox
+                        itemCard.addEventListener("click", (e) => {
+                            if (e.target.tagName === 'INPUT') return;
+                            const cb = itemCard.querySelector('input[type="checkbox"]');
+                            if (!cb.disabled) cb.click();
+                        });
+
+                        const checkbox = itemCard.querySelector('input[type="checkbox"]');
+                        const qtyInput = itemCard.querySelector('input[type="number"]');
+
+                        checkbox.addEventListener("change", () => {
+                            qtyInput.disabled = !checkbox.checked;
+                            if (checkbox.checked) {
+                                itemCard.classList.add("selected");
+                            } else {
+                                itemCard.classList.remove("selected");
+                            }
+                        });
+
+                        equipmentContainer.appendChild(itemCard);
+                    });
+                } else {
+                    equipmentContainer.innerHTML = '<p class="empty-msg">No equipment available for this sport</p>';
+                }
+            } catch (error) {
+                console.error("Error loading equipment:", error);
+                equipmentContainer.innerHTML = '<p class="empty-msg" style="color: var(--error-color);">Error loading equipment.</p>';
+            }
+        }
+
+        // Reload equipment when date/time changes to update availability
+        document.getElementById('date').addEventListener('change', tryLoadEquipment);
+        ['start-time', 'end-time'].forEach(id => {
+            document.getElementById(id).addEventListener('change', () => {
+                const sportId = sportSelect.value;
+                const date = document.getElementById('date').value;
+                if (sportId && date) loadEquipmentBySport(sportId);
+            });
+        });
 
         // Load Reserved Items
         function loadMyReservedItems() {
@@ -206,21 +372,63 @@
                         return;
                     }
     
-                    // Show max 3 active
-                    data.slice(0, 3).forEach(item => {
+                    function getIconForEquipment(name) {
+                        const n = name.toLowerCase();
+                        if (n.includes('basketball')) return 'fa-basketball-ball';
+                        if (n.includes('football') || n.includes('soccer') || n.includes('futsal')) return 'fa-futbol';
+                        if (n.includes('volleyball')) return 'fa-volleyball-ball';
+                        if (n.includes('badminton') || n.includes('shuttle') || n.includes('racquet') || n.includes('tennis')) return 'fa-table-tennis';
+                        if (n.includes('cricket') || n.includes('baseball') || n.includes('bat')) return 'fa-baseball-ball';
+                        if (n.includes('swimming') || n.includes('pool')) return 'fa-swimmer';
+                        if (n.includes('gym') || n.includes('weight') || n.includes('dumbbell')) return 'fa-dumbbell';
+                        return 'fa-box-open'; // Default icon
+                    }
+
+                    data.forEach(item => {
                         const statusClass = item.status.toLowerCase();
+                        const iconClass = getIconForEquipment(item.equipment_name);
                         container.innerHTML += `
                             <div class="reserved-item">
-                                <img src="/uoc-sports/public/images/equipment-types/${item.image_name}" 
-                                     alt="${item.equipment_name}"
-                                     onerror="this.src='https://via.placeholder.com/50?text=${item.equipment_name.charAt(0)}';">
+                                <div style="width: 50px; height: 50px; border-radius: 8px; background: #f3eaff; color: #6a0dad; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
+                                    <i class="fas ${iconClass}"></i>
+                                </div>
                                 <div class="reserved-details">
                                     <h3>${item.equipment_name}</h3>
-                                    <p><i class="fas fa-clock"></i> ${item.start_time} - ${item.end_time}</p>
+                                    <p><i class="fas fa-calendar"></i> ${item.request_date}</p>
+                                    <p><i class="fas fa-clock"></i> ${item.start_time.substring(0,5)} - ${item.end_time.substring(0,5)}</p>
                                     <span class="status-badge ${statusClass}">${item.status}</span>
                                 </div>
+                                <button class="cancel-reservation" data-id="${item.request_id}">
+                                    <i class="fas fa-times-circle"></i> Cancel
+                                </button>
                             </div>
                         `;
+                    });
+
+                    // Add click listeners to cancel buttons
+                    document.querySelectorAll(".cancel-reservation").forEach(btn => {
+                        btn.addEventListener("click", async () => {
+                            if (!confirm("Are you sure you want to cancel this reservation?")) return;
+                            
+                            const requestId = btn.getAttribute("data-id");
+                            const formData = new FormData();
+                            formData.append("request_id", requestId);
+
+                            try {
+                                const res = await fetch("/uoc-sports/public/reserve-equipments/cancel", {
+                                    method: "POST",
+                                    body: formData
+                                });
+                                const result = await res.json();
+                                if (result.status === "success") {
+                                    loadMyReservedItems();
+                                } else {
+                                    alert(result.message);
+                                }
+                            } catch (e) {
+                                alert("Failed to cancel reservation.");
+                            }
+                        });
                     });
                 })
                 .catch(() => {
@@ -231,26 +439,62 @@
         
         loadMyReservedItems();
 
-        document.getElementById("reserve-equipment-form").addEventListener("submit", async e => {
+        // Form Submission
+        reserveForm.addEventListener("submit", async e => {
             e.preventDefault();
-            msg.textContent = ""; msg.className = "";
-            if (!selectedEquipmentId) {
-                msg.textContent = "Please select equipment from suggestions.";
+            msg.textContent = "Processing..."; msg.className = "";
+            
+            const selectedEq = document.querySelectorAll('input[name="equipment[]"]:checked');
+            if (selectedEq.length === 0) {
+                msg.textContent = "Please select at least one equipment item.";
                 msg.classList.add("error");
                 return;
             }
-            const formData = new FormData(e.target);
-            formData.append("equipment_id", selectedEquipmentId);
 
-            const res = await fetch("/uoc-sports/public/reserve-equipments/add", { method: "POST", body: formData });
-            const result = await res.json();
-            msg.textContent = result.message;
-            msg.classList.add(result.status === "success" ? "success" : "error");
+            const formData = new FormData(reserveForm);
+            
+            try {
+                const res = await fetch("/uoc-sports/public/reserve-equipments/add", { 
+                    method: "POST", 
+                    body: formData 
+                });
+                const result = await res.json();
+                
+                msg.textContent = result.message;
+                msg.classList.add(result.status === "success" ? "success" : "error");
 
-            if (result.status === "success") {
-                e.target.reset();
-                loadReservedTimes(selectedEquipmentId);
-                loadMyReservedItems(); // Refresh the reserved items list
+                if (result.status === "success") {
+                    reserveForm.reset();
+                    equipmentContainer.innerHTML = '<p class="empty-msg">Please select a sport and date first</p>';
+                    loadMyReservedItems();
+
+                    // Auto-clear the success message after 4 seconds
+                    setTimeout(() => {
+                        msg.style.transition = "opacity 0.5s ease";
+                        msg.style.opacity = "0";
+                        setTimeout(() => {
+                            msg.textContent = "";
+                            msg.className = "";
+                            msg.style.opacity = "1";
+                            msg.style.transition = "";
+                        }, 500);
+                    }, 4000);
+                } else {
+                    // Clear error messages after 5 seconds too
+                    setTimeout(() => {
+                        msg.style.transition = "opacity 0.5s ease";
+                        msg.style.opacity = "0";
+                        setTimeout(() => {
+                            msg.textContent = "";
+                            msg.className = "";
+                            msg.style.opacity = "1";
+                            msg.style.transition = "";
+                        }, 500);
+                    }, 5000);
+                }
+            } catch (error) {
+                msg.textContent = "An error occurred. Please try again.";
+                msg.classList.add("error");
             }
         });
     });

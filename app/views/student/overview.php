@@ -43,7 +43,7 @@
             height: calc(100vh - 120px);
             min-height: 520px;
             box-sizing: border-box;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         .portal-card.welcome-card {
@@ -52,7 +52,7 @@
             flex-direction: column;
             padding: 30px 45px; /* Significantly increased padding */
             margin-bottom: 0;
-            overflow: hidden;
+            overflow-y: auto;
             box-sizing: border-box;
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -119,8 +119,9 @@
         .summary-card.sessions {
             grid-column: 2;
             grid-row: 1 / span 3;
-            padding: 22px;
+            padding: 16px 22px;
             background: linear-gradient(to bottom, var(--bg), #ffffff);
+            overflow-y: auto;
         }
 
         .summary-card:hover {
@@ -139,7 +140,7 @@
         }
 
         .sessions .card-header {
-            margin-bottom: 20px;
+            margin-bottom: 8px;
         }
 
         .card-header-left {
@@ -199,117 +200,185 @@
             align-items: flex-start;
         }
 
-        /* Calendar Navigation - Reference Image Style */
+        /* --- Practice Sessions Calendar Styles (Sport Manager Exact Matches) --- */
+        .calendar-section-compact {
+            width: 100%;
+            background: linear-gradient(to bottom, #faf5ff 0%, #ffffff 100%);
+            border-radius: 12px;
+            border: 2px solid #e9d5ff;
+            box-shadow: 0 2px 8px rgba(168, 85, 247, 0.08);
+            margin-top: 0;
+        }
+
+        #calendar {
+            width: 100%;
+            background-color: white;
+            border-radius: 12px;
+            padding: 0.4rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-header h4 {
+            font-size: 1.25rem;
+            color: #6b21a8;
+            font-weight: 700;
+            margin: 0;
+        }
+
         .calendar-nav {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
-            background: #ffffff;
-            color: #1a1a1a;
-            border-bottom: 2px solid #f0f0f5;
+            gap: 0.5rem;
         }
 
-        .calendar-nav span {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #1a1a1a;
-        }
-
-        .calendar-nav-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .cal-nav-btn {
-            background: #5e2d91; /* System Purple */
+        .calendar-nav button {
+            background: #a855f7;
             color: white;
             border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 6px; /* Square with slight roundness */
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(168, 85, 247, 0.2);
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            font-size: 0.8rem;
+            gap: 5px;
         }
 
-        .cal-nav-btn:hover {
-            opacity: 0.9;
+        .calendar-nav button:hover {
+            background: #9333ea;
+            box-shadow: 0 4px 8px rgba(147, 51, 234, 0.3);
             transform: translateY(-1px);
         }
 
-        .calendar-table {
-            width: 100%;
-            border-collapse: collapse;
-            flex: 1;
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.2rem;
         }
 
-        .calendar-table th {
-            padding: 10px 5px;
-            font-size: 0.85rem;
-            font-weight: 800;
-            color: #1a1a1a;
-            text-transform: none;
-            background: #ffffff;
-            border-bottom: none;
-            opacity: 0.8;
-        }
-
-        .calendar-table td {
-            padding: 0;
-            height: 52px;
+        .calendar-day-header {
             text-align: center;
-            border: none;
-            position: relative;
-            transition: all 0.2s ease;
-            font-size: 1rem;
-            color: #b0b0b0; /* Softer gray for non-active numbers */
-            font-weight: 500;
+            font-weight: 600;
+            color: #6b21a8;
+            background: #f3e8ff;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.3rem;
+            border: 1px solid #e9d5ff;
+        }
+
+        .calendar-day {
+            background-color: #fefefe;
+            border: 2px solid #e9d5ff;
+            border-radius: 6px;
+            padding: 0.3rem;
+            text-align: center;
             cursor: pointer;
-        }
-
-        .calendar-table td:hover:not(.empty) {
-            color: #1a1a1a;
-        }
-
-        .calendar-day-num {
-            width: 38px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            border-radius: 10px;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             position: relative;
-            z-index: 2;
+            min-height: 34px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #4b5563;
         }
 
-        /* Today Highlight - Reference Match */
-        .calendar-table td.today .calendar-day-num {
-            color: #ffffff;
-            background: #5e2d91;
+        .calendar-day:hover {
+            border-color: #a855f7;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.25);
+            z-index: 10;
+            background: #faf5ff;
+        }
+
+        /* Exact Stat/Session Colors */
+        .calendar-day.today {
+            background: #f3e8ff;
+            border-color: #a855f7;
+            color: #7e22ce;
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(94, 45, 145, 0.2);
+            box-shadow: 0 2px 6px rgba(168, 85, 247, 0.2);
         }
-        
-        /* Session Highlight */
-        .calendar-table td.has-session .calendar-day-num {
-            color: #ffffff;
-            background: #2e7d32; 
+            
+        .calendar-day.has-reservation.past-date {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .calendar-day.has-reservation.future-date {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .calendar-day.today.has-reservation {
+            background: #e0e7ff;
+            border-color: #818cf8;
+            color: #4338ca;
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+            box-shadow: 0 3px 8px rgba(129, 140, 248, 0.25);
         }
 
-        .session-indicator {
-            display: none; /* Removed in favor of full cell highlight */
+        /* Session indicator dots */
+        .calendar-day.has-reservation::after {
+            content: '●';
+            position: absolute;
+            bottom: 3px;
+            font-size: 0.65rem;
+            color: #a855f7;
         }
 
-        .calendar-table td.empty {
-            background: #ffffff;
+        .calendar-day.has-reservation.past-date::after {
+            color: #f87171;
+        }
+
+        .calendar-day.has-reservation.future-date::after {
+            color: #4ade80;
+        }
+
+        .calendar-day.today.has-reservation::after {
+            color: #818cf8;
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* Calendar Tooltip Styles */
+        .calendar-tooltip {
+            position: fixed;
+            background: white;
+            border: 3px solid #a855f7;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            max-width: 350px;
+            min-width: 280px;
+            font-size: 0.875rem;
+            display: block;
         }
 
         .sessions .card-summary {
@@ -318,6 +387,7 @@
             gap: 15px;
             align-items: stretch;
             flex-direction: column;
+            overflow: visible;
         }
         
         .sessions-scroll-container {
@@ -414,22 +484,20 @@
                     <div class="card-summary" id="listFacilities"></div>
                 </a>
 
-                <!-- Large Right Column Card -->
-                <a href="/uoc-sports/public/student/sports" class="summary-card sessions">
+                <!-- Large Right Column Card: Practice Sessions Calendar -->
+                <div class="summary-card sessions" style="min-height: auto; height: auto; max-height: none;">
                     <div class="card-header">
                         <div class="card-header-left">
                             <i class="fas fa-calendar-alt main-icon"></i>
-                            <h3>Upcoming Sessions</h3>
-                        </div>
-                        <div class="count" id="countSessions">-</div>
-                    </div>
-                    <div class="card-summary">
-                        <div id="miniCalendar" class="mini-calendar"></div>
-                        <div class="sessions-scroll-container">
-                            <div id="listSessions" class="summary-list-container"></div>
+                            <h3>Practice Sessions</h3>
                         </div>
                     </div>
-                </a>
+                    <div class="card-summary" style="flex-direction: column; padding: 0.5rem; height: auto;">
+                        <div class="calendar-section-compact" style="overflow: visible;">
+                            <div id="calendar"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -439,98 +507,12 @@
 
     <?php require '../app/views/templates/general/footer.php'; ?>
 
+    <script src="/uoc-sports/public/js/sports-manager/calendar.js"></script>
     <script>
+    window.selectedSportId = null; // Show all sports by default on dashboard
     document.addEventListener("DOMContentLoaded", () => {
         fetchStats();
-        renderMiniCalendar(); // Initial render for current month
     });
-
-        let currentDisplayDate = new Date();
-        let globalSessions = [];
-
-        function renderMiniCalendar(sessions = globalSessions) {
-            const container = document.getElementById('miniCalendar');
-            if (!container) return;
-
-            const year = currentDisplayDate.getFullYear();
-            const month = currentDisplayDate.getMonth();
-            const today = new Date();
-            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
-            
-            // Adjust for Monday start to match reference image (Reference shows Su at the end)
-            // Reference image headers: Mo, Tu, We, Th, Fr, Sa, Su
-            let firstDay = new Date(year, month, 1).getDay(); // 0=Su, 1=Mo...
-            firstDay = (firstDay === 0) ? 6 : firstDay - 1; // 0=Mo, 6=Su
-            
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            // Map sessions to dates
-            const sessionDates = {};
-            if (sessions) {
-                sessions.forEach(s => {
-                    const d = new Date(s.session_date);
-                    if (d.getMonth() === month && d.getFullYear() === year) {
-                        const dayOfMonth = d.getDate();
-                        if (!sessionDates[dayOfMonth]) sessionDates[dayOfMonth] = [];
-                        sessionDates[dayOfMonth].push(s);
-                    }
-                });
-            }
-
-            const monthName = currentDisplayDate.toLocaleString('default', { month: 'long' });
-            
-            let html = `
-                <div class="calendar-nav">
-                    <span>${monthName} ${year}</span>
-                    <div class="calendar-nav-buttons">
-                        <button class="cal-nav-btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-                        <button class="cal-nav-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
-                    </div>
-                </div>
-                <table class="calendar-table">
-                    <thead>
-                        <tr>
-                            <th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            let date = 1;
-            for (let i = 0; i < 6; i++) {
-                html += '<tr>';
-                for (let j = 0; j < 7; j++) {
-                    if (i === 0 && j < firstDay) {
-                        html += '<td class="empty"></td>';
-                    } else if (date > daysInMonth) {
-                        html += '<td class="empty"></td>';
-                    } else {
-                        const hasSession = sessionDates[date];
-                        const isToday = isCurrentMonth && date === today.getDate();
-                        const classes = [];
-                        if (hasSession) classes.push('has-session');
-                        if (isToday) classes.push('today');
-
-                        html += `
-                            <td class="${classes.join(' ')}">
-                                <span class="calendar-day-num">${date}</span>
-                            </td>
-                        `;
-                        date++;
-                    }
-                }
-                html += '</tr>';
-                if (date > daysInMonth) break;
-            }
-
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        function changeMonth(offset) {
-            currentDisplayDate.setMonth(currentDisplayDate.getMonth() + offset);
-            renderMiniCalendar();
-        }
 
     async function fetchStats() {
         try {
@@ -540,44 +522,49 @@
 
             if (result.status === 'success') {
                 const s = result.stats;
-                
-                // 1. Sports
-                document.getElementById('countSports').textContent = s.sports_count;
+
+                // 1. Enrolled Sports
+                setCount('countSports', s.sports_count);
                 renderList('listSports', s.sports_list, 'fas fa-check-circle');
 
-                // 2. Sessions
-                document.getElementById('countSessions').textContent = s.sessions_count;
-                const sessionDisplayList = s.sessions_list.map(sess => `${sess.sport_name}: ${formatDate(sess.session_date)}`);
-                renderList('listSessions', sessionDisplayList, 'fas fa-clock');
-                
-                // Highlight sessions on mini-calendar
-                if (result.upcoming) {
-                    globalSessions = result.upcoming;
-                    renderMiniCalendar(globalSessions);
-                }
-
-                // 3. Equipment
-                document.getElementById('countEquipment').textContent = s.equipment_count;
-                const equipmentDisplayList = s.equipment_list.map(eq => eq.equipment_name);
+                // 2. Reserved Equipment
+                setCount('countEquipment', s.equipment_count);
+                const equipmentDisplayList = (s.equipment_list || []).map(eq => eq.equipment_name);
                 renderList('listEquipment', equipmentDisplayList, 'fas fa-tools');
 
-                // 4. Facilities
-                document.getElementById('countFacilities').textContent = s.facilities_count;
-                const facilityDisplayList = s.facilities_list.map(f => `${f.facility_name} (${f.slot.toLowerCase()})`);
+                // 3. Active Facility Reservations
+                setCount('countFacilities', s.facilities_count);
+                const facilityDisplayList = (s.facilities_list || []).map(f => {
+                    const slot = f.slot ? f.slot.charAt(0).toUpperCase() + f.slot.slice(1).toLowerCase() : '';
+                    const date = formatDate(f.date);
+                    return `${f.facility_name} &mdash; ${date}${slot ? ' (' + slot + ')' : ''}`;
+                });
                 renderList('listFacilities', facilityDisplayList, 'fas fa-map-marker-alt');
+
+                // 4. Handle upcoming sessions if needed
+                if (result.upcoming && Array.isArray(result.upcoming)) {
+                    // Could store globalSessions = result.upcoming; 
+                    // calendar.js takes care of displaying them.
+                }
             }
         } catch (error) {
             console.error('Error fetching dashboard stats:', error);
         }
     }
 
+    // Safely set a count badge (guards against missing elements)
+    function setCount(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = (value !== undefined && value !== null) ? value : '0';
+    }
+
     function renderList(containerId, items, iconClass) {
         const container = document.getElementById(containerId);
+        if (!container) return;
         if (!items || items.length === 0) {
-            container.innerHTML = '<span style="color: #bbb; font-style: italic;">No active items</span>';
+            container.innerHTML = '<span style="color: #bbb; font-style: italic;">None</span>';
             return;
         }
-        
         let html = '<ul>';
         items.forEach(item => {
             html += `<li><i class="${iconClass}"></i> ${item}</li>`;

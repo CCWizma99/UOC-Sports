@@ -197,7 +197,6 @@
 </head>
 <body class="mesh-sporty">
     <?php require APP_ROOT . '/app/views/templates/general/header.php'; ?>
-    <?php require APP_ROOT . '/app/views/templates/student/sub_header.php'; ?>
 
     <div class="page-container">
         <!-- Facility Bookings -->
@@ -210,15 +209,6 @@
             </div>
         </div>
 
-        <!-- Equipment Reservations -->
-        <div class="bookings-card">
-            <div class="card-header">
-                <h2><i class="fas fa-dumbbell"></i> Equipment Reservations</h2>
-            </div>
-            <div id="equipment-bookings-container">
-                <p class="loading">Loading equipment reservations...</p>
-            </div>
-        </div>
     </div>
 
     <?php require APP_ROOT . '/app/views/templates/general/footer.php'; ?>
@@ -257,7 +247,6 @@
     <script>
     document.addEventListener("DOMContentLoaded", () => {
         loadFacilityBookings();
-        loadEquipmentBookings();
     });
 
     async function loadFacilityBookings() {
@@ -287,7 +276,7 @@
                 }
                 
                 if (data.length === 0) {
-                    container.innerHTML = "<p class='loading'>No facility bookings found" + (filterDate ? ` for ${filterDate}. <br><a href="#" onclick="window.location.href='/uoc-sports/public/student/bookings'; return false;">Clear Filter</a>` : ".") + "</p>";
+                    container.innerHTML = "<p class='loading'>No facility bookings found" + (filterDate ? ` for ${filterDate}. <br><a href="#" onclick="window.location.href='/uoc-sports/public/my-bookings'; return false;">Clear Filter</a>` : ".") + "</p>";
                     return;
                 }
                 
@@ -350,7 +339,7 @@
                 }
                 
                 let finalHtml = filterDate 
-                    ? `<div style="margin-bottom:15px;"><span class="badge" style="background:#e0e7ff; color:#4338ca; font-size:0.9rem;">Filtering by date: ${filterDate} <a href="#" onclick="window.location.href='/uoc-sports/public/student/bookings'; return false;" style="margin-left:8px; color:#d32f2f; text-decoration:none;"><i class="fas fa-times"></i> Clear</a></span></div>` 
+                    ? `<div style="margin-bottom:15px;"><span class="badge" style="background:#e0e7ff; color:#4338ca; font-size:0.9rem;">Filtering by date: ${filterDate} <a href="#" onclick="window.location.href='/uoc-sports/public/my-bookings'; return false;" style="margin-left:8px; color:#d32f2f; text-decoration:none;"><i class="fas fa-times"></i> Clear</a></span></div>` 
                     : '';
                 
                 finalHtml += `<div style="background: #f8f6fb; padding: 20px 25px; border-radius: 12px; border: 1px solid #f0e6ff; margin-bottom: 20px;">`;
@@ -370,59 +359,6 @@
         }
     }
 
-    async function loadEquipmentBookings() {
-        const container = document.getElementById("equipment-bookings-container");
-        try {
-            const res = await fetch("/uoc-sports/public/reserve-equipments/view"); // From previous student-portal.php logic
-            const packet = await res.json();
-            const data = packet.data || [];
-
-            if (data.length === 0) {
-                container.innerHTML = "<p class='loading'>No equipment reservations found.</p>";
-                return;
-            }
-
-            let html = `<div class="table-responsive"><table class="custom-enhanced-table">
-                <colgroup>
-                    <col style="width: 30%;">
-                    <col style="width: 20%;">
-                    <col style="width: 25%;">
-                    <col style="width: 15%;">
-                    <col style="width: 10%;">
-                </colgroup>
-                <thead>
-                    <tr>
-                        <th>Item</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-            
-            data.forEach(item => {
-                html += `<tr>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <img src="/uoc-sports/public/images/equipment-types/${item.image_name}" width="30" onerror="this.style.display='none'">
-                            ${item.equipment_name}
-                        </div>
-                    </td>
-                    <td>${new Date(item.request_date).toLocaleDateString()}</td>
-                    <td>${item.start_time} - ${item.end_time}</td>
-                    <td><span class="badge ${(item.status || 'pending').toLowerCase()}">${item.status || 'PENDING'}</span></td>
-                    <td>
-                        ${item.status === 'ACTIVE' ? `
-                            <button class="btn-sm btn-outline-danger" onclick="cancelEquipment('${item.request_id}')">Cancel</button>
-                        ` : ''}
-                    </td>
-                </tr>`;
-            });
-
-            html += `</tbody></table></div>`;
-            container.innerHTML = html;
-        } catch (e) {
-            container.innerHTML = "<p class='loading'>Error loading data.</p>";
-        }
-    }
-
     let pendingCancelId = null;
     let pendingCancelType = null;
 
@@ -430,13 +366,6 @@
         pendingCancelId = id;
         pendingCancelType = 'facility';
         document.getElementById('cancelModalText').innerText = "Are you sure you want to cancel this facility booking?";
-        document.getElementById('cancelModal').style.display = 'flex';
-    };
-
-    window.cancelEquipment = (id) => {
-        pendingCancelId = id;
-        pendingCancelType = 'equipment';
-        document.getElementById('cancelModalText').innerText = "Are you sure you want to cancel this equipment reservation?";
         document.getElementById('cancelModal').style.display = 'flex';
     };
 
@@ -479,24 +408,6 @@
                 const text = await res.text();
                 showAlertModal(text);
                 loadFacilityBookings();
-            } catch(e) { showAlertModal("Error cancelling: " + e.message, true); }
-        } else if (type === 'equipment') {
-            try {
-                const res = await fetch("/uoc-sports/public/reserve-equipments/cancel", { 
-                    method: "POST", 
-                    body: "reservation_id="+id, 
-                    headers: {"Content-Type": "application/x-www-form-urlencoded"} 
-                });
-                if (!res.ok) throw new Error("Server returned " + res.status);
-                
-                const text = await res.text();
-                try {
-                    const data = JSON.parse(text);
-                    showAlertModal(data.message || "Success");
-                } catch(jsonErr) {
-                    showAlertModal(text || "Success");
-                }
-                loadEquipmentBookings();
             } catch(e) { showAlertModal("Error cancelling: " + e.message, true); }
         }
     });

@@ -58,6 +58,7 @@ class Facility {
                     fb.date,
                     fb.slot,
                     fb.purpose,
+                    fb.status,
                     fb.payment_status,
                     fb.payment_slip,
                     f.practice_working_hours,
@@ -81,7 +82,6 @@ class Facility {
                 FROM `facility-booking` fb
                 INNER JOIN facility_rates f ON fb.facility_id = f.id
                 WHERE fb.user_id = :user_id
-                AND fb.status IN ('BOOKED', 'ACCEPTED')
                 ORDER BY fb.date DESC, fb.slot ASC";
 
         $stmt = $this->db->prepare($sql);
@@ -195,9 +195,10 @@ class Facility {
             $date = date('Y-m-d', $current);
             
             // Get bookings for this PHYSICAL location
-            $sql = "SELECT fb.slot 
+            $sql = "SELECT fb.slot, CONCAT(u.fname, ' ', u.lname) as user_name 
                     FROM `facility-booking` fb
                     INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
+                    LEFT JOIN user u ON fb.user_id = u.user_id
                     WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
                     AND fb.date = :date 
                     AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
@@ -208,17 +209,23 @@ class Facility {
                 ':date' => $date
             ]);
             
-            $bookings = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Map rows to slot types
+            $bookedNames = [];
+            foreach ($rows as $row) {
+                $bookedNames[$row['slot']] = $row['user_name'];
+            }
             
             // Build slots status - Handle FULL day logic
-            $hasMorning = in_array('MORNING', $bookings);
-            $hasAfternoon = in_array('AFTERNOON', $bookings);
-            $hasFull = in_array('FULL', $bookings);
+            $morningBooker = $bookedNames['MORNING'] ?? $bookedNames['FULL'] ?? null;
+            $afternoonBooker = $bookedNames['AFTERNOON'] ?? $bookedNames['FULL'] ?? null;
+            $fullBooker = $bookedNames['FULL'] ?? ($bookedNames['MORNING'] ?? $bookedNames['AFTERNOON'] ?? null);
             
             $slots = [
-                'MORNING' => $hasMorning || $hasFull,
-                'AFTERNOON' => $hasAfternoon || $hasFull,
-                'FULL' => $hasFull || $hasMorning || $hasAfternoon
+                'MORNING' => $morningBooker ? ['taken' => true, 'user' => $morningBooker] : ['taken' => false],
+                'AFTERNOON' => $afternoonBooker ? ['taken' => true, 'user' => $afternoonBooker] : ['taken' => false],
+                'FULL' => $fullBooker ? ['taken' => true, 'user' => $fullBooker] : ['taken' => false]
             ];
             
             $chartData[] = [

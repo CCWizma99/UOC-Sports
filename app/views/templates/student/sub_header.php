@@ -19,32 +19,3 @@
     }
 ?>
 
-<nav class="sub-nav">
-  <ul>
-    <li>
-        <a href="/uoc-sports/public/student/" class="<?php echo isActive($current_uri, '/student/'); ?>">
-            Overview
-        </a>
-    </li>
-    <li>
-        <a href="/uoc-sports/public/student/sports" class="<?php echo isActive($current_uri, '/student/sports'); ?>">
-            Sports
-        </a>
-    </li>
-    <li>
-        <a href="/uoc-sports/public/student/equipment" class="<?php echo isActive($current_uri, '/student/equipment'); ?>">
-            Equipments
-        </a>
-    </li>
-    <li>
-        <a href="/uoc-sports/public/student/facilities" class="<?php echo isActive($current_uri, '/student/facilities'); ?>">
-            Facilities
-        </a>
-    </li>
-    <li>
-        <a href="/uoc-sports/public/student/bookings" class="<?php echo isActive($current_uri, '/student/bookings'); ?>">
-            My Bookings
-        </a>
-    </li>
-  </ul>
-</nav>

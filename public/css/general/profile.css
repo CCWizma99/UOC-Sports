@@ -13,7 +13,7 @@ body {
 /* Cover Image */
 .profile-cover {
     position: relative;
-    height: 250px;
+    height: 150px;
     width: 100%;
     overflow: hidden;
 }
@@ -49,9 +49,9 @@ body {
 .profile-grid {
     display: grid;
     grid-template-columns: 350px 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
     max-width: 1300px;
-    margin: -120px auto 0;
+    margin: -70px auto 0;
     /* Overlap with cover */
     padding: 0 2rem;
     position: relative;
@@ -69,16 +69,16 @@ body {
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    padding: 2rem;
+    padding: 1.5rem;
     text-align: center;
 }
 
 /* User Card Specifics */
 .user-card .profile-picture-wrapper {
     position: relative;
-    width: 140px;
-    height: 140px;
-    margin: 0 auto 1.5rem;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1rem;
 }
 
 .user-card .profile-picture {
@@ -149,7 +149,7 @@ body {
 .sidebar-divider {
     border: 0;
     border-top: 1px solid #f3f4f6;
-    margin: 2rem 0;
+    margin: 1rem 0;
     width: 100%;
 }
 
@@ -190,7 +190,7 @@ body {
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    min-height: 400px;
+    min-height: 250px;
     padding: 0;
     /* Tabs go edge to edge or just padding inside? Let's do internal padding */
     overflow: hidden;
@@ -206,9 +206,9 @@ body {
 .tab-btn {
     background: none;
     border: none;
-    padding: 1.5rem 0.5rem;
+    padding: 1rem 0.5rem;
     margin-right: 2.5rem;
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #6b7280;
     font-weight: 500;
     cursor: pointer;
@@ -238,7 +238,7 @@ body {
 
 /* Tab Content */
 .tab-content {
-    padding: 2.5rem;
+    padding: 1.5rem;
     animation: fadeIn 0.4s ease;
 }
 
@@ -258,7 +258,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .section-header-clean h2 {
@@ -605,7 +605,7 @@ body {
 .activity-timeline {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
     padding-left: 1rem;
     border-left: 2px solid #e5e7eb;
 }

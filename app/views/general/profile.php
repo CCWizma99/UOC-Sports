@@ -8,7 +8,7 @@
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
-        @import url(/uoc-sports/public/css/general/profile.css?v=1.8);
+        @import url(/uoc-sports/public/css/general/profile.css?v=1.9);
         @import url(/uoc-sports/public/css/general/footer.css);
 
     </style>
@@ -67,90 +67,7 @@
             <!-- Main Content Area -->
             <main class="profile-main">
                 <div class="content-card">
-                    <!-- Tabs Navigation -->
-                    <div class="profile-tabs">
-                        <button class="tab-btn active" onclick="switchTab('bookings')">Booked Facilities</button>
-                        <button class="tab-btn" onclick="switchTab('activity')">Activity History</button>
-                        <button class="tab-btn" onclick="switchTab('performance')">Performance Summary</button>
-                    </div>
-
-                    <!-- Tab Contents -->
-                    <div id="bookings-tab" class="tab-content active">
-                         <div class="section-header-clean">
-                            <h2>My Bookings</h2>
-                             <div class="sort-container-clean">
-                                <select id="sortBookings" onchange="sortBookings()">
-                                    <option value="date-desc">Date (Latest First)</option>
-                                    <option value="date-asc">Date (Earliest First)</option>
-                                    <option value="status">Status</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="booking-list" id="bookingList"></div>
-                    </div>
-
-                    <div id="activity-tab" class="tab-content" style="display: none;">
-                        <div class="section-header-clean">
-                            <h2>Activity Analysis</h2>
-                        </div>
-                        <div class="chart-container" style="position: relative; height:300px; width:100%">
-                            <canvas id="activityChart"></canvas>
-                        </div>
-                        <div class="activity-timeline" style="margin-top: 2rem;">
-                            <h3 style="font-size: 1.1rem; color: #444; margin-bottom: 1rem;">Recent Timeline</h3>
-                            <!-- Placeholder Data -->
-                            <div class="activity-item">
-                                <div class="activity-icon"><i class="fas fa-running"></i></div>
-                                <div class="activity-details">
-                                    <h4>Completed a Swimming Session</h4>
-                                    <span class="activity-time">2 days ago</span>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon"><i class="fas fa-check-circle"></i></div>
-                                <div class="activity-details">
-                                    <h4>Booking Confirmed: Badminton Court</h4>
-                                    <span class="activity-time">5 days ago</span>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon"><i class="fas fa-trophy"></i></div>
-                                <div class="activity-details">
-                                    <h4>Won Inter-Faculty Cricket Match</h4>
-                                    <span class="activity-time">1 week ago</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="performance-tab" class="tab-content" style="display: none;">
-                        <div class="section-header-clean">
-                            <h2>Performance Summary</h2>
-                        </div>
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-icon"><i class="fas fa-fire"></i></div>
-                                <div class="stat-info">
-                                    <h3>12</h3>
-                                    <p>Matches Played</p>
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-icon"><i class="fas fa-medal"></i></div>
-                                <div class="stat-info">
-                                    <h3>5</h3>
-                                    <p>Man of the Match</p>
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-icon"><i class="fas fa-stopwatch"></i></div>
-                                <div class="stat-info">
-                                    <h3>45h</h3>
-                                    <p>Training Hours</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Content will go here -->
                 </div>
             </main>
         </div>
@@ -184,77 +101,11 @@
             joinedDate: <?php echo json_encode($userDetails['joined_date'] ?? ''); ?>
         };
 
-        let bookings = <?php 
-            // Transform bookings data for frontend
-            $frontendBookings = [];
-            if (isset($bookings) && is_array($bookings)) {
-                foreach ($bookings as $booking) {
-                    $frontendBookings[] = [
-                        'id' => $booking['booking_id'],
-                        'facility' => $booking['facility_name'],
-                        'date' => $booking['date'],
-                        'time' => $booking['start_time'] . ' - ' . $booking['end_time'],
-                        'status' => $booking['display_status'],
-                        'purpose' => $booking['purpose'],
-                        'price' => $booking['price'],
-                        'payment_slip' => $booking['payment_slip']
-                    ];
-                }
-            }
-            echo json_encode($frontendBookings);
-        ?>;
-
-        // Chart instance
-        let activityChart = null;
-
         function init() {
             loadUserData();
-            loadBookings();
             document.getElementById('profile-upload').addEventListener('change', uploadProfileImage);
-            
-            // Load chart data
-            fetchActivityData();
         }
 
-        async function fetchActivityData() {
-            try {
-                const response = await fetch('/uoc-sports/public/api/chart/activity-analysis');
-                const data = await response.json();
-                renderChart(data);
-            } catch (error) {
-                console.error('Error loading chart data:', error);
-            }
-        }
-
-        function renderChart(data) {
-            const ctx = document.getElementById('activityChart').getContext('2d');
-            
-            if (activityChart) {
-                activityChart.destroy();
-            }
-
-            activityChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.labels,
-                    datasets: data.datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top' },
-                        title: { display: true, text: 'Activity Trends (Last 6 Months)' }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 }
-                        }
-                    }
-                }
-            });
-        }
 
         function loadUserData() {
             document.getElementById('userName').textContent = userData.name;
@@ -270,97 +121,6 @@
             }
         }
 
-        function switchTab(tabName) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'none';
-                content.classList.remove('active');
-            });
-            
-            // Deactivate all buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected tab content
-            const selectedTab = document.getElementById(tabName + '-tab');
-            selectedTab.style.display = 'block';
-            setTimeout(() => selectedTab.classList.add('active'), 10);
-            
-            // Activate selected button
-            document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
-
-            // Resize chart if activity tab is shown
-            if (tabName === 'activity' && activityChart) {
-                setTimeout(() => activityChart.resize(), 50);
-            }
-        }
-
-        function loadBookings() {
-            const list = document.getElementById('bookingList');
-            
-            if (bookings.length === 0) {
-                list.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-calendar-times"></i>
-                        <p>No facilities booked yet.</p>
-                        <button class="btn btn-primary btn-sm" onclick="window.location.href='/uoc-sports/public/bookings/new'">Book Now</button>
-                    </div>`;
-                return;
-            }
-            
-            list.innerHTML = bookings.map(b => {
-                const statusClass = b.status.toLowerCase();
-                const dateObj = new Date(b.date);
-                const day = dateObj.getDate();
-                const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
-                const year = dateObj.getFullYear();
-                
-                return `
-                    <div class="booking-item ${statusClass}">
-                        <div class="booking-date-box">
-                            <span class="date-month">${month}</span>
-                            <span class="date-day">${day}</span>
-                            <span class="date-year">${year}</span>
-                        </div>
-                        
-                        <div class="booking-info-compact">
-                            <div class="booking-header">
-                                <h3>${b.facility}</h3>
-                                <span class="booking-time"><i class="far fa-clock"></i> ${b.time}</span>
-                            </div>
-                            <div class="booking-sub">
-                                <span class="purpose-badge"><i class="fas fa-bullseye"></i> ${b.purpose}</span>
-                                <span class="price-tag">Rs. ${b.price.toFixed(2)}</span>
-                            </div>
-                        </div>
-
-                        <div class="booking-actions-modern">
-                            <span class="status-dot ${statusClass}" title="${b.status}"></span>
-                            ${b.status === 'PENDING' && !b.payment_slip ? 
-                                '<button class="btn-pay-icon" onclick="payNow(\'' + b.id + '\')" title="Pay Now"><i class="fas fa-credit-card"></i></button>' : 
-                                ''}
-                            ${b.payment_slip ? 
-                                '<a href="/uoc-sports/app/internal/payment_slips/' + b.payment_slip + '" target="_blank" class="btn-view-slip" title="View Submitted Proof"><i class="fas fa-file-invoice"></i></a>' : 
-                                ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function sortBookings() {
-            const sortBy = document.getElementById('sortBookings').value;
-            if (sortBy === 'date-asc') bookings.sort((a, b) => new Date(a.date) - new Date(b.date));
-            else if (sortBy === 'date-desc') bookings.sort((a, b) => new Date(b.date) - new Date(a.date));
-            else if (sortBy === 'price-asc') bookings.sort((a, b) => a.price - b.price);
-            else if (sortBy === 'price-desc') bookings.sort((a, b) => b.price - a.price);
-            else if (sortBy === 'status') {
-                const order = { 'PENDING': 1, 'PAID': 2, 'PAST': 3 };
-                bookings.sort((a, b) => order[a.status] - order[b.status]);
-            }
-            loadBookings();
-        }
 
         function uploadProfileImage(e) {
             const file = e.target.files[0];
