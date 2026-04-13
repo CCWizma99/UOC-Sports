@@ -27,6 +27,7 @@
 <?php
     require "../app/views/templates/general/header.php";
     $minLostDate = date('Y-m-d', strtotime('-1 day'));
+    $maxLostDate = date('Y-m-d', strtotime('today'));
 ?>
 <div class="main-wrapper">
         
@@ -66,7 +67,7 @@
 
         <div class="form-group">
             <label for="date_found">Item Lost Date <span class="required-star">*</span></label>
-            <input type="date" id="date_found" name="foundDate" min="<?php echo htmlspecialchars($minLostDate); ?>" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['lost_date']) : ''; ?>" required>
+            <input type="date" id="date_found" name="foundDate" min="<?php echo htmlspecialchars($minLostDate); ?>" max="<?php echo htmlspecialchars($maxLostDate); ?>" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['lost_date']) : ''; ?>" required>
         </div>
 
         <div class="form-group">
