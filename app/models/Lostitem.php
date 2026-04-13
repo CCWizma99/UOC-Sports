@@ -107,9 +107,9 @@ class Lostitem {
             $data['item_name'],
             $data['lost_date'],
             $description,
-            $data['foundLocation'],
-            $data['foundBy'],
-            $data['contactNumber'],
+            $data['lost_location'],
+            $data['reported_by'],
+            $data['contact_number'],
             $itemStatus,
             $image,
             $lostItem_id
@@ -163,13 +163,13 @@ class Lostitem {
      * @return array
      */
     public function getUnclaimedItemsCurrentMonth() {
-        $sql = "SELECT lostItem_id, itemName, foundDate, `description`, foundLocation, 
-                       foundBy, contactNumber, `image`, itemStatus 
+        $sql = "SELECT lostItem_id, item_name, lost_date, `description`, lost_location, 
+                       reported_by, contact_number, `image`, item_status 
                 FROM lost_item
-                WHERE itemStatus = 'unclaimed'
-                AND YEAR(foundDate) = YEAR(CURDATE())
-                AND MONTH(foundDate) = MONTH(CURDATE())
-                ORDER BY foundDate DESC";
+                WHERE item_status = 'unclaimed'
+                AND YEAR(lost_date) = YEAR(CURDATE())
+                AND MONTH(lost_date) = MONTH(CURDATE())
+                ORDER BY lost_date DESC";
         
         $stmt = $this->conn->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -215,7 +215,7 @@ class Lostitem {
      * @return bool
      */
     public function updateStatus($lostItem_id, $status) {
-        $sql = "UPDATE lost_item SET itemStatus = :status WHERE lostItem_id = :lostItem_id";
+        $sql = "UPDATE lost_item SET item_status = :status WHERE lostItem_id = :lostItem_id";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
             ':status' => $status,
@@ -229,14 +229,14 @@ class Lostitem {
      * @return array
      */
     public function search($query) {
-        $sql = "SELECT lostItem_id, itemName, foundDate, `description`, foundLocation, 
-                       foundBy, contactNumber, `image`, itemStatus 
+          $sql = "SELECT lostItem_id, item_name, lost_date, `description`, lost_location, 
+                              reported_by, contact_number, `image`, item_status 
                 FROM lost_item
-                WHERE itemName LIKE :query 
-                   OR foundLocation LIKE :query 
-                   OR foundBy LIKE :query
+                     WHERE item_name LIKE :query 
+                         OR lost_location LIKE :query 
+                         OR reported_by LIKE :query
                    OR `description` LIKE :query
-                ORDER BY foundDate DESC";
+                     ORDER BY lost_date DESC";
         
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':query' => '%' . $query . '%']);
@@ -250,10 +250,10 @@ class Lostitem {
     public function getStatistics() {
         $sql = "SELECT 
                     COUNT(*) as total_items,
-                    SUM(CASE WHEN itemStatus = 'unclaimed' THEN 1 ELSE 0 END) as unclaimed_items,
-                    SUM(CASE WHEN itemStatus = 'claimed' THEN 1 ELSE 0 END) as claimed_items,
-                    COUNT(CASE WHEN MONTH(foundDate) = MONTH(CURDATE()) 
-                          AND YEAR(foundDate) = YEAR(CURDATE()) THEN 1 END) as this_month_items
+                  SUM(CASE WHEN item_status = 'unclaimed' THEN 1 ELSE 0 END) as unclaimed_items,
+                  SUM(CASE WHEN item_status = 'claimed' THEN 1 ELSE 0 END) as claimed_items,
+                  COUNT(CASE WHEN MONTH(lost_date) = MONTH(CURDATE()) 
+                      AND YEAR(lost_date) = YEAR(CURDATE()) THEN 1 END) as this_month_items
                 FROM lost_item";
         
         $stmt = $this->conn->query($sql);
@@ -266,7 +266,7 @@ class Lostitem {
      * @return array
      */
     public function getByFoundBy($foundBy) {
-        $sql = "SELECT * FROM lost_item WHERE foundBy = :foundBy ORDER BY foundDate DESC";
+        $sql = "SELECT * FROM lost_item WHERE reported_by = :foundBy ORDER BY lost_date DESC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':foundBy' => $foundBy]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -279,8 +279,8 @@ class Lostitem {
      */
     public function getByLocation($location) {
         $sql = "SELECT * FROM lost_item 
-                WHERE foundLocation LIKE :location 
-                ORDER BY foundDate DESC";
+                WHERE lost_location LIKE :location 
+                ORDER BY lost_date DESC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':location' => '%' . $location . '%']);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -294,8 +294,8 @@ class Lostitem {
      */
     public function getByDateRange($startDate, $endDate) {
         $sql = "SELECT * FROM lost_item 
-                WHERE foundDate BETWEEN :startDate AND :endDate 
-                ORDER BY foundDate DESC";
+                WHERE lost_date BETWEEN :startDate AND :endDate 
+                ORDER BY lost_date DESC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([
             ':startDate' => $startDate,
@@ -311,7 +311,7 @@ class Lostitem {
      */
     public function getRecent($limit = 10) {
         $sql = "SELECT * FROM lost_item 
-                ORDER BY foundDate DESC, lostItem_id DESC 
+            ORDER BY lost_date DESC, lostItem_id DESC 
                 LIMIT :limit";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -325,7 +325,7 @@ class Lostitem {
      * @return int
      */
     public function countByStatus($status) {
-        $sql = "SELECT COUNT(*) FROM lost_item WHERE itemStatus = :status";
+        $sql = "SELECT COUNT(*) FROM lost_item WHERE item_status = :status";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([':status' => $status]);
         return $stmt->fetchColumn();

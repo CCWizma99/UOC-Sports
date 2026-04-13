@@ -40,23 +40,39 @@ class LostItemController {
             'image' => $_POST['image'] ?? '',
             'item_status' => $_POST['itemStatus'] ?? 'unclaimed'
         ];
+
+        $minAllowedDate = new DateTime('yesterday');
+        $inputDate = DateTime::createFromFormat('Y-m-d', (string)$data['lost_date']);
+        if (!$inputDate || $inputDate->format('Y-m-d') < $minAllowedDate->format('Y-m-d')) {
+            $_SESSION['lostitem_error_message'] = 'Item lost date cannot be earlier than yesterday.';
+            if (!empty($_POST['lostItem_id'])) {
+                header('Location: /uoc-sports/public/equipment-manager/add-lostitem?id=' . urlencode($_POST['lostItem_id']));
+            } else {
+                header('Location: /uoc-sports/public/equipment-manager/add-lostitem');
+            }
+            exit();
+        }
         
         $file = isset($_FILES['image']) ? $_FILES['image'] : null;
         
         try {
             if (isset($_POST['lostItem_id']) && !empty($_POST['lostItem_id'])) {
                 $result = $lostitemModel->updateLostItem($_POST['lostItem_id'], $data, $file);
-                $_SESSION['success_message'] = 'Lost item updated successfully!';
+                $_SESSION['lostitem_success_message'] = 'Lost item updated successfully!';
             } else {
                 $result = $lostitemModel->addLostItem($data, $file);
-                $_SESSION['success_message'] = 'Lost item added successfully!';
+                $_SESSION['lostitem_success_message'] = 'Lost item added successfully!';
             }
             
             header('Location: /uoc-sports/public/equipment-manager/lostitem');
             exit();
         } catch (Exception $e) {
-            $_SESSION['error_message'] = 'Error saving lost item: ' . $e->getMessage();
-            header('Location: /uoc-sports/public/equipment-manager/lostitem');
+            $_SESSION['lostitem_error_message'] = 'Error saving lost item: ' . $e->getMessage();
+            if (!empty($_POST['lostItem_id'])) {
+                header('Location: /uoc-sports/public/equipment-manager/add-lostitem?id=' . urlencode($_POST['lostItem_id']));
+            } else {
+                header('Location: /uoc-sports/public/equipment-manager/add-lostitem');
+            }
             exit();
         }
     }

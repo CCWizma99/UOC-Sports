@@ -223,11 +223,16 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                 <div class="found-items-list" id="foundItems">
                     <?php if (count($lostitem) > 0): ?>
                         <?php foreach ($lostitem as $lst): ?>
-                            <?php if ($lst['itemStatus'] == 'unclaimed'): ?>
+                            <?php
+                                $itemStatus = $lst['item_status'] ?? ($lst['itemStatus'] ?? '');
+                                $itemName = $lst['item_name'] ?? ($lst['itemName'] ?? '');
+                                $lostDate = $lst['lost_date'] ?? ($lst['foundDate'] ?? '');
+                            ?>
+                            <?php if ($itemStatus === 'unclaimed'): ?>
                                 <div class="found-item">
                                     <div class="found-item-header">
-                                        <span class="found-item-name"><?php echo htmlspecialchars($lst['itemName']); ?></span>
-                                        <span class="days-ago"><?php echo htmlspecialchars($lst['foundDate']); ?></span>
+                                        <span class="found-item-name"><?php echo htmlspecialchars($itemName); ?></span>
+                                        <span class="days-ago"><?php echo htmlspecialchars($lostDate); ?></span>
                                     </div>
                                     <p >
                                         <?php echo htmlspecialchars($lst['description']); ?>

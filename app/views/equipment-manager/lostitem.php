@@ -13,6 +13,7 @@
     @import url("/uoc-sports/public/css/general/footer.css");
 
     @import url("/uoc-sports/public/css/equipment-manager/report.css");
+      
   </style>
   <script src="/uoc-sports/public/js/equipment-manager/page.js" defer></script>
 </head>
@@ -27,6 +28,22 @@
         <p>Manage reported lost items</p>
       </div>
 
+            <?php if (isset($_SESSION['lostitem_success_message']) || isset($_SESSION['success_message'])): ?>
+                <div class="alert-message alert-success" style="margin-bottom: 1rem;">
+                        <i class="fas fa-check-circle"></i>
+                        <?= htmlspecialchars($_SESSION['lostitem_success_message'] ?? $_SESSION['success_message']) ?>
+                </div>
+                <?php unset($_SESSION['lostitem_success_message'], $_SESSION['success_message']); ?>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['lostitem_error_message']) || isset($_SESSION['error_message'])): ?>
+                <div class="alert-message alert-error" style="margin-bottom: 1rem;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <?= htmlspecialchars($_SESSION['lostitem_error_message'] ?? $_SESSION['error_message']) ?>
+                </div>
+                <?php unset($_SESSION['lostitem_error_message'], $_SESSION['error_message']); ?>
+            <?php endif; ?>
+
      
        <div class="search-container">
         <input type="text" id="searchInput" placeholder="Search Reported Lost Items...">
@@ -35,7 +52,7 @@
    
         <a href="/uoc-sports/public/equipment-manager/add-lostitem">
             <button class="btn-add">
-              
+             <i class="fas fa-plus"></i> 
             Report Lost Item
             </button>
         </a>

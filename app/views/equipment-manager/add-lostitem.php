@@ -26,6 +26,7 @@
 <body>
 <?php
     require "../app/views/templates/general/header.php";
+    $minLostDate = date('Y-m-d', strtotime('-1 day'));
 ?>
 <div class="main-wrapper">
         
@@ -38,16 +39,18 @@
         </div>
     </div>
 
-    <?php if (isset($_SESSION['success_message'])): ?>
+    <?php if (isset($_SESSION['lostitem_success_message']) || isset($_SESSION['success_message'])): ?>
         <div style="padding: 0.75rem; background: #d1fae5; color: #065f46; border-radius: 8px; margin-bottom: 1rem;">
-            <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
+            <?php echo htmlspecialchars($_SESSION['lostitem_success_message'] ?? $_SESSION['success_message']); ?>
         </div>
+        <?php unset($_SESSION['lostitem_success_message'], $_SESSION['success_message']); ?>
     <?php endif; ?>
 
-    <?php if (isset($_SESSION['error_message'])): ?>
+    <?php if (isset($_SESSION['lostitem_error_message']) || isset($_SESSION['error_message'])): ?>
         <div style="padding: 0.75rem; background: #fee2e2; color: #991b1b; border-radius: 8px; margin-bottom: 1rem;">
-            <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
+            <?php echo htmlspecialchars($_SESSION['lostitem_error_message'] ?? $_SESSION['error_message']); ?>
         </div>
+        <?php unset($_SESSION['lostitem_error_message'], $_SESSION['error_message']); ?>
     <?php endif; ?>
 
     <form id="addLostitemForm" class="form" method="POST" action="/uoc-sports/public/equipment-manager/add-lostitem" enctype="multipart/form-data">
@@ -63,7 +66,7 @@
 
         <div class="form-group">
             <label for="date_found">Item Lost Date <span class="required-star">*</span></label>
-            <input type="date" id="date_found" name="foundDate" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['lost_date']) : ''; ?>" required>
+            <input type="date" id="date_found" name="foundDate" min="<?php echo htmlspecialchars($minLostDate); ?>" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['lost_date']) : ''; ?>" required>
         </div>
 
         <div class="form-group">
@@ -91,10 +94,11 @@
 
         <div class="form-group">
             <label for="status">Status </label>
+            <?php $currentStatus = ($isEdit && $editData) ? ($editData['item_status'] ?? $editData['itemStatus'] ?? 'unclaimed') : 'unclaimed'; ?>
             <select id="status" name="itemStatus" required>
-                <option value="unclaimed" <?php echo ($isEdit && $editData && $editData['itemStatus'] == 'unclaimed') ? 'selected' : ''; ?>>Unclaimed</option>
-                <option value="claimed" <?php echo ($isEdit && $editData && $editData['itemStatus'] == 'claimed') ? 'selected' : ''; ?>>Claimed</option>
-                <option value="discarded" <?php echo ($isEdit && $editData && $editData['itemStatus'] == 'discarded') ? 'selected' : ''; ?>>Discarded</option>
+                <option value="unclaimed" <?php echo $currentStatus === 'unclaimed' ? 'selected' : ''; ?>>Unclaimed</option>
+                <option value="claimed" <?php echo $currentStatus === 'claimed' ? 'selected' : ''; ?>>Claimed</option>
+                
             </select>
         </div>
 

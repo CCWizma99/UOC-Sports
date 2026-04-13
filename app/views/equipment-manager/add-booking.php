@@ -21,6 +21,7 @@
 <body>
 <?php
     require "../app/views/templates/general/header.php";
+     $minRequestDate = date('Y-m-d', strtotime('today'));
 ?>
 
 <div class="main-wrapper">        
@@ -96,17 +97,17 @@
 
                     <div class="form-group">
                         <label for="reservation_date">Requested Date <span class="required-star">*</span></label>
-                        <input type="date" id="reservation_date" name="request_date" value="<?= isset($editData) ? htmlspecialchars($editData['request_date'] ?? '') : '' ?>" required>
+                        <input type="date" id="reservation_date" name="request_date" min="<?php echo htmlspecialchars($minRequestDate); ?>" value="<?= isset($editData) ? htmlspecialchars($editData['request_date'] ?? '') : '' ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="start_time">Start Time <span class="required-star">*</span></label>
-                        <input type="time" id="start_time" name="start_time" value="<?= isset($editData) ? htmlspecialchars($editData['start_time'] ?? '') : '' ?>" required>
+                        <input type="time" id="start_time" name="start_time" min="06:00" max="20:00" value="<?= isset($editData) ? htmlspecialchars($editData['start_time'] ?? '') : '' ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="end_time">End Time <span class="required-star">*</span></label>
-                        <input type="time" id="end_time" name="end_time" value="<?= isset($editData) ? htmlspecialchars($editData['end_time'] ?? '') : '' ?>" required>      
+                        <input type="time" id="end_time" name="end_time" min="06:00" max="20:00" value="<?= isset($editData) ? htmlspecialchars($editData['end_time'] ?? '') : '' ?>" required>      
                     </div>
 
                     <div class="form-group equipment-selection-container">
@@ -135,8 +136,8 @@
 
 
                     <div class="form-group full-width">
-                        <label for="notes">Notes</label>
-                        <textarea id="notes" name="notes" rows="4" placeholder="Additional notes"><?= isset($editData) ? htmlspecialchars($editData['notes'] ?? '') : '' ?></textarea>
+                        <label for="notes">Special Request Reasons</label>
+                        <textarea id="notes" name="notes" rows="4" placeholder="Mention any special reasons for your request"><?= isset($editData) ? htmlspecialchars($editData['notes'] ?? '') : '' ?></textarea>
    
                     </div>
                     
