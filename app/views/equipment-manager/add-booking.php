@@ -15,7 +15,7 @@
     @import url("/uoc-sports/public/css/equipment-manager/report.css");
     @import url("/uoc-sports/public/css/equipment-manager/page.css");
 
-
+  
   </style>
 </head>
 <body>
@@ -39,6 +39,10 @@
 
             <div id="activeReservationWarning" class="alert-message alert-error" style="display:none;">
                 <i class="fas fa-exclamation-circle"></i> <span id="activeReservationWarningText"></span>
+            </div>
+
+            <div id="instantBookingError" class="alert-message alert-error" style="display:none;">
+                <i class="fas fa-exclamation-circle"></i> <span id="instantBookingErrorText"></span>
             </div>
 
             <?php if (isset($_SESSION['success_message'])): ?>
@@ -160,6 +164,133 @@ const currentRequestId = editData ? editData.request_id : '';
 let userLookupTimeout = null;
 let reservationCheckTimeout = null;
 let lastReservationAlertKey = '';
+
+function showInstantBookingError(message) {
+    const errorBox = document.getElementById('instantBookingError');
+    const errorText = document.getElementById('instantBookingErrorText');
+    errorText.textContent = message;
+    errorBox.style.display = 'block';
+}
+
+function hideInstantBookingError() {
+    const errorBox = document.getElementById('instantBookingError');
+    const errorText = document.getElementById('instantBookingErrorText');
+    errorText.textContent = '';
+    errorBox.style.display = 'none';
+}
+
+function setSubmitEnabled(enabled) {
+    const submitButton = document.querySelector('#addBookingForm button[type="submit"]');
+    if (!submitButton) {
+        return;
+    }
+    submitButton.disabled = !enabled;
+    submitButton.style.opacity = enabled ? '1' : '0.6';
+    submitButton.style.cursor = enabled ? 'pointer' : 'not-allowed';
+}
+
+function validateBookingInstantly() {
+    const sportId = document.getElementById('sport').value;
+    const requestDate = document.getElementById('reservation_date').value;
+    const startTime = document.getElementById('start_time').value;
+    const endTime = document.getElementById('end_time').value;
+
+    if (startTime && endTime && endTime <= startTime) {
+        showInstantBookingError('End time must be later than start time.');
+        clearCategoryConflictPopups();
+        setSubmitEnabled(false);
+        return false;
+    }
+
+    const hasFullSlotSelection = Boolean(sportId && requestDate && startTime && endTime);
+    if (!hasFullSlotSelection) {
+        hideInstantBookingError();
+        clearCategoryConflictPopups();
+        setSubmitEnabled(true);
+        return true;
+    }
+
+    const hasCategoryConflict = renderCategoryConflictPopups();
+    if (hasCategoryConflict) {
+        hideInstantBookingError();
+        setSubmitEnabled(false);
+        return false;
+    }
+
+    hideInstantBookingError();
+    setSubmitEnabled(true);
+    return true;
+}
+
+function clearCategoryConflictPopups() {
+    document.querySelectorAll('.category-conflict-popup').forEach(popup => {
+        popup.style.display = 'none';
+        popup.innerHTML = '';
+    });
+}
+
+function renderCategoryConflictPopups() {
+    clearCategoryConflictPopups();
+
+    let hasConflict = false;
+    const selectedCheckboxes = Array.from(document.querySelectorAll('input[name="equipment[]"]:checked'));
+
+    selectedCheckboxes.forEach(cb => {
+        const card = cb.closest('.equipment-item-card');
+        if (!card) {
+            return;
+        }
+
+        const overlapDataRaw = cb.dataset.overlaps || '[]';
+        let overlapData = [];
+        try {
+            overlapData = JSON.parse(overlapDataRaw);
+        } catch (e) {
+            overlapData = [];
+        }
+
+        if (!Array.isArray(overlapData) || overlapData.length === 0) {
+            return;
+        }
+
+        const qtyInput = card.querySelector('.equipment-quantity-input');
+        const selectedQty = qtyInput ? Math.max(1, parseInt(qtyInput.value || '1', 10)) : 1;
+
+        let popup = card.querySelector('.category-conflict-popup');
+        if (!popup) {
+            popup = document.createElement('div');
+            popup.className = 'overlap-warning category-conflict-popup';
+            card.appendChild(popup);
+        }
+
+        const header = document.createElement('div');
+        header.className = 'overlap-warning-header';
+        header.textContent = 'Conflict for selected category';
+        popup.appendChild(header);
+
+        overlapData.forEach(slot => {
+            const slotDiv = document.createElement('div');
+            slotDiv.className = 'overlap-slot-item';
+
+            const status = (slot.status || 'UNKNOWN').toUpperCase();
+            const slotStart = slot.start_time ? String(slot.start_time).substring(0, 5) : '--:--';
+            const slotEnd = slot.end_time ? String(slot.end_time).substring(0, 5) : '--:--';
+            const source = slot.source_type === 'practice' ? 'practice session' : 'booking request';
+
+            slotDiv.textContent = cb.value
+                + ' (selected x' + selectedQty + ')'
+                + ' -> ' + source
+                + ' [' + status + ']'
+                + ' at ' + slotStart + ' - ' + slotEnd;
+            popup.appendChild(slotDiv);
+        });
+
+        popup.style.display = 'block';
+        hasConflict = true;
+    });
+
+    return hasConflict;
+}
 
 function showActiveReservationWarning(message) {
     const warningBox = document.getElementById('activeReservationWarning');
@@ -347,12 +478,16 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
     const requestDate = document.getElementById('reservation_date').value;
     const startTime = document.getElementById('start_time').value;
     const endTime = document.getElementById('end_time').value;
+    const hasFullSlotSelection = Boolean(sportId && requestDate && startTime && endTime);
     
     // Build API URL with parameters
     let apiUrl = '/uoc-sports/public/api/get-equipment-with-requests.php?sport_id=' + sportId;
-    if (requestDate) apiUrl += '&request_date=' + requestDate;
-    if (startTime) apiUrl += '&start_time=' + startTime;
-    if (endTime) apiUrl += '&end_time=' + endTime;
+    // Only request overlap/conflict checks after full slot selection.
+    if (hasFullSlotSelection) {
+        apiUrl += '&request_date=' + requestDate;
+        apiUrl += '&start_time=' + startTime;
+        apiUrl += '&end_time=' + endTime;
+    }
     if (currentRequestId) apiUrl += '&current_request_id=' + currentRequestId;
     
     // Fetch equipment from the database
@@ -369,10 +504,12 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'equipment-item-card';
 
-                    const slotAvailableCount = Number.isFinite(Number(equipment.slot_available_count))
-                        ? parseInt(equipment.slot_available_count, 10)
-                        : parseInt(equipment.available_count, 10);
-                    const maxSelectableQty = Math.max(0, slotAvailableCount);
+                    const maxSelectableQty = Math.max(
+                        0,
+                        Number.isFinite(Number(equipment.slot_available_count))
+                            ? parseInt(equipment.slot_available_count, 10)
+                            : parseInt(equipment.available_count, 10) || 0
+                    );
                     
                     // Main row with checkbox and label
                     const mainRow = document.createElement('div');
@@ -384,6 +521,7 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                     checkbox.name = 'equipment[]';
                     checkbox.value = equipment.equipment_name;
                     checkbox.className = 'equipment-checkbox';
+                    checkbox.dataset.overlaps = JSON.stringify(equipment.overlapping_slots || []);
                     
                     // Pre-select if in edit mode
                     if (preSelectedMap[equipment.equipment_name]) {
@@ -433,6 +571,7 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                             itemDiv.classList.remove('selected');
                             quantityInput.value = '1';
                         }
+                        validateBookingInstantly();
                     });
 
                     quantityInput.addEventListener('input', function() {
@@ -445,6 +584,7 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                             value = max;
                         }
                         quantityInput.value = String(value);
+                        validateBookingInstantly();
                     });
                     
                     quantityDiv.appendChild(quantityLabel);
@@ -455,42 +595,103 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                     mainRow.appendChild(quantityDiv);
                     
                     itemDiv.appendChild(mainRow);
-                    
-                    // Show overlapping time slots if any
-                    if (equipment.overlapping_slots && equipment.overlapping_slots.length > 0) {
-                        console.log('Found overlapping slots for', equipment.equipment_name, ':', equipment.overlapping_slots);
-                        const overlapDiv = document.createElement('div');
-                        overlapDiv.className = 'overlap-warning';
-                        
-                        const overlapHeader = document.createElement('div');
-                        overlapHeader.className = 'overlap-warning-header';
-                        overlapHeader.textContent = '⚠️ Time Slot Conflicts:';
-                        overlapDiv.appendChild(overlapHeader);
-                        
-                        equipment.overlapping_slots.forEach(slot => {
-                            console.log('Processing slot:', slot);
-                            const slotDiv = document.createElement('div');
-                            slotDiv.className = 'overlap-slot-item';
-                            
-                            const startTime = slot.start_time.substring(0, 5);
-                            const endTime = slot.end_time.substring(0, 5);
-                            
-                            // Check if this is a practice session or booking request
-                            if (slot.source_type === 'practice') {
-                                console.log('Practice session detected!', slot);
-                                slotDiv.innerHTML = `<strong>Practice Session</strong> - ${startTime} - ${endTime} (${slot.status}) - Reserved: ${slot.requested_quantity} (all equipment)`;
-                                slotDiv.style.color = '#92400e';
-                                slotDiv.style.fontWeight = '500';
-                            } else {
-                                const requestedQty = slot.requested_quantity || 1;
-                                slotDiv.textContent = `${slot.requester_name || 'Booking'} - ${startTime} - ${endTime} (${slot.status}) - Requested: ${requestedQty}`;
-                            }
-                            
-                            overlapDiv.appendChild(slotDiv);
+
+                    const totalPending = parseInt(equipment.pending_count || 0, 10) || 0;
+                    const totalAccepted = parseInt(equipment.accepted_count || 0, 10) || 0;
+                    const totalActive = parseInt(equipment.active_count || 0, 10) || 0;
+                    const totalPendingQty = parseInt(equipment.pending_qty || 0, 10) || 0;
+                    const totalAcceptedQty = parseInt(equipment.accepted_qty || 0, 10) || 0;
+                    const totalActiveQty = parseInt(equipment.active_qty || 0, 10) || 0;
+                    const requestDetails = Array.isArray(equipment.request_details) ? equipment.request_details : [];
+
+                    let slotPending = 0;
+                    let slotAccepted = 0;
+                    let slotActive = 0;
+                    let slotPendingQty = 0;
+                    let slotAcceptedQty = 0;
+                    let slotActiveQty = 0;
+                    const overlapRows = Array.isArray(equipment.overlapping_slots) ? equipment.overlapping_slots : [];
+                    overlapRows.forEach(slot => {
+                        const st = String(slot.status || '').toUpperCase();
+                        const slotQty = Math.max(0, parseInt(slot.requested_quantity || 0, 10) || 0);
+                        if (st === 'PENDING') slotPending += 1;
+                        if (st === 'ACCEPTED') slotAccepted += 1;
+                        if (st === 'ACTIVE') slotActive += 1;
+                        if (st === 'PENDING') slotPendingQty += slotQty;
+                        if (st === 'ACCEPTED') slotAcceptedQty += slotQty;
+                        if (st === 'ACTIVE') slotActiveQty += slotQty;
+                    });
+
+                    const hasAnyRequestHistory = (totalPending + totalAccepted + totalActive) > 0 || (totalPendingQty + totalAcceptedQty + totalActiveQty) > 0 || requestDetails.length > 0;
+                    const hasSlotConflicts = hasFullSlotSelection && overlapRows.length > 0;
+
+                    if (hasAnyRequestHistory || hasSlotConflicts) {
+                        const summaryDiv = document.createElement('div');
+                        summaryDiv.className = 'overlap-warning request-summary-card';
+
+                        const summaryHeader = document.createElement('div');
+                        summaryHeader.className = 'overlap-warning-header request-summary-header';
+                        summaryHeader.textContent = hasSlotConflicts ? 'Request Conflicts (Category-wise)' : 'Reservation Summary';
+                        summaryDiv.appendChild(summaryHeader);
+
+                        const totalLine = document.createElement('div');
+                        totalLine.className = 'summary-line';
+                        totalLine.innerHTML = '<span class="summary-label">All requests:</span> '
+                            + 'Pending ' + totalPending + ' (Qty ' + totalPendingQty + ') | '
+                            + 'Accepted ' + totalAccepted + ' (Qty ' + totalAcceptedQty + ') | '
+                            + 'Active ' + totalActive + ' (Qty ' + totalActiveQty + ')';
+                        summaryDiv.appendChild(totalLine);
+
+                        requestDetails.forEach(req => {
+                            const detailLine = document.createElement('div');
+                            detailLine.className = 'request-detail-row';
+                            const requester = req.requester_name || 'Unknown';
+                            const requestedQty = Math.max(0, parseInt(req.requested_quantity || 0, 10) || 0);
+                            const reqStatus = String(req.status || 'UNKNOWN').toUpperCase();
+                            const reqDate = req.request_date || '--';
+                            const reqStart = req.start_time ? String(req.start_time).substring(0, 5) : '--:--';
+                            const reqEnd = req.end_time ? String(req.end_time).substring(0, 5) : '--:--';
+                            detailLine.innerHTML = '<strong>Requester:</strong> ' + requester
+                                + ' | <strong>Requested Qty:</strong> ' + requestedQty
+                                + ' | <strong>Status:</strong> ' + reqStatus
+                                + ' | <strong>Date:</strong> ' + reqDate
+                                + ' | <strong>Time:</strong> ' + reqStart + ' - ' + reqEnd;
+                            summaryDiv.appendChild(detailLine);
                         });
-                        
-                        itemDiv.appendChild(overlapDiv);
+
+                        if (hasSlotConflicts) {
+                            const slotLine = document.createElement('div');
+                            slotLine.className = 'slot-summary-line';
+                            slotLine.innerHTML = '<span class="summary-label">Selected slot:</span> '
+                                + 'Pending ' + slotPending + ' (Qty ' + slotPendingQty + ') | '
+                                + 'Accepted ' + slotAccepted + ' (Qty ' + slotAcceptedQty + ') | '
+                                + 'Active ' + slotActive + ' (Qty ' + slotActiveQty + ')';
+                            summaryDiv.appendChild(slotLine);
+
+                            overlapRows.forEach(slot => {
+                                const slotDetails = document.createElement('div');
+                                slotDetails.className = 'request-detail-row';
+                                const status = String(slot.status || 'UNKNOWN').toUpperCase();
+                                const source = slot.source_type === 'practice' ? 'Practice Session' : (slot.requester_name || 'Booking');
+                                const start = slot.start_time ? String(slot.start_time).substring(0, 5) : '--:--';
+                                const end = slot.end_time ? String(slot.end_time).substring(0, 5) : '--:--';
+                                const reqQty = Math.max(0, parseInt(slot.requested_quantity || 0, 10) || 0);
+                                slotDetails.innerHTML = '<strong>Source:</strong> ' + source
+                                    + ' | <strong>Status:</strong> ' + status
+                                    + ' | <strong>Requested Qty:</strong> ' + reqQty
+                                    + ' | <strong>Time:</strong> ' + start + ' - ' + end;
+                                summaryDiv.appendChild(slotDetails);
+                            });
+                        }
+
+                        itemDiv.appendChild(summaryDiv);
                     }
+
+                    // Popup container for category-wise instant conflict messages.
+                    const categoryConflictPopup = document.createElement('div');
+                    categoryConflictPopup.className = 'overlap-warning category-conflict-popup';
+                    categoryConflictPopup.style.display = 'none';
+                    itemDiv.appendChild(categoryConflictPopup);
                     
                     equipmentContainer.appendChild(itemDiv);
                 });
@@ -501,15 +702,19 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                 message.textContent = 'No equipment available for this sport';
                 equipmentContainer.appendChild(message);
             }
+
+            validateBookingInstantly();
         })
         .catch(error => {
             console.error('Error fetching equipment:', error);
             equipmentContainer.innerHTML = '<p class="equipment-empty-message" style="color: #dc2626;">Error loading equipment. Please try again.</p>';
+            validateBookingInstantly();
         });
 }
 
 document.getElementById('sport').addEventListener('change', function() {
     loadEquipmentBySport(this.value);
+    validateBookingInstantly();
 });
 
 // Reload equipment when date or time changes to update overlaps
@@ -518,6 +723,7 @@ document.getElementById('reservation_date').addEventListener('change', function(
     if (sportId) {
         loadEquipmentBySport(sportId);
     }
+    validateBookingInstantly();
 });
 
 document.getElementById('start_time').addEventListener('change', function() {
@@ -525,6 +731,7 @@ document.getElementById('start_time').addEventListener('change', function() {
     if (sportId) {
         loadEquipmentBySport(sportId);
     }
+    validateBookingInstantly();
 });
 
 document.getElementById('end_time').addEventListener('change', function() {
@@ -532,6 +739,7 @@ document.getElementById('end_time').addEventListener('change', function() {
     if (sportId) {
         loadEquipmentBySport(sportId);
     }
+    validateBookingInstantly();
 });
 
 // Load equipment on page load if editing
@@ -550,15 +758,35 @@ if (isEdit && editData && editData.sport_id) {
     loadEquipmentBySport(editData.sport_id, equipmentItems);
 }
 
+['user_id', 'requester_name', 'reserved_location'].forEach(fieldId => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.addEventListener('input', validateBookingInstantly);
+        field.addEventListener('change', validateBookingInstantly);
+    }
+});
+
 // Form validation to ensure at least one equipment is selected
 document.getElementById('addBookingForm').addEventListener('submit', function(e) {
+    const isValid = validateBookingInstantly();
+    if (!isValid) {
+        e.preventDefault();
+        return false;
+    }
+
     const checkboxes = document.querySelectorAll('input[name="equipment[]"]:checked');
     if (checkboxes.length === 0) {
         e.preventDefault();
-        alert('Please select at least one equipment item');
+        showInstantBookingError('Please select at least one equipment item.');
+        setSubmitEnabled(false);
         return false;
     }
+
+    hideInstantBookingError();
+    setSubmitEnabled(true);
 });
+
+validateBookingInstantly();
 </script>
 
 <?php

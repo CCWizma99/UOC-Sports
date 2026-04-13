@@ -31,16 +31,17 @@ class LostItemController {
         $lostitemModel = new Lostitem(Database::getConnection());
         
         $data = [
-            'itemName' => $_POST['itemName'] ?? '',
-            'foundDate' => $_POST['foundDate'] ?? '',
+            'item_name' => $_POST['itemName'] ?? '',
+            'lost_date' => $_POST['foundDate'] ?? '',
             'description' => $_POST['description'] ?? '',
-            'foundLocation' => $_POST['foundLocation'] ?? '',
-            'foundBy' => $_POST['foundBy'] ?? '',
-            'contactNumber' => $_POST['contactNumber'] ?? '',
-            'itemStatus' => $_POST['itemStatus'] ?? 'unclaimed'
+            'lost_location' => $_POST['foundLocation'] ?? '',
+            'reported_by' => $_POST['foundBy'] ?? '',
+            'contact_number' => $_POST['contactNumber'] ?? '',
+            'image' => $_POST['image'] ?? '',
+            'item_status' => $_POST['itemStatus'] ?? 'unclaimed'
         ];
         
-        $file = isset($_FILES['item']) ? $_FILES['item'] : null;
+        $file = isset($_FILES['image']) ? $_FILES['image'] : null;
         
         try {
             if (isset($_POST['lostItem_id']) && !empty($_POST['lostItem_id'])) {
@@ -55,7 +56,7 @@ class LostItemController {
             exit();
         } catch (Exception $e) {
             $_SESSION['error_message'] = 'Error saving lost item: ' . $e->getMessage();
-            header('Location: /uoc-sports/public/equipment-manager/add-lostitem');
+            header('Location: /uoc-sports/public/equipment-manager/lostitem');
             exit();
         }
     }

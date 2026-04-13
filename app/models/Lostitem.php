@@ -13,7 +13,7 @@ class Lostitem {
      * @return int - The inserted lostItem_id
      */
     public function addLostItem($data, $file = null) {
-        $item_image = '';
+        $Image = '';
         
         // Handle image upload
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
@@ -26,27 +26,27 @@ class Lostitem {
             $targetPath = $uploadDir . $fileName;
             
             if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-                $item_image = $fileName;
+                $Image = $fileName;
             }
         }
         
         $sql = "INSERT INTO lost_item 
-                (itemName, foundDate, `description`, foundLocation, foundBy, contactNumber, itemStatus, `image`)
+                (item_name, lost_date, `description`, lost_location, reported_by, contact_number, item_status, `image`)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $this->conn->prepare($sql);
-        $itemStatus = $data['itemStatus'] ?? 'unclaimed';
+        $itemStatus = $data['item_status'] ?? 'unclaimed';
         $description = $data['description'] ?? '';
         
         $stmt->execute([
-            $data['itemName'],
-            $data['foundDate'],
+            $data['item_name'],
+            $data['lost_date'],
             $description,
-            $data['foundLocation'],
-            $data['foundBy'],
-            $data['contactNumber'],
+            $data['lost_location'],
+            $data['reported_by'],
+            $data['contact_number'],
             $itemStatus,
-            $item_image
+            $Image
         ]);
         
         $insertId = $this->conn->lastInsertId();
@@ -64,7 +64,7 @@ class Lostitem {
     public function updateLostItem($lostItem_id, $data, $file = null) {
         // Get existing item to check for old image
         $existingItem = $this->getById($lostItem_id);
-        $item_image = $existingItem['image'];
+        $image = $existingItem['image'];
         
         // Handle new image upload
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
@@ -84,34 +84,34 @@ class Lostitem {
                         unlink($oldImagePath);
                     }
                 }
-                $item_image = $fileName;
+                $image = $fileName;
             }
         }
         
         $sql = "UPDATE lost_item 
-                SET itemName = ?,
-                    foundDate = ?,
+                SET item_name = ?,
+                    lost_date = ?,
                     `description` = ?,
-                    foundLocation = ?,
-                    foundBy = ?,
-                    contactNumber = ?,
-                    itemStatus = ?,
+                    lost_location = ?,
+                    reported_by = ?,
+                    contact_number = ?,
+                    item_status = ?,
                     `image` = ?
                 WHERE lostItem_id = ?";
         
         $stmt = $this->conn->prepare($sql);
-        $itemStatus = $data['itemStatus'] ?? 'unclaimed';
+        $itemStatus = $data['item_status'] ?? 'unclaimed';
         $description = $data['description'] ?? '';
         
         $result = $stmt->execute([
-            $data['itemName'],
-            $data['foundDate'],
+            $data['item_name'],
+            $data['lost_date'],
             $description,
             $data['foundLocation'],
             $data['foundBy'],
             $data['contactNumber'],
             $itemStatus,
-            $item_image,
+            $image,
             $lostItem_id
         ]);
         
@@ -124,26 +124,26 @@ class Lostitem {
      * @return array
      */
     public function getAll($filters = []) {
-        $sql = "SELECT lostItem_id, itemName, foundDate, `description`, foundLocation, 
-                       foundBy, contactNumber, `image`, itemStatus 
+        $sql = "SELECT lostItem_id, item_name, lost_date, `description`, lost_location, 
+                       reported_by, contact_number, `image`, item_status 
                 FROM lost_item";
         
         $conditions = [];
         $params = [];
         
         if (isset($filters['status'])) {
-            $conditions[] = "itemStatus = :status";
+            $conditions[] = "item_status = :status";
             $params[':status'] = $filters['status'];
         }
         
         if (isset($filters['month']) && isset($filters['year'])) {
-            $conditions[] = "MONTH(foundDate) = :month AND YEAR(foundDate) = :year";
+            $conditions[] = "MONTH(lost_date) = :month AND YEAR(lost_date) = :year";
             $params[':month'] = $filters['month'];
             $params[':year'] = $filters['year'];
         }
         
         if (isset($filters['search'])) {
-            $conditions[] = "(itemName LIKE :search OR foundLocation LIKE :search OR foundBy LIKE :search)";
+            $conditions[] = "(item_name LIKE :search OR lost_location LIKE :search OR reported_by LIKE :search)";
             $params[':search'] = '%' . $filters['search'] . '%';
         }
         
@@ -151,7 +151,7 @@ class Lostitem {
             $sql .= " WHERE " . implode(" AND ", $conditions);
         }
         
-        $sql .= " ORDER BY foundDate DESC";
+        $sql .= " ORDER BY lost_date DESC";
         
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($params);

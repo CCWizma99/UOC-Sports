@@ -162,6 +162,65 @@ class EquipmentManagerController {
                 'notes' => $_POST['notes'] ?? ''
             ]);
 
+            // Enforce server-side conflict checks for each selected equipment item.
+            $conflicts = $model->getItemConflicts(
+                $commonData['sport_id'],
+                $commonData['request_date'],
+                $commonData['start_time'],
+                $commonData['end_time'],
+                $equipmentItems,
+                $isEdit ? $requestId : null,
+                true
+            );
+
+            if (!empty($conflicts)) {
+                $selectedDisplayMap = [];
+                foreach ($equipmentItems as $item) {
+                    $name = trim((string)($item['equipment_name'] ?? ''));
+                    if ($name === '') {
+                        continue;
+                    }
+                    $selectedDisplayMap[strtolower($name)] = [
+                        'name' => $name,
+                        'qty' => max(1, (int)($item['quantity'] ?? 1)),
+                    ];
+                }
+
+                $selectedSummary = [];
+                foreach ($selectedDisplayMap as $selected) {
+                    $selectedSummary[] = $selected['name'] . ' (x' . $selected['qty'] . ')';
+                }
+
+                $conflictDetails = [];
+                foreach ($conflicts as $conflict) {
+                    $rawName = trim((string)($conflict['equipment_name'] ?? 'Selected equipment'));
+                    $lookupKey = strtolower($rawName);
+                    $displayName = $selectedDisplayMap[$lookupKey]['name'] ?? $rawName;
+                    $selectedQty = $selectedDisplayMap[$lookupKey]['qty'] ?? 1;
+
+                    $start = !empty($conflict['start_time']) ? date('H:i', strtotime($conflict['start_time'])) : '--:--';
+                    $end = !empty($conflict['end_time']) ? date('H:i', strtotime($conflict['end_time'])) : '--:--';
+                    $status = strtoupper((string)($conflict['status'] ?? 'UNKNOWN'));
+                    $source = ($conflict['source'] ?? '') === 'practice' ? 'practice session' : 'booking request';
+
+                    $conflictDetails[] = $displayName
+                        . ' (selected x' . $selectedQty . ')'
+                        . ' -> conflict with ' . $source
+                        . ' [' . $status . ']'
+                        . ' at ' . $start . ' - ' . $end;
+                }
+
+                $conflictDetails = array_values(array_unique($conflictDetails));
+
+                $_SESSION['error_message'] = 'Selected equipment: '
+                    . implode(', ', $selectedSummary)
+                    . '. Conflicts: '
+                    . implode('; ', $conflictDetails)
+                    . '. Please choose another time or remove conflicting items.';
+                header('Location: /uoc-sports/public/equipment-manager/add-booking' . ($isEdit ? '?id=' . $requestId : ''));
+                exit();
+            }
+
             if ($isEdit) {
                 // Update existing booking request
                 $result = $model->updateRequest($requestId, $data);

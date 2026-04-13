@@ -277,6 +277,134 @@ class EquipmentBookigRequest {
     }
 
     /**
+     * Detect conflicts for selected equipment items in a given time slot.
+     * Returns an array of conflict records; empty array means no conflicts.
+     */
+    public function getItemConflicts($sportId, $date, $startTime, $endTime, array $equipmentItems, $excludeRequestId = null, $includePractice = true) {
+        if (empty($sportId) || empty($date) || empty($startTime) || empty($endTime) || empty($equipmentItems)) {
+            return [];
+        }
+
+        $sportId = strtoupper(trim($sportId));
+        $selectedNames = [];
+        foreach ($equipmentItems as $item) {
+            if (!empty($item['equipment_name'])) {
+                $selectedNames[] = strtolower(trim($item['equipment_name']));
+            }
+        }
+        $selectedNames = array_values(array_unique($selectedNames));
+        if (empty($selectedNames)) {
+            return [];
+        }
+
+        $extractRequestedQty = static function (array $row, string $equipmentName): int {
+            $target = strtolower(trim($equipmentName));
+
+            if (!empty($row['equipment_items'])) {
+                $items = json_decode($row['equipment_items'], true);
+                if (is_array($items)) {
+                    foreach ($items as $item) {
+                        $itemName = strtolower(trim((string)($item['equipment_name'] ?? '')));
+                        if ($itemName === $target) {
+                            $qty = (int)($item['quantity'] ?? 1);
+                            return $qty > 0 ? $qty : 1;
+                        }
+                    }
+                }
+            }
+
+            $category = strtolower(trim((string)($row['category_name'] ?? '')));
+            if ($category !== '' && strpos($category, $target) !== false) {
+                if (preg_match('/\(\s*x\s*(\d+)\s*\)/i', (string)$row['category_name'], $m)) {
+                    $qty = (int)$m[1];
+                    return $qty > 0 ? $qty : 1;
+                }
+                return 1;
+            }
+
+            return 0;
+        };
+
+        $query = "SELECT request_id, requester_name, start_time, end_time, status, equipment_items, category_name
+                  FROM `equipment-requests`
+                  WHERE UPPER(sport_id) = ?
+                    AND request_date = ?
+                    AND status IN ('PENDING', 'ACCEPTED', 'ACTIVE')
+                    AND (
+                        (start_time < ? AND end_time > ?)
+                        OR (start_time >= ? AND start_time < ?)
+                        OR (end_time > ? AND end_time <= ?)
+                    )";
+
+        $params = [$sportId, $date, $endTime, $startTime, $startTime, $endTime, $startTime, $endTime];
+        if (!empty($excludeRequestId)) {
+            $query .= " AND request_id != ?";
+            $params[] = $excludeRequestId;
+        }
+        $query .= " ORDER BY start_time";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $conflicts = [];
+        foreach ($rows as $row) {
+            foreach ($selectedNames as $name) {
+                $qty = $extractRequestedQty($row, $name);
+                if ($qty <= 0) {
+                    continue;
+                }
+                $conflicts[] = [
+                    'source' => 'booking',
+                    'equipment_name' => $name,
+                    'request_id' => $row['request_id'] ?? '',
+                    'requester_name' => $row['requester_name'] ?? 'Booking',
+                    'status' => $row['status'] ?? '',
+                    'start_time' => $row['start_time'] ?? '',
+                    'end_time' => $row['end_time'] ?? '',
+                    'requested_quantity' => $qty,
+                ];
+            }
+        }
+
+        if ($includePractice) {
+            $practiceQuery = "SELECT id, start_time, end_time, status
+                              FROM practice_sessions
+                              WHERE UPPER(sport_id) = ?
+                                AND session_date = ?
+                                AND need_equipment = 'Yes'
+                                AND status IN ('PENDING', 'ACCEPTED', 'ACTIVE')
+                                AND (
+                                    (start_time < ? AND end_time > ?)
+                                    OR (start_time >= ? AND start_time < ?)
+                                    OR (end_time > ? AND end_time <= ?)
+                                )
+                              ORDER BY start_time";
+            $practiceParams = [$sportId, $date, $endTime, $startTime, $startTime, $endTime, $startTime, $endTime];
+            $practiceStmt = $this->db->prepare($practiceQuery);
+            $practiceStmt->execute($practiceParams);
+            $practiceRows = $practiceStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($practiceRows as $practice) {
+                foreach ($selectedNames as $name) {
+                    $conflicts[] = [
+                        'source' => 'practice',
+                        'equipment_name' => $name,
+                        'request_id' => 'PS-' . ($practice['id'] ?? ''),
+                        'requester_name' => 'Practice Session',
+                        'status' => $practice['status'] ?? '',
+                        'start_time' => $practice['start_time'] ?? '',
+                        'end_time' => $practice['end_time'] ?? '',
+                        'requested_quantity' => null,
+                    ];
+                }
+            }
+        }
+
+        return $conflicts;
+    }
+
+    /**
      * Get requests by student
      */
     public function getRequestsByStudent($studentId) {

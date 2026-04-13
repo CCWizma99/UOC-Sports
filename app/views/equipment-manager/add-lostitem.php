@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add a New Lost Item</title>
+  <title>Report a New Lost Item</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
@@ -32,9 +32,9 @@
 <div class="page-form-container">
     <div class="page-header">
         <div>
-            <p class="page-path">Equipment Manager / Lost items / Add Lost Item</p>
-            <h2><?php echo $isEdit ? 'Edit Lost Item' : 'Add Lost Item'; ?></h2>
-            <p><?php echo $isEdit ? 'Update the lost item details' : 'Fill in the details to add a new lost item record'; ?></p>
+            <p class="page-path">Equipment Manager / Lost items / Report Lost Item</p>
+            <h2><?php echo $isEdit ? 'Edit Lost Item' : 'Report Lost Item'; ?></h2>
+            <p><?php echo $isEdit ? 'Update the lost item details' : 'Fill in the details to report a new lost item'; ?></p>
         </div>
     </div>
 
@@ -58,31 +58,39 @@
          <div class="form-row">
         <div class="form-group">
             <label for="item_name">Item Name <span class="required-star">*</span></label>
-            <input type="text" id="item_name" name="itemName" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['itemName']) : ''; ?>" required>    
+            <input type="text" id="item_name" name="itemName" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['item_name']) : ''; ?>" required>    
         </div>  
 
         <div class="form-group">
-            <label for="date_found">Date Found <span class="required-star">*</span></label>
-            <input type="date" id="date_found" name="foundDate" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['foundDate']) : ''; ?>" required>
+            <label for="date_found">Item Lost Date <span class="required-star">*</span></label>
+            <input type="date" id="date_found" name="foundDate" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['lost_date']) : ''; ?>" required>
         </div>
 
         <div class="form-group">
-            <label for="location_found">Location Found <span class="required-star">*</span></label>
-            <input type="text" id="location_found" name="foundLocation" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['foundLocation']) : ''; ?>" required>
-        </div>
-
-        <div class="form-group">
-            <label for="found_by">Found By <span class="required-star">*</span></label>
-            <input type="text" id="found_by" name="foundBy" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['foundBy']) : ''; ?>" required>      
+            <label for="found_by">Reported By <span class="required-star">*</span></label>
+            <input type="text" id="found_by" name="foundBy" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['reported_by']) : ''; ?>" required>      
         </div>
         
         <div class="form-group">
             <label for="contact_number">Contact Number <span class="required-star">*</span></label>
-            <input type="text" id="contact_number" name="contactNumber" pattern="[0-9]{10}" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['contactNumber']) : ''; ?>" required>
+            <input type="text" id="contact_number" name="contactNumber" pattern="[0-9]{10}" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['contact_number']) : ''; ?>" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="location_found">Item Lost Location <span class="required-star"></span></label>
+            <input type="text" id="location_found" name="foundLocation" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['lost_location']) : ''; ?>" >
         </div>
 
         <div class="form-group">
-            <label for="status">Status <span class="required-star">*</span></label>
+            <label for="location_found">Item Image <span class="required-star"> *</span></label>
+            <input type="file" id="receipt" name="image" accept=".png, .jpg, .jpeg, image/png, imagejpg, image/jpeg" <?php echo (isset($isEdit) && $isEdit) ? '' : 'required'; ?>>
+                        <?php if (isset($editData) && !empty($editData['image'])): ?>
+                            <small>Current: <?php echo htmlspecialchars($editData['image']); ?></small>
+                        <?php endif; ?>
+        </div>
+
+        <div class="form-group">
+            <label for="status">Status </label>
             <select id="status" name="itemStatus" required>
                 <option value="unclaimed" <?php echo ($isEdit && $editData && $editData['itemStatus'] == 'unclaimed') ? 'selected' : ''; ?>>Unclaimed</option>
                 <option value="claimed" <?php echo ($isEdit && $editData && $editData['itemStatus'] == 'claimed') ? 'selected' : ''; ?>>Claimed</option>
@@ -93,7 +101,7 @@
         
         
         <div class="form-group full-width">
-            <label for="description">Description </label>
+            <label for="description">Item Description </label>
             <textarea id="description" name="description" rows="2" ><?php echo $isEdit && $editData ? htmlspecialchars($editData['description']) : ''; ?></textarea>
         </div>
 
@@ -101,7 +109,7 @@
           </div>
         <div class="form-actions">
             <button type="button" class="btn-add" onclick="window.location.href='/uoc-sports/public/equipment-manager/lostitem'">Back</button>
-            <button type="submit" class="btn-add"><?php echo $isEdit ? 'Update Item' : 'Add Item'; ?></button>
+            <button type="submit" class="btn-add"><?php echo $isEdit ? 'Update Item' : 'Report Lost Item'; ?></button>
             
             
         </div>
