@@ -165,6 +165,7 @@ const currentRequestId = editData ? editData.request_id : '';
 let userLookupTimeout = null;
 let reservationCheckTimeout = null;
 let lastReservationAlertKey = '';
+let currentPracticeConflictMessage = '';
 
 function showInstantBookingError(message) {
     const errorBox = document.getElementById('instantBookingError');
@@ -205,19 +206,26 @@ function validateBookingInstantly() {
 
     const hasFullSlotSelection = Boolean(sportId && requestDate && startTime && endTime);
     if (!hasFullSlotSelection) {
+        currentPracticeConflictMessage = '';
         hideInstantBookingError();
         clearCategoryConflictPopups();
         setSubmitEnabled(true);
         return true;
     }
 
-    const hasCategoryConflict = renderCategoryConflictPopups();
-    if (hasCategoryConflict) {
-        hideInstantBookingError();
+    if (currentPracticeConflictMessage) {
+        showInstantBookingError(currentPracticeConflictMessage);
+        clearCategoryConflictPopups();
         setSubmitEnabled(false);
         return false;
     }
 
+    // Render conflict popups for informational purposes only
+    renderCategoryConflictPopups();
+    
+    // Since conflicting equipment is now disabled, we should only reach here
+    // if user has managed to select an item without conflicts
+    // This is a safety check - should rarely trigger
     hideInstantBookingError();
     setSubmitEnabled(true);
     return true;
@@ -480,6 +488,7 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
     const startTime = document.getElementById('start_time').value;
     const endTime = document.getElementById('end_time').value;
     const hasFullSlotSelection = Boolean(sportId && requestDate && startTime && endTime);
+    currentPracticeConflictMessage = '';
     
     // Build API URL with parameters
     let apiUrl = '/uoc-sports/public/api/get-equipment-with-requests.php?sport_id=' + sportId;
@@ -497,6 +506,7 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
         .then(data => {
             console.log('API Response:', data);
             equipmentContainer.innerHTML = '';
+            const practiceTimeRanges = new Set();
             
             if (data.success && data.equipment && data.equipment.length > 0) {
                 // Populate with equipment from database
@@ -558,6 +568,30 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                         checkbox.disabled = true;
                         quantityInput.disabled = true;
                         itemDiv.classList.remove('selected');
+                    }
+                    
+                    // If equipment has time conflicts (overlapping slots), disable it and provide feedback
+                    const overlapData = JSON.parse(checkbox.dataset.overlaps || '[]');
+                    if (Array.isArray(overlapData) && overlapData.length > 0) {
+                        checkbox.checked = false;
+                        checkbox.disabled = true;
+                        quantityInput.disabled = true;
+                        itemDiv.classList.remove('selected');
+
+                        const practiceConflicts = overlapData.filter(slot => slot && slot.source_type === 'practice');
+                        if (practiceConflicts.length > 0) {
+                            const timeRanges = Array.from(new Set(practiceConflicts.map(slot => {
+                                const start = slot.start_time ? String(slot.start_time).substring(0, 5) : '--:--';
+                                const end = slot.end_time ? String(slot.end_time).substring(0, 5) : '--:--';
+                                return start + '-' + end;
+                            })));
+                            label.textContent += ' [NOT AVAILABLE - Practice session uses equipment at ' + timeRanges.join(', ') + ']';
+                        } else {
+                            label.textContent += ' [NOT AVAILABLE - Time conflict]';
+                        }
+
+                        label.style.opacity = '0.6';
+                        label.style.textDecoration = 'line-through';
                     }
                     
                     // Enable/disable quantity input based on checkbox
@@ -625,6 +659,15 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
 
                     const hasAnyRequestHistory = (totalPending + totalAccepted + totalActive) > 0 || (totalPendingQty + totalAcceptedQty + totalActiveQty) > 0 || requestDetails.length > 0;
                     const hasSlotConflicts = hasFullSlotSelection && overlapRows.length > 0;
+
+                    overlapRows.forEach(slot => {
+                        if (!slot || slot.source_type !== 'practice') {
+                            return;
+                        }
+                        const slotStart = slot.start_time ? String(slot.start_time).substring(0, 5) : '--:--';
+                        const slotEnd = slot.end_time ? String(slot.end_time).substring(0, 5) : '--:--';
+                        practiceTimeRanges.add(slotStart + ' to ' + slotEnd);
+                    });
 
                     if (hasAnyRequestHistory || hasSlotConflicts) {
                         const summaryDiv = document.createElement('div');
@@ -704,11 +747,21 @@ function loadEquipmentBySport(sportId, preSelectItems = null) {
                 equipmentContainer.appendChild(message);
             }
 
+            if (hasFullSlotSelection && practiceTimeRanges.size > 0) {
+                const ranges = Array.from(practiceTimeRanges);
+                currentPracticeConflictMessage = ranges.length === 1
+                    ? 'A practice session that requires equipment is scheduled on ' + requestDate + ' from ' + ranges[0] + '. Equipment for this sport cannot be booked during this time period.'
+                    : 'Practice sessions that require equipment are scheduled on ' + requestDate + ' during: ' + ranges.join(', ') + '. Equipment for this sport cannot be booked during these time periods.';
+            } else {
+                currentPracticeConflictMessage = '';
+            }
+
             validateBookingInstantly();
         })
         .catch(error => {
             console.error('Error fetching equipment:', error);
             equipmentContainer.innerHTML = '<p class="equipment-empty-message" style="color: #dc2626;">Error loading equipment. Please try again.</p>';
+            currentPracticeConflictMessage = '';
             validateBookingInstantly();
         });
 }

@@ -1,6 +1,9 @@
 <?php
 require_once '../../config/config.php';
 require_once '../../core/Database.php';
+require_once '../../app/models/SportEquipment.php';
+
+const NEED_EQUIPMENT_TRUE_VALUES = ['YES', 'TRUE', '1'];
 
 header('Content-Type: application/json');
 
@@ -48,21 +51,17 @@ try {
         return 0;
     };
 
-    // Get equipment for the sport with availability
-    $query = "SELECT 
-                e.equipment_id,
-                e.equipment_name,
-                COALESCE(SUM(ei.usable), 0) as available_count
-              FROM equipment e
-              LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
-              WHERE UPPER(e.sport_id) = ?
-              GROUP BY e.equipment_id, e.equipment_name
-              HAVING available_count > 0
-              ORDER BY e.equipment_name";
+    // Get equipment for the sport with correct available counts (usable - reserved)
+    $sportEquipmentModel = new SportEquipment();
+    $equipment = $sportEquipmentModel->getEquipmentBySport($sportId);
     
-    $stmt = $db->prepare($query);
-    $stmt->execute([$sportId]);
-    $equipment = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Filter to only include equipment with available count > 0
+    $equipment = array_filter($equipment, function($eq) {
+        return (int)$eq['available_count'] > 0;
+    });
+    
+    // Re-index array after filtering to ensure proper JSON encoding as array (not object)
+    $equipment = array_values($equipment);
 
     // For each equipment, get pending and accepted request counts
     foreach ($equipment as &$equip) {
@@ -222,6 +221,8 @@ try {
                 $overlaps = $relevantOverlaps;
             
             // Also check for practice sessions with need_equipment='Yes'
+            $needEquipmentPlaceholders = implode(',', array_fill(0, count(NEED_EQUIPMENT_TRUE_VALUES), '?'));
+
             $practiceQuery = "SELECT 
                                 id,
                                 session_date,
@@ -233,7 +234,7 @@ try {
                              FROM practice_sessions
                              WHERE UPPER(sport_id) = ?
                              AND session_date = ?
-                             AND need_equipment = 'Yes'
+                             AND UPPER(COALESCE(need_equipment, '')) IN ($needEquipmentPlaceholders)
                              AND status IN ('PENDING', 'ACCEPTED', 'ACTIVE')
                              AND (
                                  (start_time < ? AND end_time > ?)
@@ -242,13 +243,15 @@ try {
                              )
                              ORDER BY start_time";
             
-            $practiceParams = [
-                $sportId, 
-                $requestDate,
-                $endTime, $startTime,  // Existing session ends after new start OR starts before new end
-                $startTime, $endTime,  // Existing session starts within new range
-                $startTime, $endTime   // Existing session ends within new range
-            ];
+            $practiceParams = array_merge(
+                [$sportId, $requestDate],
+                NEED_EQUIPMENT_TRUE_VALUES,
+                [
+                    $endTime, $startTime,  // Existing session ends after new start OR starts before new end
+                    $startTime, $endTime,  // Existing session starts within new range
+                    $startTime, $endTime   // Existing session ends within new range
+                ]
+            );
             
                 $practiceStmt = $db->prepare($practiceQuery);
                 $practiceStmt->execute($practiceParams);

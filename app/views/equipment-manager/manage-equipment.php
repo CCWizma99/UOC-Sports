@@ -47,7 +47,7 @@
             <thead>
                 <tr>
                     <th onclick="sortTable(0)">Equipment Name<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(1)">Category<span class="sort-indicator"></span></th>
+                    <!-- <th onclick="sortTable(1)">Category<span class="sort-indicator"></span></th> -->
                     <th onclick="sortTable(2)">Total Quantity<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(3)">Usable Count<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(4)">Reserved Qty<span class="sort-indicator"></span></th>
@@ -66,7 +66,7 @@
                 ?>
                     <tr>
                         <td><?= htmlspecialchars($item['equipment_name']) ?></td>
-                        <td><span style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 0.25rem 0.75rem; border-radius: 8px; font-weight: 600; color: #5b21b6; font-size: 0.8rem;"><?= htmlspecialchars($item['category_name'] ?? 'Uncategorized') ?></span></td>
+                        <!-- <td><span style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 0.25rem 0.75rem; border-radius: 8px; font-weight: 600; color: #5b21b6; font-size: 0.8rem;"><?= htmlspecialchars($item['category_name'] ?? 'Uncategorized') ?></span></td> -->
                         <td><?= htmlspecialchars($item['quantity'] ?? 0) ?></td>
                         <td><?= htmlspecialchars($item['usable_count'] ?? 0) ?></td>
                         <td>

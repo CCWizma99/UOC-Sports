@@ -3,6 +3,8 @@
 class EquipmentBookigRequest {
     private $db;
 
+    private const NEED_EQUIPMENT_TRUE_VALUES = ['YES', 'TRUE', '1'];
+
     public function __construct() {
         $this->db = Database::getConnection();
     }
@@ -360,11 +362,12 @@ class EquipmentBookigRequest {
         }
 
         if ($includePractice) {
+            $needEquipmentPlaceholders = implode(',', array_fill(0, count(self::NEED_EQUIPMENT_TRUE_VALUES), '?'));
             $practiceQuery = "SELECT id, start_time, end_time, status
                               FROM practice_sessions
                               WHERE UPPER(sport_id) = ?
                                 AND session_date = ?
-                                AND need_equipment = 'Yes'
+                                AND UPPER(COALESCE(need_equipment, '')) IN ($needEquipmentPlaceholders)
                                 AND status IN ('PENDING', 'ACCEPTED', 'ACTIVE')
                                 AND (
                                     (start_time < ? AND end_time > ?)
@@ -372,7 +375,11 @@ class EquipmentBookigRequest {
                                     OR (end_time > ? AND end_time <= ?)
                                 )
                               ORDER BY start_time";
-            $practiceParams = [$sportId, $date, $endTime, $startTime, $startTime, $endTime, $startTime, $endTime];
+            $practiceParams = array_merge(
+                [$sportId, $date],
+                self::NEED_EQUIPMENT_TRUE_VALUES,
+                [$endTime, $startTime, $startTime, $endTime, $startTime, $endTime]
+            );
             $practiceStmt = $this->db->prepare($practiceQuery);
             $practiceStmt->execute($practiceParams);
             $practiceRows = $practiceStmt->fetchAll(PDO::FETCH_ASSOC);
