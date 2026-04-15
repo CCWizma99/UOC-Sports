@@ -35,10 +35,10 @@ $navLinks = [];
 switch ($userType) {
     case 'STUDENT':
         $navLinks = [
-            ['name' => 'Home', 'url' => '/uoc-sports/public/student'],
-            ['name' => 'Available Sports', 'url' => '/uoc-sports/public/student/available-sports'],
-            ['name' => 'Enrolled Sports', 'url' => '/uoc-sports/public/student/enrolled-sports'],
-            ['name' => 'Equipment Requests', 'url' => '/uoc-sports/public/student/equipment-requests'],
+            ['name' => 'Overview', 'url' => '/uoc-sports/public/student/'],
+            ['name' => 'Sports', 'url' => '/uoc-sports/public/student/sports/'],
+            ['name' => 'Equipments', 'url' => '/uoc-sports/public/student/equipment/'],
+            ['name' => 'My Bookings', 'url' => '/uoc-sports/public/student/bookings/'],
         ];
         break;
     case 'CAPTAIN':
@@ -48,7 +48,7 @@ switch ($userType) {
             ['name' => 'Schedule', 'url' => '/uoc-sports/public/captain/schedule-practice'],
             ['name' => 'Attendance', 'url' => '/uoc-sports/public/captain/mark-attendance'],
             ['name' => 'Add Result', 'url' => '/uoc-sports/public/captain/add-result'],
-            ['name' => 'Communication', 'url' => '/uoc-sports/public/captain/communication'],
+            ['name' => 'Communication', 'url' => '/uoc-sports/public/captain/communication']
         ];
         break;
     case 'COACH':
@@ -116,9 +116,11 @@ switch ($userType) {
             <ul class="nav-tabs">
                 <?php foreach ($navLinks as $link): ?>
                     <?php 
-                        $isActive = strpos($currentPage, $link['url']) !== false;
-                        if ($link['name'] === 'Home') {
+                        $isActive = false;
+                        if ($link['name'] === 'Home' || $link['name'] === 'Overview') {
                             $isActive = ($currentPage === $link['url'] || $currentPage === rtrim($link['url'], '/'));
+                        } else {
+                            $isActive = strpos($currentPage, $link['url']) !== false;
                         }
                     ?>
                     <li>

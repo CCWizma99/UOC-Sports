@@ -216,32 +216,24 @@ class EquipmentBookigRequest {
     /**
      * Check if user has any active or accepted reservations
      */
-    public function hasActiveReservation($studentId = null, $requesterName = null) {
-        if (empty($studentId) && empty($requesterName)) {
+    public function hasActiveReservation($ids = []) {
+        if (empty($ids)) {
             return false;
         }
 
+        // Filter out empty IDs
+        $ids = array_filter($ids);
+        if (empty($ids)) return false;
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        
         $query = "SELECT COUNT(*) as active_count
                   FROM `equipment-requests`
-                  WHERE status IN ('ACTIVE', 'ACCEPTED')";
-        
-        $params = [];
-        
-        // Check by student_id OR requester_name
-        if (!empty($studentId) && !empty($requesterName)) {
-            $query .= " AND (student_id = ? OR requester_name = ?)";
-            $params[] = $studentId;
-            $params[] = $requesterName;
-        } elseif (!empty($studentId)) {
-            $query .= " AND student_id = ?";
-            $params[] = $studentId;
-        } else {
-            $query .= " AND requester_name = ?";
-            $params[] = $requesterName;
-        }
+                  WHERE status IN ('ACTIVE', 'ACCEPTED')
+                  AND student_id IN ($placeholders)";
         
         $stmt = $this->db->prepare($query);
-        $stmt->execute($params);
+        $stmt->execute(array_values($ids));
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
         return $result['active_count'] > 0;

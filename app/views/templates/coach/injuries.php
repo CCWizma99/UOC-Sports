@@ -271,7 +271,7 @@ async function loadPracticeSessions() {
             data.sessions.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s.id;
-                opt.textContent = `${s.facility} - ${s.session_date} ${s.session_time}`;
+                opt.textContent = `${s.facility} - ${s.session_date} ${s.start_time}`;
                 select.appendChild(opt);
                 
                 const editOpt = opt.cloneNode(true);
@@ -296,7 +296,7 @@ async function loadInjuryReports() {
             tbody.innerHTML = '';
             data.data.forEach(r => {
                 const playerName = r.fname ? (r.fname + ' ' + (r.lname || '')) : r.user_id;
-                const practiceText = `${r.facility || ''} - ${r.session_date || ''} ${r.session_time || ''}`.trim();
+                const practiceText = `${r.facility || ''} - ${r.session_date || ''} ${r.start_time || ''}`.trim();
                 
                 // Extract severity from description (assuming format "Type (Severity)")
                 let severity = '-';

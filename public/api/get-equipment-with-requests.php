@@ -257,28 +257,19 @@ try {
             // Debug logging
                 error_log("Practice sessions found for sport $sportId on $requestDate: " . count($practiceSessions));
             
-            // Calculate total usable equipment count for the sport (only if there are practice sessions)
+            // If any overlapping practice session needs equipment, block this item for the slot.
                 if (!empty($practiceSessions)) {
-                    $totalEquipmentQuery = "SELECT 
-                                            COALESCE(SUM(ei.usable), 0) as total_equipment
-                                        FROM equipment e
-                                        LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
-                                        WHERE UPPER(e.sport_id) = ?";
-                    $totalStmt = $db->prepare($totalEquipmentQuery);
-                    $totalStmt->execute([$sportId]);
-                    $totalEquipmentCount = $totalStmt->fetchColumn();
-                
-                    error_log("Total equipment count for sport $sportId: $totalEquipmentCount");
-                
-                    // Add practice sessions to overlapping slots
                     foreach ($practiceSessions as &$practice) {
                         $practice['requester_name'] = 'Practice Session';
-                        $practice['requested_quantity'] = $totalEquipmentCount . ' items';
+                        $practice['requested_quantity'] = (int)$equip['available_count'];
                         $practice['source_type'] = 'practice';
                         $practice['request_id'] = 'PS-' . $practice['id'];
                         $overlaps[] = $practice;
                         error_log("Added practice session PS-" . $practice['id'] . " to overlaps");
                     }
+
+                    // Reserve all available quantity for this slot to disable selection on the form.
+                    $slotReservedCount = (int)$equip['available_count'];
                 }
             
                 $equip['overlapping_slots'] = $overlaps;

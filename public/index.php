@@ -18,11 +18,13 @@ $router->get('/stories', 'UserHomeController@stories');
 $router->get('/results', 'UserHomeController@matchResults');
 $router->get('/public/match-results-api', 'MatchResultApiController@getPublicResults');
 $router->get('/profile', 'UserHomeController@profile');
+$router->get('/my-bookings', 'UserHomeController@myBookings');
 $router->get('/post/{id}', 'PostController@viewPost');
 $router->post('/post/add-comment', 'PostController@addComment');
 $router->get('/search-post', 'PostApiController@search');
 $router->get('/get-faculties', 'UserHomeController@getFaculties');
 $router->get('/reserve-facilities/view-reservations', 'FacilityApiController@viewMyReservations');
+$router->post('/reserve-facilities/cancel', 'FacilityApiController@cancelFacilityReservation');
 $router->get('/get-reserved-slots', 'FacilityApiController@getReservedSlots');
 $router->get('/reserve-facilities/chart', 'FacilityApiController@getReservationChart');
 $router->get('/reserve-facilities/monthly-bookings', 'FacilityApiController@getMonthlyBookings');
@@ -63,13 +65,18 @@ $router->get('/captain/schedule-practice', 'CaptainController@SchedulePractice')
 $router->post('/captain/schedule-practice', 'CaptainController@SchedulePractice');
 $router->get('/captain/communication', 'CaptainController@Communication');
 $router->get('/captain/team-schedules', 'CoachController@TeamSchedules');
+$router->get('/captain/achievements', 'CaptainController@Achievements');
+$router->get('/captain/add-members', 'CaptainController@AddMembers');
+$router->post('/captain/add-members', 'CaptainController@AddMembers');
 $router->get('/captain/add-result', 'CaptainController@AddResult');
+
+$router->get('/add-result/get-sport-fields', 'SportApiController@getSportFields');
+
 
 // Captain Match Result API routes
 $router->get('/captain/get-permitted-tournaments', 'CaptainApiController@getPermittedTournaments');
 $router->post('/captain/submit-result', 'CaptainApiController@submitResult');
 
-// Playing Team Registry Management (Admin)
 $router->get('/api/playing-teams/get-all', 'PlayingTeamApiController@getAll');
 $router->post('/api/playing-teams/update', 'PlayingTeamApiController@update');
 $router->post('/api/playing-teams/delete', 'PlayingTeamApiController@delete');
@@ -81,6 +88,7 @@ $router->get('/api/attendance/team-members/{sport_id}', 'AttendanceApiController
 $router->get('/api/attendance/history/{sport_id}', 'AttendanceApiController@getAttendanceHistory');
 $router->get('/api/attendance/last-session/{sport_id}', 'AttendanceApiController@getLastSessionAttendance');
 $router->get('/api/attendance/upcoming-sessions/{sport_id}', 'AttendanceApiController@getUpcomingSessions');
+$router->get('/api/attendance/previous-sessions/{sport_id}', 'AttendanceApiController@getPreviousSessions');
 $router->get('/api/attendance/exists/{practice_id}', 'AttendanceApiController@checkAttendanceExists');
 
 

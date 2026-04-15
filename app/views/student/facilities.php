@@ -425,6 +425,49 @@
         document.getElementById("date").addEventListener("change", handleFacilityChange);
     });
 
+/* -------------------- TOOLTIP LOGIC ----------------------- */
+const chartTooltip = document.createElement('div');
+chartTooltip.className = 'custom-chart-tooltip';
+chartTooltip.style.cssText = 'position: fixed; background: #fff; border: 2px solid #5e2d91; border-radius: 8px; padding: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); z-index: 10000; pointer-events: none; display: none; font-size: 0.85rem; color: #333; min-width: 200px;';
+document.body.appendChild(chartTooltip);
+
+function showChartTooltip(e, facility, date, slotType, availability) {
+    chartTooltip.style.display = 'block';
+    
+    // Format the date nicely
+    const dateObj = new Date(date);
+    const dateFormatted = dateObj.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+    
+    const isReserved = availability.toLowerCase().includes('reserved');
+    const statusColor = isReserved ? '#dc3545' : '#28a745';
+
+    chartTooltip.innerHTML = `
+        <div style="font-weight:bold; color: #5e2d91; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 8px;">
+            <i class="fas fa-info-circle"></i> Reservation Summary
+        </div>
+        <div style="margin-bottom: 3px;"><strong>Facility:</strong> ${facility}</div>
+        <div style="margin-bottom: 3px;"><strong>Date:</strong> ${dateFormatted}</div>
+        <div style="margin-bottom: 3px;"><strong>Slot:</strong> ${slotType}</div>
+        <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed #ccc;">
+            <strong>Status:</strong> <span style="font-weight:bold; color: ${statusColor};">${availability}</span>
+        </div>
+    `;
+    
+    let x = e.clientX + 15;
+    let y = e.clientY + 15;
+    
+    const rect = chartTooltip.getBoundingClientRect();
+    if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 15;
+    if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 15;
+    
+    chartTooltip.style.left = x + 'px';
+    chartTooltip.style.top = y + 'px';
+}
+
+function hideChartTooltip() {
+    chartTooltip.style.display = 'none';
+}
+
 /* -------------------- HEARTBEAT LOGIC ----------------------- */
 let heartbeatInterval = null;
 const HEARTBEAT_API = "/uoc-sports/public/reserve-facilities/heartbeat";
@@ -529,6 +572,11 @@ async function handleFacilityChange() {
         const labelEl = document.getElementById("chartMonthLabel");
         if(labelEl) labelEl.textContent = monthName;
 
+        // Get facility name for tooltip
+        let facName = 'Facility';
+        const facObj = facilityPrices.find(f => f.id == facilityId);
+        if(facObj) facName = facObj.facility_name;
+
         try {
             const chartRes = await fetch(`/uoc-sports/public/reserve-facilities/chart?facility_id=${facilityId}&date=${dateParam}`);
             if (!chartRes.ok) throw new Error(`HTTP error! status: ${chartRes.status}`);
@@ -573,15 +621,21 @@ async function handleFacilityChange() {
                     <div class="date-label">${formatDateShort(dateStr)}</div>`;
 
                 slots.forEach(slotDef => {
-                    const isTaken = dayItem.slots && dayItem.slots[slotDef.id];
+                    const slotData = dayItem.slots && dayItem.slots[slotDef.id];
+                    const isTaken = slotData && slotData.taken;
+                    const bookerName = (isTaken && slotData.user) ? slotData.user : '';
+                    const displayStatus = isTaken ? (bookerName ? `Reserved by ${bookerName}` : 'Reserved') : 'Available';
+                    
+                    const safeFacName = facName.replace(/'/g, "\\'");
+                    const hoverEvents = `onmouseenter="showChartTooltip(event, '${safeFacName}', '${dateStr}', '${slotDef.type}', '${displayStatus}')" onmousemove="showChartTooltip(event, '${safeFacName}', '${dateStr}', '${slotDef.type}', '${displayStatus}')" onmouseleave="hideChartTooltip()"`;
                     
                     if (isTaken) {
-                        html += `<div class="slot taken" title="Reserved"></div>`;
+                        html += `<div class="slot taken" ${hoverEvents}></div>`;
                     } else {
                         html += `
                             <div class="slot available" 
                                  onclick="selectSlot(this, '${slotDef.id}', '${dateStr}')" 
-                                 title="Available: ${slotDef.type}">
+                                 ${hoverEvents}>
                             </div>`;
                     }
                 });

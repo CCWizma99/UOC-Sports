@@ -43,6 +43,29 @@ class MessageApiController {
                 ];
             }
 
+            // Fetch Coach
+$pdo = Database::getConnection();
+
+$stmt = $pdo->prepare("
+    SELECT u.user_id, u.fname, u.lname
+    FROM user u
+    INNER JOIN sport s ON s.coach_id = u.user_id
+    WHERE s.sport_id = :sport_id
+");
+
+$stmt->execute(['sport_id' => $sport['sport_id']]);
+
+$coaches = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($coaches as $coach) {
+    $recipients[] = [
+        'user_id' => $coach['user_id'],
+        'name' => trim($coach['fname'] . ' ' . $coach['lname']) ?: 'Coach',
+        'type' => 'COACH',
+        'label' => 'Coach - ' . (trim($coach['fname'] . ' ' . $coach['lname']) ?: 'Not Assigned')
+    ];
+}
+
             if (empty($recipients)) {
                 echo json_encode([
                     'status' => 'empty', 
