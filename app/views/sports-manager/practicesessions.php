@@ -385,11 +385,11 @@
                             <select class="status-select status-<?= strtolower($session['status']) ?>" 
                                     data-session-id="<?= $session['id'] ?>" 
                                     onchange="updateStatus(this)">
-                                <option value="PENDING" <?= $session['status'] === 'PENDING' ? 'selected' : '' ?>>PENDING</option>
+                                
                                 <option value="ACCEPTED" <?= $session['status'] === 'ACCEPTED' ? 'selected' : '' ?>>ACCEPTED</option>
-                                <option value="CANCELED" <?= $session['status'] === 'CANCELED' ? 'selected' : '' ?>>CANCELED</option>
-                                <option value="ACTIVE" <?= $session['status'] === 'ACTIVE' ? 'selected' : '' ?>>ACTIVE</option>
+                                                            
                                 <option value="COMPLETED" <?= $session['status'] === 'COMPLETED' ? 'selected' : '' ?>>COMPLETED</option>
+                                <option value="CANCELED" <?= $session['status'] === 'CANCELED' ? 'selected' : '' ?>>CANCELED</option>
                             </select>
                         </td>
                         <td>
@@ -413,6 +413,11 @@ function updateStatus(selectElement) {
     const sessionId = selectElement.getAttribute('data-session-id');
     const newStatus = selectElement.value;
     
+    if (!confirm('Are you sure you want to update the practice session status to ' + newStatus + '?')) {
+        location.reload();
+        return;
+    }
+
     // Update the class for styling
     selectElement.className = 'status-select status-' + newStatus.toLowerCase();
     

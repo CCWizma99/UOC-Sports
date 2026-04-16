@@ -185,20 +185,20 @@ class SportPracticeSession {
     }
 
     /**
-     * Check for time conflicts
+     * Check if a practice session already exists for the given sport on a specific date
      */
-    public function checkTimeConflict($location, $date, $startTime, $endTime, $excludeId = null) {
+    public function checkDateConflictForSport($sportName, $date, $excludeId = null) {
+        $sportId = $this->getSportIdByName($sportName);
+        if (!$sportId) {
+            return false;
+        }
+
         $query = "SELECT COUNT(*) FROM practice_sessions 
-                  WHERE location = ? 
+                  WHERE sport_id = ? 
                   AND session_date = ? 
-                  AND (
-                      (start_time <= ? AND end_time > ?) OR
-                      (start_time < ? AND end_time >= ?) OR
-                      (start_time >= ? AND end_time <= ?)
-                  )
-                  AND status != 'CANCELLED'";
+                  AND status NOT IN ('CANCELED', 'CANCELLED')";
         
-        $params = [$location, $date, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime];
+        $params = [$sportId, $date];
         
         if ($excludeId) {
             $query .= " AND id != ?";
@@ -208,6 +208,36 @@ class SportPracticeSession {
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchColumn() > 0;
+    }
+
+    /**
+     * Check for time conflicts
+     */
+    public function checkTimeConflict($location, $date, $startTime, $endTime, $excludeId = null) {
+        $query = "SELECT s.sport_name, ps.start_time, ps.end_time 
+                  FROM practice_sessions ps
+                  LEFT JOIN sport s ON ps.sport_id = s.sport_id
+                  WHERE ps.location = ? 
+                  AND ps.session_date = ? 
+                  AND (
+                      (ps.start_time <= ? AND ps.end_time > ?) OR
+                      (ps.start_time < ? AND ps.end_time >= ?) OR
+                      (ps.start_time >= ? AND ps.end_time <= ?)
+                  )
+                  AND ps.status NOT IN ('CANCELED', 'CANCELLED')";
+        
+        $params = [$location, $date, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime];
+        
+        if ($excludeId) {
+            $query .= " AND ps.id != ?";
+            $params[] = $excludeId;
+        }
+        
+        $query .= " LIMIT 1";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
