@@ -115,9 +115,9 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
         <div class="main-content-wrapper">
         
         <aside class="left-sidebar">
-            <!-- Today's Reservations -->
+            <!-- Today's Pending Requests -->
             <div class="sidebar-section">
-                <h3>Today's Reservations (<?= $todayDate ?? date('Y-m-d') ?>)</h3>
+                <h3>Today's Pending Requests (<?= $todayDate ?? date('Y-m-d') ?>)</h3>
                 
                 <!-- Debug Info -->
                 <?php if (isset($_GET['debug'])): ?>
@@ -169,7 +169,7 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div class="no-reservations">
-                            <p>No reservations for today</p>
+                            <p>No pending requests for today</p>
                         </div>
                     <?php endif; ?>
 

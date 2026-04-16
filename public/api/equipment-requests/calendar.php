@@ -30,7 +30,7 @@ try {
               FROM `equipment-requests` er
               LEFT JOIN user u ON er.student_id = u.user_id
               LEFT JOIN sport s ON er.sport_id = s.sport_id
-              WHERE er.status IN ('ACCEPTED', 'PENDING', 'COMPLETED')
+              WHERE er.status IN ('ACCEPTED', 'PENDING', 'COMPLETED', 'ACTIVE')
                 AND MONTH(er.request_date) = ?
                 AND YEAR(er.request_date) = ?";
     

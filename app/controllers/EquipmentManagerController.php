@@ -34,8 +34,12 @@ class EquipmentManagerController {
         // Debug: Log today's date
         error_log("Fetching reservations for date: " . $today);
         
-        // Fetch today's reservations
-        $todayReservations = $bookingModel->getAllRequests(['date_from' => $today, 'date_to' => $today]);
+        // Fetch only today's pending reservations for the left sidebar
+        $todayReservations = $bookingModel->getAllRequests([
+            'date_from' => $today,
+            'date_to' => $today,
+            'status' => 'PENDING'
+        ]);
         
         // Debug: Log count of reservations
         error_log("Today's reservations count: " . count($todayReservations));
