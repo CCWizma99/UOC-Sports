@@ -62,7 +62,7 @@
          <div class="form-row">
         <div class="form-group">
             <label for="item_name">Item Name <span class="required-star">*</span></label>
-            <input type="text" id="item_name" name="itemName" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['item_name']) : ''; ?>" required>    
+            <input type="text" id="item_name" name="itemName" placeholder="e.g., Water bottle" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['item_name']) : ''; ?>" required>    
         </div>  
 
         <div class="form-group">
@@ -72,17 +72,17 @@
 
         <div class="form-group">
             <label for="found_by">Reported By <span class="required-star">*</span></label>
-            <input type="text" id="found_by" name="foundBy" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['reported_by']) : ''; ?>" required>      
+            <input type="text" id="found_by" name="foundBy" placeholder="Enter reporter name" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['reported_by']) : ''; ?>" required>      
         </div>
         
         <div class="form-group">
             <label for="contact_number">Contact Number <span class="required-star">*</span></label>
-            <input type="text" id="contact_number" name="contactNumber" pattern="[0-9]{10}" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['contact_number']) : ''; ?>" required>
+            <input type="text" id="contact_number" name="contactNumber" pattern="[0-9]{10}" placeholder="e.g., 0771234567" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['contact_number']) : ''; ?>" required>
         </div>
         
         <div class="form-group">
             <label for="location_found">Item Lost Location <span class="required-star"></span></label>
-            <input type="text" id="location_found" name="foundLocation" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['lost_location']) : ''; ?>" >
+            <input type="text" id="location_found" name="foundLocation" placeholder="e.g., Main gym entrance" value="<?php echo $isEdit && $editData ? htmlspecialchars($editData['lost_location']) : ''; ?>" >
         </div>
 
         <div class="form-group">
@@ -107,7 +107,7 @@
         
         <div class="form-group full-width">
             <label for="description">Item Description </label>
-            <textarea id="description" name="description" rows="2" ><?php echo $isEdit && $editData ? htmlspecialchars($editData['description']) : ''; ?></textarea>
+            <textarea id="description" name="description" rows="2" placeholder="Add color, brand, or any identifying details"><?php echo $isEdit && $editData ? htmlspecialchars($editData['description']) : ''; ?></textarea>
         </div>
 
         

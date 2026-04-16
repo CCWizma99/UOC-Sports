@@ -52,7 +52,7 @@
                     <th onclick="sortTable(3)">Usable Count<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(4)">Reserved Qty<span class="sort-indicator"></span></th>
                     <th onclick="sortTable(5)">Available Count<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(6)">Active Bookings & Locations<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(6)">Active/Accepted Bookings & Locations<span class="sort-indicator"></span></th>
                    
                 </tr>
             </thead>
@@ -85,10 +85,10 @@
                         </td>
                         <td>
                             <?php if ($item['reserved_count'] > 0): ?>
-                                <strong style="color: #5b21b6;"><?= $item['reserved_count'] ?> active booking(s)</strong><br>
+                                <strong style="color: #5b21b6;"><?= $item['reserved_count'] ?> Booking(s)</strong><br>
                                 <small style="color: #6b7280; line-height: 1.6;"><?= nl2br(htmlspecialchars(str_replace('; ', "\n", $item['reserved_times'] ?? 'No details'))) ?></small>
                             <?php else: ?>
-                                <span style="color: #6b7280;">No active bookings</span>
+                                <span style="color: #6b7280;">No bookings</span>
                             <?php endif; ?>
                         </td>
                         
