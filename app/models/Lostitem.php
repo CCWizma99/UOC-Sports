@@ -35,7 +35,7 @@ class Lostitem {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $this->conn->prepare($sql);
-        $itemStatus = $data['item_status'] ?? 'unclaimed';
+        $itemStatus = $data['item_status'] ?? 'Not Found';
         $description = $data['description'] ?? '';
         
         $stmt->execute([
@@ -100,7 +100,7 @@ class Lostitem {
                 WHERE lostItem_id = ?";
         
         $stmt = $this->conn->prepare($sql);
-        $itemStatus = $data['item_status'] ?? 'unclaimed';
+        $itemStatus = $data['item_status'] ?? 'Not Found';
         $description = $data['description'] ?? '';
         
         $result = $stmt->execute([
@@ -159,20 +159,42 @@ class Lostitem {
     }
 
     /**
-     * Get unclaimed items from current month
+     * Get not found items from current month
      * @return array
      */
     public function getUnclaimedItemsCurrentMonth() {
-        $sql = "SELECT lostItem_id, item_name, lost_date, `description`, lost_location, 
-                       reported_by, contact_number, `image`, item_status 
-                FROM lost_item
-                WHERE item_status = 'unclaimed'
-                AND YEAR(lost_date) = YEAR(CURDATE())
-                AND MONTH(lost_date) = MONTH(CURDATE())
-                ORDER BY lost_date DESC";
-        
-        $stmt = $this->conn->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            // New schema support (snake_case columns).
+            $sql = "SELECT lostItem_id, item_name, lost_date, `description`, lost_location,
+                           reported_by, contact_number, `image`, item_status
+                    FROM lost_item
+                    WHERE REPLACE(LOWER(TRIM(item_status)), ' ', '') IN ('notfound', 'unclaimed')
+                    AND YEAR(lost_date) = YEAR(CURDATE())
+                    AND MONTH(lost_date) = MONTH(CURDATE())
+                    ORDER BY lost_date DESC";
+
+            $stmt = $this->conn->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Legacy schema fallback (camelCase columns from older SQL files).
+            $legacySql = "SELECT lostItem_id,
+                                 item_name,
+                                 lost_date,
+                                 `description`,
+                                 lost_location,
+                                 reported_by,
+                                 contact_number,
+                                 `image`,
+                                 itemStatus AS item_status
+                          FROM lost_item
+                          WHERE REPLACE(LOWER(TRIM(itemStatus)), ' ', '') IN ('notfound')
+                          AND YEAR(lost_date) = YEAR(CURDATE())
+                          AND MONTH(lost_date) = MONTH(CURDATE())
+                          ORDER BY lost_date DESC";
+
+            $stmt = $this->conn->query($legacySql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
     }
 
     /**
@@ -250,8 +272,8 @@ class Lostitem {
     public function getStatistics() {
         $sql = "SELECT 
                     COUNT(*) as total_items,
-                  SUM(CASE WHEN item_status = 'unclaimed' THEN 1 ELSE 0 END) as unclaimed_items,
-                  SUM(CASE WHEN item_status = 'claimed' THEN 1 ELSE 0 END) as claimed_items,
+                  SUM(CASE WHEN item_status = 'Not Found' THEN 1 ELSE 0 END) as not_found_items,
+                  SUM(CASE WHEN item_status = 'Found' THEN 1 ELSE 0 END) as found_items,
                   COUNT(CASE WHEN MONTH(lost_date) = MONTH(CURDATE()) 
                       AND YEAR(lost_date) = YEAR(CURDATE()) THEN 1 END) as this_month_items
                 FROM lost_item";
@@ -309,7 +331,7 @@ class Lostitem {
      * @param int $limit
      * @return array
      */
-    public function getRecent($limit = 10) {
+    public function getRecent($limit = 1) {
         $sql = "SELECT * FROM lost_item 
             ORDER BY lost_date DESC, lostItem_id DESC 
                 LIMIT :limit";

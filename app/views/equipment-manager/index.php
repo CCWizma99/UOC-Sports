@@ -219,7 +219,7 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
         <!-- Right Sidebar with Unclaimed Items -->
         <aside class="right-sidebar">
             <div class="sidebar-section">
-                <h3>Unclaimed Items (This Month)</h3>
+                <h3>Lost Items (This Month)</h3>
                 <div class="found-items-list" id="foundItems">
                     <?php if (count($lostitem) > 0): ?>
                         <?php foreach ($lostitem as $lst): ?>
@@ -228,33 +228,31 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                                 $itemName = $lst['item_name'] ?? ($lst['itemName'] ?? '');
                                 $lostDate = $lst['lost_date'] ?? ($lst['foundDate'] ?? '');
                             ?>
-                            <?php if ($itemStatus === 'unclaimed'): ?>
-                                <div class="found-item">
-                                    <div class="found-item-header">
-                                        <span class="found-item-name"><?php echo htmlspecialchars($itemName); ?></span>
-                                        <span class="days-ago"><?php echo htmlspecialchars($lostDate); ?></span>
-                                    </div>
-                                    <p >
-                                        <?php echo htmlspecialchars($lst['description']); ?>
-                            </p>
-                                    <?php if (!empty($lst['image'])): ?>
-                                        <img src="/uoc-sports/app/internal/lostitem/<?php echo htmlspecialchars($lst['image']); ?>" 
-                                             alt="Item Image" 
-                                             style="width: 100%; max-width: 150px; border-radius: 6px; margin-top: 0.5rem;">
-                                    <?php else: ?>
-                                        <span>No image</span>
-                                    <?php endif; ?>
+                            <div class="found-item">
+                                <div class="found-item-header">
+                                    <span class="found-item-name"><?php echo htmlspecialchars($itemName); ?></span>
+                                    <span class="days-ago"><?php echo htmlspecialchars($lostDate); ?></span>
                                 </div>
-                            <?php endif; ?>
+                                <p >
+                                    <?php echo htmlspecialchars($lst['description']); ?>
+                                </p>
+                                <?php if (!empty($lst['image'])): ?>
+                                    <img src="/uoc-sports/app/internal/lostitem/<?php echo htmlspecialchars($lst['image']); ?>" 
+                                         alt="Item Image" 
+                                         style="width: 100%; max-width: 150px; border-radius: 6px; margin-top: 0.5rem;">
+                                <?php else: ?>
+                                    <span>No image</span>
+                                <?php endif; ?>
+                            </div>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <p>
-                            No unclaimed items this month
+                            No lost items reported for this month
                         </p>
                     <?php endif; ?>
                 </div>
                 <a href="/uoc-sports/public/equipment-manager/lostitem" class="view-all-link">
-                    View All Found Items
+                    View All Lost Items
                 </a>
             </div>
         </aside>

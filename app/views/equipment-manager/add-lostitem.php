@@ -95,10 +95,10 @@
 
         <div class="form-group">
             <label for="status">Status </label>
-            <?php $currentStatus = ($isEdit && $editData) ? ($editData['item_status'] ?? $editData['itemStatus'] ?? 'unclaimed') : 'unclaimed'; ?>
+            <?php $currentStatus = ($isEdit && $editData) ? ($editData['item_status'] ?? $editData['itemStatus'] ?? 'Not Found') : 'Not Found'; ?>
             <select id="status" name="itemStatus" required>
-                <option value="unclaimed" <?php echo $currentStatus === 'unclaimed' ? 'selected' : ''; ?>>Unclaimed</option>
-                <option value="claimed" <?php echo $currentStatus === 'claimed' ? 'selected' : ''; ?>>Claimed</option>
+                <option value="Not Found" <?php echo $currentStatus === 'Not Found' ? 'selected' : ''; ?>>Not Found</option>
+                <option value="Found" <?php echo $currentStatus === 'Found' ? 'selected' : ''; ?>>Found</option>
                 
             </select>
         </div>
