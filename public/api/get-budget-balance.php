@@ -27,7 +27,7 @@ try {
     
     // Get budget for the sport and year
     $sql = "SELECT 
-                COALESCE(allocated_amount, 100000.00) AS allocated_amount
+                allocated_amount
             FROM budget 
             WHERE sport_id = :sport_id AND year = :year
             ORDER BY allocation_date DESC
@@ -40,7 +40,7 @@ try {
     ]);
     
     $budget = $stmt->fetch(PDO::FETCH_ASSOC);
-    $allocatedAmount = $budget ? floatval($budget['allocated_amount']) : 100000.00;
+    $allocatedAmount = $budget ? floatval($budget['allocated_amount']) : "0.00";
     
     // Always calculate spent amount from sport_expenses table to ensure consistency with expense chart
     $expenseSql = "SELECT 

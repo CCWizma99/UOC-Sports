@@ -168,12 +168,6 @@ class Calendar {
                             <strong>Sport:</strong> ${session.sport_name}
                         </div>
                     ` : ''}
-                    ${session.notes ? `
-                        <div style="color: #6b7280; font-size: 0.7rem; margin-top: 4px; padding-top: 4px; border-top: 1px solid #e5e7eb; font-style: italic;">
-                            <i class="fas fa-info-circle" style="margin-right: 4px;"></i>
-                            ${session.notes}
-                        </div>
-                    ` : ''}
                 </div>
             `;
         });

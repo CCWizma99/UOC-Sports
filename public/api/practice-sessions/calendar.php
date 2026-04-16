@@ -21,11 +21,10 @@ try {
                 ps.start_time,
                 ps.end_time,
                 ps.status,
-                ps.facility,
-                ps.notes
+                ps.facility
               FROM practice_sessions ps
               LEFT JOIN sport s ON ps.sport_id = s.sport_id
-                            WHERE MONTH(ps.session_date) = ?
+              WHERE MONTH(ps.session_date) = ?
                 AND YEAR(ps.session_date) = ?";
     
     $params = [$month, $year];
