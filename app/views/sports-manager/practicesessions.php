@@ -340,7 +340,7 @@
                 <label class="filter-label" for="dateFilter">Select Date:</label>
                 <input type="date" id="dateFilter" class="date-picker-input" />
             </div>
-            <button id="clearFilter" class="view-all-link">Show All</button>
+            <button id="clearFilter" class="view-all-link">Clear Filter</button>
         </div>
   
 

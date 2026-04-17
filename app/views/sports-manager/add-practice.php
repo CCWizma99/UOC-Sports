@@ -145,13 +145,13 @@
                         <label for="location">Location <span class="required-star">*</span></label>
                         <select id="location" name="location" required>
                             <option>Select the Location</option>
-                            <option value="Indoor Court" <?= (isset($session) && $session['location'] === 'Indoor Court') ? 'selected' : '' ?>>Indoor Tennis Court</option>
-                            <option value="Indoor court" <?= (isset($session) && $session['location'] === 'Indoor court') ? 'selected' : '' ?>>Indoor Badminton Court</option>
-                            <option value="Outdoor Court" <?= (isset($session) && $session['location'] === 'Outdoor Court') ? 'selected' : '' ?>>Outdoor Basketball court</option>
-                            <option value="Outdoor Field" <?= (isset($session) && $session['location'] === 'Outdoor Field') ? 'selected' : '' ?>>Outdoor Baseball court</option>
-                            <option value="Outdoor Field" <?= (isset($session) && $session['location'] === 'Outdoor Field') ? 'selected' : '' ?>>Indoor volleyball court</option>
-                            <option value="Outdoor Field" <?= (isset($session) && $session['location'] === 'Outdoor Field') ? 'selected' : '' ?>>Outdoor Cricket Field</option>
-                            <option value="Swimming Pool" <?= (isset($session) && $session['location'] === 'Swimming Pool') ? 'selected' : '' ?>>Elle Field</option>
+                            <option value="Indoor Tennis Court" <?= (isset($session) && $session['location'] === 'Indoor Tennis Court') ? 'selected' : '' ?>>Indoor Tennis Court</option>
+                            <option value="Indoor Badminton Court" <?= (isset($session) && $session['location'] === 'Indoor Badminton Court') ? 'selected' : '' ?>>Indoor Badminton Court</option>
+                            <option value="Outdoor Basketball Court" <?= (isset($session) && $session['location'] === 'Outdoor Basketball Court') ? 'selected' : '' ?>>Outdoor Basketball Court</option>
+                            <option value="Outdoor Baseball Court" <?= (isset($session) && $session['location'] === 'Outdoor Baseball Court') ? 'selected' : '' ?>>Outdoor Baseball Court</option>
+                            <option value="Indoor Volleyball Court" <?= (isset($session) && $session['location'] === 'Indoor Volleyball Court') ? 'selected' : '' ?>>Indoor Volleyball Court</option>
+                            <option value="Outdoor Cricket Field" <?= (isset($session) && $session['location'] === 'Outdoor Cricket Field') ? 'selected' : '' ?>>Outdoor Cricket Field</option>
+                            <option value="Elle Field" <?= (isset($session) && $session['location'] === 'Elle Field') ? 'selected' : '' ?>>Elle Field</option>
                             <option value="Carrom room" <?= (isset($session) && $session['location'] === 'Carrom room') ? 'selected' : '' ?>>Carrom Room</option>
                         </select>
                     </div>
