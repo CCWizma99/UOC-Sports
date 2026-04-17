@@ -68,6 +68,11 @@ class User {
         return $stmt->execute([$user_id, hash('sha256', $token), $expiry]);
     }
     
+    public function updateLastLogin($userId) {
+        $stmt = $this->db->prepare("UPDATE user SET last_login_at = CURRENT_TIMESTAMP WHERE user_id = ?");
+        return $stmt->execute([$userId]);
+    }
+    
     public function addUser($fname, $lname, $email, $type, $phone, $sport, $faculty, $tempPass, $shouldChange = 0) {
         $userId = uniqid('usr_', true);
         $hashed = password_hash($tempPass, PASSWORD_BCRYPT);
@@ -318,7 +323,20 @@ class User {
         
         $sql = "UPDATE user SET " . implode(', ', $fields) . " WHERE user_id = :user_id";
         $stmt = $this->db->prepare($sql);
-        return $stmt->execute($params);
+        $result = $stmt->execute($params);
+        
+        // If type or sport_id was updated, and user is a COACH, sync with sport table
+        if ($result) {
+            $stmt = $this->db->prepare("SELECT type, sport_id FROM user WHERE user_id = ?");
+            $stmt->execute([$userId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($user && $user['type'] === 'COACH' && !empty($user['sport_id'])) {
+                $this->assignCoachToSport($user['sport_id'], $userId);
+            }
+        }
+        
+        return $result;
     }
 
     /**
@@ -374,5 +392,74 @@ class User {
         ");
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Store password reset token (expires in 1 hour)
+     */
+    public function createPasswordReset($email, $token) {
+        $user = $this->findByEmail($email);
+        if (!$user) return false;
+
+        $userId = $user['user_id'];
+        $hashedToken = hash('sha256', $token);
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+        // Delete existing tokens for this user first
+        $this->deletePasswordReset($userId);
+
+        $stmt = $this->db->prepare("INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)");
+        return $stmt->execute([$userId, $hashedToken, $expiresAt]);
+    }
+
+    /**
+     * Validate password reset token
+     */
+    public function validatePasswordReset($token) {
+        $hashedToken = hash('sha256', $token);
+        $now = date('Y-m-d H:i:s');
+
+        $stmt = $this->db->prepare("
+            SELECT user_id 
+            FROM password_reset_tokens 
+            WHERE token = ? AND expires_at > ? 
+            LIMIT 1
+        ");
+        $stmt->execute([$hashedToken, $now]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Update user password and clear token
+     */
+    public function resetPassword($userId, $password) {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        
+        $this->db->beginTransaction();
+        try {
+            // Update password
+            $stmt = $this->db->prepare("UPDATE user SET password = ?, must_change_pass = 0 WHERE user_id = ?");
+            if (!$stmt->execute([$hashedPassword, $userId])) {
+                throw new Exception("Failed to update password");
+            }
+
+            // Clear tokens
+            $this->deletePasswordReset($userId);
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log("Password reset error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Delete tokens for a user
+     */
+    public function deletePasswordReset($userId) {
+        $stmt = $this->db->prepare("DELETE FROM password_reset_tokens WHERE user_id = ?");
+        return $stmt->execute([$userId]);
     }
 }

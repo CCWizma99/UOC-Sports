@@ -101,12 +101,14 @@
 
                     <div class="form-group">
                         <label for="startTime">Start Time *</label>
-                        <input type="time" id="startTime" name="stime" required>
+                        <input type="time" id="startTime" name="stime" step="1800" required>
+                        <small>Use 30-minute intervals (e.g. 08:00, 08:30)</small>
                     </div>
 
                     <div class="form-group">
                         <label for="endTime">End Time *</label>
-                        <input type="time" id="endTime" name="etime" required>
+                        <input type="time" id="endTime" name="etime" step="1800" required>
+                        <small>Use 30-minute intervals</small>
                     </div>
 
                     <div class="form-group">
@@ -118,18 +120,26 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Location *</label>
-                        <select id="location" name="location" required>
-                            <option>Select the Location</option>
-                            <option value="Indoor Court">Indoor Tennis Court</option>
-                            <option value="Indoor court">Indoor Badminton Court</option>
-                            <option value="Outdoor Court">Outdoor Basketball court</option>
-                            <option value="Outdoor Field">Outdoor Baseball court</option>
-                            <option value="Outdoor Field">Indoor volleyball court</option>
-                            <option value="Outdoor Field">Outdoor Cricket Field</option>
-                            <option value="Swimming Pool">Elle Field</option>
-                            <option value="Carrom room">Carrom Room</option>
+                        <label for="location">Physical Facility *</label>
+                        <select id="location" name="physical_facility_id" required onchange="updateLocationName(this)">
+                            <option value="">Select the Facility</option>
+                            <?php if (!empty($facilities)): ?>
+                                <?php foreach ($facilities as $facility): ?>
+                                    <option value="<?= htmlspecialchars($facility['facility_id']) ?>" 
+                                            data-name="<?= htmlspecialchars($facility['facility_name']) ?>">
+                                        <?= htmlspecialchars($facility['facility_name']) ?> (<?= htmlspecialchars($facility['location']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
+                        <input type="hidden" name="location_name" id="location_name">
+                        <script>
+                            function updateLocationName(select) {
+                                const selectedOption = select.options[select.selectedIndex];
+                                const name = selectedOption.getAttribute('data-name');
+                                document.getElementById('location_name').value = name || '';
+                            }
+                        </script>
                     </div>
 
                     <div class="form-group full-width">

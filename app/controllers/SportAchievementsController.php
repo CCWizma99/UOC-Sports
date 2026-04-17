@@ -51,25 +51,27 @@ class SportAchievementsController {
         $stmt->execute($params);
         $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Get all competitions for the sport
-        $competitionsQuery = "SELECT competition_id, competition_name, date 
-                              FROM competition";
-        $competitionParams = [];
-        
+        // Get all tournaments for the sport
+        $tournamentsQuery = "SELECT tournament_id, tournament_name, start_date as date 
+                              FROM tournament";
+        $tournamentParams = [];
         if ($sportId) {
-            $competitionsQuery .= " WHERE sport_id = ?";
-            $competitionParams[] = $sportId;
+            $tournamentsQuery .= " WHERE sport_id = ?";
+            $tournamentParams[] = $sportId;
         }
-        
-        $competitionsQuery .= " ORDER BY date DESC";
-        $stmt = $db->prepare($competitionsQuery);
-        $stmt->execute($competitionParams);
-        $competitions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        view('sports-manager/add-achievement', [
+        $tournamentsQuery .= " ORDER BY start_date DESC";
+        $stmt = $db->prepare($tournamentsQuery);
+        $stmt->execute($tournamentParams);
+        $tournaments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        view('sports-manager/achievements', [
+            'achievements' => $achievements,
             'students' => $students,
-            'competitions' => $competitions,
-            'selectedSport' => $sportId
+            'tournaments' => $tournaments,
+            'sport_id' => $sportId,
+            'student_id' => $_POST['user_id'] ?? null,
+            'tournament_id' => $_POST['tournament_id'] ?? null,
+            'selected_sport' => $sportId
         ]);
     }
     
@@ -78,21 +80,19 @@ class SportAchievementsController {
      */
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /uoc-sports/public/sport-manager/team');
+            header("Location: /uoc-sports/public/sport-manager/achievements");
             exit;
         }
-        
-        $achievementModel = new SportAchievements();
-        
+
+        $achModel = new SportAchievements();
         $data = [
-            'user_id' => $_POST['user_id'] ?? null,
-            'sport_id' => $_POST['sport_id'] ?? null,
-            'competition_id' => $_POST['competition_id'] ?? null,
-            'achievement' => $_POST['achievement'] ?? null
+            'user_id' => $_POST['user_id'],
+            'sport_id' => $_POST['sport_id'],
+            'tournament_id' => $_POST['tournament_id'],
+            'achievement' => $_POST['achievement']
         ];
-        
-        // Validate required fields
-        if (!$data['user_id'] || !$data['sport_id'] || !$data['competition_id'] || !$data['achievement']) {
+
+        if (!$data['user_id'] || !$data['sport_id'] || !$data['tournament_id'] || !$data['achievement']) {
             $_SESSION['error'] = 'All fields are required';
             header('Location: /uoc-sports/public/sport-manager/team/create?sport=' . $data['sport_id']);
             exit;

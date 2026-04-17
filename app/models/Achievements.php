@@ -28,7 +28,7 @@ class Achievements {
         $query = "SELECT a.*, u.fname, u.lname
                   FROM achievement a
                   LEFT JOIN user u ON a.user_id = u.user_id
-                  WHERE a.competition_id = ? AND a.user_id != 'TEAM'
+                  WHERE a.tournament_id = ? AND a.user_id != 'TEAM'
                   ORDER BY a.points DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$competitionId]);
@@ -51,13 +51,13 @@ class Achievements {
                     u.fname,
                     u.lname,
                     u.email,
-                    c.competition_name,
-                    c.date as competition_date
+                    t.tournament_name,
+                    t.start_date as tournament_date
                   FROM achievement a
                   LEFT JOIN user u ON a.user_id = u.user_id
-                  LEFT JOIN competition c ON a.competition_id = c.competition_id
+                  LEFT JOIN tournament t ON a.tournament_id = t.tournament_id
                   WHERE a.sport_id = ?
-                  ORDER BY a.points DESC, c.date DESC";
+                  ORDER BY a.points DESC, t.start_date DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -69,11 +69,11 @@ class Achievements {
      * @return array
      */
     public function getTeamAchievements($sportId) {
-        $query = "SELECT a.*, c.competition_name, c.date as competition_date
+        $query = "SELECT a.*, t.tournament_name, t.start_date as tournament_date
                   FROM achievement a
-                  LEFT JOIN competition c ON a.competition_id = c.competition_id
+                  LEFT JOIN tournament t ON a.tournament_id = t.tournament_id
                   WHERE a.sport_id = ? AND (a.user_id IS NULL OR a.user_id = '')
-                  ORDER BY c.date DESC, a.achievement_id DESC";
+                  ORDER BY t.start_date DESC, a.achievement_id DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -85,12 +85,12 @@ class Achievements {
      * @return array
      */
     public function getIndividualAchievements($sportId) {
-        $query = "SELECT a.*, u.fname, u.lname, c.competition_name, c.date as competition_date
+        $query = "SELECT a.*, u.fname, u.lname, t.tournament_name, t.start_date as tournament_date
                   FROM achievement a
                   LEFT JOIN user u ON a.user_id = u.user_id
-                  LEFT JOIN competition c ON a.competition_id = c.competition_id
+                  LEFT JOIN tournament t ON a.tournament_id = t.tournament_id
                   WHERE a.sport_id = ? AND a.user_id IS NOT NULL AND a.user_id != ''
-                  ORDER BY c.date DESC, a.points DESC, a.achievement_id DESC";
+                  ORDER BY t.start_date DESC, a.points DESC, a.achievement_id DESC";
         $stmt = $this->db->prepare($query);
         $stmt->execute([$sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

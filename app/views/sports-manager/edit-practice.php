@@ -63,14 +63,16 @@
 
                     <div class="form-group">
                         <label for="startTime">Start Time *</label>
-                        <input type="time" id="startTime" name="stime" 
+                        <input type="time" id="startTime" name="stime" step="1800"
                                value="<?= htmlspecialchars($session['start_time']) ?>" required>
+                        <small>Use 30-minute intervals (e.g. 08:00, 08:30)</small>
                     </div>
 
                     <div class="form-group">
                         <label for="endTime">End Time *</label>
-                        <input type="time" id="endTime" name="etime" 
+                        <input type="time" id="endTime" name="etime" step="1800"
                                value="<?= htmlspecialchars($session['end_time']) ?>" required>
+                        <small>Use 30-minute intervals</small>
                     </div>
 
                     <div class="form-group">
@@ -82,18 +84,27 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Location *</label>
-                        <select id="location" name="location" required>
-                            <option value="">Select the Location</option>
-                            <option value="Indoor Court" <?= $session['location'] === 'Indoor Court' ? 'selected' : '' ?>>Indoor Tennis Court</option>
-                            <option value="Indoor court" <?= $session['location'] === 'Indoor court' ? 'selected' : '' ?>>Indoor Badminton Court</option>
-                            <option value="Outdoor Court" <?= $session['location'] === 'Outdoor Court' ? 'selected' : '' ?>>Outdoor Basketball court</option>
-                            <option value="Outdoor Field" <?= $session['location'] === 'Outdoor Field' ? 'selected' : '' ?>>Outdoor Baseball court</option>
-                            <option value="Outdoor Field" <?= $session['location'] === 'Outdoor Field' ? 'selected' : '' ?>>Indoor volleyball court</option>
-                            <option value="Outdoor Field" <?= $session['location'] === 'Outdoor Field' ? 'selected' : '' ?>>Outdoor Cricket Field</option>
-                            <option value="Swimming Pool" <?= $session['location'] === 'Swimming Pool' ? 'selected' : '' ?>>Elle Field</option>
-                            <option value="Carrom room" <?= $session['location'] === 'Carrom room' ? 'selected' : '' ?>>Carrom Room</option>
+                        <label for="location">Physical Facility *</label>
+                        <select id="location" name="physical_facility_id" required onchange="updateLocationName(this)">
+                            <option value="">Select the Facility</option>
+                            <?php if (!empty($facilities)): ?>
+                                <?php foreach ($facilities as $facility): ?>
+                                    <option value="<?= htmlspecialchars($facility['facility_id']) ?>" 
+                                            data-name="<?= htmlspecialchars($facility['facility_name']) ?>"
+                                            <?= $session['physical_facility_id'] === $facility['facility_id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($facility['facility_name']) ?> (<?= htmlspecialchars($facility['location']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
+                        <input type="hidden" name="location_name" id="location_name" value="<?= htmlspecialchars($session['location']) ?>">
+                        <script>
+                            function updateLocationName(select) {
+                                const selectedOption = select.options[select.selectedIndex];
+                                const name = selectedOption.getAttribute('data-name');
+                                document.getElementById('location_name').value = name || '';
+                            }
+                        </script>
                     </div>
 
                     <div class="form-group">

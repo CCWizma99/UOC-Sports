@@ -42,8 +42,13 @@ class SportPracticeSessionController {
     public function create() {
         $model = new SportPracticeSession();
         $sports = $model->getAllSports();
+        $facilities = $model->getPhysicalFacilities();
         $selectedSport = $_GET['sport'] ?? null;
-        view('sports-manager/add-practice', ['sports' => $sports, 'selectedSport' => $selectedSport]);
+        view('sports-manager/add-practice', [
+            'sports' => $sports, 
+            'facilities' => $facilities,
+            'selectedSport' => $selectedSport
+        ]);
     }
 
     /**
@@ -67,8 +72,9 @@ class SportPracticeSessionController {
             // Prepare data
             $data = [
                 'sport_name' => $_POST['sport'] ?? '',
-                'facility' => '',  // Can be empty
-                'location' => $_POST['location'] ?? '',
+                'facility' => '',  // Legacy field
+                'location' => $_POST['location_name'] ?? '', // Human readable location
+                'physical_facility_id' => $_POST['physical_facility_id'] ?? null,
                 'session_date' => $_POST['date'] ?? '',
                 'start_time' => $_POST['stime'] ?? '',
                 'end_time' => $_POST['etime'] ?? '',
@@ -86,16 +92,16 @@ class SportPracticeSessionController {
                 exit();
             }
 
-            // Check for time conflicts
-            $hasConflict = $model->checkTimeConflict(
-                $data['location'],
+            // Check for conflicts
+            $conflictMessage = $model->checkTimeConflict(
+                $data['physical_facility_id'],
                 $data['session_date'],
                 $data['start_time'],
                 $data['end_time']
             );
 
-            if ($hasConflict) {
-                $_SESSION['error_message'] = 'This facility is already booked for the selected date and time';
+            if ($conflictMessage) {
+                $_SESSION['error_message'] = $conflictMessage;
                 header('Location: /uoc-sports/public/sport-manager/add-practice' . $sportParam);
                 exit();
             }
@@ -135,6 +141,7 @@ class SportPracticeSessionController {
         $model = new SportPracticeSession();
         $session = $model->getById($id);
         $sports = $model->getAllSports();
+        $facilities = $model->getPhysicalFacilities();
 
         if (!$session) {
             $_SESSION['error_message'] = 'Practice session not found';
@@ -143,7 +150,12 @@ class SportPracticeSessionController {
             exit();
         }
 
-        view('sports-manager/edit-practice', ['session' => $session, 'sports' => $sports, 'selectedSport' => $_GET['sport'] ?? null]);
+        view('sports-manager/edit-practice', [
+            'session' => $session, 
+            'sports' => $sports, 
+            'facilities' => $facilities,
+            'selectedSport' => $_GET['sport'] ?? null
+        ]);
     }
 
     /**
@@ -175,7 +187,8 @@ class SportPracticeSessionController {
             $data = [
                 'sport_name' => $_POST['sport'] ?? '',
                 'facility' => '',
-                'location' => $_POST['location'] ?? '',
+                'location' => $_POST['location_name'] ?? '',
+                'physical_facility_id' => $_POST['physical_facility_id'] ?? null,
                 'session_date' => $_POST['date'] ?? '',
                 'start_time' => $_POST['stime'] ?? '',
                 'end_time' => $_POST['etime'] ?? '',
@@ -183,6 +196,21 @@ class SportPracticeSessionController {
                 'need_equipment' => $_POST['need_equipment'] ?? 'No',
                 'status' => $_POST['status'] ?? 'ACTIVE'
             ];
+
+            // Check for conflicts
+            $conflictMessage = $model->checkTimeConflict(
+                $data['physical_facility_id'],
+                $data['session_date'],
+                $data['start_time'],
+                $data['end_time'],
+                $id
+            );
+
+            if ($conflictMessage) {
+                $_SESSION['error_message'] = $conflictMessage;
+                header('Location: /uoc-sports/public/sport-manager/practicesessions' . $sportParam);
+                exit();
+            }
 
             $result = $model->update($id, $data);
 

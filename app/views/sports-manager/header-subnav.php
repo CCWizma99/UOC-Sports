@@ -32,7 +32,7 @@ if ($userId) {
   <ul>
     <li><a id="sub-expenses" href="/uoc-sports/public/sport-manager/expenses<?= $selectedSportId ? '?sport=' . urlencode($selectedSportId) : '' ?>"<?php echo strpos($currentPage, '/sport-manager/expenses') !== false ? ' class="active"' : ''; ?>>Expenses</a></li>
     <li><a id="sub-schedules" href="/uoc-sports/public/sport-manager/practicesessions<?= $selectedSportId ? '?sport=' . urlencode($selectedSportId) : '' ?>"<?php echo strpos($currentPage, '/sport-manager/practicesessions') !== false ? ' class="active"' : ''; ?>>Practice Sessions</a></li>
-    <li><a id="sub-competitions" href="/uoc-sports/public/sport-manager/competitions<?= $selectedSportId ? '?sport=' . urlencode($selectedSportId) : '' ?>"<?php echo strpos($currentPage, '/sport-manager/competitions') !== false ? ' class="active"' : ''; ?>>Competitions</a></li>
+    <li><a id="sub-tournaments" href="/uoc-sports/public/sport-manager/tournaments<?= $selectedSportId ? '?sport=' . urlencode($selectedSportId) : '' ?>"<?php echo strpos($currentPage, '/sport-manager/tournaments') !== false ? ' class="active"' : ''; ?>>Sport Events</a></li>
     <li><a id="sub-team" href="/uoc-sports/public/sport-manager/team<?= $selectedSportId ? '?sport=' . urlencode($selectedSportId) : '' ?>"<?php echo strpos($currentPage, '/sport-manager/team') !== false ? ' class="active"' : ''; ?>>Student Achievements</a></li>
     <li><a id="sub-messages" href="/uoc-sports/public/sport-manager/messages<?= $selectedSportId ? '?sport=' . urlencode($selectedSportId) : '' ?>"<?php echo strpos($currentPage, '/sport-manager/messages') !== false ? ' class="active"' : ''; ?>>Messages</a></li>
   </ul>

@@ -24,6 +24,15 @@ class TournamentController extends BaseController {
                 ]);
                 return;
             }
+
+            // Ensure start date is not in the past
+            if (strtotime($startDate) < strtotime(date('Y-m-d'))) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Start date cannot be in the past.'
+                ]);
+                return;
+            }
             
             // Validate dates
             if (!empty($endDate) && strtotime($endDate) < strtotime($startDate)) {

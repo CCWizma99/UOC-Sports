@@ -106,26 +106,20 @@ for($i=1; $i<=30; $i++) {
 }
 $output .= "\n";
 
-// 7. COMPETITIONS AND ACHIEVEMENTS
-$output .= "-- === COMPETITIONS & ACHIEVEMENTS ===\n";
-$output .= "INSERT IGNORE INTO `competition` (`competition_id`, `competition_name`, `sport_id`, `date`) VALUES \n";
-for($i=1; $i<=10; $i++) {
-    $compId = 9000 + $i;
-    $date = date('Y-m-d', strtotime("-" . rand(10, 100) . " days"));
-    $sp = $sports[array_rand($sports)];
-    $comma = $i < 10 ? ',' : ';';
-    $output .= "({$compId}, 'Mock Comp {$i}', '{$sp}', '{$date}'){$comma}\n";
-}
-$output .= "\n";
+// 7. ACHIEVEMENTS
+$output .= "-- === ACHIEVEMENTS ===\n";
+// Link achievements to tournaments created in section 2
+$tournamentIds = $tournaments;
 
-for($i=1; $i<=10; $i++) {
-    $compId = 9000 + $i;    
-    for($a=1; $a<=5; $a++) {
+
+for($i=0; $i<count($tournamentIds); $i++) {
+    $tId = $tournamentIds[$i];    
+    for($a=1; $a<=3; $a++) {
         $sp = $sports[array_rand($sports)];
         $uid = $users[array_rand($users)];
         $pts = rand(1, 10);
-        $output .= "INSERT IGNORE INTO `achievement` (`user_id`, `sport_id`, `competition_id`, `achievement`, `points`) VALUES ";
-        $output .= "('{$uid}', '{$sp}', '{$compId}', 'Won Mock Medal', {$pts});\n";
+        $output .= "INSERT IGNORE INTO `achievement` (`user_id`, `sport_id`, `tournament_id`, `achievement`, `points`) VALUES ";
+        $output .= "('{$uid}', '{$sp}', '{$tId}', 'Achievement in Tournament', {$pts});\n";
     }
 }
 $output .= "\n";

@@ -8,50 +8,141 @@ class Facility {
 
     /* ---------- CREATE BOOKING ---------- */
     public function createBooking($data) {
-        // Generate booking ID
-        $booking_id = "BK" . rand(100000, 999999);
+        try {
+            $this->db->beginTransaction();
 
-        $sql = "INSERT INTO `facility-booking`
-                (booking_id, user_id, facility_id, date, slot, purpose, status, payment_status)
-                VALUES (:booking_id, :user_id, :facility_id, :date, :slot, :purpose, 'BOOKED', 'INCOMPLETE')";
+            // Lock the PHYSICAL facility to prevent concurrent threads from racing 
+            // for the same physical location.
+            $lockSql = "SELECT facility_id FROM physical_facility 
+                        WHERE facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id) 
+                        FOR UPDATE";
+            $stmtLock = $this->db->prepare($lockSql);
+            $stmtLock->execute([':rate_id' => $data['facility_id']]);
+            $physical_id_row = $stmtLock->fetch();
 
-        $stmt = $this->db->prepare($sql);
+            if (!$physical_id_row) {
+                $this->db->rollBack();
+                return false;
+            }
 
-        $result = $stmt->execute([
-            ':booking_id' => $booking_id,
-            ':user_id' => $data['user_id'],
-            ':facility_id' => $data['facility_id'],
-            ':date' => $data['date'],
-            ':slot' => $data['slot'],
-            ':purpose' => $data['purpose']
-        ]);
+            // Perform ATOMIC check inside the lock
+            if ($this->isSlotTaken($data['facility_id'], $data['date'], $data['slot'])) {
+                $this->db->rollBack();
+                return 'TAKEN';
+            }
 
-        return $result ? $booking_id : false;
+            // Generate booking ID
+            $booking_id = "BK" . rand(100000, 999999);
+
+            $sql = "INSERT INTO `facility-booking`
+                    (booking_id, user_id, facility_id, date, slot, purpose, status, payment_status, created_at)
+                    VALUES (:booking_id, :user_id, :facility_id, :date, :slot, :purpose, 'BOOKED', 'INCOMPLETE', CURRENT_TIMESTAMP)";
+
+            $stmt = $this->db->prepare($sql);
+
+            $result = $stmt->execute([
+                ':booking_id' => $booking_id,
+                ':user_id' => $data['user_id'],
+                ':facility_id' => $data['facility_id'],
+                ':date' => $data['date'],
+                ':slot' => $data['slot'],
+                ':purpose' => $data['purpose']
+            ]);
+
+            if ($result) {
+                $this->db->commit();
+                return $booking_id;
+            } else {
+                $this->db->rollBack();
+                return false;
+            }
+
+        } catch (Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            error_log("Booking transaction failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /* ---------- LAZY CLEANUP ---------- */
+    private function cleanupBookings() {
+        try {
+            // 1. Cleanup 30-minute expired bookings
+            $sql30 = "UPDATE `facility-booking` 
+                      SET status = 'CANCELLED' 
+                      WHERE status = 'BOOKED' 
+                      AND payment_status = 'INCOMPLETE' 
+                      AND created_at < (CURRENT_TIMESTAMP - INTERVAL 30 MINUTE)";
+            $this->db->query($sql30);
+
+            // 2. Cleanup 3-day expired flagged bookings
+            $sql3d = "UPDATE `facility-booking` 
+                      SET status = 'CANCELLED' 
+                      WHERE flag_status = 'FLAGGED' 
+                      AND flag_date < (CURRENT_TIMESTAMP - INTERVAL 3 DAY)";
+            $this->db->query($sql3d);
+
+        } catch (PDOException $e) {
+            error_log("Lazy cleanup error: " . $e->getMessage());
+        }
     }
 
     /* ---------- CHECK SLOT ALREADY BOOKED ---------- */
     public function isSlotTaken($rate_id, $date, $slot) {
-        $sql = "SELECT fb.booking_id 
-                FROM `facility-booking` fb
-                INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
-                WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
-                AND fb.date = :date
-                AND (fb.slot = :slot OR fb.slot = 'FULL' OR :slot2 = 'FULL')
-                AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
+        $this->cleanupBookings();
 
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([
+        // 1. Check existing bookings in facility-booking
+        $sql1 = "SELECT fb.booking_id 
+                 FROM `facility-booking` fb
+                 INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
+                 WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                 AND fb.date = :date
+                 AND (fb.slot = :slot OR fb.slot = 'FULL' OR :slot2 = 'FULL')
+                 AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
+
+        $stmt1 = $this->db->prepare($sql1);
+        $stmt1->execute([
             ':rate_id' => $rate_id,
             ':date' => $date,
             ':slot' => $slot,
             ':slot2' => $slot
         ]);
 
-        return $stmt->fetch() !== false;
+        if ($stmt1->fetch() !== false) return true;
+
+        // 2. Check practice sessions
+        // Map slots to times
+        $slotTimes = [
+            'MORNING' => ['08:00:00', '12:00:00'],
+            'AFTERNOON' => ['13:00:00', '17:00:00'],
+            'FULL' => ['08:00:00', '17:00:00']
+        ];
+        
+        $startTime = $slotTimes[$slot][0];
+        $endTime = $slotTimes[$slot][1];
+
+        $sql2 = "SELECT id FROM practice_sessions 
+                 WHERE physical_facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                 AND session_date = :date
+                 AND status IN ('ACTIVE', 'ACCEPTED', 'PENDING')
+                 AND (start_time < :end_time AND end_time > :start_time)";
+        
+        $stmt2 = $this->db->prepare($sql2);
+        $stmt2->execute([
+            ':rate_id' => $rate_id,
+            ':date' => $date,
+            ':start_time' => $startTime,
+            ':end_time' => $endTime
+        ]);
+
+        return $stmt2->fetch() !== false;
     }
 
     /* ---------- VIEW MY RESERVATIONS ---------- */
     public function getMyReservations($user_id) {
+        $this->cleanupBookings();
         $sql = "SELECT 
                     fb.booking_id,
                     f.facility_name,
@@ -61,6 +152,9 @@ class Facility {
                     fb.status,
                     fb.payment_status,
                     fb.payment_slip,
+                    fb.created_at,
+                    fb.flag_status,
+                    fb.flag_reason,
                     f.practice_working_hours,
                     f.practice_other_hours,
                     f.tournament_full_day_working,
@@ -119,6 +213,8 @@ class Facility {
 
     /* ---------- GET RESERVED SLOTS ---------- */
     public function getReservedSlots($facility_id, $date) {
+        $this->cleanupBookings();
+        
         // Check if date is a working day (Mon-Fri)
         $dayOfWeek = date('N', strtotime($date)); // 1=Mon, 7=Sun
         $isWorkingDay = ($dayOfWeek >= 1 && $dayOfWeek <= 5);
@@ -144,9 +240,30 @@ class Facility {
         $stmt2 = $this->db->prepare($sql2);
         $stmt2->execute([':rate_id' => $facility_id, ':date' => $date]);
         $bookings = $stmt2->fetchAll(PDO::FETCH_COLUMN);
+
+        // Get practice sessions for the same PHYSICAL location
+        $sql3 = "SELECT start_time, end_time 
+                 FROM practice_sessions
+                 WHERE physical_facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                 AND session_date = :date
+                 AND status IN ('ACTIVE', 'ACCEPTED', 'PENDING')";
+        $stmt3 = $this->db->prepare($sql3);
+        $stmt3->execute([':rate_id' => $facility_id, ':date' => $date]);
+        $practices = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
+        // Function to check if a slot is blocked by any practice
+        $isBlockedByPractice = function($slotStartTime, $slotEndTime) use ($practices) {
+            foreach ($practices as $p) {
+                if ($slotStartTime < $p['end_time'] && $p['start_time'] < $slotEndTime) {
+                    return true;
+                }
+            }
+            return false;
+        };
     
         // Prepare slots with availability and prices
         $slots = [];
+        $hasFullBooking = in_array('FULL', $bookings);
     
         // MORNING slot
         if (!is_null($facility['practice_working_hours'])) {
@@ -154,7 +271,8 @@ class Facility {
                 'id' => 'MORNING',
                 'type' => 'Morning (8:00 AM - 12:00 PM)',
                 'price' => $isWorkingDay ? $facility['practice_working_hours'] : $facility['practice_other_hours'],
-                'taken' => in_array('MORNING', $bookings)
+                'taken' => $hasFullBooking || in_array('MORNING', $bookings) || $isBlockedByPractice('08:00:00', '12:00:00'),
+                'is_practice' => $isBlockedByPractice('08:00:00', '12:00:00')
             ];
         }
     
@@ -164,7 +282,8 @@ class Facility {
                 'id' => 'AFTERNOON',
                 'type' => 'Afternoon (1:00 PM - 5:00 PM)',
                 'price' => $isWorkingDay ? $facility['practice_working_hours'] : $facility['practice_other_hours'],
-                'taken' => in_array('AFTERNOON', $bookings)
+                'taken' => $hasFullBooking || in_array('AFTERNOON', $bookings) || $isBlockedByPractice('13:00:00', '17:00:00'),
+                'is_practice' => $isBlockedByPractice('13:00:00', '17:00:00')
             ];
         }
     
@@ -174,7 +293,8 @@ class Facility {
                 'id' => 'FULL',
                 'type' => 'Full Day (8:00 AM - 5:00 PM)',
                 'price' => $isWorkingDay ? $facility['tournament_full_day_working'] : $facility['tournament_full_day_other'],
-                'taken' => in_array('FULL', $bookings)
+                'taken' => $hasFullBooking || in_array('MORNING', $bookings) || in_array('AFTERNOON', $bookings) || $isBlockedByPractice('08:00:00', '17:00:00'),
+                'is_practice' => $isBlockedByPractice('08:00:00', '17:00:00')
             ];
         }
     
@@ -194,38 +314,41 @@ class Facility {
         while ($current <= $end) {
             $date = date('Y-m-d', $current);
             
-            // Get bookings for this PHYSICAL location
-            $sql = "SELECT fb.slot, CONCAT(u.fname, ' ', u.lname) as user_name 
-                    FROM `facility-booking` fb
-                    INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
-                    LEFT JOIN user u ON fb.user_id = u.user_id
-                    WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
-                    AND fb.date = :date 
-                    AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
+            // Get practice sessions for this PHYSICAL location
+            $sqlPractices = "SELECT start_time, end_time, s.sport_name
+                            FROM practice_sessions ps
+                            JOIN sport s ON ps.sport_id = s.sport_id
+                            WHERE ps.physical_facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                            AND ps.session_date = :date 
+                            AND ps.status IN ('ACTIVE', 'ACCEPTED', 'PENDING')";
+            $stmtP = $this->db->prepare($sqlPractices);
+            $stmtP->execute([':rate_id' => $facility_id, ':date' => $date]);
+            $practices = $stmtP->fetchAll(PDO::FETCH_ASSOC);
             
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([
-                ':rate_id' => $facility_id,
-                ':date' => $date
-            ]);
-            
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Map rows to slot types
-            $bookedNames = [];
-            foreach ($rows as $row) {
-                $bookedNames[$row['slot']] = $row['user_name'];
-            }
-            
-            // Build slots status - Handle FULL day logic
+            // Build slots status - Include practice info
             $morningBooker = $bookedNames['MORNING'] ?? $bookedNames['FULL'] ?? null;
             $afternoonBooker = $bookedNames['AFTERNOON'] ?? $bookedNames['FULL'] ?? null;
             $fullBooker = $bookedNames['FULL'] ?? ($bookedNames['MORNING'] ?? $bookedNames['AFTERNOON'] ?? null);
+
+            // Check if slots are blocked by practices
+            $isMornBlocked = $morningBooker !== null;
+            $isAftBlocked = $afternoonBooker !== null;
+            
+            foreach ($practices as $p) {
+                if ('08:00:00' < $p['end_time'] && $p['start_time'] < '12:00:00') {
+                    $isMornBlocked = true;
+                    if (!$morningBooker) $morningBooker = "Team Practice (" . $p['sport_name'] . ")";
+                }
+                if ('13:00:00' < $p['end_time'] && $p['start_time'] < '17:00:00') {
+                    $isAftBlocked = true;
+                    if (!$afternoonBooker) $afternoonBooker = "Team Practice (" . $p['sport_name'] . ")";
+                }
+            }
             
             $slots = [
-                'MORNING' => $morningBooker ? ['taken' => true, 'user' => $morningBooker] : ['taken' => false],
-                'AFTERNOON' => $afternoonBooker ? ['taken' => true, 'user' => $afternoonBooker] : ['taken' => false],
-                'FULL' => $fullBooker ? ['taken' => true, 'user' => $fullBooker] : ['taken' => false]
+                'MORNING' => $isMornBlocked ? ['taken' => true, 'user' => $morningBooker] : ['taken' => false],
+                'AFTERNOON' => $isAftBlocked ? ['taken' => true, 'user' => $afternoonBooker] : ['taken' => false],
+                'FULL' => ($isMornBlocked || $isAftBlocked) ? ['taken' => true, 'user' => ($morningBooker ?: $afternoonBooker)] : ['taken' => false]
             ];
             
             $chartData[] = [
@@ -242,6 +365,8 @@ class Facility {
 
     /* ---------- GET RESERVATION DETAILS ---------- */
     public function getReservationDetails($booking_id) {
+        $this->cleanupBookings();
+
         $sql = "SELECT 
                     fb.booking_id,
                     fb.user_id,
@@ -253,6 +378,10 @@ class Facility {
                     fb.payment_status,
                     fb.payment_slip,
                     fb.rejection_reason,
+                    fb.flag_status,
+                    fb.flag_date,
+                    fb.flag_reason,
+                    fb.created_at,
                     CONCAT(u.fname, ' ', u.lname) AS user_name,
                     u.email AS user_email,
                     u.contact_no,
@@ -618,22 +747,40 @@ public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = n
                 FROM `facility-booking` fb
                 INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
                 WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
-                AND (fb.status = 'BOOKED' OR fb.status = 'RESERVED')";
+                AND (fb.status = 'BOOKED' OR fb.status = 'RESERVED' OR fb.status = 'ACCEPTED')";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':rate_id' => $facilityId]);
 
         $booked = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $date = $row['date'];
-        if (!isset($booked[$date])) {
-            $booked[$date] = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $date = $row['date'];
+            if (!isset($booked[$date])) $booked[$date] = [];
+            $booked[$date][] = $row['slot'];
         }
-        $booked[$date][] = $row['slot'];
-    }
 
-    return $booked;
-}
+        // Get practice sessions
+        $sqlP = "SELECT session_date, start_time, end_time
+                 FROM practice_sessions
+                 WHERE physical_facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
+                 AND status IN ('ACTIVE', 'ACCEPTED', 'PENDING')";
+        $stmtP = $this->db->prepare($sqlP);
+        $stmtP->execute([':rate_id' => $facilityId]);
+
+        while ($row = $stmtP->fetch(PDO::FETCH_ASSOC)) {
+            $date = $row['session_date'];
+            if (!isset($booked[$date])) $booked[$date] = [];
+            
+            // Map practice time to slots
+            if ('08:00:00' < $row['end_time'] && $row['start_time'] < '12:00:00') $booked[$date][] = 'MORNING';
+            if ('13:00:00' < $row['end_time'] && $row['start_time'] < '17:00:00') $booked[$date][] = 'AFTERNOON';
+            if ('08:00:00' < $row['end_time'] && $row['start_time'] < '17:00:00') $booked[$date][] = 'FULL';
+            
+            $booked[$date] = array_unique($booked[$date]);
+        }
+
+        return $booked;
+    }
 
     /* ---------- GET FACILITY RESERVATION ANALYTICS ---------- */
     public function getAnalytics() {
@@ -771,8 +918,8 @@ public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = n
         return $analytics;
     }
 
-    /* ---------- SEARCH RESERVATIONS ---------- */
     public function searchReservations($query = '', $filters = []) {
+        $this->cleanupBookings();
         $sql = "
             SELECT r.booking_id,
                    CONCAT(u.fname, ' ', u.lname) AS user_name,
@@ -781,7 +928,10 @@ public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = n
                    p.facility_name AS physical_location,
                    u.type AS user_type,
                    r.payment_status,
-                   r.status
+                   r.status,
+                   r.created_at,
+                   r.flag_status,
+                   r.flag_reason
             FROM `facility-booking` r
             INNER JOIN user u ON r.user_id = u.user_id
             INNER JOIN facility_rates fr ON r.facility_id = fr.id
@@ -831,7 +981,10 @@ public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = n
         try {
             $sql = "UPDATE `facility-booking`
                     SET payment_slip = :filename,
-                        payment_status = 'PENDING'
+                        payment_status = 'PENDING',
+                        flag_status = 'NONE',
+                        flag_date = NULL,
+                        flag_reason = NULL
                     WHERE booking_id = :booking_id";
 
             $stmt = $this->db->prepare($sql);
@@ -844,5 +997,43 @@ public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = n
             return false;
         }
     }
+
+    /* ---------- FLAG BOOKING ---------- */
+    public function flagBooking($booking_id, $reason) {
+        try {
+            $sql = "UPDATE `facility-booking`
+                    SET flag_status = 'FLAGGED',
+                        flag_date = CURRENT_TIMESTAMP,
+                        flag_reason = :reason
+                    WHERE booking_id = :booking_id";
+
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                ':booking_id' => $booking_id,
+                ':reason' => $reason
+            ]);
+        } catch (PDOException $e) {
+            error_log("Flag booking error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /* ---------- GET FACILITY BY ID ---------- */
+    public function getFacilityById($id) {
+        $stmt = $this->db->prepare("SELECT facility_name as name, facility_type as type FROM facility_rates WHERE id = :id");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /* ---------- GET SLOT DETAILS ---------- */
+    public function getSlotDetails($slot) {
+        $slots = [
+            'MORNING' => ['start_time' => '08:00 AM', 'end_time' => '12:00 PM'],
+            'AFTERNOON' => ['start_time' => '01:00 PM', 'end_time' => '05:00 PM'],
+            'FULL' => ['start_time' => '08:00 AM', 'end_time' => '05:00 PM']
+        ];
+        return $slots[$slot] ?? ['start_time' => $slot, 'end_time' => $slot];
+    }
 }
+
 

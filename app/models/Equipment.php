@@ -74,11 +74,12 @@ class Equipment {
                     COALESCE(SUM(ei.usable), 0) AS quantity
                 FROM equipment e
                 INNER JOIN sport s ON e.sport_id = s.sport_id
-                LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
-                WHERE 
+                LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id AND ei.status = 'ACTIVE'
+                WHERE (e.status = 'ACTIVE') AND (
                     e.equipment_name LIKE :q 
                     OR e.equipment_id LIKE :q
                     OR s.sport_name LIKE :q
+                )
                 GROUP BY e.equipment_id, e.equipment_name, e.image_name, s.sport_name
                 ORDER BY e.equipment_name
                 LIMIT 4";
@@ -136,7 +137,7 @@ class Equipment {
                 ) AS available_quantity
             FROM equipment e
             INNER JOIN sport s ON e.sport_id = s.sport_id
-            WHERE e.equipment_name LIKE :query
+            WHERE e.status = 'ACTIVE' AND e.equipment_name LIKE :query
             HAVING available_quantity > 0
             ORDER BY e.equipment_name
             LIMIT 10
@@ -190,7 +191,7 @@ class Equipment {
     public function getEquipments($sport_id){
         $sql = "SELECT equipment_id, equipment_name, image_name
                 FROM equipment
-                WHERE sport_id = :sport_id
+                WHERE sport_id = :sport_id AND status = 'ACTIVE'
                 ORDER BY equipment_name";
         $stmt = $this -> db -> prepare($sql);
         $stmt -> execute([':sport_id' => $sport_id]);
@@ -234,7 +235,7 @@ class Equipment {
 
     // Fetch all equipment
     public function getAll() {
-        $stmt = $this->db->query("SELECT * FROM equipment ORDER BY equipment_id DESC");
+        $stmt = $this->db->query("SELECT * FROM equipment WHERE status = 'ACTIVE' ORDER BY equipment_id DESC");
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Add action buttons (Update/Delete) for each row
@@ -248,16 +249,16 @@ class Equipment {
         return $rows;
     }
 
-    // Delete equipment
+    // Delete equipment (Soft Delete)
     public function delete($id) {
-        $sql = "DELETE FROM equipment WHERE equipment_id = :id";
+        $sql = "UPDATE equipment SET status = 'DELETED' WHERE equipment_id = :id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['id' => $id]);
     }
 
     // Get single equipment (for update form)
     public function getById($id) {
-        $sql = "SELECT * FROM equipment WHERE equipment_id = :id";
+        $sql = "SELECT * FROM equipment WHERE equipment_id = :id AND status = 'ACTIVE'";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -357,7 +358,7 @@ class Equipment {
     
 
     public function cancelReservation($reservationId, $studentId) {
-        $sql = "DELETE FROM `equipment-requests` WHERE request_id = :reservation_id AND student_id = :student_id";
+        $sql = "UPDATE `equipment-requests` SET status = 'CANCELLED' WHERE request_id = :reservation_id AND student_id = :student_id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([
             'reservation_id' => $reservationId,

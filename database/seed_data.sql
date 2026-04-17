@@ -22,38 +22,8 @@ INSERT INTO `faculty` (`faculty_id`, `faculty_name`, `registrar_id`, `registrar_
 ('8', 'Faculty of Indigenous Medicine', NULL, 'registrar.indigenous@uoc.lk');
 
 -- ========================================
--- 2. USER DATA - Coaches, Managers, Captains
+-- 2. USER DATA (Moved and consolidated in Main.sql)
 -- ========================================
-DELETE FROM user WHERE user_id IN ('COACH01', 'COACH02', 'COACH03', 'COACH04', 'COACH05', 'MGR001', 'MGR002', 'MGR003', 'MGR004', 'MGR005', 'CAP001', 'CAP002', 'CAP003', 'CAP004', 'CAP005', 'STU101', 'STU102', 'STU103', 'STU104', 'STU105', 'STU106', 'STU107', 'STU108', 'STU109', 'STU110', 'EXE001', 'EXE002');
-
-INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `must_change_pass`, `contact_no`, `profile_img`, `sport_id`, `student_id`, `faculty_id`, `status`) VALUES
-('COACH01', 'Mahesh', 'Kumarase', 'COACH', 'mahesh.coach@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0771234567', '', 'CRI', NULL, '1', 'ACTIVE'),
-('COACH02', 'Priya', 'Jayawardena', 'COACH', 'priya.coach@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0772345678', '', 'BAD', NULL, '1', 'ACTIVE'),
-('COACH03', 'Sanjeewa', 'Mani', 'COACH', 'sanjeewa.coach@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0773456789', '', 'FOO', NULL, '2', 'ACTIVE'),
-('COACH04', 'Ravi', 'Kumar', 'COACH', 'ravi.coach@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0774567890', '', 'VOL', NULL, '1', 'ACTIVE'),
-('COACH05', 'Amith', 'Rajapakse', 'COACH', 'amith.coach@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0775678901', '', 'TEN', NULL, '2', 'ACTIVE'),
-('MGR001', 'Arjun', 'Simsons', 'SPT', 'arjun.mgr@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0776789012', '', 'CRI', NULL, '1', 'ACTIVE'),
-('MGR002', 'Nadisha', 'Perera', 'SPT', 'nadisha.mgr@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0777890123', '', 'BAD', NULL, '1', 'ACTIVE'),
-('MGR003', 'Eshan', 'Fernando', 'SPT', 'eshan.mgr@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0778901234', '', 'FOO', NULL, '2', 'ACTIVE'),
-('MGR004', 'Laksha', 'Silva', 'SPT', 'laksha.mgr@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0779012345', '', 'VOL', NULL, '1', 'ACTIVE'),
-('MGR005', 'Harsha', 'Wijesinghe', 'SPT', 'harsha.mgr@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0780123456', '', 'TEN', NULL, '2', 'ACTIVE'),
-('CAP001', 'Suresh', 'Abeywardena', 'CAPTAIN', 'suresh.cap@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0781234567', '', 'CRI', '23010001', '1', 'ACTIVE'),
-('CAP002', 'Charuka', 'Weerasekera', 'CAPTAIN', 'charuka.cap@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0782345678', '', 'BAD', '23010002', '1', 'ACTIVE'),
-('CAP003', 'Danula', 'Jayasooriya', 'CAPTAIN', 'danula.cap@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0783456789', '', 'FOO', '23020001', '2', 'ACTIVE'),
-('CAP004', 'Yasira', 'Janith', 'CAPTAIN', 'yasira.cap@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0784567890', '', 'VOL', '23010003', '1', 'ACTIVE'),
-('CAP005', 'Naveen', 'Fernando', 'CAPTAIN', 'naveen.cap@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0785678901', '', 'TEN', '23020002', '2', 'ACTIVE'),
-('STU101', 'Anura', 'Jayakodi', 'STUDENT', 'anura.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0786789012', '', 'CRI', '23010101', '1', 'ACTIVE'),
-('STU102', 'Kavya', 'Bandusena', 'STUDENT', 'kavya.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0787890123', '', 'CRI', '23010102', '1', 'ACTIVE'),
-('STU103', 'Rohan', 'Senanayake', 'STUDENT', 'rohan.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0788901234', '', 'BAD', '23010103', '1', 'ACTIVE'),
-('STU104', 'Dilma', 'Hettige', 'STUDENT', 'dilma.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0789012345', '', 'BAD', '23010104', '1', 'ACTIVE'),
-('STU105', 'Akilan', 'Raj', 'STUDENT', 'akilan.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0780123456', '', 'FOO', '23020101', '2', 'ACTIVE'),
-('STU106', 'Deepika', 'Shankar', 'STUDENT', 'deepika.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0781234567', '', 'FOO', '23020102', '2', 'ACTIVE'),
-('STU107', 'Preet', 'Khurana', 'STUDENT', 'preet.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0782345678', '', 'VOL', '23010105', '1', 'ACTIVE'),
-('STU108', 'Navya', 'Gupta', 'STUDENT', 'navya.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0783456789', '', 'VOL', '23010106', '1', 'ACTIVE'),
-('STU109', 'Arjun', 'Verma', 'STUDENT', 'arjun.v.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0784567890', '', 'TEN', '23020103', '2', 'ACTIVE'),
-('STU110', 'Simran', 'Sharma', 'STUDENT', 'simran.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0785678901', '', 'TEN', '23020104', '2', 'ACTIVE'),
-('EXE001', 'Nuwan', 'Karunaratne', 'EXECUTIVE', 'nuwan.exec@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0786789012', '', '', NULL, '1', 'ACTIVE'),
-('EXE002', 'Priya', 'Senanyake', 'EXECUTIVE', 'priya.exec@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0787890123', '', '', NULL, '2', 'ACTIVE');
 
 -- ========================================
 -- 3. SPORT DATA with faculty assignments

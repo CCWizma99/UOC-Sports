@@ -16,11 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     loadExpenseChart();
     loadBalanceData();
     
-    // Set current month in competition month selector
-    const competitionMonthSelect = document.getElementById('competitionMonth');
-    if (competitionMonthSelect) {
+    // Set current month in tournament month selector
+    const tournamentMonthSelect = document.getElementById('tournamentMonth');
+    if (tournamentMonthSelect) {
         const currentMonth = new Date().getMonth() + 1;
-        competitionMonthSelect.value = currentMonth.toString().padStart(2, '0');
+        tournamentMonthSelect.value = currentMonth.toString().padStart(2, '0');
     }
     
     // Don't load dashboard data immediately - PHP has already rendered it correctly
@@ -36,16 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     
-    // Competition month filter
-    if (competitionMonthSelect) {
-        competitionMonthSelect.addEventListener("change", loadDashboardData);
+    // Tournament month filter
+    if (tournamentMonthSelect) {
+        tournamentMonthSelect.addEventListener("change", loadDashboardData);
     }
 });
 
-// Load dashboard data (sessions and competitions)
+// Load dashboard data (sessions and tournaments)
 function loadDashboardData() {
-    const competitionMonthSelect = document.getElementById("competitionMonth");
-    const month = competitionMonthSelect ? competitionMonthSelect.value : "";
+    const tournamentMonthSelect = document.getElementById("tournamentMonth");
+    const month = tournamentMonthSelect ? tournamentMonthSelect.value : "";
     
     // Get sport ID from URL parameter or window.selectedSportId
     const urlParams = new URLSearchParams(window.location.search);
@@ -56,7 +56,7 @@ function loadDashboardData() {
         .then(data => {
             if (data.success) {
                 updateTodaySessions(data.todaySessions);
-                updateUpcomingCompetitions(data.upcomingCompetitions);
+                updateUpcomingTournaments(data.upcomingTournaments);
             }
         })
         .catch(err => console.error("Error loading dashboard data:", err));
@@ -98,37 +98,37 @@ function updateTodaySessions(sessions) {
     }
 }
 
-// Update Upcoming Competitions section
-function updateUpcomingCompetitions(competitions) {
-    const container = document.getElementById("upcomingCompetitionsContainer");
+// Update Upcoming Tournaments section
+function updateUpcomingTournaments(tournaments) {
+    const container = document.getElementById("upcomingTournamentsContainer");
     if (!container) {
-        console.error("Container upcomingCompetitionsContainer not found");
+        console.error("Container upcomingTournamentsContainer not found");
         return;
     }
 
-    if (competitions.length === 0) {
+    if (!tournaments || tournaments.length === 0) {
         container.innerHTML = `
             <div class="session-item" style="text-align: center; color: #9ca3af; padding: 1rem;">
-                No upcoming competitions scheduled
+                No upcoming tournaments scheduled
             </div>
-            <a href="/uoc-sports/public/sport-manager/competitions" class="view-all-link">View All Competitions</a>
+            <a href="/uoc-sports/public/sport-manager/tournaments" class="view-all-link">View All Tournaments</a>
         `;
     } else {
-        const competitionsHTML = competitions.map(competition => {
-            const dateText = competition.date ? 
-                new Date(competition.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 
+        const tournamentsHTML = tournaments.map(tournament => {
+            const dateText = tournament.date ? 
+                new Date(tournament.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 
                 'Date TBD';
             return `
                 <div class="session-item">
-                    <div class="session-details">${competition.competition_name}</div>
-                    <div class="session-com">${competition.sport_name || 'Unknown Sport'}</div>
+                    <div class="session-details">${tournament.tournament_name}</div>
+                    <div class="session-com">${tournament.sport_name || 'Unknown Sport'}</div>
                     <div class="session-com">${dateText}</div>
                 </div>
             `;
         }).join('');
         
-        container.innerHTML = competitionsHTML + `
-            <a href="/uoc-sports/public/sport-manager/competitions" class="view-all-link">View All Competitions</a>
+        container.innerHTML = tournamentsHTML + `
+            <a href="/uoc-sports/public/sport-manager/tournaments" class="view-all-link">View All Tournaments</a>
         `;
     }
 }

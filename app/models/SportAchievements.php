@@ -3,28 +3,20 @@
 class SportAchievements extends Model {
     
     /**
-     * Get all achievements with user and competition details
+     * Get all achievements with user and tournament details
      */
     public function getAll($filters = []) {
         $query = "SELECT 
                     a.achievement_id,
                     a.user_id,
                     a.sport_id,
-                    a.competition_id,
-                    a.tournament_year,
-                    a.achievement,
-                    a.points,
-                    u.fname,
-                    u.lname,
-                    u.email,
-                    s.sport_name,
-                    c.competition_name,
-                    c.date as competition_date
+                    t.tournament_name,
+                    t.start_date as tournament_date
                   FROM achievement a
                   LEFT JOIN user u ON a.user_id = u.user_id
                   LEFT JOIN sport s ON a.sport_id = s.sport_id
-                  LEFT JOIN competition c ON a.competition_id = c.competition_id
-                  WHERE 1=1";
+                  LEFT JOIN tournament t ON a.tournament_id = t.tournament_id
+                  WHERE a.status = 'ACTIVE'";
         
         $params = [];
         
@@ -38,12 +30,12 @@ class SportAchievements extends Model {
             $params[] = $filters['user_id'];
         }
         
-        if (!empty($filters['competition_id'])) {
-            $query .= " AND a.competition_id = ?";
-            $params[] = $filters['competition_id'];
+        if (!empty($filters['tournament_id'])) {
+            $query .= " AND a.tournament_id = ?";
+            $params[] = $filters['tournament_id'];
         }
         
-        $query .= " ORDER BY a.points DESC, c.date DESC";
+        $query .= " ORDER BY a.points DESC, t.start_date DESC";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);
@@ -61,10 +53,10 @@ class SportAchievements extends Model {
                     u.email,
                     up.user_points,
                     COUNT(DISTINCT a.achievement_id) as total_achievements,
-                    COUNT(DISTINCT a.competition_id) as competitions_participated
+                    COUNT(DISTINCT a.tournament_id) as tournaments_participated
                   FROM user_points up
                   LEFT JOIN user u ON up.user_id = u.user_id
-                  LEFT JOIN achievement a ON up.user_id = a.user_id";
+                  LEFT JOIN achievement a ON up.user_id = a.user_id AND a.status = 'ACTIVE'";
         
         $params = [];
         
@@ -94,15 +86,14 @@ class SportAchievements extends Model {
                     a.achievement,
                     a.points,
                     a.sport_id,
-                    a.tournament_year,
                     s.sport_name,
-                    c.competition_name,
-                    c.date as competition_date
+                    t.tournament_name,
+                    t.start_date as tournament_date
                   FROM achievement a
                   LEFT JOIN sport s ON a.sport_id = s.sport_id
-                  LEFT JOIN competition c ON a.competition_id = c.competition_id
-                  WHERE a.user_id = ?
-                  ORDER BY a.tournament_year DESC, c.date DESC, a.points DESC";
+                  LEFT JOIN tournament t ON a.tournament_id = t.tournament_id
+                  WHERE a.user_id = ? AND a.status = 'ACTIVE'
+                  ORDER BY t.start_date DESC, a.points DESC";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute([$userId]);
@@ -142,7 +133,7 @@ class SportAchievements extends Model {
                   FROM achievement a
                   LEFT JOIN user u ON a.user_id = u.user_id
                   LEFT JOIN sport s ON a.sport_id = s.sport_id
-                  WHERE a.achievement = ?";
+                  WHERE a.achievement = ? AND a.status = 'ACTIVE'";
         
         $params = [$achievementType];
         
@@ -166,12 +157,12 @@ class SportAchievements extends Model {
     public function getStatsBySport($sportId) {
         $query = "SELECT 
                     COUNT(DISTINCT a.user_id) as total_students,
-                    COUNT(DISTINCT a.competition_id) as total_competitions,
+                    COUNT(DISTINCT a.tournament_id) as total_tournaments,
                     COUNT(*) as total_achievements,
                     SUM(a.points) as total_points,
                     AVG(a.points) as avg_points_per_achievement
                   FROM achievement a
-                  WHERE a.sport_id = ?";
+                  WHERE a.sport_id = ? AND a.status = 'ACTIVE'";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute([$sportId]);
@@ -182,7 +173,7 @@ class SportAchievements extends Model {
                     a.achievement,
                     COUNT(*) as count
                   FROM achievement a
-                  WHERE a.sport_id = ?
+                  WHERE a.sport_id = ? AND a.status = 'ACTIVE'
                   GROUP BY a.achievement
                   ORDER BY count DESC";
         
@@ -200,14 +191,14 @@ class SportAchievements extends Model {
      * Create new achievement
      */
     public function create($data) {
-        $query = "INSERT INTO achievement (user_id, sport_id, competition_id, achievement) 
-                  VALUES (?, ?, ?, ?)";
+        $query = "INSERT INTO achievement (user_id, sport_id, tournament_id, achievement, status) 
+                  VALUES (?, ?, ?, ?, 'ACTIVE')";
         
         $stmt = $this->db->prepare($query);
         return $stmt->execute([
             $data['user_id'],
             $data['sport_id'],
-            $data['competition_id'],
+            $data['tournament_id'],
             $data['achievement']
         ]);
     }
@@ -231,7 +222,7 @@ class SportAchievements extends Model {
      * Delete achievement
      */
     public function delete($id) {
-        $query = "DELETE FROM achievement WHERE achievement_id = ?";
+        $query = "UPDATE achievement SET status = 'DELETED' WHERE achievement_id = ?";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([$id]);
     }
@@ -245,12 +236,12 @@ class SportAchievements extends Model {
                     u.fname,
                     u.lname,
                     s.sport_name,
-                    c.competition_name
+                    t.tournament_name
                   FROM achievement a
                   LEFT JOIN user u ON a.user_id = u.user_id
                   LEFT JOIN sport s ON a.sport_id = s.sport_id
-                  LEFT JOIN competition c ON a.competition_id = c.competition_id
-                  WHERE a.achievement_id = ?";
+                  LEFT JOIN tournament t ON a.tournament_id = t.tournament_id
+                  WHERE a.achievement_id = ? AND a.status = 'ACTIVE'";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute([$id]);

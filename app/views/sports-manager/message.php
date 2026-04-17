@@ -57,11 +57,8 @@ const backendConversations = <?= json_encode($conversations ?? []) ?>;
         <label for="recipient">To</label>
         <select name="receiver_id" id="recipient" required>
           <option value="" disabled selected>Select Recipient</option>
-          <option value="all">T S Silva - women's Cricket Captain</option>
-          <option value="all">T S Silva - Men'sCricket Captain</option>
-          <option value="coaches">A A Perera - Women's Vice Captain</option>
-          <option value="coaches">D M Fernando - Men's Vice Captain</option>
-          <option value="coaches">M K Silva - Cricket Coach</option>
+          <option value="all-students">All Students (Enrolled in this Sport)</option>
+          <option value="coaches">Cricket Coach</option>
           <option value="players">Equipment Manager</option>
           <?php if (!empty($recipients)): ?>
             <?php foreach ($recipients as $recipient): ?>
@@ -218,12 +215,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const messageForm = document.getElementById('messageForm');
     if (messageForm) {
         console.log('Message form found');
-        messageForm.addEventListener('submit', function(e) {
-            console.log('Form submitted');
-            console.log('Receiver ID:', document.getElementById('recipient').value);
-            console.log('Title:', document.getElementById('title').value);
-            console.log('Message:', document.getElementById('message').value);
-            // Let form submit naturally - don't prevent default
+        messageForm.addEventListener('submit', async function(e) {
+            const recipient = document.getElementById('recipient').value;
+            const title = document.getElementById('title').value;
+            const message = document.getElementById('message').value;
+
+            if (recipient === 'all-students') {
+                e.preventDefault();
+                
+                if (!confirm('Are you sure you want to send this email to ALL students enrolled in this sport?')) {
+                    return;
+                }
+
+                const submitBtn = messageForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerText;
+                submitBtn.innerText = 'Sending...';
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/uoc-sports/public/api/sport-manager/mass-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            subject: title,
+                            message: message,
+                            sport_id: '<?= $_SESSION["selected_sport_id"] ?? "" ?>'
+                        })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        alert(result.message);
+                        toggleMessageForm();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                } catch (err) {
+                    console.error('Mass email error:', err);
+                    alert('An error occurred while sending mass email.');
+                } finally {
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
         });
     }
 });

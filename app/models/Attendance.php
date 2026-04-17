@@ -31,14 +31,14 @@ class Attendance {
         try {
             $this->db->beginTransaction();
 
-            // First, delete existing attendance for this session (to allow re-marking)
-            $deleteStmt = $this->db->prepare("DELETE FROM attendance WHERE practice_id = :practice_id");
-            $deleteStmt->execute(['practice_id' => $practiceId]);
+            // Mark existing attendance for this session as SUPERSEDED (Soft Delete for audit)
+            $supersedeStmt = $this->db->prepare("UPDATE attendance SET record_status = 'SUPERSEDED' WHERE practice_id = :practice_id AND record_status = 'ACTIVE'");
+            $supersedeStmt->execute(['practice_id' => $practiceId]);
 
             // Insert new attendance records
             $insertStmt = $this->db->prepare("
-                INSERT INTO attendance (attendance_id, practice_id, user_id, status)
-                VALUES (:attendance_id, :practice_id, :user_id, :status)
+                INSERT INTO attendance (attendance_id, practice_id, user_id, status, record_status)
+                VALUES (:attendance_id, :practice_id, :user_id, :status, 'ACTIVE')
             ");
 
             $presentCount = 0;
@@ -98,7 +98,7 @@ SELECT
     'STUDENT' AS participant_type
 FROM attendance a
 INNER JOIN user u ON a.user_id = u.user_id
-WHERE a.practice_id = :practice_id
+WHERE a.practice_id = :practice_id AND a.record_status = 'ACTIVE'
 
 UNION ALL
 
@@ -137,6 +137,7 @@ ORDER BY participant_type DESC, lname, fname
             INNER JOIN practice_sessions ps ON a.practice_id = ps.id
             WHERE a.user_id = :user_id 
             AND ps.sport_id = :sport_id
+            AND a.record_status = 'ACTIVE'
         ");
         
         $stmt->execute([
@@ -166,7 +167,7 @@ ORDER BY participant_type DESC, lname, fname
                 SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) as present_count
             FROM `sports-team` st
             LEFT JOIN practice_sessions ps ON ps.sport_id = st.sport_id
-            LEFT JOIN attendance a ON a.practice_id = ps.id AND a.user_id = st.student_id
+            LEFT JOIN attendance a ON a.practice_id = ps.id AND a.user_id = st.student_id AND a.record_status = 'ACTIVE'
             WHERE st.sport_id = :sport_id
             GROUP BY st.student_id
         ");
@@ -220,7 +221,7 @@ ORDER BY participant_type DESC, lname, fname
         SELECT a.practice_id, a.user_id, a.status, u.fname, u.lname, u.student_id
         FROM attendance a
         LEFT JOIN user u ON a.user_id = u.user_id
-        WHERE a.practice_id IN ($in)
+        WHERE a.practice_id IN ($in) AND a.record_status = 'ACTIVE'
         ORDER BY u.lname, u.fname
     ");
     $attendanceStmt->execute($sessionIds);
@@ -289,7 +290,7 @@ ORDER BY participant_type DESC, lname, fname
         $stmt = $this->db->prepare("
             SELECT COUNT(*) as count 
             FROM attendance 
-            WHERE practice_id = :practice_id
+            WHERE practice_id = :practice_id AND record_status = 'ACTIVE'
         ");
         $stmt->execute(['practice_id' => $practiceId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);

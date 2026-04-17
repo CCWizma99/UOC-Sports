@@ -17,10 +17,10 @@ class CaptainController {
         $sportTeamModel = new SportTeam();
         $scheduleModel = new Schedule();
 
-        require_once __DIR__ . '/../models/SportCompetition.php';
+        require_once __DIR__ . '/../models/TournamentParticipant.php';
         require_once __DIR__ . '/../models/Tournament.php';
 
-        $competitionModel = new SportCompetition();
+        $tournamentPartModel = new TournamentParticipant();
         $tournamentModel = new Tournament();
 
         // User name
@@ -39,24 +39,14 @@ class CaptainController {
         $sessionCount = $scheduleModel->getSessionCountById($sportId);
 
         /* ===== EVENTS ===== */
-        $upcomingCompetitions = $competitionModel->getCompetitionsByMonth($sportId, date('m'), 5);
-
         $today = date('Y-m-d');
         $allTournaments = $tournamentModel->getTournamentsBySportId($sportId);
 
         $upcomingTournaments = array_filter($allTournaments, function($t) use ($today) {
-            return isset($t['end_date']) && $t['end_date'] >= $today;
+            return (isset($t['start_date']) && $t['start_date'] >= $today) || (isset($t['end_date']) && $t['end_date'] >= $today);
         });
 
         $events = [];
-
-        foreach ($upcomingCompetitions as $comp) {
-            $events[] = [
-                'date' => $comp['date'] ?? $comp['created_at'],
-                'time' => isset($comp['date']) ? date('H:i', strtotime($comp['date'])) : '',
-                'name' => $comp['competition_name'] ?? 'Competition',
-            ];
-        }
 
         foreach ($upcomingTournaments as $tour) {
             $events[] = [
@@ -66,8 +56,9 @@ class CaptainController {
             ];
         }
 
+        // Sort by start date
         usort($events, function($a, $b) {
-            return strtotime($a['date']) <=> strtotime($b['date']);
+            return strtotime($a['start_date']) <=> strtotime($b['start_date']);
         });
 
         view('captain/index', [
@@ -243,11 +234,11 @@ class CaptainController {
         $teamDetails = [];
 
         foreach ($teamAchievements as $teamAch) {
-            $cid = $teamAch['competition_id'];
+            $tid = $teamAch['tournament_id'];
 
-            $teamDetails[$cid] = [
-                'players' => $achievementsModel->getPlayersByCompetition($sportId, $cid),
-                'individual_achievements' => $achievementsModel->getIndividualAchievementsByCompetition($cid)
+            $teamDetails[$tid] = [
+                'players' => $achievementsModel->getPlayersByCompetition($sportId, $tid),
+                'individual_achievements' => $achievementsModel->getIndividualAchievementsByCompetition($tid)
             ];
         }
 

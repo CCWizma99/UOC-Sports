@@ -585,6 +585,50 @@ require '../app/views/templates/admin/sidebar.php';
                     <input type="text" id="edit-student-id" value="<?= htmlspecialchars($user_data['student_id'] ?? '') ?>">
                 </div>
                 <?php endif; ?>
+
+                <div class="form-group">
+                    <label for="edit-type">User Type</label>
+                    <select id="edit-type" required>
+                        <option value="STUDENT" <?= $user_data['type'] === 'STUDENT' ? 'selected' : '' ?>>Student</option>
+                        <option value="COACH" <?= $user_data['type'] === 'COACH' ? 'selected' : '' ?>>Coach</option>
+                        <option value="SPT" <?= $user_data['type'] === 'SPT' ? 'selected' : '' ?>>Sport Manager</option>
+                        <option value="EQP" <?= $user_data['type'] === 'EQP' ? 'selected' : '' ?>>Equipment Manager</option>
+                        <option value="REG" <?= $user_data['type'] === 'REG' ? 'selected' : '' ?>>Registrar</option>
+                        <option value="ADMIN" <?= $user_data['type'] === 'ADMIN' ? 'selected' : '' ?>>Admin</option>
+                        <option value="PUBLIC" <?= $user_data['type'] === 'PUBLIC' ? 'selected' : '' ?>>External User</option>
+                    </select>
+                </div>
+
+                <div id="dynamic-edit-fields">
+                    <!-- Initially populated based on PHP, updated via JS -->
+                    <?php if (in_array($user_data['type'], ['COACH', 'SPT'])): ?>
+                    <div class="form-group">
+                        <label for="edit-sport">Assigned Sport</label>
+                        <select id="edit-sport">
+                            <option value="">Select Sport</option>
+                            <?php foreach ($sport_data as $sport): ?>
+                                <option value="<?= $sport['sport_id'] ?>" <?= $user_data['sport_id'] === $sport['sport_id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($sport['sport_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if ($user_data['type'] === 'REG' || $user_data['type'] === 'STUDENT'): ?>
+                    <div class="form-group">
+                        <label for="edit-faculty">Faculty</label>
+                        <select id="edit-faculty">
+                            <option value="">Select Faculty</option>
+                            <?php foreach ($faculty_data as $faculty): ?>
+                                <option value="<?= $faculty['faculty_id'] ?>" <?= $user_data['faculty_id'] === $faculty['faculty_id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($faculty['faculty_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </form>
         </div>
         <div class="modal-footer">
@@ -611,7 +655,8 @@ async function saveUser() {
         fname: document.getElementById('edit-fname').value,
         lname: document.getElementById('edit-lname').value,
         email: document.getElementById('edit-email').value,
-        contact_no: document.getElementById('edit-contact').value
+        contact_no: document.getElementById('edit-contact').value,
+        type: document.getElementById('edit-type').value
     };
 
     const studentIdField = document.getElementById('edit-student-id');
@@ -619,8 +664,18 @@ async function saveUser() {
         data.student_id = studentIdField.value;
     }
 
+    const sportField = document.getElementById('edit-sport');
+    if (sportField) {
+        data.sport_id = sportField.value;
+    }
+
+    const facultyField = document.getElementById('edit-faculty');
+    if (facultyField) {
+        data.faculty_id = facultyField.value;
+    }
+
     try {
-        const response = await fetch('/uoc-sports/public/api/user/update', {
+        const response = await fetch('/uoc-sports/public/admin-api/user/update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -689,6 +744,39 @@ function showToast(message, type) {
     }, 3000);
 }
 
+// Dynamic fields for edit modal
+document.getElementById('edit-type').addEventListener('change', function() {
+    const container = document.getElementById('dynamic-edit-fields');
+    const type = this.value;
+    container.innerHTML = '';
+
+    if (type === 'COACH' || type === 'SPT') {
+        const sports = <?= json_encode($sport_data) ?>;
+        let options = '<option value="">Select Sport</option>';
+        sports.forEach(s => {
+            options += `<option value="${s.sport_id}">${s.sport_name}</option>`;
+        });
+        container.innerHTML = `
+            <div class="form-group">
+                <label for="edit-sport">Assigned Sport</label>
+                <select id="edit-sport">${options}</select>
+            </div>
+        `;
+    } else if (type === 'REG' || type === 'STUDENT') {
+        const faculties = <?= json_encode($faculty_data) ?>;
+        let options = '<option value="">Select Faculty</option>';
+        faculties.forEach(f => {
+            options += `<option value="${f.faculty_id}">${f.faculty_name}</option>`;
+        });
+        container.innerHTML = `
+            <div class="form-group">
+                <label for="edit-faculty">Faculty</label>
+                <select id="edit-faculty">${options}</select>
+            </div>
+        `;
+    }
+});
+
 // Close modal on outside click
 document.getElementById('editModal').addEventListener('click', function(e) {
     if (e.target === this) closeEditModal();
@@ -701,6 +789,12 @@ document.getElementById('editModal').addEventListener('click', function(e) {
 <script>
     var currentPage = document.getElementById("sidebar-users");
     if (currentPage) currentPage.classList.add("active");
+
+    // Auto-open modal if edit=true is in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('edit') === 'true') {
+        openEditModal();
+    }
 </script>
 <script src="/uoc-sports/public/js/sidebar-toggle.js"></script>
 </html>

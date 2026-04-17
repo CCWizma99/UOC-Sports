@@ -40,6 +40,7 @@ class SportTeam {
             INNER JOIN user u ON st.student_id = u.user_id
             WHERE st.sport_id = :sport_id
             AND u.status = 'ACTIVE'
+            AND st.status = 'ACTIVE'
             ORDER BY u.lname, u.fname
         ");
         
@@ -59,6 +60,7 @@ class SportTeam {
             INNER JOIN user u ON st.student_id = u.user_id
             WHERE st.sport_id = :sport_id
             AND u.status = 'ACTIVE'
+            AND st.status = 'ACTIVE'
         ");
         
         $stmt->execute(['sport_id' => $sportId]);
@@ -76,7 +78,7 @@ class SportTeam {
         $stmt = $this->db->prepare("
             SELECT COUNT(*) as count
             FROM `sports-team`
-            WHERE sport_id = :sport_id AND student_id = :user_id
+            WHERE sport_id = :sport_id AND student_id = :user_id AND status = 'ACTIVE'
         ");
         
         $stmt->execute([
@@ -96,15 +98,20 @@ class SportTeam {
      */
     public function addMember($sportId, $userId) {
         try {
-            $stmt = $this->db->prepare("
-                INSERT INTO `sports-team` (sport_id, student_id, joined_date)
-                VALUES (:sport_id, :user_id, CURDATE())
-            ");
+            // Check if record exists
+            $checkSql = "SELECT status FROM `sports-team` WHERE sport_id = :sport_id AND student_id = :user_id";
+            $checkStmt = $this->db->prepare($checkSql);
+            $checkStmt->execute(['sport_id' => $sportId, 'user_id' => $userId]);
             
-            return $stmt->execute([
-                'sport_id' => $sportId,
-                'user_id' => $userId
-            ]);
+            if ($checkStmt->rowCount() > 0) {
+                // Reactivate if exists
+                $updateSql = "UPDATE `sports-team` SET status = 'ACTIVE', joined_date = CURDATE() WHERE sport_id = :sport_id AND student_id = :user_id";
+                return $this->db->prepare($updateSql)->execute(['sport_id' => $sportId, 'user_id' => $userId]);
+            } else {
+                // Insert new
+                $insertSql = "INSERT INTO `sports-team` (sport_id, student_id, joined_date, status) VALUES (:sport_id, :user_id, CURDATE(), 'ACTIVE')";
+                return $this->db->prepare($insertSql)->execute(['sport_id' => $sportId, 'user_id' => $userId]);
+            }
         } catch (Exception $e) {
             return false;
         }
@@ -118,7 +125,8 @@ class SportTeam {
      */
     public function removeMember($sportId, $userId) {
         $stmt = $this->db->prepare("
-            DELETE FROM `sports-team`
+            UPDATE `sports-team`
+            SET status = 'INACTIVE'
             WHERE sport_id = :sport_id AND student_id = :user_id
         ");
         

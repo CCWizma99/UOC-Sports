@@ -23,13 +23,13 @@ $TEST_USERS = [
 ];
 
 $ROLE_PAGES = [
-    'ADMIN' => ['/admin-index', '/admin-users', '/admin-reservations', '/admin-players', '/admin-equipments', '/admin-events', '/admin-results', '/admin-teams', '/admin-budget', '/admin-news', '/admin-inquiry', '/admin-executive-dashboard', '/admin-equipment-analytics', '/admin-equipment-reports', '/admin-event-permissions'],
+    'ADMIN' => ['/admin-index', '/admin-users', '/admin-reservations', '/admin-players', '/admin-equipments', '/admin-events', '/admin-results', '/admin-teams', '/admin-budget', '/admin-news', '/admin-inquiry', '/admin-executive-dashboard', '/admin-equipment-analytics', '/admin-equipment-reports', '/admin-event-permissions', '/admin-reservation-analytics', '/admin-audit-logs'],
     'STUDENT' => ['/student', '/student/sports', '/student/equipment', '/student/facilities', '/student/bookings'],
     'CAPTAIN' => ['/captain', '/captain/mark-attendance', '/captain/add-members', '/captain/schedule-practice', '/captain/communication', '/captain/team-schedules', '/captain/add-result'],
     'COACH' => ['/coach', '/coach/coach-communicate', '/coach/report-injury'],
-    'SPT' => ['/sport-manager', '/sport-manager/schedule', '/sport-manager/expenses', '/sport-manager/messages', '/sport-manager/practicesessions', '/sport-manager/competitions', '/sport-manager/team'],
-    'EQP' => ['/equipment-manager', '/equipment-manager/equipment-reservations', '/equipment-manager/equipments', '/equipment-manager/practiceschedule', '/equipment-manager/lostitem', '/equipment-manager/bookingrequests', '/equipment-manager/manage-equipment'],
-    'REG' => ['/registrar', '/registrar/verify-students', '/registrar/verify-staff', '/registrar/verify-bookings'],
+    'SPT' => ['/sport-manager', '/sport-manager/expenses', '/sport-manager/messages', '/sport-manager/practicesessions', '/sport-manager/tournaments', '/sport-manager/team'],
+    'EQP' => ['/equipment-manager', '/equipment-manager/equipments', '/equipment-manager/lostitem', '/equipment-manager/bookingrequests', '/equipment-manager/manage-equipment'],
+    'REG' => ['/registrar', '/registrar/verify-students', '/registrar/verify-bookings'],
     'EXECUTIVE' => ['/executive-dashboard'],
 ];
 
@@ -49,6 +49,7 @@ $API_ENDPOINTS = [
     ['GET', '/admin-results/get-all', 'ADMIN', 'Admin All Results'],
     ['GET', '/admin-dashboard/analytics', 'ADMIN', 'Admin Dashboard Analytics'],
     ['GET', '/admin-tournament/list', 'ADMIN', 'Admin Tournament List'],
+    ['GET', '/admin-api/audit/logs', 'ADMIN', 'Admin Audit Logs API'],
     ['GET', '/sport-manager/budget/remaining', 'SPT', 'Sport Manager Budget Remaining'],
     ['GET', '/sport-manager/remaining-budget', 'SPT', 'Sport Manager Remaining Budget'],
     ['GET', '/api/registrar/pending-count', 'REG', 'Registrar Pending Count'],
