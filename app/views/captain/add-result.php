@@ -90,6 +90,18 @@
         </div>
     </div>
     <?php else: ?>
+    <!-- Tab Navigation -->
+    <div class="tab-nav" style="display:flex;gap:0;margin-bottom:0;border-bottom:3px solid #e9e4f5;">
+        <button class="tab-btn active" id="tab-match-results" onclick="switchResultTab('match-results')" style="padding:12px 28px;font-size:14px;font-weight:700;border:none;background:none;cursor:pointer;color:#5e2d91;border-bottom:3px solid #5e2d91;margin-bottom:-3px;transition:all 0.2s;">
+            <i class="fas fa-trophy"></i> Match Results
+        </button>
+        <button class="tab-btn" id="tab-overall-awards" onclick="switchResultTab('overall-awards')" style="padding:12px 28px;font-size:14px;font-weight:600;border:none;background:none;cursor:pointer;color:#94a3b8;border-bottom:3px solid transparent;margin-bottom:-3px;transition:all 0.2s;">
+            <i class="fas fa-medal"></i> Overall Awards
+        </button>
+    </div>
+
+    <!-- Match Results Tab Content -->
+    <div id="panel-match-results">
 
     <!-- Two-column layout -->
     <div class="result-grid">
@@ -254,6 +266,48 @@
                         <p class="hint-text"><i class="fas fa-info-circle"></i> Sport-specific fields will appear here</p>
                     </div>
 
+                    <!-- Team Roster Sections -->
+                    <div id="team-roster-section" style="display:none;">
+                        <h3 style="font-size:14px;font-weight:700;color:#5e2d91;margin:18px 0 10px;display:flex;align-items:center;gap:8px;">
+                            <i class="fas fa-users"></i> Match Team Rosters
+                        </h3>
+
+                        <!-- Load Previous Teams Dropdown -->
+                        <div id="previous-teams-container" style="margin-bottom:12px;padding:12px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0;display:none;">
+                            <label style="font-size:12px;font-weight:700;color:#15803d;"><i class="fas fa-history"></i> Load team from previous match:</label>
+                            <select id="previous-team-select" style="width:100%;margin-top:6px;padding:8px 12px;border-radius:8px;border:1px solid #86efac;font-size:13px;" onchange="loadPreviousTeam(this.value)">
+                                <option value="">Select a previous match...</option>
+                            </select>
+                        </div>
+
+                        <!-- Team A Players -->
+                        <div style="padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:10px;">
+                            <h4 style="font-size:13px;font-weight:700;color:#1e40af;margin:0 0 8px;display:flex;align-items:center;gap:6px;">
+                                <span style="background:#3b82f6;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;">A</span>
+                                Team A Players (UOC)
+                            </h4>
+                            <div id="team-a-players-list"></div>
+                            <button type="button" class="btn-small" onclick="addTeamPlayerRow('A')" style="margin-top:6px;">
+                                <i class="fas fa-plus"></i> Add Player
+                            </button>
+                        </div>
+
+                        <!-- Team B Players -->
+                        <div style="padding:14px;background:#fffbeb;border-radius:10px;border:1px solid #fef3c7;margin-bottom:10px;">
+                            <h4 style="font-size:13px;font-weight:700;color:#92400e;margin:0 0 8px;display:flex;align-items:center;gap:6px;">
+                                <span style="background:#f59e0b;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;">B</span>
+                                Team B Players (Opponents)
+                            </h4>
+                            <div id="team-b-players-list"></div>
+                            <button type="button" class="btn-small" onclick="addTeamPlayerRow('B')" style="margin-top:6px;">
+                                <i class="fas fa-plus"></i> Add Player
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Hidden fields for team player JSON -->
+                    <input type="hidden" id="team_a_players_json" name="team_a_players">
+                    <input type="hidden" id="team_b_players_json" name="team_b_players">
+
                     <button type="submit" class="submit-result-btn" id="captain-submit-btn">
                         <i class="fas fa-check-circle"></i> Submit Match Result
                     </button>
@@ -262,7 +316,72 @@
 
             </div>
         </div>
-    </div>
+    </div> <!-- end result-grid -->
+    </div> <!-- end panel-match-results -->
+
+    <!-- Overall Awards Tab Content (hidden by default) -->
+    <div id="panel-overall-awards" style="display:none;">
+        <div class="result-grid">
+            <!-- LEFT: Tournament Selector for Awards -->
+            <div class="result-card">
+                <div class="result-card-header">
+                    <i class="fas fa-list-check"></i>
+                    <h2>Select Tournament</h2>
+                </div>
+                <div class="result-card-body">
+                    <p style="font-size:13px;color:#6b7280;margin:0 0 16px;">Click a tournament to add overall awards for it.</p>
+                    <div class="tournament-list" id="awards-tournament-list">
+                        <?php foreach ($permitted as $t): ?>
+                        <div class="tournament-item"
+                             data-tournament-id="<?= htmlspecialchars($t['tournament_id']) ?>"
+                             data-sport-id="<?= htmlspecialchars($t['sport_id']) ?>"
+                             data-sport-name="<?= htmlspecialchars($t['sport_name']) ?>"
+                             data-sport-category="<?= htmlspecialchars($t['sport_category']) ?>"
+                             data-tournament-name="<?= htmlspecialchars($t['tournament_name']) ?>"
+                             onclick="selectAwardsTournament(this)">
+                            <div class="tournament-name"><?= htmlspecialchars($t['tournament_name']) ?></div>
+                            <div class="tournament-meta">
+                                <span class="meta-tag sport-tag">
+                                    <i class="fas fa-futbol" style="font-size:10px;"></i>
+                                    <?= htmlspecialchars($t['sport_name']) ?>
+                                </span>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Awards Form -->
+            <div class="result-card">
+                <div class="result-card-header">
+                    <i class="fas fa-medal"></i>
+                    <h2 id="awards-form-title">Overall Awards</h2>
+                </div>
+                <div class="result-card-body">
+                    <div id="awards-placeholder" class="result-form-placeholder">
+                        <i class="fas fa-hand-pointer"></i>
+                        <p>Select a tournament from the left to add overall awards</p>
+                    </div>
+
+                    <div id="awards-form-container" style="display:none;">
+                        <p style="font-size:13px;color:#6b7280;margin:0 0 12px;"><i class="fas fa-info-circle" style="color:#a855f7;"></i> Assign sport-specific titles to outstanding players. Points are automatically calculated based on the tournament level.</p>
+                        
+                        <input type="hidden" id="awards-tournament-id">
+                        <input type="hidden" id="awards-sport-id">
+                        <input type="hidden" id="awards-sport-category">
+
+                        <div id="award-rows-container"></div>
+
+                        <button type="button" class="submit-result-btn" id="submit-awards-btn" onclick="submitOverallAwards()">
+                            <i class="fas fa-medal"></i> Submit Awards
+                        </button>
+                        <div id="awards-message"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- end panel-overall-awards -->
 
     <?php endif; ?>
 </div>
@@ -620,6 +739,22 @@ document.getElementById('add-result-form').addEventListener('submit', async func
     e.preventDefault();
 
     collectDynamicScores();
+    
+    // Collect and validate team rosters
+    const teamA = collectTeamPlayers('A');
+    const teamB = collectTeamPlayers('B');
+    
+    // Validate mandatory NIC/RegNo for external players
+    const allPlayers = [...teamA, ...teamB];
+    const missingId = allPlayers.find(p => !p.is_uoc_student && !p.external_id);
+    if (missingId) {
+        alert(`Mandatory field missing: Please provide NIC or Registration No for player "${missingId.player_name}".`);
+        return;
+    }
+
+    // Set hidden fields
+    document.getElementById('team_a_players_json').value = JSON.stringify(teamA);
+    document.getElementById('team_b_players_json').value = JSON.stringify(teamB);
 
     const btn = document.getElementById('captain-submit-btn');
     const msg = document.getElementById('form-message-captain');
@@ -739,16 +874,32 @@ function initTeamAutocomplete() {
                 const res = await fetch(`/uoc-sports/public/api/playing-teams/search?q=${encodeURIComponent(query)}`);
                 const data = await res.json();
                 
-                if (data.status === 'success' && data.data.length > 0) {
-                    list.innerHTML = data.data.map(team => `
+                if (data.status === 'success') {
+                    let html = data.data.map(team => `
                         <div class="autocomplete-item" onclick="selectSuggestion('${id}', '${team.team_name.replace(/'/g, "\\'")}')">
                             ${team.team_name}
                             <span class="meta">Registered Team</span>
                         </div>
                     `).join('');
+                    
+                    // Add "NEW TEAM" option
+                    html += `
+                        <div class="autocomplete-item" style="border-top: 1px dashed #cbd5e1; color: #5e2d91; font-weight: 700;" 
+                             onclick="handleNewTeamOption('${id}')">
+                            <i class="fas fa-plus-circle"></i> NEW TEAM...
+                        </div>
+                    `;
+                    
+                    list.innerHTML = html;
                     list.style.display = 'block';
                 } else {
-                    list.innerHTML = `<div class="autocomplete-item" style="cursor:default; color:#94a3b8;">No matches found <span class="badge-new">NEW</span></div>`;
+                    list.innerHTML = `
+                        <div class="autocomplete-item" style="cursor:default; color:#94a3b8;">No matches found</div>
+                        <div class="autocomplete-item" style="border-top: 1px dashed #cbd5e1; color: #5e2d91; font-weight: 700;" 
+                             onclick="handleNewTeamOption('${id}')">
+                            <i class="fas fa-plus-circle"></i> ADD NEW TEAM...
+                        </div>
+                    `;
                     list.style.display = 'block';
                 }
             } catch (e) { console.error('Autocomplete error:', e); }
@@ -769,12 +920,442 @@ function selectSuggestion(inputId, value) {
     if (['TEAM_GOAL', 'BALL_COURT', 'CRICKET'].includes(currentSportCategory)) {
         updateTeamWinnerOptions();
     }
+    
+    // Trigger roster autoloading
+    const side = inputId === 'team_a_name' ? 'A' : 'B';
+    autoloadTeamRoster(side, value);
+}
+
+function handleNewTeamOption(inputId) {
+    const name = prompt("Enter the name of the new team/university:");
+    if (name && name.trim()) {
+        const input = document.getElementById(inputId);
+        input.value = name.trim();
+        input.parentElement.querySelector('.autocomplete-list').style.display = 'none';
+        
+        if (['TEAM_GOAL', 'BALL_COURT', 'CRICKET'].includes(currentSportCategory)) {
+            updateTeamWinnerOptions();
+        }
+    }
+}
+
+async function autoloadTeamRoster(side, teamName) {
+    const tournamentId = document.getElementById('captain-tournament-id').value;
+    if (!tournamentId || !teamName) return;
+
+    try {
+        const container = document.getElementById(side === 'A' ? 'team-a-players-list' : 'team-b-players-list');
+        const originalContent = container.innerHTML;
+        
+        // Don't overwrite if there's already data unless confirmed
+        if (container.querySelectorAll('.player-row').length > 0) {
+            if (!confirm(`Autoload roster for ${teamName}? This will clear current players on this side.`)) return;
+        }
+
+        container.innerHTML = '<div style="padding:10px; font-size:12px; color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Checking for team card...</div>';
+
+        const res = await fetch(`/uoc-sports/public/captain/get-team-roster?tournament_id=${tournamentId}&team_name=${encodeURIComponent(teamName)}`);
+        const data = await res.json();
+
+        if (data.status === 'success' && data.data.length > 0) {
+            container.innerHTML = '';
+            teamPlayerCounters[side] = 0;
+            data.data.forEach(p => addTeamPlayerRow(side, p));
+            
+            // Show toast/message
+            showFormMessage(document.getElementById('form-message-captain'), 
+                `✓ Autoloaded ${data.data.length} players for ${teamName} (${data.source})`, 'success');
+        } else if (data.status === 'empty') {
+            container.innerHTML = originalContent; // Restore
+            showFormMessage(document.getElementById('form-message-captain'), data.message, 'error');
+        } else {
+            container.innerHTML = originalContent;
+        }
+    } catch (e) {
+        console.error('Autoload error:', e);
+    }
 }
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
     loadStudents();
 });
+
+// ======================================================
+// TAB SWITCHING
+// ======================================================
+function switchResultTab(tab) {
+    const matchPanel = document.getElementById('panel-match-results');
+    const awardsPanel = document.getElementById('panel-overall-awards');
+    const tabMatch = document.getElementById('tab-match-results');
+    const tabAwards = document.getElementById('tab-overall-awards');
+    
+    if (tab === 'match-results') {
+        matchPanel.style.display = 'block';
+        awardsPanel.style.display = 'none';
+        tabMatch.style.color = '#5e2d91';
+        tabMatch.style.fontWeight = '700';
+        tabMatch.style.borderBottomColor = '#5e2d91';
+        tabAwards.style.color = '#94a3b8';
+        tabAwards.style.fontWeight = '600';
+        tabAwards.style.borderBottomColor = 'transparent';
+    } else {
+        matchPanel.style.display = 'none';
+        awardsPanel.style.display = 'block';
+        tabAwards.style.color = '#5e2d91';
+        tabAwards.style.fontWeight = '700';
+        tabAwards.style.borderBottomColor = '#5e2d91';
+        tabMatch.style.color = '#94a3b8';
+        tabMatch.style.fontWeight = '600';
+        tabMatch.style.borderBottomColor = 'transparent';
+    }
+}
+
+// ======================================================
+// TEAM ROSTER MANAGEMENT
+// ======================================================
+let teamPlayerCounters = { A: 0, B: 0 };
+
+function showTeamRosterSection(tournamentId) {
+    const section = document.getElementById('team-roster-section');
+    if (section) {
+        section.style.display = 'block';
+        loadPreviousTeams(tournamentId);
+    }
+}
+
+function addTeamPlayerRow(side, prefill = {}) {
+    const containerId = side === 'A' ? 'team-a-players-list' : 'team-b-players-list';
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    teamPlayerCounters[side]++;
+    const idx = teamPlayerCounters[side];
+    const isUoc = side === 'A' ? true : (prefill.is_uoc_student ?? false);
+    
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:6px;';
+    row.id = `player-row-${side}-${idx}`;
+    
+    let studentOptions = '<option value="">Select student</option>';
+    studentsData.forEach(s => {
+        const selected = (prefill.user_id && prefill.user_id === s.user_id) ? 'selected' : '';
+        studentOptions += `<option value="${s.user_id}" ${selected}>${s.name}</option>`;
+    });
+
+    row.innerHTML = `
+        <div style="display:flex; flex-direction:column; flex:1; gap:4px;">
+            ${isUoc ? `
+            <select class="player-select" data-side="${side}" style="width:100%;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;">
+                ${studentOptions}
+            </select>` : `
+            <input type="text" class="player-name-input" data-side="${side}" placeholder="Player Name" 
+                   value="${prefill.player_name || ''}"
+                   style="width:100%;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;">`}
+            
+            ${!isUoc ? `
+            <input type="text" class="player-external-id" data-side="${side}" placeholder="NIC / Registration No" 
+                   value="${prefill.external_id || ''}"
+                   style="width:100%;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:11px;background:#fcfcfc;">` : ''}
+        </div>
+        <label style="display:flex;align-items:center;gap:3px;font-size:11px;white-space:nowrap; cursor:pointer;" title="UOC Student?">
+            <input type="checkbox" class="uoc-checkbox" ${isUoc ? 'checked' : ''} data-side="${side}" data-idx="${idx}" 
+                   onchange="toggleUocStatus('${side}', ${idx}, this.checked)">
+            UOC
+        </label>
+        <button type="button" onclick="removePlayerRow('${side}', ${idx})" 
+                style="background:#fee2e2;color:#dc2626;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:12px;align-self:flex-start;">
+            <i class="fas fa-times"></i>
+        </button>`;
+    
+    container.appendChild(row);
+}
+
+function toggleUocStatus(side, idx, isChecked) {
+    const row = document.getElementById(`player-row-${side}-${idx}`);
+    if (!row) return;
+    
+    const playerName = collectSinglePlayerData(row).player_name;
+    const externalId = row.querySelector('.player-external-id')?.value || '';
+    
+    // Re-render the row with current values prefilled
+    addTeamPlayerRow(side, {
+        player_name: playerName,
+        external_id: externalId,
+        is_uoc_student: isChecked
+    });
+    
+    // Remove the old one (addTeamPlayerRow adds a new one)
+    row.remove();
+}
+
+function collectSinglePlayerData(row) {
+    const select = row.querySelector('select.player-select');
+    const input = row.querySelector('input.player-name-input');
+    const extId = row.querySelector('input.player-external-id');
+    const uocCheck = row.querySelector('input.uoc-checkbox');
+    
+    let userId = null, playerName = '';
+    
+    if (select && select.value) {
+        userId = select.value;
+        playerName = select.options[select.selectedIndex].text;
+    } else if (input && input.value.trim()) {
+        playerName = input.value.trim();
+    }
+    
+    return {
+        user_id: userId,
+        player_name: playerName,
+        external_id: extId ? extId.value.trim() : null,
+        is_uoc_student: uocCheck && uocCheck.checked ? 1 : 0
+    };
+}
+
+function removePlayerRow(side, idx) {
+    const row = document.getElementById(`player-row-${side}-${idx}`);
+    if (row) row.remove();
+}
+
+function collectTeamPlayers(side) {
+    const containerId = side === 'A' ? 'team-a-players-list' : 'team-b-players-list';
+    const container = document.getElementById(containerId);
+    if (!container) return [];
+
+    const players = [];
+    container.querySelectorAll('.player-row').forEach(row => {
+        const p = collectSinglePlayerData(row);
+        if (p.player_name) {
+            players.push(p);
+        }
+    });
+    return players;
+}
+
+async function loadPreviousTeams(tournamentId) {
+    try {
+        const res = await fetch(`/uoc-sports/public/captain/get-match-teams?tournament_id=${tournamentId}`);
+        const data = await res.json();
+        
+        if (data.status === 'success' && data.data && data.data.length > 0) {
+            const container = document.getElementById('previous-teams-container');
+            const select = document.getElementById('previous-team-select');
+            
+            select.innerHTML = '<option value="">Select a previous match...</option>';
+            window._previousTeamsData = data.data;
+            
+            data.data.forEach((team, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `${team.match_name} (Team A: ${team.A.length} players, Team B: ${team.B.length} players)`;
+                select.appendChild(opt);
+            });
+            
+            container.style.display = 'block';
+        }
+    } catch (e) {
+        console.error('Failed to load previous teams:', e);
+    }
+}
+
+function loadPreviousTeam(index) {
+    if (index === '' || !window._previousTeamsData) return;
+    
+    const team = window._previousTeamsData[parseInt(index)];
+    
+    // Clear existing
+    document.getElementById('team-a-players-list').innerHTML = '';
+    document.getElementById('team-b-players-list').innerHTML = '';
+    teamPlayerCounters = { A: 0, B: 0 };
+    
+    // Add Team A players
+    team.A.forEach(p => addTeamPlayerRow('A', p));
+    // Add Team B players
+    team.B.forEach(p => addTeamPlayerRow('B', p));
+}
+
+// Override the selectTournament function to also show team roster
+const originalSelectTournament = window.selectTournament;
+if (originalSelectTournament) {
+    window.selectTournament = async function(el) {
+        await originalSelectTournament.call(this, el);
+        const tournamentId = el.dataset.tournamentId;
+        showTeamRosterSection(tournamentId);
+    };
+}
+
+// ======================================================
+// OVERALL AWARDS TAB
+// ======================================================
+let awardTitles = [];
+let selectedAwardsTournament = null;
+
+function selectAwardsTournament(el) {
+    // Mark selected (within awards panel only)
+    document.querySelectorAll('#awards-tournament-list .tournament-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+
+    const tournamentId = el.dataset.tournamentId;
+    const sportId = el.dataset.sportId;
+    const sportCategory = el.dataset.sportCategory;
+    const tournamentName = el.dataset.tournamentName;
+
+    selectedAwardsTournament = { tournamentId, sportId, sportCategory, tournamentName };
+
+    document.getElementById('awards-tournament-id').value = tournamentId;
+    document.getElementById('awards-sport-id').value = sportId;
+    document.getElementById('awards-sport-category').value = sportCategory;
+    document.getElementById('awards-form-title').textContent = 'Awards — ' + tournamentName;
+
+    // Show form
+    document.getElementById('awards-placeholder').style.display = 'none';
+    document.getElementById('awards-form-container').style.display = 'block';
+
+    // Load award titles for this sport category
+    loadAwardTitles(sportCategory);
+}
+
+async function loadAwardTitles(sportCategory) {
+    try {
+        const res = await fetch(`/uoc-sports/public/captain/get-award-titles?sport_category=${sportCategory}`);
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            awardTitles = data.data;
+            renderAwardRows();
+        }
+    } catch (e) {
+        console.error('Failed to load award titles:', e);
+    }
+}
+
+function renderAwardRows() {
+    const container = document.getElementById('award-rows-container');
+    container.innerHTML = '';
+    
+    let studentOptions = '<option value="">Select student</option>';
+    studentsData.forEach(s => {
+        studentOptions += `<option value="${s.user_id}">${s.name}</option>`;
+    });
+
+    awardTitles.forEach((title, i) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:10px;';
+        row.innerHTML = `
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <span style="background:#a855f7;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${i + 1}</span>
+                <label style="font-weight:700;font-size:13px;color:#374151;flex:1;">${title}</label>
+                <span style="background:#f3e8ff;color:#7c3aed;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;">🏅 Award</span>
+            </div>
+            <select class="award-student-select" data-title="${title}" data-index="${i}"
+                    style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;">
+                ${studentOptions}
+            </select>
+        `;
+        container.appendChild(row);
+    });
+}
+
+async function submitOverallAwards() {
+    const btn = document.getElementById('submit-awards-btn');
+    const msgDiv = document.getElementById('awards-message');
+    
+    const tournamentId = document.getElementById('awards-tournament-id').value;
+    const sportId = document.getElementById('awards-sport-id').value;
+    
+    if (!tournamentId || !sportId) {
+        showFormMessage(msgDiv, 'Please select a tournament first.', 'error');
+        return;
+    }
+    
+    const awards = [];
+    document.querySelectorAll('.award-student-select').forEach(sel => {
+        if (sel.value) {
+            awards.push({
+                user_id: sel.value,
+                award_title: sel.dataset.title
+            });
+        }
+    });
+    
+    if (awards.length === 0) {
+        showFormMessage(msgDiv, 'Please select at least one student for an award.', 'error');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    
+    try {
+        const res = await fetch('/uoc-sports/public/captain/submit-overall-awards', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                tournament_id: tournamentId,
+                sport_id: sportId,
+                awards: awards
+            })
+        });
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            showFormMessage(msgDiv, data.message, 'success');
+        } else {
+            showFormMessage(msgDiv, data.message, 'error');
+        }
+    } catch (e) {
+        showFormMessage(msgDiv, 'Error submitting awards: ' + e.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-medal"></i> Submit Awards';
+    }
+}
+
+function showFormMessage(el, msg, type) {
+    if (!el) return;
+    el.innerHTML = `<div style="padding:10px 14px;border-radius:8px;margin-top:10px;font-size:13px;
+        background:${type === 'success' ? '#f0fdf4' : '#fef2f2'};
+        color:${type === 'success' ? '#15803d' : '#dc2626'};
+        border:1px solid ${type === 'success' ? '#bbf7d0' : '#fecaca'};">
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${msg}
+    </div>`;
+    setTimeout(() => { el.innerHTML = ''; }, 6000);
+}
+
+// ======================================================
+// FORM SUBMIT OVERRIDE — Include team players
+// ======================================================
+// Roster data is now handled in the main submit listener above
+
+// Add CSS for player management buttons
+const styleEl = document.createElement('style');
+styleEl.textContent = `
+    .btn-small {
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #5e2d91;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .btn-small:hover { background: #4a2374; }
+    .player-row select, .player-row input[type="text"] {
+        transition: border-color 0.2s;
+    }
+    .player-row select:focus, .player-row input[type="text"]:focus {
+        border-color: #a855f7;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(168,85,247,0.1);
+    }
+`;
+document.head.appendChild(styleEl);
 </script>
 
 </body>

@@ -110,6 +110,15 @@ class TournamentParticipant {
     }
 
     /**
+     * Remove a single participant (Soft Delete)
+     */
+    public function removeParticipant($tournamentId, $userId) {
+        $query = "UPDATE tournament_participants SET status = 'INACTIVE' WHERE tournament_id = ? AND user_id = ?";
+        $stmt = $this->db->prepare($query);
+        return $stmt->execute([$tournamentId, $userId]);
+    }
+
+    /**
      * Sync participants for a tournament (remove missing, add new)
      */
     public function syncParticipants($tournamentId, $selectedUserIds, $addedBy) {

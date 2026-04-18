@@ -174,46 +174,41 @@
                     <div class="card-header-row">
                         <div class="card-icon-badge amber"><i class="fas fa-chart-line"></i></div>
                         <div>
-                            <h3 class="card-title">Performance</h3>
-                            <p class="card-subtitle">Stats &amp; achievements</p>
+                            <h3 class="card-title">Performance & Achievements</h3>
+                            <p class="card-subtitle">Points, awards & records</p>
                         </div>
                     </div>
 
+                    <!-- Dynamic Stats Grid -->
                     <div class="perf-stats-grid">
                         <div class="perf-stat-box">
                             <span class="perf-stat-icon">🏅</span>
-                            <div class="perf-stat-value"><?= count($enrolledSports ?? []) ?></div>
-                            <div class="perf-stat-label">Sports Enrolled</div>
+                            <div class="perf-stat-value" id="perf-total-points">-</div>
+                            <div class="perf-stat-label">Total Points</div>
+                        </div>
+                        <div class="perf-stat-box">
+                            <span class="perf-stat-icon">⚡</span>
+                            <div class="perf-stat-value" id="perf-match-count">-</div>
+                            <div class="perf-stat-label">Matches</div>
                         </div>
                         <div class="perf-stat-box">
                             <span class="perf-stat-icon">🏆</span>
-                            <div class="perf-stat-value"><?= count($enrolledSports ?? []) ?></div>
-                            <div class="perf-stat-label">Achievements</div>
+                            <div class="perf-stat-value" id="perf-award-count">-</div>
+                            <div class="perf-stat-label">Awards</div>
                         </div>
                     </div>
 
-                    <?php if (!empty($enrolledSports)): ?>
-                    <p class="achievement-section-title"><i class="fas fa-trophy" style="color:#f59e0b;"></i> Enrolled Sports</p>
-                    <div class="achievement-list">
-                        <?php foreach ($enrolledSports as $sp):
-                            $icon = getSportIcon($sp['sport_name'], $sportIcons);
-                            $joinedFmt = date('F Y', strtotime($sp['joined_date']));
-                        ?>
-                        <div class="achievement-entry">
-                            <span class="ach-emoji"><?= $icon ?></span>
-                            <div class="ach-details">
-                                <h4><?= htmlspecialchars($sp['sport_name']) ?></h4>
-                                <p>Since <?= $joinedFmt ?><?php if (!empty($sp['coach_name'])): ?> &bull; Coach: <?= htmlspecialchars($sp['coach_name']) ?><?php endif; ?></p>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
+                    <!-- Points Breakdown Bar -->
+                    <div style="margin:12px 0 8px;">
+                        <p style="font-size:11px;color:#94a3b8;margin:0 0 6px;font-weight:600;">Points Breakdown</p>
+                        <div id="perf-breakdown-bar" style="display:flex;height:18px;border-radius:9px;overflow:hidden;background:#f3f4f6;"></div>
+                        <div id="perf-breakdown-legend" style="display:flex;gap:10px;margin-top:4px;font-size:10px;color:#6b7280;"></div>
                     </div>
-                    <?php else: ?>
-                    <div class="no-data-state">
-                        <i class="fas fa-medal"></i>
-                        <p>No performance data yet.<br>Start participating to build your record.</p>
-                    </div>
-                    <?php endif; ?>
+
+                    <!-- Awards & Achievements lists -->
+                    <div id="perf-awards-list" style="margin-top:10px;"></div>
+                    <div id="perf-achievements-list" style="margin-top:8px;"></div>
+
                 </div><!-- /.perf-section -->
 
 
@@ -448,6 +443,84 @@ function confirmDelete()     { alert('Account deletion requested.'); hideDeleteM
 function payNow(id)          { window.location.href = '/uoc-sports/public/payment?booking_id=' + id; }
 
 init();
+
+// ── Load Achievements ────────────────────────────────────────
+async function loadAchievements() {
+    try {
+        const res = await fetch('/uoc-sports/public/captain/get-student-achievements');
+        const data = await res.json();
+        if (data.status !== 'success' || !data.data) return;
+
+        const d = data.data;
+        const bd = d.breakdown || {};
+
+        // Update stat cards
+        const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+        setVal('perf-total-points', d.total_points || bd.total || 0);
+        setVal('perf-match-count', bd.match_count || 0);
+        setVal('perf-award-count', bd.award_count || 0);
+
+        // Breakdown bar
+        const total = (bd.participation || 0) + (bd.wins || 0) + (bd.awards || 0);
+        if (total > 0) {
+            const bar = document.getElementById('perf-breakdown-bar');
+            const leg = document.getElementById('perf-breakdown-legend');
+            if (bar) {
+                const pct = v => Math.round((v/total)*100);
+                bar.innerHTML = `
+                    <div style="width:${pct(bd.participation)}%;background:#a855f7;" title="Participation: ${bd.participation}"></div>
+                    <div style="width:${pct(bd.wins)}%;background:#3b82f6;" title="Wins: ${bd.wins}"></div>
+                    <div style="width:${pct(bd.awards)}%;background:#f59e0b;" title="Awards: ${bd.awards}"></div>
+                `;
+            }
+            if (leg) {
+                leg.innerHTML = `
+                    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#a855f7;margin-right:3px;"></span>Participation (${bd.participation})</span>
+                    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;margin-right:3px;"></span>Wins (${bd.wins})</span>
+                    <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;margin-right:3px;"></span>Awards (${bd.awards})</span>
+                `;
+            }
+        }
+
+        // Awards list
+        const awardsEl = document.getElementById('perf-awards-list');
+        if (awardsEl && d.awards && d.awards.length > 0) {
+            let html = '<p class="achievement-section-title" style="margin:0 0 6px;"><i class="fas fa-trophy" style="color:#f59e0b;"></i> Tournament Awards</p>';
+            d.awards.forEach(a => {
+                html += `<div class="achievement-entry" style="margin-bottom:6px;">
+                    <span class="ach-emoji">🏆</span>
+                    <div class="ach-details">
+                        <h4 style="margin:0;font-size:13px;">${a.award_title}</h4>
+                        <p style="margin:0;font-size:11px;color:#94a3b8;">${a.tournament_name || ''} · ${a.sport_name || ''} · ${a.points} pts</p>
+                    </div>
+                </div>`;
+            });
+            awardsEl.innerHTML = html;
+        }
+
+        // All achievements list (recent 5)
+        const achEl = document.getElementById('perf-achievements-list');
+        if (achEl && d.achievements && d.achievements.length > 0) {
+            const icons = { 'Participant': '📋', 'Match Winner': '🏅' };
+            let html = '<p class="achievement-section-title" style="margin:0 0 6px;"><i class="fas fa-list" style="color:#6366f1;"></i> Recent Activity</p>';
+            d.achievements.slice(0, 5).forEach(a => {
+                const icon = icons[a.achievement] || '⭐';
+                html += `<div class="achievement-entry" style="margin-bottom:4px;">
+                    <span class="ach-emoji" style="font-size:14px;">${icon}</span>
+                    <div class="ach-details">
+                        <h4 style="margin:0;font-size:12px;">${a.achievement}</h4>
+                        <p style="margin:0;font-size:10px;color:#94a3b8;">${a.tournament_name || ''} · ${a.sport_name || ''} · +${a.points} pt</p>
+                    </div>
+                </div>`;
+            });
+            achEl.innerHTML = html;
+        }
+
+    } catch (e) {
+        console.error('Failed to load achievements:', e);
+    }
+}
+loadAchievements();
 </script>
 
 <script>

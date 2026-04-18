@@ -39,8 +39,9 @@ class SportTeam {
                 f.faculty_name
             FROM `sports-team` st
             INNER JOIN user u ON st.student_id = u.user_id
-            INNER JOIN faculty f ON u.faculty_id = f.faculty_id
-            WHERE st.sport_id = :sport_id AND st.in_team = 'YES'
+            LEFT JOIN faculty f ON u.faculty_id = f.faculty_id
+            WHERE st.sport_id = :sport_id 
+            AND st.in_team = 'YES'
             AND u.status = 'ACTIVE'
             AND st.status = 'ACTIVE'
             ORDER BY u.lname, u.fname
@@ -50,13 +51,13 @@ class SportTeam {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-        /**
-        * Get members not in the team for a specific sport
-        * @param string $sportId - Sport ID
-        * @return array - Available members with user details
-        */
-        public function getMembersNotInTeam($sportId) {
-            $stmt = $this->db->prepare("
+    /**
+     * Get members not in the team for a specific sport (but enrolled in the sport)
+     * @param string $sportId - Sport ID
+     * @return array - Available members with user details
+     */
+    public function getMembersNotInTeam($sportId) {
+        $stmt = $this->db->prepare("
             SELECT 
                 u.user_id,
                 u.fname,
@@ -68,20 +69,22 @@ class SportTeam {
                 f.faculty_name
             FROM `sports-team` st
             INNER JOIN user u ON st.student_id = u.user_id
-            INNER JOIN faculty f ON u.faculty_id = f.faculty_id
-            WHERE st.sport_id = :sport_id AND st.in_team = 'NO'
+            LEFT JOIN faculty f ON u.faculty_id = f.faculty_id
+            WHERE st.sport_id = :sport_id 
+            AND st.in_team = 'NO'
+            AND st.status = 'ACTIVE'
             AND u.status = 'ACTIVE'
             ORDER BY u.lname, u.fname
         ");
         
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        }
+    }
 
     /**
      * Get team member count for a sport
      * @param string $sportId - Sport ID
-     * @return int - Number of team members
+     * @return int - Number of team members (confirmed in team)
      */
     public function getTeamMemberCount($sportId) {
         $stmt = $this->db->prepare("
@@ -89,17 +92,18 @@ class SportTeam {
             FROM `sports-team` st
             INNER JOIN user u ON st.student_id = u.user_id
             WHERE st.sport_id = :sport_id
+            AND st.in_team = 'YES'
             AND u.status = 'ACTIVE'
             AND st.status = 'ACTIVE'
         ");
         
         $stmt->execute(['sport_id' => $sportId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return (int)$result['count'];
+        return (int)($result['count'] ?? 0);
     }
 
     /**
-     * Check if a student is a member of a sport team
+     * Check if a student is a confirmed member of a sport team
      * @param string $sportId - Sport ID
      * @param string $userId - User ID
      * @return bool
@@ -108,7 +112,10 @@ class SportTeam {
         $stmt = $this->db->prepare("
             SELECT COUNT(*) as count
             FROM `sports-team`
-            WHERE sport_id = :sport_id AND student_id = :user_id AND status = 'ACTIVE'
+            WHERE sport_id = :sport_id 
+            AND student_id = :user_id 
+            AND in_team = 'YES'
+            AND status = 'ACTIVE'
         ");
         
         $stmt->execute([
@@ -117,7 +124,7 @@ class SportTeam {
         ]);
         
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result['count'] > 0;
+        return ($result['count'] ?? 0) > 0;
     }
 
     /**

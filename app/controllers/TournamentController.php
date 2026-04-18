@@ -15,6 +15,7 @@ class TournamentController extends BaseController {
             $sportId = trim($input['sport_id'] ?? '');
             $startDate = trim($input['start_date'] ?? '');
             $endDate = trim($input['end_date'] ?? '');
+            $matchLevel = trim($input['match_level'] ?? 'UNIVERSITY');
             
             // Validation
             if (empty($name) || empty($sportId) || empty($startDate)) {
@@ -44,7 +45,7 @@ class TournamentController extends BaseController {
             }
             
             $tournamentModel = new Tournament();
-            $tournamentId = $tournamentModel->createTournament($name, $sportId, $startDate, $endDate);
+            $tournamentId = $tournamentModel->createTournament($name, $sportId, $startDate, $endDate, $matchLevel);
             
             if ($tournamentId) {
                 echo json_encode([

@@ -78,6 +78,11 @@ $router->get('/add-result/get-sport-fields', 'SportApiController@getSportFields'
 // Captain Match Result API routes
 $router->get('/captain/get-permitted-tournaments', 'CaptainApiController@getPermittedTournaments');
 $router->post('/captain/submit-result', 'CaptainApiController@submitResult');
+$router->post('/captain/submit-overall-awards', 'CaptainApiController@submitOverallAwards');
+$router->get('/captain/get-match-teams', 'CaptainApiController@getMatchTeamsForTournament');
+$router->get('/captain/get-award-titles', 'CaptainApiController@getAwardTitlesForSport');
+$router->get('/captain/get-student-achievements', 'CaptainApiController@getStudentAchievements');
+$router->get('/captain/get-team-roster', 'CaptainApiController@getTeamRoster');
 
 $router->get('/api/playing-teams/get-all', 'PlayingTeamApiController@getAll');
 $router->post('/api/playing-teams/update', 'PlayingTeamApiController@update');

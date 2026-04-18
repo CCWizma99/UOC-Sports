@@ -110,6 +110,59 @@ class SportAchievements extends Model {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ? $result['user_points'] : 0;
     }
+
+    /**
+     * Get categorized points breakdown for a student
+     * Returns: participation_points, win_points, award_points, total
+     */
+    public function getPointsBreakdown($userId) {
+        $achievements = $this->getByStudent($userId);
+        
+        $breakdown = [
+            'participation' => 0,
+            'wins'          => 0,
+            'awards'        => 0,
+            'total'         => 0,
+            'match_count'   => 0,
+            'award_count'   => 0
+        ];
+        
+        foreach ($achievements as $a) {
+            $type = $a['achievement'];
+            if ($type === 'Participant') {
+                $breakdown['participation'] += $a['points'];
+                $breakdown['match_count']++;
+            } elseif ($type === 'Match Winner') {
+                $breakdown['wins'] += $a['points'];
+            } else {
+                $breakdown['awards'] += $a['points'];
+                $breakdown['award_count']++;
+            }
+            $breakdown['total'] += $a['points'];
+        }
+        
+        return $breakdown;
+    }
+
+    /**
+     * Get full student profile data: points, breakdown, achievements, awards
+     */
+    public function getFullStudentProfile($userId) {
+        $achievements = $this->getByStudent($userId);
+        $breakdown = $this->getPointsBreakdown($userId);
+        $totalPoints = $this->getStudentPoints($userId);
+        
+        $awardModel = new TournamentAward();
+        $awards = $awardModel->getAwardsByStudent($userId);
+        
+        return [
+            'total_points'  => $totalPoints,
+            'breakdown'     => $breakdown,
+            'achievements'  => $achievements,
+            'awards'        => $awards
+        ];
+    }
+
     
     /**
      * Get achievements by sport
