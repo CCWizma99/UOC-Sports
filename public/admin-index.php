@@ -20,7 +20,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
 
     if ($row) {
         $_SESSION['user_id'] = $row['user_id'];
-        $stmtUser = $db->prepare("SELECT fname, type FROM users WHERE user_id = ?");
+        $stmtUser = $db->prepare("SELECT fname, type FROM user WHERE user_id = ?");
         $stmtUser->execute([$row['user_id']]);
         $user = $stmtUser->fetch();
 
@@ -129,8 +129,8 @@ $router->post('/admin-post/update', 'PostApiController@updatePost');
 $router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
 
 // User Management API
-$router->post('/api/user/update', 'UserApiController@updateUser');
-$router->post('/api/user/toggle-status', 'UserApiController@toggleStatus');
+$router->post('/admin-api/user/update', 'UserApiController@updateUser');
+$router->post('/admin-api/user/toggle-status', 'UserApiController@toggleStatus');
 
 // Reservation Stats API
 $router->get('/admin-reservations/analytics', 'ReservationApiController@getAnalytics');
@@ -158,5 +158,10 @@ $router->get('/admin-tournament/started-tournaments', 'TournamentController@getS
 $router->get('/admin-tournament/granted-permissions', 'TournamentController@getGrantedPermissions');
 $router->post('/admin-tournament/grant-captain-permission', 'TournamentController@grantCaptainPermission');
 $router->post('/admin-tournament/revoke-captain-permission', 'TournamentController@revokeCaptainPermission');
+
+
+// Audit Logs routes
+$router->get('/admin-audit-logs', 'AuditController@index');
+$router->get('/admin-api/audit/logs', 'AuditApiController@getLogs');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

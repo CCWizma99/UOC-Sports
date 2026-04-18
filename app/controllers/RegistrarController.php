@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../services/EmailService.php';
 
 class RegistrarController {
     
@@ -102,6 +103,23 @@ class RegistrarController {
         $result = $verificationModel->verifyStudent($requestId, $studentId, $registrarId, $status, $reason);
         
         if ($result) {
+            // Send email notification to student
+            try {
+                $userModel = new User();
+                $student = $userModel->findByStudentId($studentId);
+                if ($student) {
+                    $emailService = new EmailService();
+                    $emailService->sendAccountStatusEmail(
+                        $student['email'], 
+                        $student['fname'], 
+                        $status, 
+                        $reason
+                    );
+                }
+            } catch (Exception $e) {
+                error_log("Failed to send verification email: " . $e->getMessage());
+            }
+
             echo json_encode([
                 'status' => 'success', 
                 'message' => 'Student ' . ($status === 'VERIFIED' ? 'verified' : 'rejected') . ' successfully'

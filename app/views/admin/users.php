@@ -373,6 +373,9 @@ function performSearch() {
                                 <a href="./admin-user-profile?id=${user.user_id}" class="action-link" title="View User">
                                     <i class="fa-solid fa-circle-arrow-right"></i>
                                 </a>
+                                <a href="./admin-user-profile?id=${user.user_id}&edit=true" class="action-link edit-link" title="Edit User" style="color: var(--primary-color);">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
                             </td>
                         </tr>
                     `;

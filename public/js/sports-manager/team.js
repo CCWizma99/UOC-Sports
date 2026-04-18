@@ -138,9 +138,9 @@ async function showAchievements(userId) {
                     let year = 'N/A';
                     if (achievement.tournament_year) {
                         year = achievement.tournament_year;
-                    } else if (achievement.competition_date && achievement.competition_date !== '0000-00-00') {
+                    } else if (achievement.tournament_date && achievement.tournament_date !== '0000-00-00') {
                         try {
-                            const date = new Date(achievement.competition_date);
+                            const date = new Date(achievement.tournament_date);
                             if (!isNaN(date.getTime())) {
                                 year = date.getFullYear();
                             }
@@ -149,17 +149,17 @@ async function showAchievements(userId) {
                         }
                     }
                     
-                    const competitionLabel = achievement.competition_name 
-                        ? `${achievement.competition_name} ${year !== 'N/A' ? '(' + year + ')' : ''}` 
-                        : '<em style="color: #ef4444;">No Competition Linked</em>';
+                    const tournamentLabel = achievement.tournament_name 
+                        ? `${achievement.tournament_name} ${year !== 'N/A' ? '(' + year + ')' : ''}` 
+                        : '<em style="color: #ef4444;">No Tournament Linked</em>';
                     
                     return `
                     <div style="background: white; border-left: 4px solid #2b0c4d; border-radius: 6px; padding: 1rem; margin-bottom: 0.75rem;">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; gap: 0.5rem;">
                             <div>
-                                <p style="margin: 0 0 0.25rem 0; color: #6b7280; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Competition</p>
+                                <p style="margin: 0 0 0.25rem 0; color: #6b7280; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Tournament</p>
                                 <h5 style="margin: 0; color: #2b0c4d; font-size: 0.95rem; font-weight: 700;">
-                                    ${competitionLabel}
+                                    ${tournamentLabel}
                                 </h5>
                             </div>
                             <span style="background: ${getAchievementColor(achievement.achievement)}; color: #ffffff; padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-size: 0.7rem; font-weight: 700; white-space: nowrap;">
@@ -183,13 +183,13 @@ async function showAchievements(userId) {
 
 function extractEventCategory(achievement) {
     if (achievement.event_category) return achievement.event_category;
-    if (achievement.competition_category) return achievement.competition_category;
+    if (achievement.tournament_category) return achievement.tournament_category;
     if (achievement.category) return achievement.category;
 
-    const competitionName = achievement.competition_name || '';
-    if (!competitionName) return 'Other';
+    const tournamentName = achievement.tournament_name || '';
+    if (!tournamentName) return 'Other';
 
-    const lowerName = competitionName.toLowerCase();
+    const lowerName = tournamentName.toLowerCase();
     if (lowerName.includes('inter university') || lowerName.includes('inter-university')) return 'Inter University';
     if (lowerName.includes('inter faculty') || lowerName.includes('inter-faculty')) return 'Inter Faculty';
     if (lowerName.includes('championship')) return 'Championship';
@@ -200,7 +200,7 @@ function extractEventCategory(achievement) {
     if (lowerName.includes('national')) return 'National';
     if (lowerName.includes('international')) return 'International';
 
-    return competitionName.split(' ')[0] || 'Other';
+    return tournamentName.split(' ')[0] || 'Other';
 }
 
 function getStudentChartCanvasId(userId) {
@@ -208,7 +208,7 @@ function getStudentChartCanvasId(userId) {
     return `student-event-chart-${safeUserId}`;
 }
 
-// Map specific competition categories to their designated colors
+// Map specific categories to their designated colors
 function getCategoryColor(category) {
     const colorMap = {
         'Inter Faculty': '#16a34a',        // green
@@ -388,10 +388,10 @@ async function viewAchievements(userId) {
                 `;
             } else {
                 achievementsList.innerHTML = data.achievements.map((achievement, index) => {
-                    const year = achievement.tournament_year || (achievement.competition_date ? new Date(achievement.competition_date).getFullYear() : 'N/A');
-                    const competitionLabel = achievement.competition_name 
-                        ? `${achievement.competition_name} (${year})` 
-                        : '<em style="color: #ef4444;">No Competition Linked</em>';
+                    const year = achievement.tournament_year || (achievement.tournament_date ? new Date(achievement.tournament_date).getFullYear() : 'N/A');
+                    const tournamentLabel = achievement.tournament_name 
+                        ? `${achievement.tournament_name} (${year})` 
+                        : '<em style="color: #ef4444;">No Tournament Linked</em>';
                     
                     return `
                     <div style="background: linear-gradient(135deg, #f9f7ff 0%, #ffffff 100%); border: 2px solid #e5e7eb; border-left: 4px solid #2b0c4d; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; transition: all 0.3s;" onmouseover="this.style.boxShadow='0 4px 15px rgba(43,12,77,0.1)'; this.style.transform='translateX(4px)';" onmouseout="this.style.boxShadow='none'; this.style.transform='translateX(0)';">
@@ -401,9 +401,9 @@ async function viewAchievements(userId) {
                             </div>
                             <div style="flex: 1;">
                                 <div style="margin-bottom: 0.5rem;">
-                                    <p style="margin: 0 0 0.25rem 0; color: #6b7280; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Competition Name</p>
+                                    <p style="margin: 0 0 0.25rem 0; color: #6b7280; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Tournament Name</p>
                                     <h4 style="margin: 0 0 0.5rem 0; color: #2b0c4d; font-size: 1.1rem; font-weight: 700;">
-                                        ${competitionLabel}
+                                        ${tournamentLabel}
                                     </h4>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -472,4 +472,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-

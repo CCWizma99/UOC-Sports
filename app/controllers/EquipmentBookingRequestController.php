@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../services/EmailService.php';
 
 class EquipmentBookingRequestController {
 
@@ -108,6 +109,18 @@ class EquipmentBookingRequestController {
         if (empty($data['student_id']) || empty($data['category_id']) || 
             empty($data['request_date']) || empty($data['start_time']) || empty($data['end_time'])) {
             echo json_encode(['success' => false, 'message' => 'Missing required fields']);
+            exit();
+        }
+
+        // Logical Validation: Date and Time
+        $today = date('Y-m-d');
+        if ($data['request_date'] < $today) {
+            echo json_encode(['success' => false, 'message' => 'Request date cannot be in the past']);
+            exit();
+        }
+
+        if (strtotime($data['end_time']) <= strtotime($data['start_time'])) {
+            echo json_encode(['success' => false, 'message' => 'End time must be after start time']);
             exit();
         }
         
@@ -274,6 +287,18 @@ class EquipmentBookingRequestController {
                 exit();
             }
 
+            // Logical Validation: Date and Time
+            $today = date('Y-m-d');
+            if ($data['request_date'] < $today) {
+                echo json_encode(['success' => false, 'message' => 'Request date cannot be in the past']);
+                exit();
+            }
+
+            if (strtotime($data['end_time']) <= strtotime($data['start_time'])) {
+                echo json_encode(['success' => false, 'message' => 'End time must be after start time']);
+                exit();
+            }
+
             if (!empty($data['sport_id']) && !empty($data['equipment_items']) && is_array($data['equipment_items'])) {
                 $slotConflicts = $model->getItemConflicts(
                     $data['sport_id'],
@@ -358,6 +383,21 @@ class EquipmentBookingRequestController {
         $result = $model->updateStatus($data['request_id'], 'ACTIVE');
         
         if ($result) {
+            // Send approval email
+            try {
+                $request = $model->getRequestById($data['request_id']);
+                if ($request) {
+                    $userModel = new User();
+                    $user = $userModel->getUserProfile($request['student_id']);
+                    if ($user) {
+                        $emailService = new EmailService();
+                        $emailService->sendEquipmentRequestStatusEmail($user['email'], $user['fname'], 'ACTIVE', $request);
+                    }
+                }
+            } catch (Exception $e) {
+                error_log("Failed to send equipment approval email: " . $e->getMessage());
+            }
+
             echo json_encode(['success' => true, 'message' => 'Request approved successfully']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to approve request']);
@@ -386,6 +426,21 @@ class EquipmentBookingRequestController {
         $result = $model->updateStatus($data['request_id'], 'REJECTED');
         
         if ($result) {
+            // Send rejection email
+            try {
+                $request = $model->getRequestById($data['request_id']);
+                if ($request) {
+                    $userModel = new User();
+                    $user = $userModel->getUserProfile($request['student_id']);
+                    if ($user) {
+                        $emailService = new EmailService();
+                        $emailService->sendEquipmentRequestStatusEmail($user['email'], $user['fname'], 'REJECTED', $request);
+                    }
+                }
+            } catch (Exception $e) {
+                error_log("Failed to send equipment rejection email: " . $e->getMessage());
+            }
+
             echo json_encode(['success' => true, 'message' => 'Request rejected']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to reject request']);

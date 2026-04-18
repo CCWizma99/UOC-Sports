@@ -34,6 +34,7 @@ class Inquiry {
         $sql = "
             SELECT inquiry_id, user_id, email, subject, message, date, status
             FROM inquiry
+            WHERE status != 'DELETED'
             ORDER BY date DESC, inquiry_id DESC
             LIMIT :limit
         ";
@@ -51,7 +52,7 @@ class Inquiry {
         $sql = "
             SELECT inquiry_id, user_id, email, subject, message, date, status
             FROM inquiry
-            WHERE inquiry_id = :inquiry_id
+            WHERE inquiry_id = :inquiry_id AND status != 'DELETED'
             LIMIT 1
         ";
 
@@ -81,7 +82,7 @@ class Inquiry {
      * Delete an inquiry
      */
     public function delete($inquiryId) {
-        $sql = "DELETE FROM inquiry WHERE inquiry_id = :inquiry_id";
+        $sql = "UPDATE inquiry SET status = 'DELETED' WHERE inquiry_id = :inquiry_id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['inquiry_id' => $inquiryId]);
     }
@@ -93,10 +94,12 @@ class Inquiry {
         $sql = "
             SELECT inquiry_id, user_id, email, subject, message, date, status
             FROM inquiry
-            WHERE inquiry_id LIKE :q
+            WHERE (status != 'DELETED') AND (
+               inquiry_id LIKE :q
                OR email LIKE :q
                OR subject LIKE :q
                OR status LIKE :q
+            )
             ORDER BY date DESC
             LIMIT 4
         ";

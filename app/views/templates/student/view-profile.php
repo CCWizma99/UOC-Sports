@@ -205,48 +205,42 @@
                                 <h2>Performance & Achievements</h2>
                             </div>
                             
-                            <div class="performance-grid">
+                            <!-- Points Summary Cards -->
+                            <div class="performance-grid" id="performanceGrid">
                                 <div class="performance-card">
-                                    <div class="performance-value">92%</div>
-                                    <div class="performance-label">Attendance Rate</div>
+                                    <div class="performance-value" id="totalPointsDisplay">-</div>
+                                    <div class="performance-label">Total Points</div>
                                 </div>
                                 <div class="performance-card">
-                                    <div class="performance-value">8</div>
+                                    <div class="performance-value" id="matchCountDisplay">-</div>
                                     <div class="performance-label">Matches Played</div>
                                 </div>
                                 <div class="performance-card">
-                                    <div class="performance-value">5</div>
-                                    <div class="performance-label">Goals Scored</div>
+                                    <div class="performance-value" id="winPointsDisplay">-</div>
+                                    <div class="performance-label">Win Points</div>
                                 </div>
                                 <div class="performance-card">
-                                    <div class="performance-value">3</div>
-                                    <div class="performance-label">Trophies Won</div>
+                                    <div class="performance-value" id="awardCountDisplay">-</div>
+                                    <div class="performance-label">Awards Won</div>
                                 </div>
                             </div>
 
-                            <h3 style="margin-bottom: 18px; color: #2c3e50; font-size: 18px;">🏆 Recent Achievements</h3>
-                            <div class="achievements-list">
-                                <div class="achievement-item">
-                                    <div class="achievement-icon">🥇</div>
-                                    <div class="achievement-details">
-                                        <h4>Inter-University Football Championship - Winner</h4>
-                                        <p>March 2025 | Leading goal scorer with 12 goals</p>
-                                    </div>
-                                </div>
-                                <div class="achievement-item">
-                                    <div class="achievement-icon">🥈</div>
-                                    <div class="achievement-details">
-                                        <h4>Faculty Basketball Tournament - Runner Up</h4>
-                                        <p>February 2025 | Team Captain</p>
-                                    </div>
-                                </div>
-                                <div class="achievement-item">
-                                    <div class="achievement-icon">⭐</div>
-                                    <div class="achievement-details">
-                                        <h4>Best Newcomer Award 2023</h4>
-                                        <p>December 2023 | Outstanding performance in Freshers' Tournament</p>
-                                    </div>
-                                </div>
+                            <!-- Points Breakdown Bar -->
+                            <div style="margin:18px 0 14px;">
+                                <h4 style="font-size:13px;color:#6b7280;margin:0 0 8px;">Points Breakdown</h4>
+                                <div id="pointsBreakdownBar" style="display:flex;height:24px;border-radius:12px;overflow:hidden;background:#f3f4f6;"></div>
+                                <div id="pointsBreakdownLegend" style="display:flex;gap:16px;margin-top:6px;font-size:12px;color:#6b7280;"></div>
+                            </div>
+
+                            <!-- Special Awards Section -->
+                            <h3 style="margin:18px 0 12px; color: #2c3e50; font-size: 16px;">🏆 Tournament Awards</h3>
+                            <div id="awardsListContainer" class="achievements-list">
+                                <p style="color:#94a3b8;font-style:italic;font-size:13px;">Loading awards...</p>
+                            </div>
+
+                            <h3 style="margin:18px 0 12px; color: #2c3e50; font-size: 16px;">📋 All Achievements</h3>
+                            <div id="achievementsListContainer" class="achievements-list">
+                                <p style="color:#94a3b8;font-style:italic;font-size:13px;">Loading achievements...</p>
                             </div>
                         </div>
                     </div>

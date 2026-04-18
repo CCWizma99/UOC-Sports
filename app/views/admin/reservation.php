@@ -91,7 +91,10 @@ require '../app/views/templates/admin/sidebar.php';
 
             <div class="action-buttons" id="action-buttons">
                 <button class="btn-message" id="message-btn">
-                    <i class="fa-solid fa-envelope"></i> Send Message to Customer
+                    <i class="fa-solid fa-envelope"></i> Send Message
+                </button>
+                <button class="btn-flag" id="flag-payment-btn" style="display: none;">
+                    <i class="fa-solid fa-flag"></i> Flag Issue
                 </button>
                 <button class="btn-verify" id="verify-payment-btn" style="display: none;">
                     <i class="fa-solid fa-check-circle"></i> Mark as Paid
@@ -163,6 +166,25 @@ require '../app/views/templates/admin/sidebar.php';
         <div class="modal-footer">
             <button class="btn-cancel" id="cancel-verify">Cancel</button>
             <button class="btn-verify" id="confirm-verify">Yes, Mark as Paid</button>
+        </div>
+    </div>
+</div>
+
+<!-- Flag Modal -->
+<div id="flag-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 style="color:white;"><i class="fa-solid fa-flag"></i> Flag Payment Issue</h3>
+            <span class="close-flag" style="cursor:pointer; font-size:1.5rem;">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom: 15px; color: #666;">Describe the issue with the payment slip (e.g. "Blurry image", "Incorrect amount"). The user will have 3 days to fix it.</p>
+            <label for="flag-reason-input">Reason:</label>
+            <textarea id="flag-reason-input" rows="4" placeholder="Enter reason for flagging..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" id="cancel-flag">Cancel</button>
+            <button class="btn-flag" id="confirm-flag"><i class="fa-solid fa-flag"></i> Flag Booking</button>
         </div>
     </div>
 </div>
@@ -280,6 +302,26 @@ require '../app/views/templates/admin/sidebar.php';
     box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
 }
 
+.btn-flag {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-flag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+}
+
 .view-proof-btn {
     display: inline-flex;
     align-items: center;
@@ -338,10 +380,20 @@ function loadReservationDetails() {
 
             // Mark as Paid button visibility
             const verifyBtn = document.getElementById('verify-payment-btn');
+            const flagBtn = document.getElementById('flag-payment-btn');
+            
             if (data.payment_status !== 'COMPLETE') {
                 verifyBtn.style.display = 'flex';
+                // Show flag button even if no slip yet, or only if slip exists?
+                // User requirement implies flagging the SLIP, so show if slip exists.
+                if (data.payment_slip) {
+                    flagBtn.style.display = 'flex';
+                } else {
+                    flagBtn.style.display = 'none';
+                }
             } else {
                 verifyBtn.style.display = 'none';
+                flagBtn.style.display = 'none';
             }
 
             // Payment Proof
@@ -368,6 +420,16 @@ function loadReservationDetails() {
             if (data.status === 'REJECTED' && data.rejection_reason) {
                 document.getElementById('rejection-reason-container').style.display = 'flex';
                 document.getElementById('rejection-reason').textContent = data.rejection_reason;
+            }
+
+            // Show flagging information if flagged
+            if (data.flag_status === 'FLAGGED') {
+                statusBadge.textContent = 'FLAGGED';
+                statusBadge.className = 'status-badge status-rejected'; // Using rejected styling for flagged
+                
+                document.getElementById('rejection-reason-container').style.display = 'flex';
+                document.querySelector('#rejection-reason-container label').textContent = 'Flag Reason:';
+                document.getElementById('rejection-reason').textContent = data.flag_reason;
             }
 
             // Store data for message modal
@@ -489,6 +551,64 @@ if (verifyPaymentBtn) {
         confirmModal.style.display = 'none';
     });
 });
+
+// Flag button logic
+const flagBtn = document.getElementById('flag-payment-btn');
+const flagModal = document.getElementById('flag-modal');
+const confirmFlagBtn = document.getElementById('confirm-flag');
+const cancelFlagBtn = document.getElementById('cancel-flag');
+const closeFlagBtn = document.querySelector('.close-flag');
+
+if (flagBtn) {
+    flagBtn.addEventListener('click', () => {
+        flagModal.style.display = 'flex';
+    });
+}
+
+[closeFlagBtn, cancelFlagBtn].forEach(btn => {
+    if (btn) btn.addEventListener('click', () => { flagModal.style.display = 'none'; });
+});
+
+if (confirmFlagBtn) {
+    confirmFlagBtn.addEventListener('click', () => {
+        const reason = document.getElementById('flag-reason-input').value.trim();
+        if (!reason) {
+            UI.showToast('Please provide a reason for flagging.', 'warning');
+            return;
+        }
+
+        flagModal.style.display = 'none';
+        const originalBtnText = flagBtn.innerHTML;
+        flagBtn.disabled = true;
+        flagBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Flagging...';
+
+        const formData = new FormData();
+        formData.append('booking_id', bookingId);
+        formData.append('reason', reason);
+
+        fetch('/uoc-sports/public/api/facility/flag-payment', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                UI.showToast(data.message, 'success');
+                loadReservationDetails();
+            } else {
+                UI.showToast(data.message, 'error');
+                flagBtn.disabled = false;
+                flagBtn.innerHTML = originalBtnText;
+            }
+        })
+        .catch(err => {
+            console.error('Error flagging payment:', err);
+            UI.showToast('An error occurred. Please try again.', 'error');
+            flagBtn.disabled = false;
+            flagBtn.innerHTML = originalBtnText;
+        });
+    });
+}
 
 // Final confirmation action
 if (confirmBtn) {

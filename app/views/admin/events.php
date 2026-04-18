@@ -61,6 +61,15 @@ require '../app/views/templates/admin/sidebar.php';
                             <input type="date" id="eventEndDate" name="end_date">
                         </div>
                         
+                        <div class="input-div">
+                            <label for="eventMatchLevel">Match Level <span class="required">*</span></label>
+                            <select id="eventMatchLevel" name="match_level" required>
+                                <option value="UNIVERSITY">University Level</option>
+                                <option value="NATIONAL">National Level</option>
+                                <option value="INTERNATIONAL">International Level</option>
+                            </select>
+                        </div>
+                        
                         <button type="submit">Create Event</button>
                     </form>
                 </section>
@@ -262,7 +271,8 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
         name: document.getElementById('eventName').value,
         sport_id: document.getElementById('eventSport').value,
         start_date: document.getElementById('eventStartDate').value,
-        end_date: document.getElementById('eventEndDate').value
+        end_date: document.getElementById('eventEndDate').value,
+        match_level: document.getElementById('eventMatchLevel').value
     };
     
     try {

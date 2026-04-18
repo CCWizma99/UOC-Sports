@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Portal | UOC Sports E-Portal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css"
+        integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
-        @import url(/uoc-sports/public/css/student/student-portal.css); /* Reuse existing styles */
+        @import url(/uoc-sports/public/css/student/student-portal.css);
+        /* Reuse existing styles */
         @import url(/uoc-sports/public/css/student/sub-nav.css);
         @import url(/uoc-sports/public/css/general/footer.css);
 
@@ -19,10 +23,10 @@
             background: #fff;
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             margin-bottom: 20px;
         }
-        
+
         .portal-card h2 {
             display: flex;
             align-items: center;
@@ -39,7 +43,8 @@
             flex-direction: column;
             max-width: 100%;
             margin: 0;
-            padding: 20px 40px; /* Increased padding */
+            padding: 20px 40px;
+            /* Increased padding */
             height: calc(100vh - 120px);
             min-height: 520px;
             box-sizing: border-box;
@@ -50,7 +55,8 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 30px 45px; /* Significantly increased padding */
+            padding: 30px 45px;
+            /* Significantly increased padding */
             margin-bottom: 0;
             overflow-y: auto;
             box-sizing: border-box;
@@ -80,7 +86,8 @@
             display: grid;
             grid-template-columns: 1fr 1.35fr;
             grid-template-rows: repeat(3, 1fr);
-            gap: 24px; /* Doubled gap for more breathing room */
+            gap: 24px;
+            /* Doubled gap for more breathing room */
             flex: 1;
             min-height: 0;
             margin-top: 10px;
@@ -90,10 +97,10 @@
         .summary-card.sports,
         .summary-card.sessions,
         .summary-card.equipment,
-        .summary-card.facilities { 
-            --accent: #5e2d91; 
-            --bg: #f9f6ff; 
-            --border: #e9e4f5; 
+        .summary-card.facilities {
+            --accent: #5e2d91;
+            --bg: #f9f6ff;
+            --border: #e9e4f5;
         }
 
         /* Standard Cards on the Left */
@@ -107,7 +114,7 @@
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
             box-sizing: border-box;
             overflow: hidden;
             height: 100%;
@@ -168,7 +175,9 @@
             font-weight: 700;
         }
 
-        .sessions h3 { font-size: 1.2rem; }
+        .sessions h3 {
+            font-size: 1.2rem;
+        }
 
         .summary-card .count {
             font-size: 1.1rem;
@@ -314,7 +323,7 @@
             font-weight: 700;
             box-shadow: 0 2px 6px rgba(168, 85, 247, 0.2);
         }
-            
+
         .calendar-day.has-reservation.past-date {
             background: #fef2f2;
             border-color: #fca5a5;
@@ -389,7 +398,7 @@
             flex-direction: column;
             overflow: visible;
         }
-        
+
         .sessions-scroll-container {
             max-height: 140px;
             overflow-y: auto;
@@ -433,13 +442,14 @@
         }
     </style>
 </head>
+
 <body class="mesh-sporty">
     <?php
-        $userModel = new User();
-        $fname = (isset($data['user'])) ? $data['user']['fname'] : 'Student';
-        
-        require '../app/views/templates/general/header.php';
-        require '../app/views/templates/student/sub_header.php';
+    $userModel = new User();
+    $fname = (isset($data['user'])) ? $data['user']['fname'] : 'Student';
+
+    require '../app/views/templates/general/header.php';
+    require '../app/views/templates/student/sub_header.php';
     ?>
 
     <div class="student-portal-wrapper">
@@ -447,7 +457,7 @@
         <div class="portal-card welcome-card">
             <h2><i class="fas fa-user-graduate"></i> Welcome Back, <?php echo htmlspecialchars($fname); ?>!</h2>
             <p>From here you can manage your sports activities and reservations.</p>
-            
+
             <!-- Summary Cards Inside Welcome Container -->
             <div class="summary-grid">
                 <!-- Stacked Left Column -->
@@ -461,7 +471,7 @@
                     </div>
                     <div class="card-summary" id="listSports"></div>
                 </a>
-                
+
                 <a href="/uoc-sports/public/student/equipment" class="summary-card equipment">
                     <div class="card-header">
                         <div class="card-header-left">
@@ -507,76 +517,77 @@
 
     <?php require '../app/views/templates/general/footer.php'; ?>
 
-    <script src="/uoc-sports/public/js/sports-manager/calendar.js"></script>
+    <script src="/uoc-sports/public/js/student/calendar.js"></script>
     <script>
-    window.selectedSportId = null; // Show all sports by default on dashboard
-    document.addEventListener("DOMContentLoaded", () => {
-        fetchStats();
-    });
-
-    async function fetchStats() {
-        try {
-            const response = await fetch('/uoc-sports/public/student/dashboard-stats');
-            if (!response.ok) return;
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                const s = result.stats;
-
-                // 1. Enrolled Sports
-                setCount('countSports', s.sports_count);
-                renderList('listSports', s.sports_list, 'fas fa-check-circle');
-
-                // 2. Reserved Equipment
-                setCount('countEquipment', s.equipment_count);
-                const equipmentDisplayList = (s.equipment_list || []).map(eq => eq.equipment_name);
-                renderList('listEquipment', equipmentDisplayList, 'fas fa-tools');
-
-                // 3. Active Facility Reservations
-                setCount('countFacilities', s.facilities_count);
-                const facilityDisplayList = (s.facilities_list || []).map(f => {
-                    const slot = f.slot ? f.slot.charAt(0).toUpperCase() + f.slot.slice(1).toLowerCase() : '';
-                    const date = formatDate(f.date);
-                    return `${f.facility_name} &mdash; ${date}${slot ? ' (' + slot + ')' : ''}`;
-                });
-                renderList('listFacilities', facilityDisplayList, 'fas fa-map-marker-alt');
-
-                // 4. Handle upcoming sessions if needed
-                if (result.upcoming && Array.isArray(result.upcoming)) {
-                    // Could store globalSessions = result.upcoming; 
-                    // calendar.js takes care of displaying them.
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching dashboard stats:', error);
-        }
-    }
-
-    // Safely set a count badge (guards against missing elements)
-    function setCount(id, value) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = (value !== undefined && value !== null) ? value : '0';
-    }
-
-    function renderList(containerId, items, iconClass) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        if (!items || items.length === 0) {
-            container.innerHTML = '<span style="color: #bbb; font-style: italic;">None</span>';
-            return;
-        }
-        let html = '<ul>';
-        items.forEach(item => {
-            html += `<li><i class="${iconClass}"></i> ${item}</li>`;
+        window.selectedSportId = null; // Show all sports by default on dashboard
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchStats();
         });
-        html += '</ul>';
-        container.innerHTML = html;
-    }
 
-    function formatDate(dateString) {
-        const options = { month: 'short', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString(undefined, options);
-    }
+        async function fetchStats() {
+            try {
+                const response = await fetch('/uoc-sports/public/student/dashboard-stats');
+                if (!response.ok) return;
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    const s = result.stats;
+
+                    // 1. Enrolled Sports
+                    setCount('countSports', s.sports_count);
+                    renderList('listSports', s.sports_list, 'fas fa-check-circle');
+
+                    // 2. Reserved Equipment
+                    setCount('countEquipment', s.equipment_count);
+                    const equipmentDisplayList = (s.equipment_list || []).map(eq => eq.equipment_name);
+                    renderList('listEquipment', equipmentDisplayList, 'fas fa-tools');
+
+                    // 3. Active Facility Reservations
+                    setCount('countFacilities', s.facilities_count);
+                    const facilityDisplayList = (s.facilities_list || []).map(f => {
+                        const slot = f.slot ? f.slot.charAt(0).toUpperCase() + f.slot.slice(1).toLowerCase() : '';
+                        const date = formatDate(f.date);
+                        return `${f.facility_name} &mdash; ${date}${slot ? ' (' + slot + ')' : ''}`;
+                    });
+                    renderList('listFacilities', facilityDisplayList, 'fas fa-map-marker-alt');
+
+                    // 4. Handle upcoming sessions if needed
+                    if (result.upcoming && Array.isArray(result.upcoming)) {
+                        // Could store globalSessions = result.upcoming; 
+                        // calendar.js takes care of displaying them.
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+            }
+        }
+
+        // Safely set a count badge (guards against missing elements)
+        function setCount(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = (value !== undefined && value !== null) ? value : '0';
+        }
+
+        function renderList(containerId, items, iconClass) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            if (!items || items.length === 0) {
+                container.innerHTML = '<span style="color: #bbb; font-style: italic;">None</span>';
+                return;
+            }
+            let html = '<ul>';
+            items.forEach(item => {
+                html += `<li><i class="${iconClass}"></i> ${item}</li>`;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        function formatDate(dateString) {
+            const options = { month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
     </script>
 </body>
+
 </html>

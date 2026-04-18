@@ -1208,3 +1208,25 @@ body {
     .current-date { display: none; }
     .header-btn span { display: none; }
 }
+
+/* -- Faculty Breakdown Chart Customizations -- */
+.insight-card.faculty-breakdown-card {
+    min-width: 0; /* Extremely important for CSS Grid items: Prevents the item from growing to min-content */
+    max-width: 100%;
+}
+
+.card-content.faculty-breakdown-content {
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 15px;
+    width: 100%;
+}
+
+.chart-wrapper.faculty-chart-wrapper {
+    position: relative;
+    height: 350px;
+    width: 100%;
+    min-width: 800px;
+    max-width: none;
+}

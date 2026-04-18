@@ -113,6 +113,24 @@
         .badge.cancelled, .badge.rejected { background: #ffebee; color: #c62828; }
         .badge.completed { background: #e8f5e9; color: #2e7d32; }
         .badge.pending { background: #fff3e0; color: #ef6c00; }
+        .badge.flagged { background: #fee2e2; color: #dc2626; border: 1px solid #ef4444; }
+
+        .timer-text {
+            font-size: 0.75rem;
+            color: #d32f2f;
+            font-weight: 600;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .flag-reason {
+            font-size: 0.75rem;
+            color: #dc2626;
+            font-style: italic;
+            display: block;
+            margin-top: 4px;
+            max-width: 200px;
+        }
 
         .btn-sm {
             padding: 5px 10px;
@@ -258,6 +276,14 @@
     document.addEventListener("DOMContentLoaded", () => {
         loadFacilityBookings();
         loadEquipmentBookings();
+
+        // Refresh timers every second
+        setInterval(() => {
+            const timers = document.querySelectorAll('.timer-text');
+            if (timers.length > 0) {
+                loadFacilityBookings(); // Lazy way to update timers for now
+            }
+        }, 15000); // Check every 15 seconds to avoid heavy calls
     });
 
     async function loadFacilityBookings() {
@@ -325,13 +351,35 @@
                         <tbody>`;
                     list.forEach(item => {
                         let actions = '';
+                        let paymentInfo = '';
+                        let statusHtml = `<span class="badge ${(item.status || 'pending').toLowerCase()}">${item.status || 'PENDING'}</span>`;
+
                         if (isHistory) {
                             actions = `<button class="btn-sm" style="background:transparent; color:#aaa; border:none; font-size:1.1rem; padding: 0 5px;" onclick="hideBooking('${item.booking_id}')" title="Dismiss from view"><i class="fas fa-times"></i></button>`;
                         } else {
-                            if (item.status === 'BOOKED') {
+                            // Payment Countdown Logic
+                            if (item.status === 'BOOKED' && item.payment_status === 'INCOMPLETE') {
+                                const created = new Date(item.created_at).getTime();
+                                const now = new Date().getTime();
+                                const diff = Math.floor((created + 30 * 60 * 1000 - now) / 1000);
+                                
+                                if (diff > 0) {
+                                    const mins = Math.floor(diff / 60);
+                                    const secs = diff % 60;
+                                    paymentInfo = `<span class="timer-text"><i class="fas fa-clock"></i> Expires in ${mins}:${secs.toString().padStart(2, '0')}</span>`;
+                                }
+                            }
+
+                            // Flagged Payment Logic
+                            if (item.flag_status === 'FLAGGED') {
+                                statusHtml = `<span class="badge flagged">PAYMENT ISSUE</span>`;
+                                paymentInfo = `<span class="flag-reason">Admin: ${item.flag_reason || 'Please re-upload slip.'}</span>`;
+                            }
+
+                            if (item.status === 'BOOKED' || item.flag_status === 'FLAGGED') {
                                 actions += `<button class="btn-sm btn-outline-danger" onclick="cancelFacility('${item.booking_id}')">Cancel</button> `;
-                                if (item.payment_status === 'INCOMPLETE') {
-                                    actions += `<button class="btn-sm" style="background:#5e2d91;color:white;" onclick="payNow('${item.booking_id}')">Pay</button>`;
+                                if (item.payment_status === 'INCOMPLETE' || item.flag_status === 'FLAGGED') {
+                                    actions += `<button class="btn-sm" style="background:#5e2d91;color:white;" onclick="payNow('${item.booking_id}')">${item.flag_status === 'FLAGGED' ? 'Fix Slip' : 'Pay'}</button>`;
                                 }
                             }
                         }
@@ -340,8 +388,11 @@
                             <td>${item.facility_name}</td>
                             <td>${item.date}</td>
                             <td>${item.start_time} - ${item.end_time}</td>
-                            <td><span class="badge ${(item.status || 'pending').toLowerCase()}">${item.status || 'PENDING'}</span></td>
-                            <td><span class="badge ${(item.payment_status || 'incomplete').toLowerCase()}">${item.payment_status || 'INCOMPLETE'}</span></td>
+                            <td>${statusHtml}</td>
+                            <td>
+                                <span class="badge ${(item.payment_status || 'incomplete').toLowerCase()}">${item.payment_status || 'INCOMPLETE'}</span>
+                                ${paymentInfo}
+                            </td>
                             <td>${actions}</td>
                         </tr>`;
                     });

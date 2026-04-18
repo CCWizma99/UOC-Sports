@@ -291,5 +291,30 @@ class Budget {
         $stmt->execute([$year]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+public function getBudgetUtilization($year = null) {
+    if ($year === null) {
+        $year = date('Y');
+    }
+
+    try {
+        $stmt = $this->db->prepare("
+            SELECT 
+                DATE_FORMAT(t.timestamp, '%b') AS month,
+                YEAR(t.timestamp) AS year,
+                SUM(t.amount) AS spent_amount
+            FROM `transaction` t
+            JOIN budget b ON t.budget_id = b.budget_id
+            WHERE YEAR(t.timestamp) = ?
+            GROUP BY YEAR(t.timestamp), MONTH(t.timestamp), DATE_FORMAT(t.timestamp, '%b')
+            ORDER BY MONTH(t.timestamp)
+        ");
+        $stmt->execute([$year]);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $result;
+    } catch (PDOException $e) {
+        return [];
+    }
+}
     
 }

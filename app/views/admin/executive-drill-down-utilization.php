@@ -170,7 +170,6 @@
 
     <script>
         const API_BASE = '/uoc-sports/public';
-        const initialFacultyId = new URLSearchParams(window.location.search).get('faculty_id');
         let facilityChart = null;
         let equipmentChart = null;
         
@@ -179,9 +178,6 @@
             const endDate = document.getElementById('end-date').value;
             
             let url = `${API_BASE}/api/drill-down/utilization?start_date=${startDate}&end_date=${endDate}`;
-            if (initialFacultyId) {
-                url += `&faculty_id=${initialFacultyId}`;
-            }
             
             fetch(url)
                 .then(response => response.json())

@@ -15,12 +15,22 @@ class TournamentController extends BaseController {
             $sportId = trim($input['sport_id'] ?? '');
             $startDate = trim($input['start_date'] ?? '');
             $endDate = trim($input['end_date'] ?? '');
+            $matchLevel = trim($input['match_level'] ?? 'UNIVERSITY');
             
             // Validation
             if (empty($name) || empty($sportId) || empty($startDate)) {
                 echo json_encode([
                     'status' => 'error',
                     'message' => 'Tournament name, sport, and start date are required.'
+                ]);
+                return;
+            }
+
+            // Ensure start date is not in the past
+            if (strtotime($startDate) < strtotime(date('Y-m-d'))) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Start date cannot be in the past.'
                 ]);
                 return;
             }
@@ -35,7 +45,7 @@ class TournamentController extends BaseController {
             }
             
             $tournamentModel = new Tournament();
-            $tournamentId = $tournamentModel->createTournament($name, $sportId, $startDate, $endDate);
+            $tournamentId = $tournamentModel->createTournament($name, $sportId, $startDate, $endDate, $matchLevel);
             
             if ($tournamentId) {
                 echo json_encode([

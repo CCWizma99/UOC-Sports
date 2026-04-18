@@ -51,7 +51,7 @@ class InjuryReport {
              FROM injury_report ir
              LEFT JOIN user u ON ir.user_id = u.user_id
              LEFT JOIN practice_sessions ps ON ir.practice_id = ps.id
-             WHERE ps.sport_id = :sport_id
+             WHERE ps.sport_id = :sport_id AND ir.status = 'ACTIVE'
              ORDER BY ir.date DESC"
         );
         $stmt->execute(['sport_id' => $sportId]);
@@ -59,7 +59,7 @@ class InjuryReport {
     }
 
     public function deleteReport($reportId) {
-        $stmt = $this->db->prepare("DELETE FROM injury_report WHERE report_id = :id");
+        $stmt = $this->db->prepare("UPDATE injury_report SET status = 'DELETED' WHERE report_id = :id");
         return $stmt->execute(['id' => $reportId]);
     }
 

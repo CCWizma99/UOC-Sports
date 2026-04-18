@@ -286,7 +286,6 @@ class EmailService {
                             font-weight: bold; margin: 20px 0; font-size: 15px;
                         }
                         .footer { background: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb; }
-                        .badge { display: inline-block; background: #5e2d91; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
                     </style>
                 </head>
                 <body>
@@ -303,7 +302,7 @@ class EmailService {
 
                         <table class='details-table'>
                             <tr><td>Tournament</td><td><strong>$tournamentName</strong></td></tr>
-                            <tr><td>Sport</td><td><span class='badge'>$sportName</span></td></tr>
+                            <tr><td>Sport</td><td>$sportName</td></tr>
                             <tr><td>Start Date</td><td>$startDate</td></tr>
                             <tr><td>End Date</td><td>$endDate</td></tr>
                         </table>
@@ -328,5 +327,284 @@ class EmailService {
 
         return $this->sendEmail($captainEmail, $captainName, $subject, $htmlContent);
     }
+
+    /**
+     * Send account status update email (Verification Approved/Rejected)
+     */
+    public function sendAccountStatusEmail($email, $name, $status, $reason = null) {
+        $isApproved = ($status === 'VERIFIED');
+        $subject = $isApproved ? "Account Verified - UOC Sports E-Portal" : "Account Verification Update - UOC Sports E-Portal";
+        
+        $headerColor = $isApproved ? "linear-gradient(135deg, #059669, #10b981)" : "linear-gradient(135deg, #dc2626, #f87171)";
+        $statusIcon = $isApproved ? "✅" : "⚠️";
+        $statusTitle = $isApproved ? "Account Verified Successfully" : "Account Verification Declined";
+        
+        $reasonHtml = '';
+        if (!$isApproved && $reason) {
+            $reasonHtml = "
+                <div style='background: #fef2f2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0;'>
+                    <h4 style='margin: 0 0 5px; color: #dc2626;'>Reason for Rejection:</h4>
+                    <p style='margin: 0;'>$reason</p>
+                </div>
+            ";
+        }
+
+        $htmlContent = "
+            <html>
+                <body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 0;'>
+                    <div style='background: $headerColor; color: white; padding: 30px 20px; text-align: center;'>
+                        <h1>$statusIcon $statusTitle</h1>
+                        <p>University of Colombo Sports Management</p>
+                    </div>
+                    <div style='padding: 30px 20px;'>
+                        <h2>Hello $name,</h2>
+                        <p>Your account verification process is complete.</p>
+                        
+                        " . ($isApproved ? 
+                            "<p>Your identity has been verified by the Registrar. You now have full access to all features of the UOC Sports E-Portal.</p>
+                             <div style='text-align:center; margin: 30px 0;'>
+                                <a href='http://localhost/uoc-sports/public/sign-in' style='display: inline-block; padding: 14px 28px; background: #059669; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;'>Login to Portal →</a>
+                             </div>" : 
+                            "<p>Unfortunately, your account verification request was declined at this time.</p> $reasonHtml <p>Please review the reason above and update your registration details accordingly.</p>"
+                        ) . "
+
+                        <p>If you have any questions, please reply to this email or visit the Physical Education Department.</p>
+                        <p>Best regards,<br><strong>Registrar's Office</strong></p>
+                    </div>
+                </body>
+            </html>
+        ";
+
+        return $this->sendEmail($email, $name, $subject, $htmlContent);
+    }
+
+    /**
+     * Send password reset request email
+     */
+    public function sendPasswordResetEmail($email, $name, $token) {
+        $subject = "Password Reset Request - UOC Sports E-Portal";
+        $resetUrl = "http://localhost/uoc-sports/public/reset-password?token=" . $token;
+
+        $htmlContent = "
+            <html>
+                <body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 0;'>
+                    <div style='background: linear-gradient(135deg, #1e293b, #334155); color: white; padding: 30px 20px; text-align: center;'>
+                        <h1>🔑 Password Recovery</h1>
+                    </div>
+                    <div style='padding: 30px 20px;'>
+                        <h2>Hello $name,</h2>
+                        <p>We received a request to reset the password for your UOC Sports E-Portal account.</p>
+                        <p>Click the button below to choose a new password. <strong>This link will expire in 1 hour.</strong></p>
+                        
+                        <div style='text-align:center; margin: 30px 0;'>
+                            <a href='$resetUrl' style='display: inline-block; padding: 14px 28px; background: #3b82f6; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;'>Reset My Password</a>
+                        </div>
+                        
+                        <p>If you did not request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>
+                        
+                        <p style='font-size: 13px; color: #666; border-top: 1px solid #eee; padding-top: 20px;'>
+                            If you're having trouble clicking the button, copy and paste the URL below into your web browser:<br>
+                            <a href='$resetUrl'>$resetUrl</a>
+                        </p>
+                    </div>
+                </body>
+            </html>
+        ";
+
+        return $this->sendEmail($email, $name, $subject, $htmlContent);
+    }
+
+    /**
+     * Send a generic email for mass communication
+     * Note: This is called sequentially for each recipient to allow personalization
+     */
+    public function sendMassEmail($email, $name, $subject, $message) {
+        $htmlContent = "
+            <html>
+                <body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 0;'>
+                    <div style='background: #5e2d91; color: white; padding: 25px; text-align: center;'>
+                        <h1>UOC Sports Announcement</h1>
+                    </div>
+                    <div style='padding: 30px 20px;'>
+                        <h2>Hello $name,</h2>
+                        <div style='white-space: pre-wrap;'>$message</div>
+                        <p style='margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;'>
+                            Best regards,<br>
+                            <strong>University of Colombo Sports Management</strong>
+                        </p>
+                    </div>
+                </body>
+            </html>
+        ";
+        return $this->sendEmail($email, $name, $subject, $htmlContent);
+    }
+
+    /**
+     * Send facility booking confirmation (Received but Pending Payment)
+     */
+    public function sendBookingConfirmationEmail($email, $name, $bookingData) {
+        $subject = "Booking Received: " . $bookingData['booking_id'] . " - UOC Sports";
+        $bookingId = $bookingData['booking_id'];
+        $facilityName = $bookingData['facility_name'];
+        $date = date('F j, Y', strtotime($bookingData['date']));
+        $startTime = $bookingData['start_time'];
+        $endTime = $bookingData['end_time'];
+
+        $htmlContent = "
+            <html>
+                <body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>
+                    <div style='background: #3b82f6; color: white; padding: 20px; text-align: center;'>
+                        <h1>Booking Request Received</h1>
+                    </div>
+                    <div style='padding: 20px; border: 1px solid #eee;'>
+                        <h2>Dear $name,</h2>
+                        <p>We have received your booking request for <strong>$facilityName</strong>.</p>
+                        
+                        <div style='background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;'>
+                            <h3 style='margin: 0 0 10px; color: #1e40af;'>Booking Details</h3>
+                            <p style='margin: 5px 0;'><strong>Booking ID:</strong> $bookingId</p>
+                            <p style='margin: 5px 0;'><strong>Facility:</strong> $facilityName</p>
+                            <p style='margin: 5px 0;'><strong>Date:</strong> $date</p>
+                            <p style='margin: 5px 0;'><strong>Time:</strong> $startTime - $endTime</p>
+                        </div>
+                        
+                        <p style='color: #dc2626; font-weight: bold;'>Action Required:</p>
+                        <p>To confirm your booking, please upload your payment slip through the portal within 24 hours.</p>
+                        
+                        <div style='text-align: center; margin: 20px 0;'>
+                            <a href='http://localhost/uoc-sports/public/student/bookings' style='background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Upload Payment Slip</a>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        ";
+        return $this->sendEmail($email, $name, $subject, $htmlContent);
+    }
+
+    /**
+     * Send payment status update (Verified/Approved)
+     */
+    public function sendPaymentUpdateEmail($email, $name, $status, $bookingId) {
+        $isApproved = ($status === 'BOOKED'); // Final state is BOOKED after payment approval
+        $subject = $isApproved ? "Booking Confirmed - $bookingId" : "Payment Update - $bookingId";
+        
+        $headerColor = $isApproved ? "#059669" : "#dc2626";
+        $statusText = $isApproved ? "Payment Verified & Booking Confirmed" : "Payment Verification Failed";
+
+        $htmlContent = "
+            <html>
+                <body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>
+                    <div style='background: $headerColor; color: white; padding: 20px; text-align: center;'>
+                        <h1>$statusText</h1>
+                    </div>
+                    <div style='padding: 20px;'>
+                        <h2>Hello $name,</h2>
+                        <p>This is an update regarding your booking <strong>$bookingId</strong>.</p>
+                        
+                        " . ($isApproved ? 
+                            "<p style='color: #059669; font-size: 18px;'>Your payment has been successfully verified! Your slot is now officially reserved.</p>" : 
+                            "<p style='color: #dc2626; font-size: 18px;'>There was an issue verifying your payment slip. Please check the portal for details or re-upload a clear image of the receipt.</p>"
+                        ) . "
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <a href='http://localhost/uoc-sports/public/student/bookings' style='background: #1e293b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px;'>View My Bookings</a>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        ";
+        return $this->sendEmail($email, $name, $subject, $htmlContent);
+    }
+
+    /**
+     * Send equipment request status update (Approved/Rejected/Received)
+     */
+    public function sendEquipmentRequestStatusEmail($email, $name, $status, $requestData) {
+        $isApproved = ($status === 'ACTIVE' || $status === 'APPROVED');
+        $isPending = ($status === 'PENDING');
+        
+        $subject = $isPending ? "Equipment Request Received - UOC Sports" : "Equipment Request Update - UOC Sports";
+        
+        $headerColor = "#1e293b"; // Default
+        if ($isApproved) $headerColor = "#059669";
+        if ($status === 'REJECTED') $headerColor = "#dc2626";
+
+        $statusText = "Request Pending";
+        if ($isApproved) $statusText = "Request Approved";
+        if ($status === 'REJECTED') $statusText = "Request Declined";
+
+        $htmlContent = "
+            <html>
+                <body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>
+                    <div style='background: $headerColor; color: white; padding: 20px; text-align: center;'>
+                        <h1>$statusText</h1>
+                    </div>
+                    <div style='padding: 20px;'>
+                        <h2>Hello $name,</h2>
+                        <p>This is an update regarding your equipment request <strong>#" . $requestData['request_id'] . "</strong>.</p>
+                        
+                        <div style='background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;'>
+                            <h3 style='margin: 0 0 10px; color: #1e40af;'>Request Summary</h3>
+                            <p style='margin: 5px 0;'><strong>Items:</strong> " . $requestData['equipment_name'] . "</p>
+                            <p style='margin: 5px 0;'><strong>Date:</strong> " . date('F j, Y', strtotime($requestData['request_date'])) . "</p>
+                            <p style='margin: 5px 0;'><strong>Time:</strong> " . $requestData['start_time'] . " - " . $requestData['end_time'] . "</p>
+                        </div>
+                        
+                        " . ($isApproved ? 
+                            "<p style='color: #059669; font-weight: bold;'>Your request has been approved! Please visit the equipment store at the scheduled time to collect the items. Remember to bring your University ID.</p>" : 
+                            ($status === 'REJECTED' ? 
+                                "<p style='color: #dc2626; font-weight: bold;'>Your request was declined. Please check the portal for details or contact the Equipment Manager.</p>" :
+                                "<p>We have received your request and the Equipment Manager will review it shortly.</p>")
+                        ) . "
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <a href='http://localhost/uoc-sports/public/student/equipment-requests' style='background: #1e293b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px;'>View My Requests</a>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        ";
+        return $this->sendEmail($email, $name, $subject, $htmlContent);
+    }
+
+    /**
+     * Notify Admin of a new expense submission
+     */
+    public function sendExpenseAddedEmail($adminEmail, $adminName, $expenseData) {
+        $subject = "New Expense Submitted: " . $expenseData['expense_title'];
+        
+        $htmlContent = "
+            <html>
+                <body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>
+                    <div style='background: #1e293b; color: white; padding: 20px; text-align: center;'>
+                        <h1>New Expense Submission</h1>
+                    </div>
+                    <div style='padding: 20px;'>
+                        <h2>Hello $adminName,</h2>
+                        <p>A new sport expense has been submitted for review.</p>
+                        
+                        <div style='background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;'>
+                            <h3 style='margin: 0 0 10px; color: #1e40af;'>Expense Details</h3>
+                            <p style='margin: 5px 0;'><strong>Sport:</strong> " . $expenseData['sport'] . "</p>
+                            <p style='margin: 5px 0;'><strong>Title:</strong> " . $expenseData['expense_title'] . "</p>
+                            <p style='margin: 5px 0;'><strong>Amount:</strong> LKR " . number_format($expenseData['amount'], 2) . "</p>
+                            <p style='margin: 5px 0;'><strong>Submitted By:</strong> " . $expenseData['submitted_by'] . "</p>
+                            <p style='margin: 5px 0;'><strong>Date:</strong> " . date('F j, Y') . "</p>
+                        </div>
+                        
+                        <p>Please log in to the Administrative Portal to review the details and verify the receipt.</p>
+                        
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <a href='http://localhost/uoc-sports/public/admin/expenses' style='background: #1e293b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px;'>Review Expenses</a>
+                        </div>
+                    </div>
+                </body>
+            </html>
+        ";
+        return $this->sendEmail($adminEmail, $adminName, $subject, $htmlContent);
+    }
 }
+
+
+
 

@@ -117,7 +117,7 @@ class StudentController {
         }
 
         $studentModel = new Student();
-        $sports = $studentModel->getAvailableSports($studentData['student_id']);
+        $sports = $studentModel->getAvailableSports($studentData['student_id'], $_SESSION['user_id']);
         
         echo json_encode(['status' => 'success', 'data' => $sports]);
     }
@@ -150,7 +150,7 @@ class StudentController {
              return;
         }
 
-        $sports = $studentModel->getEnrolledSports($studentData['student_id']);
+        $sports = $studentModel->getEnrolledSports($studentData['student_id'], $_SESSION['user_id']);
         
         echo json_encode(['status' => 'success', 'data' => $sports]);
     }
@@ -189,6 +189,39 @@ class StudentController {
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Failed to enroll. You may already be enrolled in this sport.']);
         }
+    }
+
+    /**
+     * Get practice sessions for student calendar (API endpoint)
+     */
+    public function getStudentPracticeSessions() {
+        header('Content-Type: application/json');
+
+        $month = $_GET['month'] ?? date('m');
+        $year  = $_GET['year']  ?? date('Y');
+
+        // Strip any stray characters (e.g. a trailing semicolon from the old JS bug)
+        $month = preg_replace('/[^0-9]/', '', $month);
+        $year  = preg_replace('/[^0-9]/', '', $year);
+
+        try {
+            $model = new SportPracticeSession();
+            $sessions = $model->getStudentPracticeSessions($month, $year);
+
+            // Group by date
+            $grouped = [];
+            foreach ($sessions as $session) {
+                $date = $session['session_date'];
+                $grouped[$date][] = $session;
+            }
+
+            echo json_encode(['success' => true, 'data' => $grouped]);
+        } catch (Exception $e) {
+            error_log('getStudentPracticeSessions error: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit();
     }
 
     /**

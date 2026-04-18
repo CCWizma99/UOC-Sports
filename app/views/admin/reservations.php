@@ -398,7 +398,20 @@ require '../app/views/templates/admin/sidebar.php';
                                     </div>
                                 </td>
                                 <td><span class="location-tag">${r.physical_location || 'N/A'}</span></td>
-                                <td><span class="status-badge ${statusClass}">${r.status}</span></td>
+                                <td>
+                                    <span class="status-badge ${statusClass}">${r.flag_status === 'FLAGGED' ? 'FLAGGED' : r.status}</span>
+                                    ${r.status === 'BOOKED' && r.payment_status === 'INCOMPLETE' ? (function(){
+                                        const created = new Date(r.created_at).getTime();
+                                        const now = new Date().getTime();
+                                        const diff = Math.floor((created + 30 * 60 * 1000 - now) / 1000);
+                                        if (diff > 0) {
+                                            const mins = Math.floor(diff / 60);
+                                            const secs = diff % 60;
+                                            return `<br><small style="color:#d32f2f; font-weight:600;"><i class="fas fa-clock"></i> ${mins}:${secs.toString().padStart(2, '0')}</small>`;
+                                        }
+                                        return '';
+                                    })() : ''}
+                                </td>
                                 <td>
                                     <a href="/uoc-sports/public/admin-reservation?id=${r.booking_id}" class="action-link" title="View Reservation">
                                         <i class="fa-solid fa-circle-arrow-right"></i>

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../services/EmailService.php';
 
 class EquipmentApiController {
     public function searchEquipment() {
@@ -292,6 +293,20 @@ class EquipmentApiController {
             $requestId = $bookingModel->createRequest($data);
 
             if ($requestId) {
+                // Send confirmation email
+                try {
+                    $emailService = new EmailService();
+                    $emailService->sendEquipmentRequestStatusEmail($userProfile['email'], $userProfile['fname'], 'PENDING', [
+                        'request_id' => $requestId,
+                        'equipment_name' => $categoryNameSummary,
+                        'request_date' => $requestDate,
+                        'start_time' => $startTime,
+                        'end_time' => $endTime
+                    ]);
+                } catch (Exception $e) {
+                    error_log("Failed to send equipment request email: " . $e->getMessage());
+                }
+
                 echo json_encode(['status' => 'success', 'message' => 'Booking request created successfully!', 'request_id' => $requestId]);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Failed to create booking request.']);
@@ -330,7 +345,10 @@ class EquipmentApiController {
                 return;
             }
             
-            $requests = $bookingModel->getRequestsByStudent($_SESSION['user_id']);
+            $requests = $bookingModel->getAllRequests([
+                'student_id' => $studentData['student_id'],
+                'user_id' => $_SESSION['user_id']
+            ]);
             
             // Format for frontend
             $formattedData = array_map(function($req) {

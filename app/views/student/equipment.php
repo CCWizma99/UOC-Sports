@@ -251,12 +251,54 @@
 
     <?php require APP_ROOT . '/app/views/templates/general/footer.php'; ?>
 
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-question-circle"></i>
+                <h3 id="confirmModalTitle">Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeConfirmModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn btn-primary" id="confirmModalBtn">
+                    <i class="fas fa-check"></i> Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
     document.addEventListener("DOMContentLoaded", () => {
         const sportSelect = document.getElementById("sport");
         const equipmentContainer = document.getElementById("equipment-selection-container");
         const reserveForm = document.getElementById("reserve-equipment-form");
         const msg = document.getElementById("reserve-message");
+        const confirmModal = document.getElementById("confirmModal");
+
+        window.closeConfirmModal = () => {
+            confirmModal.style.display = 'none';
+        };
+
+        function showConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalMessage').textContent = message;
+            confirmModal.style.display = 'flex';
+            
+            const confirmBtn = document.getElementById('confirmModalBtn');
+            confirmBtn.onclick = () => {
+                closeConfirmModal();
+                onConfirm();
+            };
+        }
+
+        window.onclick = (event) => {
+            if (event.target === confirmModal) closeConfirmModal();
+        };
 
         // Load equipment only when BOTH sport and date are selected
         function tryLoadEquipment() {
@@ -407,27 +449,32 @@
 
                     // Add click listeners to cancel buttons
                     document.querySelectorAll(".cancel-reservation").forEach(btn => {
-                        btn.addEventListener("click", async () => {
-                            if (!confirm("Are you sure you want to cancel this reservation?")) return;
-                            
+                        btn.addEventListener("click", () => {
                             const requestId = btn.getAttribute("data-id");
-                            const formData = new FormData();
-                            formData.append("request_id", requestId);
+                            
+                            showConfirmModal(
+                                "Cancel Reservation", 
+                                "Are you sure you want to cancel this reservation?", 
+                                async () => {
+                                    const formData = new FormData();
+                                    formData.append("request_id", requestId);
 
-                            try {
-                                const res = await fetch("/uoc-sports/public/reserve-equipments/cancel", {
-                                    method: "POST",
-                                    body: formData
-                                });
-                                const result = await res.json();
-                                if (result.status === "success") {
-                                    loadMyReservedItems();
-                                } else {
-                                    alert(result.message);
+                                    try {
+                                        const res = await fetch("/uoc-sports/public/reserve-equipments/cancel", {
+                                            method: "POST",
+                                            body: formData
+                                        });
+                                        const result = await res.json();
+                                        if (result.status === "success") {
+                                            loadMyReservedItems();
+                                        } else {
+                                            alert(result.message);
+                                        }
+                                    } catch (e) {
+                                        alert("Failed to cancel reservation.");
+                                    }
                                 }
-                            } catch (e) {
-                                alert("Failed to cancel reservation.");
-                            }
+                            );
                         });
                     });
                 })

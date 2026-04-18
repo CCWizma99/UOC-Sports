@@ -125,12 +125,14 @@
 
                     <div class="form-group">
                         <label for="startTime">Start Time <span class="required-star">*</span></label>
-                        <input type="time" id="startTime" name="stime" min="06:00" max="20:00" value="<?= isset($session) ? htmlspecialchars($session['start_time']) : '' ?>" required>
+                        <input type="time" id="startTime" name="stime" min="06:00" max="20:00" step="1800" value="<?= isset($session) ? htmlspecialchars($session['start_time']) : '' ?>" required>
+                        <small>Use 30-minute intervals (e.g. 08:00, 08:30)</small>
                     </div>
 
                     <div class="form-group">
                         <label for="endTime">End Time <span class="required-star">*</span></label>
-                        <input type="time" id="endTime" name="etime" min="06:00" max="20:00" value="<?= isset($session) ? htmlspecialchars($session['end_time']) : '' ?>" required>
+                        <input type="time" id="endTime" name="etime" min="06:00" max="20:00" step="1800" value="<?= isset($session) ? htmlspecialchars($session['end_time']) : '' ?>" required>
+                        <small>Use 30-minute intervals</small>
                     </div>
 
                     <div class="form-group">
@@ -142,18 +144,26 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Location <span class="required-star">*</span></label>
-                        <select id="location" name="location" required>
-                            <option>Select the Location</option>
-                            <option value="Indoor Tennis Court" <?= (isset($session) && $session['location'] === 'Indoor Tennis Court') ? 'selected' : '' ?>>Indoor Tennis Court</option>
-                            <option value="Indoor Badminton Court" <?= (isset($session) && $session['location'] === 'Indoor Badminton Court') ? 'selected' : '' ?>>Indoor Badminton Court</option>
-                            <option value="Outdoor Basketball Court" <?= (isset($session) && $session['location'] === 'Outdoor Basketball Court') ? 'selected' : '' ?>>Outdoor Basketball Court</option>
-                            <option value="Outdoor Baseball Court" <?= (isset($session) && $session['location'] === 'Outdoor Baseball Court') ? 'selected' : '' ?>>Outdoor Baseball Court</option>
-                            <option value="Indoor Volleyball Court" <?= (isset($session) && $session['location'] === 'Indoor Volleyball Court') ? 'selected' : '' ?>>Indoor Volleyball Court</option>
-                            <option value="Outdoor Cricket Field" <?= (isset($session) && $session['location'] === 'Outdoor Cricket Field') ? 'selected' : '' ?>>Outdoor Cricket Field</option>
-                            <option value="Elle Field" <?= (isset($session) && $session['location'] === 'Elle Field') ? 'selected' : '' ?>>Elle Field</option>
-                            <option value="Carrom room" <?= (isset($session) && $session['location'] === 'Carrom room') ? 'selected' : '' ?>>Carrom Room</option>
+                        <label for="location">Physical Facility *</label>
+                        <select id="location" name="physical_facility_id" required onchange="updateLocationName(this)">
+                            <option value="">Select the Facility</option>
+                            <?php if (!empty($facilities)): ?>
+                                <?php foreach ($facilities as $facility): ?>
+                                    <option value="<?= htmlspecialchars($facility['facility_id']) ?>" 
+                                            data-name="<?= htmlspecialchars($facility['facility_name']) ?>">
+                                        <?= htmlspecialchars($facility['facility_name']) ?> (<?= htmlspecialchars($facility['location']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
+                        <input type="hidden" name="location_name" id="location_name">
+                        <script>
+                            function updateLocationName(select) {
+                                const selectedOption = select.options[select.selectedIndex];
+                                const name = selectedOption.getAttribute('data-name');
+                                document.getElementById('location_name').value = name || '';
+                            }
+                        </script>
                     </div>
 
                     <?php if (isset($session)): ?>

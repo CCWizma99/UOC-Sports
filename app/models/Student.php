@@ -9,33 +9,39 @@ class Student {
     /**
      * Get all sports that a student is NOT enrolled in
      */
-    public function getAvailableSports($studentId) {
+    public function getAvailableSports($studentId, $userId = null) {
         $sql = "SELECT s.sport_id, s.sport_name 
                 FROM sport s
                 WHERE s.sport_id NOT IN (
                     SELECT st.sport_id 
                     FROM `sports-team` st 
-                    WHERE st.student_id = :student_id
+                    WHERE (st.student_id = :student_id OR st.student_id = :user_id)
                 )
                 ORDER BY s.sport_name";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['student_id' => $studentId]);
+        $stmt->execute([
+            'student_id' => $studentId,
+            'user_id' => ($userId ?: '')
+        ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
      * Get all sports that a student is enrolled in
      */
-    public function getEnrolledSports($studentId) {
+    public function getEnrolledSports($studentId, $userId = null) {
         $sql = "SELECT s.sport_id, s.sport_name, st.joined_date
                 FROM `sports-team` st
                 INNER JOIN sport s ON st.sport_id = s.sport_id
-                WHERE st.student_id = :student_id
+                WHERE (st.student_id = :student_id OR st.student_id = :user_id)
                 ORDER BY st.joined_date DESC";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['student_id' => $studentId]);
+        $stmt->execute([
+            'student_id' => $studentId,
+            'user_id' => ($userId ?: '')
+        ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

@@ -31,5 +31,4 @@
         require '../app/views/templates/general/footer.php';
     ?>
 </body>
-<script src="/uoc-sports/public/js/attendance-sheet.js"></script>
 </html>

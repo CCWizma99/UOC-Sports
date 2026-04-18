@@ -48,6 +48,14 @@ class BudgetController {
                 return;
             }
     
+            if (!is_numeric($amount) || floatval($amount) <= 0) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Amount must be a positive number.'
+                ]);
+                return;
+            }
+    
             // File upload (optional)
             $proofDoc = null;
             if (isset($_FILES['receipt']) && $_FILES['receipt']['error'] === UPLOAD_ERR_OK) {
@@ -109,6 +117,14 @@ class BudgetController {
             $purpose = trim($_POST['Title'] ?? '');
             $remarks = trim($_POST['Remarks'] ?? '');
     
+            if (!is_numeric($amount) || floatval($amount) <= 0) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Amount must be a positive number.'
+                ]);
+                return;
+            }
+    
             // File upload handling
             if (!isset($_FILES['receipt']) || $_FILES['receipt']['error'] !== UPLOAD_ERR_OK) {
                 echo json_encode([
@@ -162,8 +178,10 @@ class BudgetController {
     }
     
     public function remaining() {
-        if(!isset($_GET['sid'])){
-           return null; 
+        header('Content-Type: application/json');
+        if(empty($_GET['sid'])){
+           echo json_encode(['status' => 'error', 'message' => 'Missing sport ID parameter (sid)']);
+           return; 
         }
         $sportId = $_GET['sid'];
         $budgetModel = new Budget();
@@ -184,8 +202,10 @@ class BudgetController {
     }
 
     public function remainingBudget() {
-        if(!isset($_GET['bid'])){
-           return null; 
+        header('Content-Type: application/json');
+        if(empty($_GET['bid'])){
+           echo json_encode(['status' => 'error', 'message' => 'Missing budget ID parameter (bid)']);
+           return; 
         }
         $bid = $_GET['bid'];
         $budgetModel = new Budget();

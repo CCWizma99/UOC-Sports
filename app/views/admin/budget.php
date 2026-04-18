@@ -24,26 +24,9 @@ require '../app/views/templates/admin/header.php';
 require '../app/views/templates/admin/link-bar.php';
 require '../app/views/templates/admin/sidebar.php';
 
-require_once '../core/Database.php';
-
-$year = '2025';
-
-try {
-    $db = Database::getConnection();
-
-    $stmt = $db->prepare("
-        SELECT 
-            SUM(spent_amount) AS total_spent, 
-            SUM(allocated_amount - spent_amount) AS total_remaining
-        FROM budget
-        WHERE year = ?
-    ");
-    $stmt->execute([$year]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    $result = ['total_spent' => 0, 'total_remaining' => 0];
-}
+$budgetModel = new Budget();
+$year = $_GET['year'] ?? date('Y');
+$result = $budgetModel->getBudgetSummary($year);
 
 // Fetch sports for dropdown
 $sportModel = new Sport();
@@ -62,7 +45,7 @@ $sports = $sportModel->getSports();
 
             <!-- Budget Overview -->
             <section id="budget-card" class="bg-theme">
-                <h2>Budget Overview</h2>
+                <h2>Budget Overview (<?= $year ?>)</h2>
                 <div class="flex y-center graph-content-container">
                     <div class="graph">
                         <canvas id="pieChart" width="200" height="200"></canvas>
@@ -77,7 +60,7 @@ $sports = $sportModel->getSports();
                         <table>
                             <tr>
                                 <td>Total Allocated Budget</td>
-                                <td>Rs. <?= number_format($result['total_spent'] + $result['total_remaining']) ?></td>
+                                <td>Rs. <?= number_format($result['total_allocated'] ?? 0) ?></td>
                             </tr>
                             <tr>
                                 <td>Total Expenditure</td>

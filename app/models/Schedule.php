@@ -1,3 +1,9 @@
+<?php if (isset($_SESSION['error'])): ?>
+    <script>
+        alert("<?= $_SESSION['error']; ?>");
+    </script>
+    <?php unset($_SESSION['error']); ?>
+<?php endif; ?>
 <?php
 require_once __DIR__ . '/../../core/Database.php';
 
@@ -141,6 +147,53 @@ class Schedule {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function hasTimeConflict($sport_id, $date, $start_time, $end_time, $excludeId = null)
+{
+    $query = "
+        SELECT * FROM practice_sessions
+        WHERE sport_id = :sport_id
+        AND session_date = :date
+    ";
+
+    // Exclude current session when updating
+    if ($excludeId) {
+        $query .= " AND id != :excludeId";
+    }
+
+    $stmt = $this->pdo->prepare($query);
+
+    $stmt->bindValue(':sport_id', $sport_id);
+    $stmt->bindValue(':date', $date);
+
+    if ($excludeId) {
+        $stmt->bindValue(':excludeId', $excludeId);
+    }
+
+    $stmt->execute();
+    $sessions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($sessions as $session) {
+        $existingStart = strtotime($session['start_time']);
+        $existingEnd   = strtotime($session['end_time']);
+
+        $newStart = strtotime($start_time);
+        $newEnd   = strtotime($end_time);
+
+        // Add 10 min buffer (600 seconds)
+        $buffer = 600;
+
+        // Check overlap + buffer
+        if (
+            ($newStart < ($existingEnd + $buffer)) &&
+            ($newEnd > ($existingStart - $buffer))
+        ) {
+            return true; // Conflict exists
+        }
+    }
+
+    return false; // No conflict
+}
 
   // app/models/Schedule.php
 public function getPreviousSessions($sportId) {
