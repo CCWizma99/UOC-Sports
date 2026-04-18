@@ -33,7 +33,9 @@ $router->post('/create-facility-booking', 'FacilityApiController@createBooking')
 $router->get('/payment', 'UserHomeController@payment');
 $router->get('/payment/success', 'PaymentController@success');
 $router->get('/payment/cancel', 'PaymentController@cancel');
-$router->post('/payment/notify', 'PaymentController@notify');
+$router->get('/payment/notify', 'PaymentController@notify');
+$router->get('/support', 'UserHomeController@support');
+$router->post('/submit-feedback', 'UserHomeController@handleFeedback');
 
 // User Registration Stats API
 $router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
