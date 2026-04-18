@@ -10,6 +10,9 @@
         @import url(/uoc-sports/public/css/general/header.css);
         @import url(/uoc-sports/public/css/coach/team-schedule.css);
         @import url(/uoc-sports/public/css/general/footer.css);
+        
+        /* FullCalendar CSS */
+        @import url('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css');
 
         
         .active{
@@ -25,5 +28,6 @@
         require '../app/views/templates/general/footer.php';
     ?>
 </body>
-<script src="/uoc-sports/public/js/attendance-sheet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="/uoc-sports/public/js/attendance-sheet.js"></script>
 </html>
