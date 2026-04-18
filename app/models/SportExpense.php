@@ -32,7 +32,7 @@ class SportExpense {
         
         $sql = "INSERT INTO sport_expenses 
                 (sport, expense_title, sport_event, amount, receipt, submitted_by, expense_date)
-                VALUES (?, ?, ?, ?, ?, ?, NOW())";
+            VALUES (?, ?, ?, ?, ?, ?, DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:00'))";
         
         $stmt = $this->conn->prepare($sql);
   
@@ -94,8 +94,7 @@ class SportExpense {
                     sport_event = ?,
                     amount = ?,
                     receipt = ?,
-                    submitted_by = ?,
-                    
+                    submitted_by = ?
                 WHERE expense_id = ?";
         
         $stmt = $this->conn->prepare($sql);
@@ -124,7 +123,7 @@ class SportExpense {
      */
     public function getAll($filters = []) {
         $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
-                       expense_date 
+                       updated_at 
                 FROM sport_expenses";
         
         $conditions = [];

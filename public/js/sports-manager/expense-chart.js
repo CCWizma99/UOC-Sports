@@ -136,6 +136,49 @@ function updateUpcomingTournaments(tournaments) {
 // Chart instance
 let expenseChart = null;
 
+// Merge multiple expenses recorded on the same day into one chart point.
+function aggregateExpensesByDate(expenses) {
+    const dailyMap = new Map();
+
+    expenses.forEach(expense => {
+        const rawDate = expense.expense_date || expense.label;
+        if (!rawDate) {
+            return;
+        }
+
+        const dateObj = new Date(rawDate);
+        const dateKey = Number.isNaN(dateObj.getTime()) ? String(rawDate) : dateObj.toISOString().slice(0, 10);
+        const displayLabel = Number.isNaN(dateObj.getTime())
+            ? String(rawDate)
+            : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const amount = parseFloat(expense.amount) || 0;
+
+        if (!dailyMap.has(dateKey)) {
+            dailyMap.set(dateKey, {
+                dateKey: dateKey,
+                label: displayLabel,
+                dailyAmount: 0,
+                count: 0
+            });
+        }
+
+        const day = dailyMap.get(dateKey);
+        day.dailyAmount += amount;
+        day.count += 1;
+    });
+
+    const sorted = Array.from(dailyMap.values()).sort((a, b) => a.dateKey.localeCompare(b.dateKey));
+    let runningTotal = 0;
+
+    return sorted.map(day => {
+        runningTotal += day.dailyAmount;
+        return {
+            ...day,
+            cumulative: runningTotal
+        };
+    });
+}
+
 // Load data from backend
 function loadExpenseChart() {
     const yearSelect = document.getElementById("year");
@@ -213,10 +256,11 @@ function createLineChart(expenses, sportId, year) {
     }
     ctx.style.display = 'block';
     
-    // Prepare data
-    const labels = expenses.map(e => e.label);
-    const cumulativeData = expenses.map(e => e.cumulative);
-    const amounts = expenses.map(e => e.amount);
+    // Prepare data (single point per date)
+    const aggregatedExpenses = aggregateExpensesByDate(expenses);
+    const labels = aggregatedExpenses.map(e => e.label);
+    const cumulativeData = aggregatedExpenses.map(e => e.cumulative);
+    const dailyAmounts = aggregatedExpenses.map(e => e.dailyAmount);
     
     expenseChart = new Chart(ctx, {
         type: 'line',
@@ -281,15 +325,12 @@ function createLineChart(expenses, sportId, year) {
                         // Set Text
                         if (tooltipModel.body) {
                             const dataIndex = tooltipModel.dataPoints[0].dataIndex;
-                            const expense = expenses[dataIndex];
-                            const amount = amounts[dataIndex];
+                            const expensePoint = aggregatedExpenses[dataIndex];
+                            const amount = dailyAmounts[dataIndex];
                             const cumulative = cumulativeData[dataIndex];
-                            const date = expense.expense_date;
-
-                            const titleLines = tooltipModel.title || [];
                             
                             let innerHtml = '<div class="tooltip-header">';
-                            innerHtml += expense.expense_title || 'Expense Details';
+                            innerHtml += expensePoint.label + ' (' + expensePoint.count + (expensePoint.count === 1 ? ' expense)' : ' expenses)');
                             innerHtml += '</div>';
                             
                             innerHtml += '<div class="tooltip-content">';
@@ -297,7 +338,7 @@ function createLineChart(expenses, sportId, year) {
                             innerHtml += '<div class="tooltip-row">';
                             innerHtml += '<div class="expense-detail">';
                             innerHtml += '<i class="fas fa-money-bill-wave tooltip-icon icon-amount"></i>';
-                            innerHtml += '<span class="tooltip-label">Amount:</span>';
+                            innerHtml += '<span class="tooltip-label">Daily Total:</span>';
                             innerHtml += '</div>';
                             innerHtml += '<span class="tooltip-value">Rs ' + amount.toLocaleString('en-US', {minimumFractionDigits: 2}) + '</span>';
                             innerHtml += '</div>';
@@ -310,15 +351,13 @@ function createLineChart(expenses, sportId, year) {
                             innerHtml += '<span class="tooltip-value">Rs ' + cumulative.toLocaleString('en-US', {minimumFractionDigits: 2}) + '</span>';
                             innerHtml += '</div>';
 
-                            if (expense.category) {
-                                innerHtml += '<div class="tooltip-row">';
-                                innerHtml += '<div class="expense-detail">';
-                                innerHtml += '<i class="fas fa-tag tooltip-icon icon-category"></i>';
-                                innerHtml += '<span class="tooltip-label">Category:</span>';
-                                innerHtml += '</div>';
-                                innerHtml += '<span class="tooltip-value">' + expense.category + '</span>';
-                                innerHtml += '</div>';
-                            }
+                            innerHtml += '<div class="tooltip-row">';
+                            innerHtml += '<div class="expense-detail">';
+                            innerHtml += '<i class="fas fa-list tooltip-icon icon-category"></i>';
+                            innerHtml += '<span class="tooltip-label">Entries:</span>';
+                            innerHtml += '</div>';
+                            innerHtml += '<span class="tooltip-value">' + expensePoint.count + '</span>';
+                            innerHtml += '</div>';
                             
                             innerHtml += '</div>';
 
@@ -457,9 +496,11 @@ function updateBalanceDisplay(remaining, allocated, spent, percentage) {
     const balanceElement = document.getElementById('balance');
     const progressElement = document.getElementById('progress');
     const percentElement = document.getElementById('percent');
+    const isOverBudget = remaining < 0;
     
     if (balanceElement) {
         balanceElement.textContent = `Rs ${remaining.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 3 })}`;
+        balanceElement.style.color = isOverBudget ? '#dc2626' : '';
     }
     
     if (progressElement) {
@@ -468,6 +509,29 @@ function updateBalanceDisplay(remaining, allocated, spent, percentage) {
     
     if (percentElement) {
         percentElement.textContent = `${percentage.toFixed(1)}% Expenses`;
+    }
+
+    if (percentElement && percentElement.parentNode) {
+        let warningElement = document.getElementById('balanceWarning');
+
+        if (!warningElement) {
+            warningElement = document.createElement('div');
+            warningElement.id = 'balanceWarning';
+            warningElement.style.marginTop = '0.5rem';
+            warningElement.style.fontSize = '0.9rem';
+            warningElement.style.fontWeight = '600';
+            warningElement.style.color = '#b91c1c';
+            warningElement.style.display = 'none';
+            percentElement.parentNode.appendChild(warningElement);
+        }
+
+        if (isOverBudget) {
+            warningElement.textContent = 'Allocated amount exceeded';
+            warningElement.style.display = 'block';
+        } else {
+            warningElement.textContent = '';
+            warningElement.style.display = 'none';
+        }
     }
 
 }

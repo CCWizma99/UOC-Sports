@@ -32,7 +32,7 @@ class SportEquipment {
         $stmt->execute([$sportId]);
         $equipment = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Now get active booking requests for this sport
+        // Now get active and accepted booking requests for this sport
         // Match by sport_id (for new requests) OR by equipment name (for legacy requests)
         $requestQuery = "SELECT DISTINCT
                             er.request_id,
@@ -43,7 +43,7 @@ class SportEquipment {
                             er.end_time,
                             er.reserved_location
                         FROM `equipment-requests` er
-                        WHERE er.status = 'ACTIVE' 
+                        WHERE er.status IN ('ACTIVE', 'ACCEPTED')
                         AND (er.sport_id = ? OR er.category_name IN (
                             SELECT e.equipment_name 
                             FROM equipment e 

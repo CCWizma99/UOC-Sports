@@ -4,6 +4,7 @@ class EquipmentCalendar {
         this.container = document.getElementById(containerId);
         this.currentDate = new Date();
         this.equipmentReservations = {};
+        this.allowedStatuses = new Set(['accepted', 'active', 'completed']);
         this.categoryName = window.selectedCategory || null;
         this.sportId = window.selectedSportId || null;
         this.tooltip = null;
@@ -81,7 +82,7 @@ class EquipmentCalendar {
             const result = await response.json();
             
             if (result.success) {
-                this.equipmentReservations = result.data;
+                this.equipmentReservations = this.filterReservationsByStatus(result.data);
             } else {
 
                 console.error('Error loading equipment reservations:', result.message);
@@ -91,6 +92,32 @@ class EquipmentCalendar {
             console.error('Error fetching equipment reservations:', error);
             this.equipmentReservations = {};
         }
+    }
+
+    filterReservationsByStatus(reservationsByDate) {
+        if (!reservationsByDate || typeof reservationsByDate !== 'object') {
+            return {};
+        }
+
+        const filtered = {};
+
+        for (const [date, reservations] of Object.entries(reservationsByDate)) {
+            if (!Array.isArray(reservations)) {
+                continue;
+            }
+
+            // Keep only statuses that should be visible on the calendar.
+            const visibleReservations = reservations.filter((reservation) => {
+                const status = String(reservation.status || '').toLowerCase();
+                return this.allowedStatuses.has(status);
+            });
+
+            if (visibleReservations.length > 0) {
+                filtered[date] = visibleReservations;
+            }
+        }
+
+        return filtered;
     }
 
     formatDate(date) {
@@ -120,9 +147,8 @@ class EquipmentCalendar {
             const statusClass = reservation.status.toLowerCase();
             const statusColor = {
                 'accepted': '#10b981',
-                'pending': '#f59e0b',
+                'active': '#2563eb',
                 'completed': '#6b7280',
-                'rejected': '#ef4444'
             }[statusClass] || '#9ca3af';
             
             tooltipHTML += `
@@ -142,22 +168,6 @@ class EquipmentCalendar {
                             <div style="display: flex; align-items: center; margin-bottom: 4px;">
                                 <i class="fas fa-trophy" style="width: 16px; color: #6b1fa0; margin-right: 6px;"></i>
                                 <span>${reservation.sport_name}</span>
-                            </div>
-                        ` : ''}
-                        ${reservation.location ? `
-                            <div style="display: flex; align-items: center; margin-bottom: 4px;">
-                                <i class="fas fa-location-dot" style="width: 16px; color: #6b1fa0; margin-right: 6px;"></i>
-                                <span>${reservation.location}</span>
-                            </div>
-                        ` : ''}
-                        <div style="display: flex; align-items: center;">
-                            <i class="fas fa-user" style="width: 16px; color: #6b1fa0; margin-right: 6px;"></i>
-                            <span>${reservation.student_name}</span>
-                        </div>
-                        ${reservation.equipment_items ? `
-                            <div style="display: flex; align-items: start; margin-top: 4px;">
-                                <i class="fas fa-box" style="width: 16px; color: #6b1fa0; margin-right: 6px; margin-top: 2px;"></i>
-                                <span style="font-size: 0.8rem; color: #6b7280;">${reservation.equipment_items}</span>
                             </div>
                         ` : ''}
                     </div>

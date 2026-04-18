@@ -21,7 +21,7 @@ class SportPracticeSession {
                     ps.session_date,
                     ps.start_time,
                     ps.end_time,
-                    ps.notes,
+                  
                     ps.need_equipment,
                     ps.status,
                     ps.created_at,
@@ -114,8 +114,8 @@ class SportPracticeSession {
             }
 
             $query = "INSERT INTO practice_sessions 
-                      (sport_id, added_by, facility, location, physical_facility_id, session_date, start_time, end_time, notes, need_equipment, status)
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                      (sport_id, added_by, facility, location, physical_facility_id, session_date, start_time, end_time, need_equipment, status)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = $this->db->prepare($query);
             $result = $stmt->execute([
@@ -127,8 +127,7 @@ class SportPracticeSession {
                 $data['session_date'],
                 $data['start_time'],
                 $data['end_time'],
-                $data['notes'] ?? '',
-                $data['need_equipment'] ?? 'No',
+                    $data['need_equipment'] ?? 'No',
                 $data['status'] ?? 'PENDING'
             ]);
             
@@ -191,8 +190,7 @@ class SportPracticeSession {
                           session_date = ?,
                           start_time = ?,
                           end_time = ?,
-                          notes = ?,
-                          need_equipment = ?,
+                              need_equipment = ?,
                           status = ?
                       WHERE id = ?";
             
@@ -205,7 +203,7 @@ class SportPracticeSession {
                 $data['session_date'],
                 $data['start_time'],
                 $data['end_time'],
-                $data['notes'] ?? '',
+             
                 $data['need_equipment'] ?? 'No',
                 $data['status'] ?? 'ACTIVE',
                 $id
@@ -264,7 +262,7 @@ class SportPracticeSession {
     }
 
     /**
-     * Check for time conflicts
+     * Check if a practice session already exists for the given sport on a specific date
      */
     public function checkTimeConflict($physicalFacilityId, $date, $startTime, $endTime, $excludeId = null) {
         // 1. Check for 30-minute intervals
@@ -328,6 +326,66 @@ class SportPracticeSession {
         $query = "SELECT facility_id, facility_name, location FROM physical_facility ORDER BY facility_name";
         $stmt = $this->db->query($query);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Check for time conflicts
+     */
+    public function checkTimeConflict($location, $date, $startTime, $endTime, $excludeId = null) {
+        $query = "SELECT s.sport_name, ps.start_time, ps.end_time 
+                  FROM practice_sessions ps
+                  LEFT JOIN sport s ON ps.sport_id = s.sport_id
+                  WHERE ps.location = ? 
+                  AND ps.session_date = ? 
+                  AND (
+                      (ps.start_time <= ? AND ps.end_time > ?) OR
+                      (ps.start_time < ? AND ps.end_time >= ?) OR
+                      (ps.start_time >= ? AND ps.end_time <= ?)
+                  )
+                  AND ps.status NOT IN ('CANCELED', 'CANCELLED')";
+        
+        $params = [$location, $date, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime];
+        
+        if ($excludeId) {
+            $query .= " AND ps.id != ?";
+            $params[] = $excludeId;
+        }
+        
+        $query .= " LIMIT 1";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Check for time conflicts
+     */
+    public function checkTimeConflict($location, $date, $startTime, $endTime, $excludeId = null) {
+        $query = "SELECT s.sport_name, ps.start_time, ps.end_time 
+                  FROM practice_sessions ps
+                  LEFT JOIN sport s ON ps.sport_id = s.sport_id
+                  WHERE ps.location = ? 
+                  AND ps.session_date = ? 
+                  AND (
+                      (ps.start_time <= ? AND ps.end_time > ?) OR
+                      (ps.start_time < ? AND ps.end_time >= ?) OR
+                      (ps.start_time >= ? AND ps.end_time <= ?)
+                  )
+                  AND ps.status NOT IN ('CANCELED', 'CANCELLED')";
+        
+        $params = [$location, $date, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime];
+        
+        if ($excludeId) {
+            $query .= " AND ps.id != ?";
+            $params[] = $excludeId;
+        }
+        
+        $query .= " LIMIT 1";
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**

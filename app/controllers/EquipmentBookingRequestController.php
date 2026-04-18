@@ -3,6 +3,24 @@ require_once __DIR__ . '/../services/EmailService.php';
 
 class EquipmentBookingRequestController {
 
+    private function buildPracticeConflictMessage(array $practiceConflicts, string $requestDate): string {
+        $ranges = [];
+        foreach ($practiceConflicts as $conflict) {
+            $start = !empty($conflict['start_time']) ? substr((string)$conflict['start_time'], 0, 5) : '--:--';
+            $end = !empty($conflict['end_time']) ? substr((string)$conflict['end_time'], 0, 5) : '--:--';
+            $ranges[] = $start . ' to ' . $end;
+        }
+
+        $ranges = array_values(array_unique($ranges));
+        $formattedDate = !empty($requestDate) ? $requestDate : 'the selected date';
+
+        if (count($ranges) === 1) {
+            return 'A practice session that requires equipment is scheduled on ' . $formattedDate . ' from ' . $ranges[0] . '. Equipment for this sport cannot be booked during this time period.';
+        }
+
+        return 'Practice sessions that require equipment are scheduled on ' . $formattedDate . ' during: ' . implode(', ', $ranges) . '. Equipment for this sport cannot be booked during these time periods.';
+    }
+
     /**
      * Display all equipment booking requests
      */
@@ -128,6 +146,27 @@ class EquipmentBookingRequestController {
         if ($hasConflict) {
             echo json_encode(['success' => false, 'message' => 'Time slot already booked for this equipment category']);
             exit();
+        }
+
+        if (!empty($data['sport_id']) && !empty($data['request_date']) && !empty($data['start_time']) && !empty($data['end_time']) && !empty($data['equipment_items']) && is_array($data['equipment_items'])) {
+            $slotConflicts = $model->getItemConflicts(
+                $data['sport_id'],
+                $data['request_date'],
+                $data['start_time'],
+                $data['end_time'],
+                $data['equipment_items'],
+                null,
+                true
+            );
+
+            $practiceConflicts = array_values(array_filter($slotConflicts, function ($conflict) {
+                return isset($conflict['source']) && $conflict['source'] === 'practice';
+            }));
+
+            if (!empty($practiceConflicts)) {
+                echo json_encode(['success' => false, 'message' => $this->buildPracticeConflictMessage($practiceConflicts, (string)$data['request_date'])]);
+                exit();
+            }
         }
         
         $requestId = $model->createRequest($data);
@@ -258,6 +297,27 @@ class EquipmentBookingRequestController {
             if (strtotime($data['end_time']) <= strtotime($data['start_time'])) {
                 echo json_encode(['success' => false, 'message' => 'End time must be after start time']);
                 exit();
+            }
+
+            if (!empty($data['sport_id']) && !empty($data['equipment_items']) && is_array($data['equipment_items'])) {
+                $slotConflicts = $model->getItemConflicts(
+                    $data['sport_id'],
+                    $data['request_date'],
+                    $data['start_time'],
+                    $data['end_time'],
+                    $data['equipment_items'],
+                    $data['request_id'],
+                    true
+                );
+
+                $practiceConflicts = array_values(array_filter($slotConflicts, function ($conflict) {
+                    return isset($conflict['source']) && $conflict['source'] === 'practice';
+                }));
+
+                if (!empty($practiceConflicts)) {
+                    echo json_encode(['success' => false, 'message' => $this->buildPracticeConflictMessage($practiceConflicts, (string)$data['request_date'])]);
+                    exit();
+                }
             }
         }
         

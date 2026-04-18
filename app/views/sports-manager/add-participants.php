@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tournament Registration - Sports Manager</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <title>Sports manager - Add Participants</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
     @import url("/uoc-sports/public/css/global.css");
@@ -79,6 +79,32 @@
                             Status: <span style="text-transform: lowercase;"><?= htmlspecialchars($tournament['status']) ?></span>
                         </div>
                     <?php endif; ?>
+
+                    <div class="form-group">
+                        <label for="competitionName">Competition Name <span class="required-star">*</span></label>
+                        <input type="text" 
+                               id="competitionName" 
+                               name="competitionName" 
+                               placeholder="Enter competition name" 
+                               value="<?= isset($competition) ? htmlspecialchars($competition['competition_name']) : '' ?>" 
+                               <?= isset($competition) ? 'readonly' : '' ?>
+                               required>
+                        <?php if (isset($competition)): ?>
+                            <input type="hidden" name="competition_id" value="<?= $competition['competition_id'] ?>">
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Upload Participant List -->
+                    <div class="form-group">
+                        <label for="participantsFile">Upload Participant List (Optional)</label>
+                        <input type="file" 
+                               id="participantsFile" 
+                               name="participantsFile" 
+                               accept=".pdf,application/pdf">
+                        <p class="file-note">
+                            <i class="fas fa-info-circle"></i> Only PDF files allowed (Max 5MB)
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Select Participants Checkboxes -->

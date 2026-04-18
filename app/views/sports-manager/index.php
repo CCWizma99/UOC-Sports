@@ -424,7 +424,7 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                         </div>
                     <?php endif; ?>
 
-                    <a href="/uoc-sports/public/sport-manager/tournaments" class="view-all-link">View All Tournaments</a>
+                    <a href="/uoc-sports/public/sport-manager/competitions<?= isset($managedSportId) && $managedSportId ? '?sport=' . urlencode($managedSportId) : '' ?>" class="view-all-link">View All Competitions</a>
                 </div>
             </div>
         </aside>

@@ -175,6 +175,11 @@
     transition: all 0.3s ease;
 }
 
+.required-star {
+                color: #dc2626;
+                font-weight: 700;
+        }
+
 /* Compact form sizing for add-expense, add-practice and add-participants pages */
 #addPracticeForm.form,
 #addParticipantsForm.form,

@@ -1,7 +1,25 @@
+let rejectionContext = null;
+
 function updateStatus(requestId, newStatus, dropdownElement) {
     console.log('updateStatus called with:', requestId, newStatus);
     
     const originalStatus = dropdownElement.getAttribute('data-original-status');
+
+    if (newStatus === 'REJECTED') {
+        const studentId = dropdownElement.getAttribute('data-student-id') || '';
+        const requesterName = dropdownElement.getAttribute('data-requester-name') || '';
+
+        rejectionContext = {
+            requestId: requestId,
+            dropdownElement: dropdownElement,
+            originalStatus: originalStatus,
+            studentId: studentId,
+            requesterName: requesterName
+        };
+
+        openNotificationModal(requestId, studentId, requesterName, { mode: 'rejection' });
+        return;
+    }
     
     if (!confirm('Are you sure you want to update the status to ' + newStatus + '?')) {
         console.log('User cancelled status update');
@@ -50,16 +68,42 @@ function editRequest(requestId) {
     window.location.href = '/uoc-sports/public/equipment-manager/edit-booking-request?id=' + requestId;
 }
 
-function openNotificationModal(requestId, studentId, requesterName) {
+function openNotificationModal(requestId, studentId, requesterName, options = {}) {
+    const mode = options.mode || 'notification';
+
     document.getElementById('notificationRequestId').value = requestId || '';
+    document.getElementById('notificationMode').value = mode;
     document.getElementById('notificationStudentId').value = studentId || '';
     document.getElementById('notificationRequesterName').value = requesterName || '';
     document.getElementById('notificationMessage').value = '';
+
+    const titleEl = document.getElementById('notificationModalTitle');
+    const labelEl = document.getElementById('notificationMessageLabel');
+    const messageEl = document.getElementById('notificationMessage');
+    const submitBtn = document.getElementById('notificationSubmitBtn');
+
+    if (mode === 'rejection') {
+        titleEl.textContent = 'Rejected Reason';
+        labelEl.textContent = 'Rejected Reason *';
+        messageEl.placeholder = 'Type rejected reason for this requester...';
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Reason & Reject';
+    } else {
+        titleEl.textContent = 'Send Special Notification';
+        labelEl.textContent = 'Message';
+        messageEl.placeholder = 'Type special notification message for this requester...';
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send';
+    }
+
     loadNotificationHistory();
     document.getElementById('notificationModal').style.display = 'flex';
 }
 
 function closeNotificationModal() {
+    if (rejectionContext && rejectionContext.dropdownElement) {
+        rejectionContext.dropdownElement.value = rejectionContext.originalStatus;
+        rejectionContext.dropdownElement.className = 'status-dropdown status-' + rejectionContext.originalStatus.toLowerCase();
+    }
+    rejectionContext = null;
     document.getElementById('notificationModal').style.display = 'none';
 }
 
@@ -147,6 +191,7 @@ function deleteNotificationHistoryItem(notificationId) {
 }
 
 function sendSpecialNotification() {
+    const mode = document.getElementById('notificationMode').value;
     const requestId = document.getElementById('notificationRequestId').value.trim();
     const studentId = document.getElementById('notificationStudentId').value.trim();
     const requesterName = document.getElementById('notificationRequesterName').value.trim();
@@ -158,29 +203,63 @@ function sendSpecialNotification() {
     }
 
     if (!message) {
-        alert('Please type a notification message.');
+        alert(mode === 'rejection' ? 'Please type a rejected reason.' : 'Please type a notification message.');
         return;
     }
+
+    const payload = {
+        request_id: requestId,
+        student_id: studentId,
+        requester_name: requesterName,
+        message: message
+    };
 
     fetch('/uoc-sports/public/equipment-manager/send-request-notification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            request_id: requestId,
-            student_id: studentId,
-            requester_name: requesterName,
-            message: message
-        })
+        body: JSON.stringify(payload)
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            alert('Notification sent successfully.');
-            document.getElementById('notificationMessage').value = '';
-            loadNotificationHistory();
-        } else {
+        if (!data.success) {
             alert('Error: ' + (data.message || 'Failed to send notification'));
+            return;
         }
+
+        if (mode === 'rejection' && rejectionContext) {
+            fetch('/uoc-sports/public/equipment-manager/update-booking-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    request_id: requestId,
+                    status: 'REJECTED'
+                })
+            })
+            .then(response => response.json())
+            .then(statusData => {
+                if (statusData.success) {
+                    const dropdown = rejectionContext.dropdownElement;
+                    dropdown.value = 'REJECTED';
+                    dropdown.setAttribute('data-original-status', 'REJECTED');
+                    dropdown.className = 'status-dropdown status-rejected';
+                    rejectionContext = null;
+                    alert('Status updated to REJECTED and reason sent successfully.');
+                    document.getElementById('notificationMessage').value = '';
+                    loadNotificationHistory();
+                    document.getElementById('notificationModal').style.display = 'none';
+                } else {
+                    alert('Reason sent, but failed to update status: ' + (statusData.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Reason sent, but error updating status: ' + error.message);
+            });
+            return;
+        }
+
+        alert('Notification sent successfully.');
+        document.getElementById('notificationMessage').value = '';
+        loadNotificationHistory();
     })
     .catch(error => {
         alert('Error sending notification: ' + error.message);
