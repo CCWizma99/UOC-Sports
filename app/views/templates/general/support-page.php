@@ -32,37 +32,156 @@
                 <h2>Help Center</h2>
             </div>
             <div class="help-grid">
+                <!-- Getting Started -->
                 <div class="help-item">
                     <h3>Getting Started</h3>
-                    <ul>
-                        <li><a href="#">Creating an account</a></li>
-                        <li><a href="#">Student vs public profiles</a></li>
-                        <li><a href="#">Navigating the dashboard</a></li>
-                    </ul>
+                    <div class="help-accordion">
+                        <div class="help-card">
+                            <div class="help-question">Creating an account</div>
+                            <div class="help-answer">
+                                <ol class="help-steps">
+                                    <li><strong>Fill the Form:</strong> Visit the Sign-Up page and enter your basic
+                                        details including Student ID and Faculty.</li>
+                                    <li><strong>ID Verification:</strong> Upload a clear image of your University ID
+                                        card for authentication.</li>
+                                    <li><strong>Registrar Approval:</strong> Once submitted, the Registrar will verify
+                                        your details. You'll be notified via email upon approval.</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="help-card">
+                            <div class="help-question">Student vs Public profiles</div>
+                            <div class="help-answer">
+                                <div class="help-split">
+                                    <div class="split-col">
+                                        <strong>Student Profile</strong>
+                                        <ul>
+                                            <li>Enroll in sports teams</li>
+                                            <li>Borrow equipment</li>
+                                            <li>Book stadium facilities</li>
+                                            <li>Track attendance</li>
+                                        </ul>
+                                    </div>
+                                    <div class="split-col">
+                                        <strong>Public Access</strong>
+                                        <ul>
+                                            <li>View match results</li>
+                                            <li>Read university news</li>
+                                            <li>Guest facility bookings</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="help-card">
+                            <div class="help-question">Navigating the Dashboard</div>
+                            <div class="help-answer">
+                                <ul class="help-list">
+                                    <li><i class="fas fa-home"></i> <strong>Overview:</strong> Quick look at your stats
+                                        and enrollment status.</li>
+                                    <li><i class="fas fa-tshirt"></i> <strong>Sports:</strong> Browse and enroll in
+                                        university sports teams.</li>
+                                    <li><i class="fas fa-volleyball-ball"></i> <strong>Equipment:</strong> Request and
+                                        track sports gear loans.</li>
+                                    <li><i class="fas fa-calendar-check"></i> <strong>Bookings:</strong> Manage your
+                                        facility reservations and payments.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Facility Bookings -->
                 <div class="help-item">
                     <h3>Facility Bookings</h3>
-                    <ul>
-                        <li><a href="#">How to reserve a facility</a></li>
-                        <li><a href="#">Understanding booking slots</a></li>
-                        <li><a href="#">Payment and confirmation</a></li>
-                    </ul>
+                    <div class="help-accordion">
+                        <div class="help-card">
+                            <div class="help-question">How to reserve a facility</div>
+                            <div class="help-answer">
+                                <ol class="help-steps">
+                                    <li><strong>Select:</strong> Choose "Facility Reservation" from the menu.</li>
+                                    <li><strong>Slot & Date:</strong> Pick an available date and preferred time slot.
+                                    </li>
+                                    <li><strong>Payment:</strong> Proceed to secure payment via the PayHere portal.</li>
+                                    <li><strong>Done:</strong> Receive your booking ID and immediate confirmation.</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="help-card">
+                            <div class="help-question">Understanding booking slots</div>
+                            <div class="help-answer">
+                                <ul class="help-list">
+                                    <li><strong>Morning:</strong> 08:00 AM - 12:00 PM</li>
+                                    <li><strong>Afternoon:</strong> 01:00 PM - 05:00 PM</li>
+                                    <li><strong>Full Day:</strong> 08:00 AM - 05:00 PM (Covers both slots)</li>
+                                </ul>
+                                <p class="help-note">Note: Bookings are restricted during team practice hours.</p>
+                            </div>
+                        </div>
+                        <div class="help-card">
+                            <div class="help-question">Payment and confirmation</div>
+                            <div class="help-answer">
+                                <p>All reservations must be paid within 30 minutes of selection. We support Credit
+                                    Cards, Debit Cards, and Mobile Wallets. Once payment is confirmed, the status will
+                                    change to "COMPLETE".</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Sports & Equipment -->
                 <div class="help-item">
                     <h3>Sports & Equipment</h3>
-                    <ul>
-                        <li><a href="#">Enrolling in a sport</a></li>
-                        <li><a href="#">Borrowing sports equipment</a></li>
-                        <li><a href="#">Practice session schedules</a></li>
-                    </ul>
+                    <div class="help-accordion">
+                        <div class="help-card">
+                            <div class="help-question">Enrolling in a sport</div>
+                            <div class="help-answer">
+                                <p>Navigate to the "Sports" tab in your portal. Browse the list of available university
+                                    sports and click "Enroll". You will then be able to see trial dates and contact your
+                                    captain through the communication portal.</p>
+                            </div>
+                        </div>
+                        <div class="help-card">
+                            <div class="help-question">Borrowing sports equipment</div>
+                            <div class="help-answer">
+                                <p>Request items through the "Equipments" section. Once the Equipment Manager accepts
+                                    your request, visit the Physical Department with your Student ID to collect the
+                                    items.</p>
+                            </div>
+                        </div>
+                        <div class="help-card">
+                            <div class="help-question">Practice session schedules</div>
+                            <div class="help-answer">
+                                <p>Enrolled students can view their team's practice schedule directly on the home
+                                    dashboard. Captains will also send notifications via the internal messaging system
+                                    for any changes.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Account Security -->
                 <div class="help-item">
                     <h3>Account Security</h3>
-                    <ul>
-                        <li><a href="#">Changing your password</a></li>
-                        <li><a href="#">Updating profile information</a></li>
-                        <li><a href="#">Privacy settings</a></li>
-                    </ul>
+                    <div class="help-accordion">
+                        <div class="help-card">
+                            <div class="help-question">Changing your password</div>
+                            <div class="help-answer">
+                                <p>If you need to change your password, use the <strong>"Forgot Password"</strong> link
+                                    on the Sign-In page. For security, we process password updates via a verified email
+                                    link to ensure you are the account owner.</p>
+                            </div>
+                        </div>
+                        <div class="help-card">
+                            <div class="help-question">Updating profile information</div>
+                            <div class="help-answer">
+                                <p>You can update your contact number and profile picture directly via the <strong>Edit
+                                        Profile</strong> button. However, sensitive info like your Faculty and Student
+                                    ID is verified at signup and requires contacting the Physical Department for
+                                    changes.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -91,9 +210,9 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>Yes, you can cancel your reservation through your Student Portal. Note that cancellations
-                            must be made at least 24 hours before the scheduled time for a potential refund or
-                            rescheduling.</p>
+                        <p>You can request a cancellation. Please note
+                            that once a booking is paid for, it is generally non-refundable. Refunds are only processed
+                            under specific circumstances according to the Physical Education Department's policies.</p>
                     </div>
                 </div>
                 <div class="faq-card">
@@ -163,9 +282,9 @@
 
 <style>
     .support-content {
-        max-width: 1200px;
+        max-width: 1100px;
         margin: 0 auto;
-        padding: 40px 20px;
+        padding: 20px;
     }
 
     .support-hero {
@@ -209,6 +328,13 @@
         border-color: #5e2d91;
     }
 
+    .nav-card.active {
+        border-color: #5e2d91;
+        background: rgba(94, 45, 145, 0.05);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(94, 45, 145, 0.1);
+    }
+
     .nav-card i {
         font-size: 3rem;
         color: #5e2d91;
@@ -226,12 +352,32 @@
     }
 
     .support-section {
+        display: none;
+        /* Hide all by default */
         background: white;
-        border-radius: 30px;
-        padding: 60px;
-        margin-bottom: 60px;
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.03);
-        scroll-margin-top: 100px;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.03);
+        scroll-margin-top: 60px;
+        border: 1px solid rgba(94, 45, 145, 0.05);
+    }
+
+    .support-section.visible {
+        display: block;
+        animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .section-header {
@@ -258,11 +404,11 @@
         color: #333;
     }
 
-    /* Help Grid */
+    /* Help Grid Refinement */
     .help-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 40px;
+        gap: 30px;
     }
 
     .help-item h3 {
@@ -273,33 +419,135 @@
         padding-bottom: 10px;
     }
 
-    .help-item ul {
-        list-style: none;
-        padding: 0;
-    }
-
-    .help-item ul li {
-        margin-bottom: 12px;
-    }
-
-    .help-item ul li a {
-        color: #555;
-        text-decoration: none;
-        transition: color 0.2s;
+    .help-accordion {
         display: flex;
-        align-items: center;
-        gap: 10px;
+        flex-direction: column;
+        gap: 8px;
     }
 
-    .help-item ul li a:before {
-        content: "\f105";
+    .help-card {
+        position: relative;
+        border: 1px solid #f0f0f0;
+        border-radius: 12px;
+        background: #fafafa;
+        transition: all 0.3s ease;
+    }
+
+    .help-question {
+        padding: 12px 15px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #444;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.95rem;
+        z-index: 2;
+    }
+
+    .help-question:after {
+        content: "\f107";
         font-family: "Font Awesome 6 Free";
         font-weight: 900;
+        transition: transform 0.3s;
         color: #bfa6d9;
     }
 
-    .help-item ul li a:hover {
+    .help-card.active {
+        border-color: #5e2d91;
+        background: white;
+        box-shadow: 0 10px 30px rgba(94, 45, 145, 0.1);
+        z-index: 100;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .help-card.active .help-question {
         color: #5e2d91;
+    }
+
+    .help-card.active .help-question:after {
+        transform: rotate(180deg);
+    }
+
+    .help-answer {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 20px;
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        display: none;
+        border: 1px solid #5e2d91;
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 15px 40px rgba(94, 45, 145, 0.15);
+        z-index: 1000;
+        margin-top: -1px;
+        /* Overlap with card border */
+    }
+
+    .help-card.active .help-answer {
+        display: block;
+    }
+
+    .help-steps {
+        padding-left: 20px;
+        margin: 10px 0;
+    }
+
+    .help-steps li {
+        margin-bottom: 8px;
+    }
+
+    .help-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .split-col strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    .split-col ul {
+        list-style: disc;
+        padding-left: 15px;
+    }
+
+    .help-list {
+        list-style: none;
+        padding: 0;
+        margin: 10px 0;
+    }
+
+    .help-list li {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .help-list li i {
+        color: #5e2d91;
+        width: 15px;
+        margin-top: 4px;
+        font-size: 0.85rem;
+    }
+
+    .help-note {
+        font-style: italic;
+        font-size: 0.8rem;
+        color: #888;
+        border-left: 3px solid #bfa6d9;
+        padding-left: 10px;
+        margin-top: 10px;
     }
 
     /* FAQ */
@@ -464,10 +712,87 @@
 </style>
 
 <script>
+    // Tab Switching Logic
+    function switchTab(hash) {
+        // Default to help-center if no hash or invalid hash
+        const validHashes = ['#help-center', '#faqs', '#feedback'];
+        const targetHash = validHashes.includes(hash) ? hash : '#help-center';
+        const targetId = targetHash.substring(1);
+
+        // Hide all sections and remove active classes from cards
+        document.querySelectorAll('.support-section').forEach(section => {
+            section.classList.remove('visible');
+        });
+        document.querySelectorAll('.nav-card').forEach(card => {
+            card.classList.remove('active');
+        });
+
+        // Show target section and activate target card
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+            targetSection.classList.add('visible');
+        }
+
+        const targetCard = document.querySelector(`.nav-card[href="${targetHash}"]`);
+        if (targetCard) {
+            targetCard.classList.add('active');
+        }
+
+        // Scroll to the cards container for better visibility
+        document.querySelector('.support-nav-cards').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Handle Nav Card clicks
+    document.querySelectorAll('.nav-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            const hash = card.getAttribute('href');
+            if (hash.startsWith('#')) {
+                e.preventDefault();
+                window.location.hash = hash;
+                switchTab(hash);
+            }
+        });
+    });
+
+    // Handle initial load and hash changes
+    window.addEventListener('hashchange', () => switchTab(window.location.hash));
+    window.addEventListener('load', () => switchTab(window.location.hash));
+
+    // FAQ Accordion
     document.querySelectorAll('.faq-question').forEach(question => {
         question.addEventListener('click', () => {
             const card = question.parentElement;
             card.classList.toggle('active');
+        });
+    });
+
+    // Help Center Accordion
+    document.querySelectorAll('.help-question').forEach(question => {
+        question.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const card = question.parentElement;
+
+            const siblingCards = card.parentElement.querySelectorAll('.help-card');
+            siblingCards.forEach(c => {
+                if (c !== card) c.classList.remove('active');
+            });
+
+            card.classList.toggle('active');
+        });
+    });
+
+    // Close Help Center dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.help-card')) {
+            document.querySelectorAll('.help-card').forEach(card => {
+                card.classList.remove('active');
+            });
+        }
+    });
+
+    document.querySelectorAll('.help-answer').forEach(answer => {
+        answer.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
     });
 </script>

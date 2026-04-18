@@ -11,11 +11,7 @@
         @import url(/uoc-sports/public/css/general/footer.css);
 
         .support-wrapper {
-            background: 
-                linear-gradient(rgba(94, 45, 145, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(94, 45, 145, 0.05) 1px, transparent 1px),
-                linear-gradient(135deg, #faf9fc 0%, #f3f1f7 100%);
-            background-size: 40px 40px, 40px 40px, 100% 100%;
+            background: linear-gradient(135deg, #faf9fc 0%, #f3f1f7 100%);
             min-height: 100vh;
             padding-top: 2rem;
         }
