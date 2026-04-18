@@ -35,10 +35,12 @@ class SportTeam {
                 u.student_id,
                 u.email,
                 u.contact_no,
-                st.joined_date
+                st.joined_date,
+                f.faculty_name
             FROM `sports-team` st
             INNER JOIN user u ON st.student_id = u.user_id
-            WHERE st.sport_id = :sport_id
+            INNER JOIN faculty f ON u.faculty_id = f.faculty_id
+            WHERE st.sport_id = :sport_id AND st.in_team = 'YES'
             AND u.status = 'ACTIVE'
             ORDER BY u.lname, u.fname
         ");
@@ -46,6 +48,34 @@ class SportTeam {
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+        /**
+        * Get members not in the team for a specific sport
+        * @param string $sportId - Sport ID
+        * @return array - Available members with user details
+        */
+        public function getMembersNotInTeam($sportId) {
+            $stmt = $this->db->prepare("
+            SELECT 
+                u.user_id,
+                u.fname,
+                u.lname,
+                u.student_id,
+                u.email,
+                u.contact_no,
+                st.joined_date,
+                f.faculty_name
+            FROM `sports-team` st
+            INNER JOIN user u ON st.student_id = u.user_id
+            INNER JOIN faculty f ON u.faculty_id = f.faculty_id
+            WHERE st.sport_id = :sport_id AND st.in_team = 'NO'
+            AND u.status = 'ACTIVE'
+            ORDER BY u.lname, u.fname
+        ");
+        
+        $stmt->execute(['sport_id' => $sportId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
 
     /**
      * Get team member count for a sport
@@ -94,21 +124,18 @@ class SportTeam {
      * @param string $userId - User ID
      * @return bool - Success status
      */
-    public function addMember($sportId, $userId) {
-        try {
-            $stmt = $this->db->prepare("
-                INSERT INTO `sports-team` (sport_id, student_id, joined_date)
-                VALUES (:sport_id, :user_id, CURDATE())
-            ");
-            
-            return $stmt->execute([
-                'sport_id' => $sportId,
-                'user_id' => $userId
-            ]);
-        } catch (Exception $e) {
-            return false;
-        }
-    }
+  public function addMember($sportId, $userId) {
+    $stmt = $this->db->prepare("
+        UPDATE `sports-team`
+        SET in_team = 'YES'
+        WHERE sport_id = :sport_id AND student_id = :user_id
+    ");
+
+    return $stmt->execute([
+        'sport_id' => $sportId,
+        'user_id' => $userId
+    ]);
+}
 
     /**
      * Remove a member from a sport team

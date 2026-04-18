@@ -122,9 +122,7 @@ class CaptainController {
 
         $all_students = $userModel->getEligibleStudents($sportId);
 
-        $available_members = array_filter($all_students, function($s) use ($team_ids) {
-            return !in_array($s['user_id'], $team_ids);
-        });
+        $available_members = $sportTeamModel-> getMembersNotInTeam($sportId);
 
         view('captain/add-members', [
             'team_members' => $team_members,
@@ -168,6 +166,17 @@ class CaptainController {
         /* ===== CREATE ===== */
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create'])) {
 
+            $date = $_POST['date'];
+            $start = $_POST['start_time'];
+            $end = $_POST['end_time'];
+
+        // Check conflict
+        if ($scheduleModel->hasTimeConflict($sportId, $date, $start, $end)) {
+         $_SESSION['error'] = "Time conflict! Keep at least 10 minutes gap between sessions.";
+        header("Location: /uoc-sports/public/captain/schedule-practice");
+        exit;
+}
+
             $scheduleModel->create(
                 $sportName,
                 $_POST['date'],
@@ -185,7 +194,17 @@ class CaptainController {
 
         /* ===== UPDATE ===== */
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
+        $date = $_POST['date'];
+        $start = $_POST['start_time'];
+        $end = $_POST['end_time'];
+        $id = $_POST['id'];
 
+        // Check conflict (exclude current session)
+        if ($scheduleModel->hasTimeConflict($sportId, $date, $start, $end, $id)) {
+        $_SESSION['error'] = "Time conflict! Keep at least 10 minutes gap between sessions.";
+        header("Location: /uoc-sports/public/captain/schedule-practice");
+        exit;
+}
             $scheduleModel->update(
                 $_POST['id'],
                 $sportName,
