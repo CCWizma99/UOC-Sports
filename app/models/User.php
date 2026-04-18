@@ -373,6 +373,26 @@ class User {
     }
 
     /**
+     * Get all enrolled students for a sport (regardless of team status)
+     * @param string $sportId
+     * @return array
+     */
+    public function getAllEnrolledStudents($sportId) {
+        $stmt = $this->db->prepare("
+            SELECT DISTINCT u.user_id, u.fname, u.lname, u.student_id, u.email, u.contact_no, f.faculty_name
+            FROM user u
+            LEFT JOIN faculty f ON u.faculty_id = f.faculty_id
+            LEFT JOIN `sports-team` st ON u.user_id = st.student_id AND st.sport_id = :sport_id
+            WHERE u.type IN ('STUDENT', 'CAPTAIN')
+              AND u.status = 'ACTIVE'
+              AND (u.sport_id = :sport_id OR st.sport_id = :sport_id)
+            ORDER BY u.lname, u.fname
+        ");
+        $stmt->execute(['sport_id' => $sportId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Get all eligible students for a sport (not in the team, active status)
      * @param string $sportId
      * @return array

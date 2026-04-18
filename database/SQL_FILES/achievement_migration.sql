@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `match_players` (
   `match_id` varchar(50) NOT NULL,
   `user_id` varchar(12) DEFAULT NULL,
   `player_name` varchar(120) NOT NULL,
+  `external_id` varchar(50) DEFAULT NULL,
   `team_side` enum('A','B') NOT NULL,
   `is_uoc_student` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

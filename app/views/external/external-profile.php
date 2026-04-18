@@ -13,7 +13,7 @@
 
     </style>
 </head>
-<body class="mesh-sporty">
+<body class="">
     <?php
         require '../app/views/templates/general/header.php';
         require '../app/views/templates/external/view-profile.php';

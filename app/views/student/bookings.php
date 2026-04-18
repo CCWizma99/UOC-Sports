@@ -213,7 +213,7 @@
         }
     </style>
 </head>
-<body class="mesh-sporty">
+<body class="">
     <?php require APP_ROOT . '/app/views/templates/general/header.php'; ?>
     <?php require APP_ROOT . '/app/views/templates/student/sub_header.php'; ?>
 

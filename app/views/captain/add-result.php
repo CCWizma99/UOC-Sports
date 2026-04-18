@@ -11,13 +11,7 @@
         @import url(/uoc-sports/public/css/captain/add-result.css);
         @import url(/uoc-sports/public/css/general/footer.css);
 
-        .mesh-sporty {
-            background:
-                linear-gradient(rgba(94, 45, 145, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(94, 45, 145, 0.05) 1px, transparent 1px),
-                linear-gradient(135deg, #faf9fc 0%, #f3f1f7 100%);
-            background-size: 40px 40px, 40px 40px, 100% 100%;
-        }
+        
         .active { border: none !important; font-weight: 300 !important; }
 
         /* Autocomplete styles */
@@ -55,7 +49,7 @@
         .period-row input { width: 60px !important; text-align: center; padding: 8px !important; }
     </style>
 </head>
-<body class="mesh-sporty">
+<body class="">
 
 <?php
     require '../app/views/templates/general/header.php';
@@ -181,6 +175,9 @@
                         <input type="text" id="captain-sport-display" readonly>
                     </div>
 
+                    <!-- Sport Category Badge -->
+                    <div id="captain-category-badge" class="category-badge" style="display:none; margin-bottom: 20px;"></div>
+
                     <!-- Match Name -->
                     <div class="input-div">
                         <label for="captain-match-name">Match Name <span class="required">*</span></label>
@@ -205,68 +202,18 @@
                         </select>
                     </div>
 
-                    <!-- Winner Type Selector -->
-                    <input type="hidden" id="captain-winner-type" name="winner_type" value="INTERNAL">
+                    <!-- 2. TEAMS SELECTION (Dynamic) -->
+                    <div id="captain-teams-fields" class="sport-fields-container"></div>
 
-                    <!-- Visiting Player Toggle (Hidden by default, shown for individual sports) -->
-                    <div id="invitational-toggle-wrapper" class="invitational-toggle-container" style="display:none;">
-                        <label class="checkbox-label" style="display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer;margin:0;">
-                            <input type="checkbox" id="toggle-visiting-player" onchange="toggleWinnerSource(this.checked)">
-                            <span>Winner is a visiting/external player?</span>
+                    <!-- 3. UOC SQUAD TOGGLE -->
+                    <div id="uoc-load-trigger-container" style="display:none; margin: 15px 0; padding: 15px; background: #eff6ff; border: 1.5px dashed #3b82f6; border-radius: 12px;">
+                        <label class="checkbox-label" style="display:flex;align-items:center;gap:12px;font-weight:700;color:#1e40af;cursor:pointer;margin:0;">
+                            <input type="checkbox" id="uoc-squad-toggle" onchange="handleUocToggle(this.checked)" style="width:20px; height:20px;">
+                            <span><i class="fas fa-university"></i> This is a UOC Match? (Load Enrolled Squad)</span>
                         </label>
                     </div>
 
-                    <!-- UOC Student Winner (Default) -->
-                    <div class="input-div" id="winner-internal-container">
-                        <label for="captain-winner">Winner (UOC Student)</label>
-                        <select id="captain-winner" name="winner_id">
-                            <option value="">Select winner (optional)</option>
-                        </select>
-                    </div>
-
-                    <!-- Team Winner Selection (Populated via JS) -->
-                    <div class="input-div" id="winner-team-container" style="display:none;">
-                        <label for="winner-team-selection">Winner Team</label>
-                        <select id="winner-team-selection" name="winner_team_selection" onchange="document.getElementById('captain-winner-name').value = this.value">
-                            <option value="">Select winning team...</option>
-                        </select>
-                        <input type="hidden" id="captain-winner-name" name="winner_name">
-                    </div>
-
-                    <!-- Invitational Player Info -->
-                    <div id="invitational-fields" style="display:none; padding: 15px; background: #fffbeb; border-radius: 12px; border: 1px solid #fef3c7; margin-bottom: 20px;">
-                        <h4 style="font-size:13px; color:#92400e; margin:0 0 12px; display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-user-plus"></i> Visiting Player Details
-                        </h4>
-                        <div class="fields-grid cols-2">
-                            <div class="input-div">
-                                <label>First Name <span class="required">*</span></label>
-                                <input type="text" name="invitational[fname]" id="inv-fname" placeholder="First Name">
-                            </div>
-                            <div class="input-div">
-                                <label>Last Name <span class="required">*</span></label>
-                                <input type="text" name="invitational[lname]" id="inv-lname" placeholder="Last Name">
-                            </div>
-                        </div>
-                        <div class="input-div" style="margin-top:10px;">
-                            <label>University <span class="required">*</span></label>
-                            <input type="text" name="invitational[university]" id="inv-university" placeholder="e.g. University of Ruhuna">
-                        </div>
-                        <div class="input-div" style="margin-top:10px;">
-                            <label>Student ID (Optional)</label>
-                            <input type="text" name="invitational[student_id]" id="inv-student-id" placeholder="Official ID">
-                        </div>
-                    </div>
-
-                    <!-- Sport Category Badge -->
-                    <div id="captain-category-badge" class="category-badge" style="display:none;"></div>
-
-                    <!-- Dynamic sport-specific fields -->
-                    <div id="captain-sport-fields" class="sport-fields-container">
-                        <p class="hint-text"><i class="fas fa-info-circle"></i> Sport-specific fields will appear here</p>
-                    </div>
-
-                    <!-- Team Roster Sections -->
+                    <!-- 4. TEAM ROSTERS -->
                     <div id="team-roster-section" style="display:none;">
                         <h3 style="font-size:14px;font-weight:700;color:#5e2d91;margin:18px 0 10px;display:flex;align-items:center;gap:8px;">
                             <i class="fas fa-users"></i> Match Team Rosters
@@ -280,28 +227,97 @@
                             </select>
                         </div>
 
-                        <!-- Team A Players -->
-                        <div style="padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:10px;">
-                            <h4 style="font-size:13px;font-weight:700;color:#1e40af;margin:0 0 8px;display:flex;align-items:center;gap:6px;">
-                                <span style="background:#3b82f6;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;">A</span>
-                                Team A Players (UOC)
-                            </h4>
-                            <div id="team-a-players-list"></div>
-                            <button type="button" class="btn-small" onclick="addTeamPlayerRow('A')" style="margin-top:6px;">
-                                <i class="fas fa-plus"></i> Add Player
-                            </button>
+                        <div class="fields-grid cols-2" style="gap:15px; margin-bottom: 20px;">
+                            <!-- Team A Players -->
+                            <div style="padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:0;">
+                                <h4 style="font-size:13px;font-weight:700;color:#1e40af;margin:0 0 8px;display:flex;align-items:center;gap:6px;">
+                                    <span style="background:#3b82f6;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;">A</span>
+                                    Team A Players (UOC)
+                                </h4>
+                                <div id="team-a-players-list"></div>
+                                <button type="button" class="btn-small" onclick="addTeamPlayerRow('A')" style="margin-top:6px;">
+                                    <i class="fas fa-plus"></i> Add Player
+                                </button>
+                            </div>
+
+                            <!-- Team B Players -->
+                            <div style="padding:14px;background:#fffbeb;border-radius:10px;border:1px solid #fef3c7;margin-bottom:0;">
+                                <h4 style="font-size:13px;font-weight:700;color:#92400e;margin:0 0 8px;display:flex;align-items:center;gap:6px;">
+                                    <span style="background:#f59e0b;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;">B</span>
+                                    Team B Players (Opponents)
+                                </h4>
+                                <div id="team-b-players-list"></div>
+                                <button type="button" class="btn-small" onclick="addTeamPlayerRow('B')" style="margin-top:6px;">
+                                    <i class="fas fa-plus"></i> Add Player
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. PERFORMANCE & SCORES (Dynamic) -->
+                    <div id="captain-performance-fields" class="sport-fields-container"></div>
+
+                    <!-- 6. FINAL OUTCOME (Winner Selection) -->
+                    <div class="form-section Outcome-section" style="margin-top: 30px; padding: 20px; background: #fdfeff; border: 2px solid #e9e4f5; border-radius: 15px;">
+                        <h3 style="font-size:15px;font-weight:700;color:#5e2d91;margin:0 0 15px;display:flex;align-items:center;gap:10px;">
+                            <i class="fas fa-award"></i> Match Outcome
+                        </h3>
+                        
+                        <!-- Winner Type Selector -->
+                        <input type="hidden" id="captain-winner-type" name="winner_type" value="INTERNAL">
+
+                        <!-- Visiting Player Toggle (Individual Sports) -->
+                        <div id="invitational-toggle-wrapper" class="invitational-toggle-container" style="display:none;">
+                            <label class="checkbox-label" style="display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer;margin:0;">
+                                <input type="checkbox" id="toggle-visiting-player" onchange="toggleWinnerSource(this.checked)">
+                                <span>Winner is a visiting/external player?</span>
+                            </label>
                         </div>
 
-                        <!-- Team B Players -->
-                        <div style="padding:14px;background:#fffbeb;border-radius:10px;border:1px solid #fef3c7;margin-bottom:10px;">
-                            <h4 style="font-size:13px;font-weight:700;color:#92400e;margin:0 0 8px;display:flex;align-items:center;gap:6px;">
-                                <span style="background:#f59e0b;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;">B</span>
-                                Team B Players (Opponents)
+                        <div class="fields-grid cols-1">
+                            <!-- UOC Student Winner -->
+                            <div class="input-div" id="winner-internal-container">
+                                <label for="captain-winner">Winner (UOC Student)</label>
+                                <select id="captain-winner" name="winner_id">
+                                    <option value="">Select winner (optional)</option>
+                                </select>
+                            </div>
+
+                            <!-- Team Winner Selection -->
+                            <div class="input-div" id="winner-team-container" style="display:none;">
+                                <label for="winner-team-selection">Winner Team</label>
+                                <select id="winner-team-selection" name="winner_team_selection" onchange="document.getElementById('captain-winner-name').value = this.value">
+                                    <option value="">Select winning team...</option>
+                                </select>
+                                <input type="hidden" id="captain-winner-name" name="winner_name">
+                            </div>
+                        </div>
+
+                        <!-- Invitational Player Info -->
+                        <div id="invitational-fields" style="display:none; padding: 15px; background: #fffbeb; border-radius: 12px; border: 1px solid #fef3c7; margin-top: 15px;">
+                            <h4 style="font-size:13px; color:#92400e; margin:0 0 12px; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-user-plus"></i> Visiting Player Details
                             </h4>
-                            <div id="team-b-players-list"></div>
-                            <button type="button" class="btn-small" onclick="addTeamPlayerRow('B')" style="margin-top:6px;">
-                                <i class="fas fa-plus"></i> Add Player
-                            </button>
+                            <div class="fields-grid cols-2">
+                                <div class="input-div">
+                                    <label>First Name <span class="required">*</span></label>
+                                    <input type="text" name="invitational[fname]" id="inv-fname" placeholder="First Name">
+                                </div>
+                                <div class="input-div">
+                                    <label>Last Name <span class="required">*</span></label>
+                                    <input type="text" name="invitational[lname]" id="inv-lname" placeholder="Last Name">
+                                </div>
+                            </div>
+                            <div class="fields-grid cols-2" style="margin-top: 10px;">
+                                <div class="input-div">
+                                    <label>University <span class="required">*</span></label>
+                                    <input type="text" name="invitational[university]" id="inv-university" placeholder="e.g. University of Ruhuna">
+                                </div>
+                                <div class="input-div">
+                                    <label>Student ID (Optional)</label>
+                                    <input type="text" name="invitational[student_id]" id="inv-student-id" placeholder="Official ID">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- Hidden fields for team player JSON -->
@@ -416,7 +432,7 @@ let currentSportCategory = '';
 // Load students for winner selector
 async function loadStudents() {
     try {
-        const res  = await fetch('/uoc-sports/public/admin-sport/get-students');
+        const res  = await fetch('/uoc-sports/public/captain/get-students');
         const data = await res.json();
         const sel  = document.getElementById('captain-winner');
         if (sel && data.status === 'success') {
@@ -430,6 +446,21 @@ async function loadStudents() {
             });
         }
     } catch(e) { console.error('Failed to load students:', e); }
+}
+
+// Handle UOC Match Toggle
+function handleUocToggle(checked) {
+    if (checked) {
+        const teamA = document.getElementById('team_a_name');
+        if (teamA && teamA.value.includes('Colombo')) {
+            autoloadTeamRoster('A', teamA.value);
+        } else {
+            const teamB = document.getElementById('team_b_name');
+            if (teamB && teamB.value.includes('Colombo')) {
+                autoloadTeamRoster('B', teamB.value);
+            }
+        }
+    }
 }
 
 // Select tournament from the left panel
@@ -470,17 +501,48 @@ async function selectTournament(el) {
     participantResultCounter = 0;
 
     // Load sport-specific fields
-    const container = document.getElementById('captain-sport-fields');
-    container.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading form fields...</div>';
+    const teamsContainer = document.getElementById('captain-teams-fields');
+    const perfContainer  = document.getElementById('captain-performance-fields');
+    
+    teamsContainer.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    perfContainer.innerHTML  = '';
 
     try {
         const res  = await fetch(`/uoc-sports/public/add-result/get-sport-fields?sport_id=${sportId}`);
         const data = await res.json();
         if (data.status === 'success' && data.data) {
-            renderSportFields(data.data, container);
+            renderSportFields(data.data);
             
             // Re-init autocomplete for new fields
             initTeamAutocomplete();
+            
+            // Show UOC toggle for all tournament entry (broadened condition)
+            const trigger = document.getElementById('uoc-load-trigger-container');
+            if (trigger) {
+                // Show for teams, cricket, rackets, ball courts, or anything with a roster section
+                const isRosterSport = (
+                    data.data.category === 'TEAM_GOAL' || 
+                    data.data.category === 'CRICKET' || 
+                    data.data.category === 'RACKET' ||
+                    data.data.category === 'BALL_COURT' ||
+                    data.data.category === 'BOARD_GAME'
+                );
+                trigger.style.display = isRosterSport ? 'block' : 'none';
+                
+                // Reset checkbox on new sport selection
+                const checkbox = document.getElementById('uoc-squad-toggle');
+                if (checkbox) checkbox.checked = false;
+            }
+
+            // UX Improvement: Pre-fill UOC by default for captains
+            setTimeout(() => {
+                const teamA = document.getElementById('team_a_name');
+                if (teamA && !teamA.value) {
+                    teamA.value = 'University of Colombo';
+                    if (typeof updateTeamWinnerOptions === 'function') updateTeamWinnerOptions();
+                    // NO AUTOMATIC LOAD - Wait for user to tick the box
+                }
+            }, 200);
         } else {
             container.innerHTML = '<p class="hint-text"><i class="fas fa-info-circle"></i> No additional fields for this sport.</p>';
         }
@@ -491,13 +553,18 @@ async function selectTournament(el) {
 }
 
 // Render sport-specific field sections
-function renderSportFields(config, container) {
-    let html = '';
+function renderSportFields(config) {
+    const teamsContainer = document.getElementById('captain-teams-fields');
+    const perfContainer  = document.getElementById('captain-performance-fields');
+    
+    let teamsHtml = '';
+    let perfHtml  = '';
+
     config.sections.forEach(section => {
         const isCollapsible = section.collapsible;
         const sectionId     = section.title.toLowerCase().replace(/\s+/g, '-');
 
-        html += `<div class="form-section ${isCollapsible ? 'collapsible' : ''}" id="section-${sectionId}">`;
+        let html = `<div class="form-section ${isCollapsible ? 'collapsible' : ''}" id="section-${sectionId}">`;
         html += `<h3 class="section-title ${isCollapsible ? 'collapsible-toggle' : ''}"
                      ${isCollapsible ? `onclick="toggleSection('${sectionId}')"` : ''}>
                      ${section.title}
@@ -513,8 +580,17 @@ function renderSportFields(config, container) {
         html += `<div class="fields-grid cols-${cols}">`;
         section.fields.forEach(field => { html += renderField(field); });
         html += '</div></div></div>';
+
+        // Distribute sections
+        if (section.title === 'Teams') {
+            teamsHtml += html;
+        } else {
+            perfHtml += html;
+        }
     });
-    container.innerHTML = html;
+
+    teamsContainer.innerHTML = teamsHtml || '<p class="hint-text">Standard Match Setup</p>';
+    perfContainer.innerHTML  = perfHtml || '<p class="hint-text"><i class="fas fa-info-circle"></i> No performance details required for this category.</p>';
 }
 
 function renderField(field) {

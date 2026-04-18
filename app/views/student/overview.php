@@ -443,7 +443,7 @@
     </style>
 </head>
 
-<body class="mesh-sporty">
+<body class="">
     <?php
     $userModel = new User();
     $fname = (isset($data['user'])) ? $data['user']['fname'] : 'Student';

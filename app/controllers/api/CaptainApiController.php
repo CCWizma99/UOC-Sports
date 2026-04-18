@@ -2,6 +2,17 @@
 
 class CaptainApiController {
 
+    public function getStudents() {
+        header('Content-Type: application/json');
+        try {
+            $model = new Sport();
+            $results = $model->getStudents();
+            echo json_encode(['status'=>'success', 'data'=>$results]);
+        } catch(Exception $e) {
+            echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
+        }
+    }
+
     /**
      * Get tournaments where the logged-in captain has ACTIVE permission
      * and the event has already started.

@@ -62,19 +62,23 @@ class TournamentParticipant {
      * Get participants for a tournament
      */
     public function getParticipants($tournamentId) {
-        $query = "SELECT 
-                    tp.user_id,
+        $query = "SELECT DISTINCT
+                    u.user_id,
                     u.fname as first_name,
                     u.lname as last_name,
                     u.student_id,
-                    tp.added_at
-                  FROM tournament_participants tp
-                  JOIN user u ON tp.user_id = u.user_id
-                  WHERE tp.tournament_id = ? AND tp.status = 'ACTIVE'
+                    COALESCE(tp.added_at, t.start_date) as added_at
+                  FROM tournament t
+                  JOIN sport s ON t.sport_id = s.sport_id
+                  JOIN user u ON (u.user_id = s.captain_id OR u.user_id IN (
+                      SELECT user_id FROM tournament_participants WHERE tournament_id = ? AND status = 'ACTIVE'
+                  ))
+                  LEFT JOIN tournament_participants tp ON tp.user_id = u.user_id AND tp.tournament_id = t.tournament_id
+                  WHERE t.tournament_id = ?
                   ORDER BY u.fname, u.lname";
         
         $stmt = $this->db->prepare($query);
-        $stmt->execute([$tournamentId]);
+        $stmt->execute([$tournamentId, $tournamentId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

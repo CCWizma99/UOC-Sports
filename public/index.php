@@ -83,8 +83,11 @@ $router->get('/captain/get-match-teams', 'CaptainApiController@getMatchTeamsForT
 $router->get('/captain/get-award-titles', 'CaptainApiController@getAwardTitlesForSport');
 $router->get('/captain/get-student-achievements', 'CaptainApiController@getStudentAchievements');
 $router->get('/captain/get-team-roster', 'CaptainApiController@getTeamRoster');
+$router->get('/captain/get-students', 'CaptainApiController@getStudents');
 
 $router->get('/api/playing-teams/get-all', 'PlayingTeamApiController@getAll');
+$router->get('/api/playing-teams/search', 'PlayingTeamApiController@search');
+$router->post('/api/playing-teams/ensure', 'PlayingTeamApiController@ensure');
 $router->post('/api/playing-teams/update', 'PlayingTeamApiController@update');
 $router->post('/api/playing-teams/delete', 'PlayingTeamApiController@delete');
 
