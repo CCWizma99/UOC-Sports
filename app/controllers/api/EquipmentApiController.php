@@ -330,7 +330,10 @@ class EquipmentApiController {
                 return;
             }
             
-            $requests = $bookingModel->getRequestsByStudent($_SESSION['user_id']);
+            $requests = $bookingModel->getAllRequests([
+                'student_id' => $studentData['student_id'],
+                'user_id' => $_SESSION['user_id']
+            ]);
             
             // Format for frontend
             $formattedData = array_map(function($req) {

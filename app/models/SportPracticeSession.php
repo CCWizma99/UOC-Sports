@@ -121,15 +121,9 @@ class SportPracticeSession
         }
 
         $query = "INSERT INTO practice_sessions 
-<<<<<<< Updated upstream
                   (sport_id, added_by, facility, location, session_date, start_time, end_time, need_equipment, status)
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-=======
-                  (sport_id, added_by, facility, location, session_date, start_time, end_time, notes, need_equipment, status)
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
->>>>>>> Stashed changes
         $stmt = $this->db->prepare($query);
         $result = $stmt->execute([
             $sportId,
@@ -179,7 +173,7 @@ class SportPracticeSession
             $data['session_date'],
             $data['start_time'],
             $data['end_time'],
-         
+
             $data['need_equipment'] ?? 'No',
             $data['status'] ?? 'ACTIVE',
             $id

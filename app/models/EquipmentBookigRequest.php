@@ -41,8 +41,10 @@ class EquipmentBookigRequest {
             }
             
             if (!empty($filters['student_id'])) {
-                $query .= " AND er.student_id = ?";
+                $userId = $filters['user_id'] ?? $filters['student_id'];
+                $query .= " AND (er.student_id = ? OR er.student_id = ?)";
                 $params[] = $filters['student_id'];
+                $params[] = $userId;
             }
             
             if (!empty($filters['category_name'])) {

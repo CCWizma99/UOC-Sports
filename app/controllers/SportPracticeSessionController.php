@@ -14,7 +14,6 @@ class SportPracticeSessionController
         // Get selected sport from URL parameter
         $selectedSportId = $_GET['sport'] ?? null;
 
-<<<<<<< Updated upstream
         // Persist selected sport from header selector
         if ($selectedSportId) {
             $_SESSION['selected_sport_id'] = $selectedSportId;
@@ -24,9 +23,7 @@ class SportPracticeSessionController
         if (!$selectedSportId && isset($_SESSION['selected_sport_id'])) {
             $selectedSportId = $_SESSION['selected_sport_id'];
         }
-        
-=======
->>>>>>> Stashed changes
+
         // If no sport selected, get the first managed sport as default
         if (!$selectedSportId && $userId) {
             $db = Database::getConnection();
@@ -89,7 +86,7 @@ class SportPracticeSessionController
                 'session_date' => $_POST['date'] ?? '',
                 'start_time' => $_POST['stime'] ?? '',
                 'end_time' => $_POST['etime'] ?? '',
-               
+
                 'need_equipment' => $_POST['need_equipment'] ?? 'No',
                 'added_by' => $_SESSION['user_type'] ?? 'MANAGER',
                 'status' => 'PENDING'
@@ -200,7 +197,7 @@ class SportPracticeSessionController
                 'session_date' => $_POST['date'] ?? '',
                 'start_time' => $_POST['stime'] ?? '',
                 'end_time' => $_POST['etime'] ?? '',
-               
+
                 'need_equipment' => $_POST['need_equipment'] ?? 'No',
                 'status' => $_POST['status'] ?? 'ACTIVE'
             ];
@@ -300,15 +297,11 @@ class SportPracticeSessionController
         exit();
     }
 
-<<<<<<< Updated upstream
     /**
      * Check practice session conflicts via AJAX
      */
-    public function checkConflict() {
-=======
-    public function fetchStudentPracticeSessions()
+    public function checkConflict()
     {
->>>>>>> Stashed changes
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
@@ -316,12 +309,11 @@ class SportPracticeSessionController
             exit();
         }
 
-<<<<<<< Updated upstream
         $location = trim($_GET['location'] ?? '');
         $date = trim($_GET['date'] ?? '');
         $startTime = trim($_GET['start_time'] ?? '');
         $endTime = trim($_GET['end_time'] ?? '');
-        $excludeId = isset($_GET['exclude_id']) && $_GET['exclude_id'] !== '' ? (int)$_GET['exclude_id'] : null;
+        $excludeId = isset($_GET['exclude_id']) && $_GET['exclude_id'] !== '' ? (int) $_GET['exclude_id'] : null;
 
         if ($location === '' || $date === '' || $startTime === '' || $endTime === '') {
             echo json_encode([
@@ -338,19 +330,11 @@ class SportPracticeSessionController
                 'has_conflict' => true,
                 'message' => 'End time must be later than start time.'
             ]);
-=======
-        $month = $_GET['month'] ?? null;
-        $year = $_GET['year'] ?? null;
-
-        if (!$month || !$year) {
-            echo json_encode(['success' => false, 'message' => 'Missing required fields']);
->>>>>>> Stashed changes
             exit();
         }
 
         try {
             $model = new SportPracticeSession();
-<<<<<<< Updated upstream
             $hasConflict = $model->checkTimeConflict($location, $date, $startTime, $endTime, $excludeId);
 
             echo json_encode([
@@ -365,31 +349,6 @@ class SportPracticeSessionController
                 'has_conflict' => false,
                 'message' => 'Unable to validate time conflict right now.'
             ]);
-=======
-            $result = $model->getStudentPracticeSessions($month, $year);
-
-            if ($result) {
-                // Group sessions by date
-                $groupedSessions = [];
-                foreach ($result as $session) {
-                    $date = $session['session_date'];
-                    if (!isset($groupedSessions[$date])) {
-                        $groupedSessions[$date] = [];
-                    }
-                    $groupedSessions[$date][] = $session;
-                }
-                echo json_encode([
-                    'success' => true,
-                    'data' => $groupedSessions
-                ]);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to fetch practice sessions']);
-            }
-
-        } catch (Exception $e) {
-            error_log("Error updating practice session status: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
->>>>>>> Stashed changes
         }
         exit();
     }

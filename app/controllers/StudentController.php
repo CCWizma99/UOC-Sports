@@ -117,7 +117,7 @@ class StudentController {
         }
 
         $studentModel = new Student();
-        $sports = $studentModel->getAvailableSports($studentData['student_id']);
+        $sports = $studentModel->getAvailableSports($studentData['student_id'], $_SESSION['user_id']);
         
         echo json_encode(['status' => 'success', 'data' => $sports]);
     }
@@ -150,7 +150,7 @@ class StudentController {
              return;
         }
 
-        $sports = $studentModel->getEnrolledSports($studentData['student_id']);
+        $sports = $studentModel->getEnrolledSports($studentData['student_id'], $_SESSION['user_id']);
         
         echo json_encode(['status' => 'success', 'data' => $sports]);
     }
