@@ -1,14 +1,16 @@
 <?php
 
-class SportPracticeSessionController {
-    
+class SportPracticeSessionController
+{
+
     /**
      * Display list of practice sessions
      */
-    public function index() {
+    public function index()
+    {
         $model = new SportPracticeSession();
         $userId = $_SESSION['user_id'] ?? null;
-        
+
         // Get selected sport from URL parameter
         $selectedSportId = $_GET['sport'] ?? null;
 
@@ -21,7 +23,7 @@ class SportPracticeSessionController {
         if (!$selectedSportId && isset($_SESSION['selected_sport_id'])) {
             $selectedSportId = $_SESSION['selected_sport_id'];
         }
-        
+
         // If no sport selected, get the first managed sport as default
         if (!$selectedSportId && $userId) {
             $db = Database::getConnection();
@@ -32,13 +34,13 @@ class SportPracticeSessionController {
             $stmt->execute([$userId]);
             $selectedSportId = $stmt->fetchColumn();
         }
-        
+
         // Filter by sport if selected
         $filters = [];
         if ($selectedSportId) {
             $filters['sport_id'] = $selectedSportId;
         }
-        
+
         $sessions = $model->getAll($filters);
         view('sports-manager/practicesessions', [
             'sessions' => $sessions,
@@ -49,7 +51,8 @@ class SportPracticeSessionController {
     /**
      * Show add practice session form
      */
-    public function create() {
+    public function create()
+    {
         $model = new SportPracticeSession();
         $sports = $model->getAllSports();
         $facilities = $model->getPhysicalFacilities();
@@ -64,7 +67,8 @@ class SportPracticeSessionController {
     /**
      * Save new practice session
      */
-    public function store() {
+    public function store()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $_SESSION['error_message'] = 'Invalid request method';
             $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
@@ -88,15 +92,17 @@ class SportPracticeSessionController {
                 'session_date' => $_POST['date'] ?? '',
                 'start_time' => $_POST['stime'] ?? '',
                 'end_time' => $_POST['etime'] ?? '',
-               
+
                 'need_equipment' => $_POST['need_equipment'] ?? 'No',
                 'added_by' => $_SESSION['user_type'] ?? 'MANAGER',
                 'status' => 'PENDING'
             ];
 
             // Validate required fields
-            if (empty($data['sport_name']) || empty($data['session_date']) || 
-                empty($data['start_time']) || empty($data['end_time'])) {
+            if (
+                empty($data['sport_name']) || empty($data['session_date']) ||
+                empty($data['start_time']) || empty($data['end_time'])
+            ) {
                 $_SESSION['error_message'] = 'Please fill in all required fields';
                 header('Location: /uoc-sports/public/sport-manager/add-practice' . $sportParam);
                 exit();
@@ -150,9 +156,10 @@ class SportPracticeSessionController {
     /**
      * Show edit form
      */
-    public function edit() {
+    public function edit()
+    {
         $id = $_GET['id'] ?? null;
-        
+
         if (!$id) {
             $_SESSION['error_message'] = 'Invalid practice session';
             $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
@@ -183,7 +190,8 @@ class SportPracticeSessionController {
     /**
      * Update practice session
      */
-    public function update() {
+    public function update()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $_SESSION['error_message'] = 'Invalid request method';
             $sportParam = isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '';
@@ -192,7 +200,7 @@ class SportPracticeSessionController {
         }
 
         $id = $_POST['id'] ?? null;
-        
+
         // Get sport parameter to preserve in redirects
         $sportId = $_POST['sport_param'] ?? $_GET['sport'] ?? null;
         $sportParam = $sportId ? '?sport=' . urlencode($sportId) : '';
@@ -214,7 +222,7 @@ class SportPracticeSessionController {
                 'session_date' => $_POST['date'] ?? '',
                 'start_time' => $_POST['stime'] ?? '',
                 'end_time' => $_POST['etime'] ?? '',
-               
+
                 'need_equipment' => $_POST['need_equipment'] ?? 'No',
                 'status' => $_POST['status'] ?? 'ACTIVE'
             ];
@@ -272,7 +280,8 @@ class SportPracticeSessionController {
     /**
      * Delete practice session
      */
-    public function delete() {
+    public function delete()
+    {
         $id = $_POST['id'] ?? $_GET['id'] ?? null;
 
         if (!$id) {
@@ -305,7 +314,8 @@ class SportPracticeSessionController {
     /**
      * Update practice session status via AJAX
      */
-    public function updateStatus() {
+    public function updateStatus()
+    {
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -348,7 +358,8 @@ class SportPracticeSessionController {
     /**
      * Check practice session conflicts via AJAX
      */
-    public function checkConflict() {
+    public function checkConflict()
+    {
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
@@ -361,7 +372,7 @@ class SportPracticeSessionController {
         $date = trim($_GET['date'] ?? '');
         $startTime = trim($_GET['start_time'] ?? '');
         $endTime = trim($_GET['end_time'] ?? '');
-        $excludeId = isset($_GET['exclude_id']) && $_GET['exclude_id'] !== '' ? (int)$_GET['exclude_id'] : null;
+        $excludeId = isset($_GET['exclude_id']) && $_GET['exclude_id'] !== '' ? (int) $_GET['exclude_id'] : null;
 
         if ($date === '' || $sportName === '') {
             echo json_encode([

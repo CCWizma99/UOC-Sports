@@ -89,6 +89,13 @@
             background: #5e2d91;
         }
 
+        section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
         .section-header {
             margin-bottom: 15px;
             border-bottom: 2px solid #f3f0f7;
@@ -261,7 +268,9 @@
                 <!-- Available Sports -->
                 <div class="portal-card">
                     <section id="available-sports-section">
-                        <h2><i class="fas fa-plus-circle"></i> Available Sports</h2>
+                        <div class="section-header">
+                            <h2><i class="fas fa-plus-circle"></i> Available Sports</h2>
+                        </div>
                         <div class="search-box">
                             <i class="fas fa-search"></i>
                             <input type="text" id="sport-search" placeholder="Search for sports..." autocomplete="off">
@@ -275,7 +284,9 @@
                 <!-- Enrolled Sports -->
                 <div class="portal-card">
                     <section id="enrolled-sports-section">
-                        <h2><i class="fas fa-medal"></i> My Enrolled Sports</h2>
+                        <div class="section-header">
+                            <h2><i class="fas fa-medal"></i> My Enrolled Sports</h2>
+                        </div>
                         <div id="enrolled-sports-list" class="sports-grid">
                             <p>Loading...</p>
                         </div>
@@ -482,7 +493,21 @@
             }
             
             availableList.className = 'sports-grid';
-            const filtered = availableSports.filter(s => s.sport_name.toLowerCase().startsWith(query));
+            const filtered = availableSports
+                .filter(s => {
+                    const name = (s.sport_name || '').toLowerCase();
+                    return name.includes(query);
+                })
+                .sort((a, b) => {
+                    const nameA = (a.sport_name || '').toLowerCase();
+                    const nameB = (b.sport_name || '').toLowerCase();
+                    const startsA = nameA.startsWith(query);
+                    const startsB = nameB.startsWith(query);
+                    
+                    if (startsA && !startsB) return -1;
+                    if (!startsA && startsB) return 1;
+                    return nameA.localeCompare(nameB);
+                });
             renderAvailableSports(filtered);
         });
 

@@ -53,6 +53,7 @@ $router->get('/student/equipment', 'StudentController@equipment');
 $router->get('/student/facilities', 'StudentController@facilities');
 $router->get('/student/bookings', 'StudentController@bookings');
 $router->get('/student/dashboard-stats', 'StudentController@dashboardStats');
+$router->get('/student/practice-sessions', 'StudentController@getStudentPracticeSessions');
 
 $router->get('/student/available-sports', 'StudentController@getAvailableSports');
 $router->get('/student/enrolled-sports', 'StudentController@getEnrolledSports');
