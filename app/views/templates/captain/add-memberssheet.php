@@ -1,6 +1,4 @@
 </div>
-
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Prepare all students data for JS filtering

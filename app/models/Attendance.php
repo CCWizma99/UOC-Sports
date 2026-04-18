@@ -298,12 +298,15 @@ ORDER BY participant_type DESC, lname, fname
     }
 public function getSessionsByDate($sportId)
 {
-    $stmt = $this->db->prepare("
-        SELECT id, session_date, start_time, facility
+     $stmt = $this->db->prepare("
+        SELECT id, session_date, start_time, facility, notes AS description
         FROM practice_sessions
         WHERE sport_id = :sport_id
-        ORDER BY session_date DESC, start_time ASC
+          AND session_date <= CURDATE()
+        ORDER BY session_date DESC, start_time DESC
+        LIMIT 5
     ");
+
     $stmt->execute(['sport_id' => $sportId]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

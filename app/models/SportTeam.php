@@ -35,10 +35,12 @@ class SportTeam {
                 u.student_id,
                 u.email,
                 u.contact_no,
-                st.joined_date
+                st.joined_date,
+                f.faculty_name
             FROM `sports-team` st
             INNER JOIN user u ON st.student_id = u.user_id
-            WHERE st.sport_id = :sport_id
+            INNER JOIN faculty f ON u.faculty_id = f.faculty_id
+            WHERE st.sport_id = :sport_id AND st.in_team = 'YES'
             AND u.status = 'ACTIVE'
             AND st.status = 'ACTIVE'
             ORDER BY u.lname, u.fname
@@ -47,6 +49,34 @@ class SportTeam {
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+        /**
+        * Get members not in the team for a specific sport
+        * @param string $sportId - Sport ID
+        * @return array - Available members with user details
+        */
+        public function getMembersNotInTeam($sportId) {
+            $stmt = $this->db->prepare("
+            SELECT 
+                u.user_id,
+                u.fname,
+                u.lname,
+                u.student_id,
+                u.email,
+                u.contact_no,
+                st.joined_date,
+                f.faculty_name
+            FROM `sports-team` st
+            INNER JOIN user u ON st.student_id = u.user_id
+            INNER JOIN faculty f ON u.faculty_id = f.faculty_id
+            WHERE st.sport_id = :sport_id AND st.in_team = 'NO'
+            AND u.status = 'ACTIVE'
+            ORDER BY u.lname, u.fname
+        ");
+        
+        $stmt->execute(['sport_id' => $sportId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
 
     /**
      * Get team member count for a sport
@@ -99,20 +129,22 @@ class SportTeam {
     public function addMember($sportId, $userId) {
         try {
             // Check if record exists
-            $checkSql = "SELECT status FROM `sports-team` WHERE sport_id = :sport_id AND student_id = :user_id";
+            $checkSql = "SELECT count(*) as count FROM `sports-team` WHERE sport_id = :sport_id AND student_id = :user_id";
             $checkStmt = $this->db->prepare($checkSql);
             $checkStmt->execute(['sport_id' => $sportId, 'user_id' => $userId]);
+            $exists = $checkStmt->fetch(PDO::FETCH_ASSOC)['count'] > 0;
             
-            if ($checkStmt->rowCount() > 0) {
-                // Reactivate if exists
-                $updateSql = "UPDATE `sports-team` SET status = 'ACTIVE', joined_date = CURDATE() WHERE sport_id = :sport_id AND student_id = :user_id";
+            if ($exists) {
+                // Update if exists - ensure both flags are set correctly
+                $updateSql = "UPDATE `sports-team` SET status = 'ACTIVE', in_team = 'YES', joined_date = CURDATE() WHERE sport_id = :sport_id AND student_id = :user_id";
                 return $this->db->prepare($updateSql)->execute(['sport_id' => $sportId, 'user_id' => $userId]);
             } else {
-                // Insert new
-                $insertSql = "INSERT INTO `sports-team` (sport_id, student_id, joined_date, status) VALUES (:sport_id, :user_id, CURDATE(), 'ACTIVE')";
+                // Insert new - default in_team to 'YES'
+                $insertSql = "INSERT INTO `sports-team` (sport_id, student_id, joined_date, in_team, status) VALUES (:sport_id, :user_id, CURDATE(), 'YES', 'ACTIVE')";
                 return $this->db->prepare($insertSql)->execute(['sport_id' => $sportId, 'user_id' => $userId]);
             }
         } catch (Exception $e) {
+            error_log("Error adding team member: " . $e->getMessage());
             return false;
         }
     }
@@ -126,7 +158,7 @@ class SportTeam {
     public function removeMember($sportId, $userId) {
         $stmt = $this->db->prepare("
             UPDATE `sports-team`
-            SET status = 'INACTIVE'
+            SET status = 'INACTIVE', in_team = 'NO'
             WHERE sport_id = :sport_id AND student_id = :user_id
         ");
         
