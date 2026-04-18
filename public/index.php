@@ -186,7 +186,8 @@ $router->post('/sport-manager/update-practice', 'SportPracticeSessionController@
 $router->post('/sport-manager/update-practice-status', 'SportPracticeSessionController@updateStatus');
 $router->get('/sport-manager/check-practice-conflict', 'SportPracticeSessionController@checkConflict');
 $router->post('/sport-manager/delete-practice', 'SportPracticeSessionController@delete');
-$router->get('/sport-manager/add-participants', 'SportCompetitionsController@create');
+$router->get('/sport-manager/add-participants', 'SportTournamentController@create');
+$router->post('/sport-manager/store-participants', 'SportTournamentController@store');
 $router->post('/sport-manager/store-competition', 'SportCompetitionsController@store');
 // $router->post('/sport-manager/delete-competition', 'SportCompetitionsController@delete');
 $router->get('/sport-manager/add-expense', 'SportExpensesController@create');

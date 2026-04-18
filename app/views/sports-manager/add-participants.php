@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <form id="addParticipantsForm" class="form" method="POST" action="/uoc-sports/public/sport-manager/store-participants">
+            <form id="addParticipantsForm" class="form" method="POST" action="/uoc-sports/public/sport-manager/store-participants" enctype="multipart/form-data">
                 <input type="hidden" name="sport_id" value="<?= htmlspecialchars($selectedSport) ?>">
 
                 <div class="tournament-selector">

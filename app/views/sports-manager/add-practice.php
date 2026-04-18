@@ -124,22 +124,15 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="startTime">Start Time *</label>
-                        <input type="time" id="startTime" name="stime" step="1800" required>
+                        <label for="startTime">Start Time <span class="required-star">*</span></label>
+                        <input type="time" id="startTime" name="stime" min="06:00" max="20:00" step="1800" value="<?= isset($session) ? htmlspecialchars($session['start_time']) : '' ?>" required>
                         <small>Use 30-minute intervals (e.g. 08:00, 08:30)</small>
                     </div>
 
                     <div class="form-group">
-                        <label for="endTime">End Time *</label>
-                        <input type="time" id="endTime" name="etime" step="1800" required>
-                        <small>Use 30-minute intervals</small>
-                        <label for="startTime">Start Time <span class="required-star">*</span></label>
-                        <input type="time" id="startTime" name="stime" min="06:00" max="20:00" value="<?= isset($session) ? htmlspecialchars($session['start_time']) : '' ?>" required>
-                    </div>
-
-                    <div class="form-group">
                         <label for="endTime">End Time <span class="required-star">*</span></label>
-                        <input type="time" id="endTime" name="etime" min="06:00" max="20:00" value="<?= isset($session) ? htmlspecialchars($session['end_time']) : '' ?>" required>
+                        <input type="time" id="endTime" name="etime" min="06:00" max="20:00" step="1800" value="<?= isset($session) ? htmlspecialchars($session['end_time']) : '' ?>" required>
+                        <small>Use 30-minute intervals</small>
                     </div>
 
                     <div class="form-group">

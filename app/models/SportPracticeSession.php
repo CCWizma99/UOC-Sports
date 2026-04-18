@@ -262,9 +262,9 @@ class SportPracticeSession {
     }
 
     /**
-     * Check if a practice session already exists for the given sport on a specific date
+     * Check for time conflicts including practice sessions and facility bookings
      */
-    public function checkTimeConflict($physicalFacilityId, $date, $startTime, $endTime, $excludeId = null) {
+    public function checkTimeConflict($locationOrId, $date, $startTime, $endTime, $excludeId = null) {
         // 1. Check for 30-minute intervals
         $startSeconds = strtotime($startTime);
         $endSeconds = strtotime($endTime);
@@ -272,46 +272,66 @@ class SportPracticeSession {
             return "Times must be in 30-minute intervals (e.g., 08:00, 08:30).";
         }
 
+        $isNumericId = is_numeric($locationOrId);
+        $physicalFacilityId = $isNumericId ? $locationOrId : null;
+        $locationName = !$isNumericId ? $locationOrId : null;
+
         // 2. Check for other practice sessions
-        $query1 = "SELECT COUNT(*) FROM practice_sessions 
-                   WHERE physical_facility_id = ? 
-                   AND session_date = ? 
-                   AND (start_time < ? AND end_time > ?)
-                   AND status != 'CANCELED'";
+        $query1 = "SELECT ps.id, s.sport_name, ps.start_time, ps.end_time 
+                   FROM practice_sessions ps
+                   LEFT JOIN sport s ON ps.sport_id = s.sport_id
+                   WHERE session_date = ? 
+                   AND (ps.start_time < ? AND ps.end_time > ?)
+                   AND ps.status NOT IN ('CANCELED', 'CANCELLED')";
         
-        $params1 = [$physicalFacilityId, $date, $endTime, $startTime];
+        $params1 = [$date, $endTime, $startTime];
+        
+        if ($physicalFacilityId) {
+            $query1 .= " AND ps.physical_facility_id = ?";
+            $params1[] = $physicalFacilityId;
+        } else {
+            $query1 .= " AND ps.location = ?";
+            $params1[] = $locationName;
+        }
+
         if ($excludeId) {
-            $query1 .= " AND id != ?";
+            $query1 .= " AND ps.id != ?";
             $params1[] = $excludeId;
         }
         
         $stmt1 = $this->db->prepare($query1);
         $stmt1->execute($params1);
-        if ($stmt1->fetchColumn() > 0) return "Conflict with another practice session.";
-
-        // 3. Check for facility bookings
-        $query2 = "SELECT fb.slot 
-                   FROM `facility-booking` fb
-                   INNER JOIN facility_rates fr ON fb.facility_id = fr.id
-                   WHERE fr.facility_id = ?
-                   AND fb.date = ?
-                   AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
+        $conflict = $stmt1->fetch(PDO::FETCH_ASSOC);
         
-        $stmt2 = $this->db->prepare($query2);
-        $stmt2->execute([$physicalFacilityId, $date]);
-        $bookings = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+        if ($conflict) {
+            return $conflict; // Return conflict details for better error message
+        }
 
-        $slots = [
-            'MORNING' => ['08:00:00', '12:00:00'],
-            'AFTERNOON' => ['13:00:00', '17:00:00'],
-            'FULL' => ['08:00:00', '17:00:00']
-        ];
+        // 3. Check for facility bookings (only if we have physical_facility_id)
+        if ($physicalFacilityId) {
+            $query2 = "SELECT fb.slot 
+                       FROM `facility-booking` fb
+                       INNER JOIN facility_rates fr ON fb.facility_id = fr.id
+                       WHERE fr.facility_id = ?
+                       AND fb.date = ?
+                       AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
+            
+            $stmt2 = $this->db->prepare($query2);
+            $stmt2->execute([$physicalFacilityId, $date]);
+            $bookings = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
-        foreach ($bookings as $b) {
-            $slotRange = $slots[$b['slot']] ?? null;
-            if ($slotRange) {
-                if ($startTime < $slotRange[1] && $endTime > $slotRange[0]) {
-                    return "Conflict with a facility reservation (" . $b['slot'] . " slot).";
+            $slots = [
+                'MORNING' => ['08:00:00', '12:00:00'],
+                'AFTERNOON' => ['13:00:00', '17:00:00'],
+                'FULL' => ['08:00:00', '17:00:00']
+            ];
+
+            foreach ($bookings as $b) {
+                $slotRange = $slots[$b['slot']] ?? null;
+                if ($slotRange) {
+                    if ($startTime < $slotRange[1] && $endTime > $slotRange[0]) {
+                        return "Conflict with a facility reservation (" . $b['slot'] . " slot).";
+                    }
                 }
             }
         }
@@ -320,72 +340,36 @@ class SportPracticeSession {
     }
 
     /**
+     * Check if a practice session already exists for the given sport on a specific date
+     */
+    public function checkDateConflictForSport($sportName, $date, $excludeId = null) {
+        $sportId = $this->getSportIdByName($sportName);
+        if (!$sportId) return false;
+
+        $query = "SELECT COUNT(*) FROM practice_sessions 
+                  WHERE sport_id = ? 
+                  AND session_date = ? 
+                  AND status NOT IN ('CANCELED', 'CANCELLED')";
+        
+        $params = [$sportId, $date];
+        if ($excludeId) {
+            $query .= " AND id != ?";
+            $params[] = $excludeId;
+        }
+        
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() > 0;
+    }
+
+
+    /**
      * Get all physical facilities for dropdown
      */
     public function getPhysicalFacilities() {
         $query = "SELECT facility_id, facility_name, location FROM physical_facility ORDER BY facility_name";
         $stmt = $this->db->query($query);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Check for time conflicts
-     */
-    public function checkTimeConflict($location, $date, $startTime, $endTime, $excludeId = null) {
-        $query = "SELECT s.sport_name, ps.start_time, ps.end_time 
-                  FROM practice_sessions ps
-                  LEFT JOIN sport s ON ps.sport_id = s.sport_id
-                  WHERE ps.location = ? 
-                  AND ps.session_date = ? 
-                  AND (
-                      (ps.start_time <= ? AND ps.end_time > ?) OR
-                      (ps.start_time < ? AND ps.end_time >= ?) OR
-                      (ps.start_time >= ? AND ps.end_time <= ?)
-                  )
-                  AND ps.status NOT IN ('CANCELED', 'CANCELLED')";
-        
-        $params = [$location, $date, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime];
-        
-        if ($excludeId) {
-            $query .= " AND ps.id != ?";
-            $params[] = $excludeId;
-        }
-        
-        $query .= " LIMIT 1";
-        
-        $stmt = $this->db->prepare($query);
-        $stmt->execute($params);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Check for time conflicts
-     */
-    public function checkTimeConflict($location, $date, $startTime, $endTime, $excludeId = null) {
-        $query = "SELECT s.sport_name, ps.start_time, ps.end_time 
-                  FROM practice_sessions ps
-                  LEFT JOIN sport s ON ps.sport_id = s.sport_id
-                  WHERE ps.location = ? 
-                  AND ps.session_date = ? 
-                  AND (
-                      (ps.start_time <= ? AND ps.end_time > ?) OR
-                      (ps.start_time < ? AND ps.end_time >= ?) OR
-                      (ps.start_time >= ? AND ps.end_time <= ?)
-                  )
-                  AND ps.status NOT IN ('CANCELED', 'CANCELLED')";
-        
-        $params = [$location, $date, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime];
-        
-        if ($excludeId) {
-            $query .= " AND ps.id != ?";
-            $params[] = $excludeId;
-        }
-        
-        $query .= " LIMIT 1";
-        
-        $stmt = $this->db->prepare($query);
-        $stmt->execute($params);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
