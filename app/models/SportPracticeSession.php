@@ -378,27 +378,22 @@ class SportPracticeSession
     /**
      * Check if a practice session already exists for the given sport on a specific date
      */
-    public function checkDateConflictForSport($sportName, $date, $excludeId = null) {
+    public function checkDateConflictForSport($sportName, $date, $excludeId = null)
+    {
         $sportId = $this->getSportIdByName($sportName);
         if (!$sportId) return false;
 
         $query = "SELECT COUNT(*) FROM practice_sessions 
                   WHERE sport_id = ? 
                   AND session_date = ? 
-                  AND (
-                      (start_time <= ? AND end_time > ?) OR
-                      (start_time < ? AND end_time >= ?) OR
-                      (start_time >= ? AND end_time <= ?)
-                  )
-                  AND status != 'CANCELLED'";
-
-        $params = [$location, $date, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime];
-
+                  AND status NOT IN ('CANCELED', 'CANCELLED')";
+        
+        $params = [$sportId, $date];
         if ($excludeId) {
             $query .= " AND id != ?";
             $params[] = $excludeId;
         }
-
+        
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchColumn() > 0;
