@@ -61,12 +61,16 @@ class CaptainController {
             return strtotime($a['start_date']) <=> strtotime($b['start_date']);
         });
 
+        $attendanceModel = new Attendance();
+        $attendanceRate = $attendanceModel->getOverallAttendanceRate($sportId);
+
         view('captain/index', [
             'username' => $username,
             'sport_name' => $sportName,
             'member_count' => $memberCount,
             'practice_sessions' => $practiceSessions,
             'session_count' => $sessionCount,
+            'attendance_rate' => $attendanceRate,
             'upcoming_events' => $events
         ]);
     }
@@ -187,6 +191,10 @@ class CaptainController {
         $userId = $_SESSION['user_id'];
         $pdo = Database::getConnection();
         $scheduleModel = new Schedule();
+        
+        require_once __DIR__ . '/../models/Facility.php';
+        $facilityModel = new Facility();
+        $locations = $facilityModel->getPhysicalFacilities();
 
         // Get sport ID
         if (!isset($_SESSION['captain_sport_id'])) {
@@ -212,6 +220,15 @@ class CaptainController {
             $date = $_POST['date'];
             $start = $_POST['start_time'];
             $end = $_POST['end_time'];
+
+            // Validate 30-minute increments
+            $start_min = date('i', strtotime($start));
+            $end_min = date('i', strtotime($end));
+            if ($start_min % 30 !== 0 || $end_min % 30 !== 0) {
+                $_SESSION['error'] = "Invalid time format! Practice sessions must start and end at 30-minute intervals (e.g., :00 or :30).";
+                header("Location: /uoc-sports/public/captain/schedule-practice");
+                exit;
+            }
 
         // Check conflict
         if ($scheduleModel->hasTimeConflict($sportId, $date, $start, $end)) {
@@ -241,6 +258,15 @@ class CaptainController {
         $start = $_POST['start_time'];
         $end = $_POST['end_time'];
         $id = $_POST['id'];
+
+        // Validate 30-minute increments
+        $start_min = date('i', strtotime($start));
+        $end_min = date('i', strtotime($end));
+        if ($start_min % 30 !== 0 || $end_min % 30 !== 0) {
+            $_SESSION['error'] = "Invalid time format! Practice sessions must start and end at 30-minute intervals (e.g., :00 or :30).";
+            header("Location: /uoc-sports/public/captain/schedule-practice");
+            exit;
+        }
 
         // Check conflict (exclude current session)
         if ($scheduleModel->hasTimeConflict($sportId, $date, $start, $end, $id)) {
@@ -274,7 +300,8 @@ class CaptainController {
 
         view('captain/schedule-practice', [
             'schedules' => $schedules,
-            'sport_name' => $sportName
+            'sport_name' => $sportName,
+            'locations' => $locations
         ]);
     }
 

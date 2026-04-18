@@ -174,4 +174,34 @@ class SportTeam {
             'user_id' => $userId
         ]);
     }
+
+    /**
+     * Get all students enrolled in a sport (both in-team and available)
+     * @param string $sportId - Sport ID
+     * @return array - All active enrolled students
+     */
+    public function getAllEnrolledStudents($sportId) {
+        $stmt = $this->db->prepare("
+            SELECT 
+                u.user_id,
+                u.fname,
+                u.lname,
+                u.student_id,
+                u.email,
+                u.contact_no,
+                st.joined_date,
+                st.in_team,
+                f.faculty_name
+            FROM `sports-team` st
+            INNER JOIN user u ON st.student_id = u.user_id
+            LEFT JOIN faculty f ON u.faculty_id = f.faculty_id
+            WHERE st.sport_id = :sport_id 
+            AND st.status = 'ACTIVE'
+            AND u.status = 'ACTIVE'
+            ORDER BY u.lname, u.fname
+        ");
+        
+        $stmt->execute(['sport_id' => $sportId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

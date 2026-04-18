@@ -92,7 +92,7 @@ class AttendanceApiController {
         header('Content-Type: application/json');
         
         try {
-            $members = $this->teamModel->getTeamMembers($sportId);
+            $members = $this->teamModel->getAllEnrolledStudents($sportId);
             $percentages = $this->attendanceModel->getTeamAttendancePercentages($sportId);
             
             // Merge percentages into members array
@@ -173,7 +173,7 @@ class AttendanceApiController {
     $date = $input['date'] ?? null;
 
     $query = "
-        SELECT id, start_time AS session_time, facility
+        SELECT id, start_time AS session_time, location
         FROM practice_sessions
         WHERE sport_id = :sport_id
     ";
@@ -184,7 +184,8 @@ class AttendanceApiController {
 
     $query .= " ORDER BY start_time ASC";
 
-    $stmt = $this->db->prepare($query);
+    $pdo = Database::getConnection();
+    $stmt = $pdo->prepare($query);
 
     $params = ['sport_id' => $sportId];
     if ($date) {

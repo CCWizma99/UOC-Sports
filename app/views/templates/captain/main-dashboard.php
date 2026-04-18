@@ -15,30 +15,38 @@
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-icon">👥</div>
-      <div class="stat-label">Team Members</div>
+      <div class="stat-info">
+        <div class="stat-label">Team Members</div>
+        <div class="stat-subtitle">Active members this season</div>
+      </div>
       <div class="stat-value"><?php echo isset($member_count) ? htmlspecialchars($member_count) : '0'; ?></div>
-      <div class="stat-subtitle">Active members this season</div>
     </div>
 
     <div class="stat-card blue">
       <div class="stat-icon">🏋️</div>
-      <div class="stat-label">Practice Sessions</div>
+      <div class="stat-info">
+        <div class="stat-label">Practice Sessions</div>
+        <div class="stat-subtitle">Scheduled this month</div>
+      </div>
       <div class="stat-value"><?php echo isset($session_count) ? htmlspecialchars($session_count) : '0'; ?></div>
-      <div class="stat-subtitle">Scheduled this month</div>
     </div>
 
     <div class="stat-card green">
       <div class="stat-icon">📊</div>
-      <div class="stat-label">Attendance Rate</div>
-      <div class="stat-value">85%</div>
-      <div class="stat-subtitle">Last 4 sessions average</div>
+      <div class="stat-info">
+        <div class="stat-label">Attendance Rate</div>
+        <div class="stat-subtitle">Overall team average</div>
+      </div>
+      <div class="stat-value"><?php echo isset($attendance_rate) ? htmlspecialchars($attendance_rate) : '0'; ?>%</div>
     </div>
 
     <div class="stat-card orange">
       <div class="stat-icon">🎯</div>
-      <div class="stat-label">Upcoming Events</div>
+      <div class="stat-info">
+        <div class="stat-label">Upcoming Tournaments</div>
+        <div class="stat-subtitle">Next 30 days</div>
+      </div>
       <div class="stat-value"><?php echo count($upcoming_events); ?></div>
-      <div class="stat-subtitle">Next 30 days</div>
     </div>
   </div>
 
@@ -64,8 +72,8 @@
             <tr>
               <td class="date-cell"><?php echo isset($session['session_date']) ? htmlspecialchars($session['session_date']) : 'N/A'; ?></td>
               <td class="time-cell"><?php echo isset($session['start_time']) ? htmlspecialchars($session['start_time']) : 'N/A'; ?></td>
-              <td class="venue-cell"><?php echo isset($session['facility']) ? htmlspecialchars($session['facility']) : 'N/A'; ?></td>
-              <td><span class="purpose-badge"><?php echo isset($session['notes']) ? htmlspecialchars($session['notes']) : 'N/A'; ?></span></td>
+              <td class="venue-cell"><?php echo isset($session['location']) ? htmlspecialchars($session['location']) : 'N/A'; ?></td>
+              <td><?php echo isset($session['notes']) ? htmlspecialchars($session['notes']) : 'N/A'; ?></td>
             </tr>
             <?php endforeach; ?>
           </tbody>
