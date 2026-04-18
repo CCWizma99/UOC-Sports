@@ -181,6 +181,7 @@ class Message {
         $stmt = $this->db->prepare("
             SELECT m.message_id, m.title, m.message, m.recipient_type, m.sender_id, m.sent_at, m.is_read,
                    u.fname, u.lname, u.type as user_type, s.sport_name
+            FROM message m
             LEFT JOIN user u ON m.sender_id = u.user_id
             LEFT JOIN sport s ON m.sport_id = s.sport_id
             WHERE m.recipient_id = :recipient_id AND m.status = 'ACTIVE'

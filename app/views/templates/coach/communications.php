@@ -318,9 +318,9 @@
           
           let senderDisplay = '';
           if (msg.type === 'sent') {
-            senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.recipient_name}</span>`;
+            senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.sender} - ${msg.recipient_name}</span>`;
           } else {
-            senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender} (${msg.sport})</span>`;
+            senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender_role} - ${msg.sender} (${msg.sport})</span>`;
           }
 
           item.innerHTML = `
@@ -344,10 +344,10 @@
     currentMessageSender = msg;
     document.getElementById('modalTitle').textContent = msg.title;
     if (msg.type === 'sent') {
-       document.getElementById('modalSender').innerHTML = '↗ To: ' + msg.recipient_name;
+       document.getElementById('modalSender').innerHTML = '↗ To: ' + (msg.sender && msg.recipient_name ? msg.sender + ' - ' + msg.recipient_name : (msg.recipient_name || 'Recipient'));
        document.getElementById('modalSport').style.display = 'none'; // Hide sport for sent items
     } else {
-       document.getElementById('modalSender').textContent = '👤 ' + msg.sender;
+       document.getElementById('modalSender').textContent = '👤 ' + (msg.sender_role ? msg.sender_role + ' - ' : '') + msg.sender;
        document.getElementById('modalSport').textContent = '🏅 ' + msg.sport;
        document.getElementById('modalSport').style.display = 'block';
     }

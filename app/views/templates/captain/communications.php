@@ -312,10 +312,10 @@
           let actions = '';
           
           if (msg.type === 'sent') {
-            senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.recipient_name}</span>`;
+            senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.sender} - ${msg.recipient_name}</span>`;
             actions = `<button class="message-delete" title="Delete" onclick="event.stopPropagation(); deleteMessage('${msg.id}')">×</button>`;
           } else {
-            senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender}</span>`;
+            senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender_role} - ${msg.sender}</span>`;
             // No delete action for received messages
           }
 
@@ -341,11 +341,11 @@
     document.getElementById('modalTitle').textContent = msg.title;
     
     if (msg.type === 'sent') {
-       document.getElementById('modalSender').innerHTML = '↗ To: ' + (msg.recipient_name || msg.recipient || 'Recipient');
+       document.getElementById('modalSender').innerHTML = '↗ To: ' + (msg.sender && msg.recipient_name ? msg.sender + ' - ' + msg.recipient_name : (msg.recipient_name || 'Recipient'));
        document.getElementById('modalSport').style.display = 'none'; // Hide sport for sent items? Or show my sport
        document.getElementById('replyBtn').style.display = 'none'; // Can't reply to sent message (unless follow up)
     } else {
-       document.getElementById('modalSender').textContent = '👤 ' + msg.sender;
+       document.getElementById('modalSender').textContent = '👤 ' + (msg.sender_role ? msg.sender_role + ' - ' : '') + msg.sender;
        document.getElementById('modalSport').textContent = '🏅 ' + (msg.sport || 'General'); // Sport might not be in captain inbox msg
        document.getElementById('modalSport').style.display = 'block';
        document.getElementById('replyBtn').style.display = 'inline-block';

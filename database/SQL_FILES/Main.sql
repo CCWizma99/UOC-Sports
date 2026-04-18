@@ -3,12 +3,11 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Apr 11, 2026 at 08:01 PM
+-- Generation Time: Apr 18, 2026 at 05:43 AM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET FOREIGN_KEY_CHECKS = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -36,17 +35,11 @@ CREATE TABLE IF NOT EXISTS `achievement` (
   `tournament_id` varchar(20) DEFAULT NULL,
   `achievement` varchar(50) DEFAULT NULL,
   `points` int DEFAULT '0',
-  PRIMARY KEY (`achievement_id`),
   `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
+  PRIMARY KEY (`achievement_id`),
   KEY `fk_achievement_user` (`user_id`),
   KEY `fk_achievement_tournament` (`tournament_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `achievement`
---
--- (Wiped existing data referencing deleted competitions)
-
 
 --
 -- Triggers `achievement`
@@ -54,18 +47,26 @@ CREATE TABLE IF NOT EXISTS `achievement` (
 DROP TRIGGER IF EXISTS `trg_assign_points`;
 DELIMITER $$
 CREATE TRIGGER `trg_assign_points` BEFORE INSERT ON `achievement` FOR EACH ROW BEGIN
-    IF NEW.achievement = '1st place' THEN
-        SET NEW.points = 5;
-    ELSEIF NEW.achievement = '2nd place' THEN
-        SET NEW.points = 3;
-    ELSEIF NEW.achievement = '3rd place' THEN
-        SET NEW.points = 2;
-    ELSEIF NEW.achievement = '4th place' THEN
-        SET NEW.points = 1;
-    ELSEIF NEW.achievement = 'Best performance' THEN
-        SET NEW.points = 7;
-    ELSE
-        SET NEW.points = 0;
+    -- Only override points if they haven't been explicitly set (i.e. are 0 or NULL)
+    IF NEW.points IS NULL OR NEW.points = 0 THEN
+        IF NEW.achievement = 'Participant' THEN
+            SET NEW.points = 1;
+        ELSEIF NEW.achievement = 'Match Winner' THEN
+            SET NEW.points = 2;
+        ELSEIF NEW.achievement LIKE 'Best %' OR NEW.achievement LIKE 'Golden %' OR NEW.achievement LIKE 'Man of %' OR NEW.achievement LIKE 'Most %' OR NEW.achievement = 'MVP' THEN
+            -- Points depend on match level; default to 3 for university
+            SET NEW.points = 3;
+        ELSEIF NEW.achievement = '1st place' THEN
+            SET NEW.points = 5;
+        ELSEIF NEW.achievement = '2nd place' THEN
+            SET NEW.points = 3;
+        ELSEIF NEW.achievement = '3rd place' THEN
+            SET NEW.points = 2;
+        ELSEIF NEW.achievement = '4th place' THEN
+            SET NEW.points = 1;
+        ELSE
+            SET NEW.points = 1;
+        END IF;
     END IF;
 END
 $$
@@ -85,7 +86,6 @@ CREATE TRIGGER `trg_update_student_points_insert` AFTER INSERT ON `achievement` 
 END
 $$
 DELIMITER ;
-
 DROP TRIGGER IF EXISTS `trg_update_student_points_update`;
 DELIMITER $$
 CREATE TRIGGER `trg_update_student_points_update` AFTER UPDATE ON `achievement` FOR EACH ROW BEGIN
@@ -141,10 +141,10 @@ CREATE TABLE IF NOT EXISTS `attendance` (
 -- Dumping data for table `attendance`
 --
 
-INSERT INTO `attendance` (`attendance_id`, `practice_id`, `user_id`, `status`) VALUES
-('ATD16507D601', 8, '5Q1XZO2Y', 'PRESENT'),
-('ATDA26D398A7', 21, '5Q1XZO2Y', 'PRESENT'),
-('ATDFD77F382E', 8, 'L3NCL2J4', 'ABSENT');
+INSERT INTO `attendance` (`attendance_id`, `practice_id`, `user_id`, `status`, `record_status`) VALUES
+('ATD16507D601', 8, '5Q1XZO2Y', 'PRESENT', 'ACTIVE'),
+('ATDA26D398A7', 21, '5Q1XZO2Y', 'PRESENT', 'ACTIVE'),
+('ATDFD77F382E', 8, 'L3NCL2J4', 'ABSENT', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -180,6 +180,56 @@ INSERT INTO `budget` (`budget_id`, `sport_id`, `year`, `allocated_amount`, `spen
 ('BDG96F74E4F0', 'ROW', 2026, 100000, 0, '2025-12-26', '-'),
 ('BDG975A8955F', 'BAD', 2026, 60000, 20000, '2026-02-25', '-'),
 ('BDGEA502910C', 'BB', 2026, 120000, 0, '2026-04-11', '-');
+
+--
+-- Triggers `budget`
+--
+DROP TRIGGER IF EXISTS `trg_budget_delete`;
+DELIMITER $$
+CREATE TRIGGER `trg_budget_delete` AFTER DELETE ON `budget` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('budget', OLD.budget_id, 'DELETE', @current_user_id);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_budget_insert`;
+DELIMITER $$
+CREATE TRIGGER `trg_budget_insert` AFTER INSERT ON `budget` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('budget', NEW.budget_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'budget_id', NULL, NEW.budget_id),
+    (v_audit_id, 'sport_id', NULL, NEW.sport_id),
+    (v_audit_id, 'year', NULL, NEW.year),
+    (v_audit_id, 'allocated_amount', NULL, NEW.allocated_amount),
+    (v_audit_id, 'spent_amount', NULL, NEW.spent_amount),
+    (v_audit_id, 'allocation_date', NULL, NEW.allocation_date),
+    (v_audit_id, 'description', NULL, NEW.description);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_budget_update`;
+DELIMITER $$
+CREATE TRIGGER `trg_budget_update` AFTER UPDATE ON `budget` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.budget_id <=> OLD.budget_id AND NEW.sport_id <=> OLD.sport_id AND NEW.year <=> OLD.year AND NEW.allocated_amount <=> OLD.allocated_amount AND NEW.spent_amount <=> OLD.spent_amount AND NEW.allocation_date <=> OLD.allocation_date AND NEW.description <=> OLD.description) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('budget', NEW.budget_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        IF NOT (NEW.budget_id <=> OLD.budget_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'budget_id', OLD.budget_id, NEW.budget_id); END IF;
+        IF NOT (NEW.sport_id <=> OLD.sport_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_id', OLD.sport_id, NEW.sport_id); END IF;
+        IF NOT (NEW.year <=> OLD.year) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'year', OLD.year, NEW.year); END IF;
+        IF NOT (NEW.allocated_amount <=> OLD.allocated_amount) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'allocated_amount', OLD.allocated_amount, NEW.allocated_amount); END IF;
+        IF NOT (NEW.spent_amount <=> OLD.spent_amount) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'spent_amount', OLD.spent_amount, NEW.spent_amount); END IF;
+        IF NOT (NEW.allocation_date <=> OLD.allocation_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'allocation_date', OLD.allocation_date, NEW.allocation_date); END IF;
+        IF NOT (NEW.description <=> OLD.description) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'description', OLD.description, NEW.description); END IF;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -244,32 +294,12 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `status` varchar(20) NOT NULL DEFAULT 'ACTIVE'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `competition`
+-- Dumping data for table `comment`
 --
 
--- --------------------------------------------------------
-
---
--- Table structure for table `tournament_participants`
---
-
-DROP TABLE IF EXISTS `tournament_participants`;
-CREATE TABLE IF NOT EXISTS `tournament_participants` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `tournament_id` varchar(20) NOT NULL,
-  `user_id` varchar(12) NOT NULL,
-  `added_by` varchar(12) NOT NULL,
-  `added_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_tournament_user` (`tournament_id`, `user_id`),
-  CONSTRAINT `fk_tp_tournament` FOREIGN KEY (`tournament_id`) REFERENCES `tournament` (`tournament_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_tp_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
+INSERT INTO `comment` (`comment_id`, `post_id`, `comment_from`, `reply_to`, `content`, `status`) VALUES
+('cmt_69e2', 'P0005', 'H4J1OHSX', '', 'Hello', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -293,72 +323,72 @@ CREATE TABLE IF NOT EXISTS `equipment` (
 -- Dumping data for table `equipment`
 --
 
-INSERT INTO `equipment` (`equipment_id`, `sport_id`, `category_id`, `equipment_name`, `max_allow`, `image_name`) VALUES
-('EQ001', 'BAD', 'CAT002', 'Badminton Racket', 2, ''),
-('EQ002', 'BAD', 'CAT001', 'Shuttlecock', 1, ''),
-('EQ003', 'BAD', 'CAT004', 'Badminton Net', 1, ''),
-('EQ004', 'VOL', 'CAT001', 'Volleyball', 1, ''),
-('EQ005', 'VOL', 'CAT001', 'Volleyball Net', 1, ''),
-('EQ006', 'VOL', 'CAT003', 'Knee Pads', 2, ''),
-('EQ007', 'FOO', 'CAT001', 'Football', 1, ''),
-('EQ008', 'FOO', 'CAT004', 'Goal Post', 2, ''),
-('EQ009', 'FOO', 'CAT003', 'Shin Guards', 0, ''),
-('EQ010', 'FOO', 'CAT004', 'Goalkeeper Gloves', 4, ''),
-('EQ011', 'TEN', 'CAT002', 'Tennis Racket', 2, ''),
-('EQ012', 'TEN', 'CAT001', 'Tennis Ball', 1, ''),
-('EQ013', 'TEN', 'CAT004', 'Tennis Net', 1, ''),
-('EQ014', 'BAS', 'CAT001', 'Basketball', 1, ''),
-('EQ015', 'BAS', 'CAT001', 'Basketball Hoop', 0, ''),
-('EQ016', 'BAS', NULL, 'Shot Clock', 0, ''),
-('EQ017', 'HOC', 'CAT002', 'Hockey Stick', 1, ''),
-('EQ018', 'HOC', 'CAT001', 'Hockey Ball', 1, ''),
-('EQ019', 'HOC', 'CAT004', 'Goalkeeper Pads', 0, ''),
-('EQ020', 'NET', 'CAT001', 'Netball', 1, ''),
-('EQ021', 'NET', 'CAT001', 'Netball Post', 0, ''),
-('EQ022', 'CRI', 'CAT002', 'Cricket Bat', 2, ''),
-('EQ023', 'CRI', 'CAT001', 'Cricket Ball', 1, ''),
-('EQ024', 'CRI', 'CAT002', 'Batting Pads', 4, ''),
-('EQ025', 'CRI', 'CAT003', 'Helmet', 2, ''),
-('EQ026', 'RUG', 'CAT001', 'Rugby Ball', 0, ''),
-('EQ027', 'RUG', 'CAT003', 'Head Guard', 0, ''),
-('EQ028', 'SWI', NULL, 'Swimming Goggles', 0, ''),
-('EQ029', 'SWI', 'CAT003', 'Swim Cap', 0, ''),
-('EQ030', 'SWI', NULL, 'Kick Board', 0, ''),
-('EQ031', 'TT', 'CAT002', 'Table Tennis Bat', 0, ''),
-('EQ032', 'TT', 'CAT001', 'Table Tennis Ball', 0, ''),
-('EQ033', 'TT', NULL, 'TT Table', 0, ''),
-('EQ034', 'WL', NULL, 'Barbell', 0, ''),
-('EQ035', 'WL', NULL, 'Dumbbell', 0, ''),
-('EQ036', 'WL', NULL, 'Weight Plates', 0, ''),
-('EQ037', 'ROW', NULL, 'Rowing Boat', 0, ''),
-('EQ038', 'ROW', NULL, 'Oars', 0, ''),
-('EQ039', 'WRE', 'CAT006', 'Wrestling Mat', 0, ''),
-('EQ040', 'CHE', NULL, 'Chess Board', 0, ''),
-('EQ041', 'CHE', NULL, 'Chess Timer', 0, ''),
-('EQ042', 'ATH', NULL, 'Starting Blocks', 0, ''),
-('EQ043', 'ATH', NULL, 'Javelin', 0, ''),
-('EQ044', 'ATH', NULL, 'Discus', 0, ''),
-('EQ045', 'ATH', NULL, 'Shot Put', 0, ''),
-('EQ046', 'BOX', 'CAT003', 'Boxing Gloves', 0, ''),
-('EQ047', 'BOX', NULL, 'Punching Bag', 0, ''),
-('EQ048', 'TKD', 'CAT003', 'Chest Guard', 0, ''),
-('EQ049', 'TKD', 'CAT003', 'Head Guard', 0, ''),
-('EQ050', 'KRT', 'CAT003', 'Karate Gi', 0, ''),
-('EQ051', 'KRT', NULL, 'Hand Protectors', 0, ''),
-('EQ052', 'RR', NULL, 'Stopwatch', 0, ''),
-('EQ053', 'RR', NULL, 'Race Bib', 0, ''),
-('EQ054', 'SCR', NULL, 'Scrabble Board', 0, ''),
-('EQ055', 'ELL', NULL, 'Elle Game Set', 0, ''),
-('EQ056', 'BB', 'CAT002', 'Baseball Bat', 0, ''),
-('EQ057', 'BB', 'CAT001', 'Baseball', 0, ''),
-('EQ058', 'BB', 'CAT001', 'Baseball Glove', 0, ''),
-('EQ059', 'KBD', 'CAT006', 'Kabaddi Mat', 0, ''),
-('EQ060', 'CRM', NULL, 'Carrom Board', 1, ''),
-('EQ061', 'CRM', NULL, 'Carrom Coins', 1, ''),
-('EQ062', 'CRM', NULL, 'Striker', 1, ''),
-('EQ69354316b1', 'TKD', 'CAT006', 'Taekwondo Tatami', 9, 'taekwondo_tatami_2938.jpg'),
-('EQ6937e28ddf', 'BOX', 'CAT007', 'Boxing Shoes', 1, 'boxing_shoes_3247.jpg'),
-('EQ699563ae09', 'NET', 'CAT001', 'Netball BALL', 0, '');
+INSERT INTO `equipment` (`equipment_id`, `sport_id`, `category_id`, `equipment_name`, `max_allow`, `image_name`, `status`) VALUES
+('EQ001', 'BAD', 'CAT002', 'Badminton Racket', 2, '', 'ACTIVE'),
+('EQ002', 'BAD', 'CAT001', 'Shuttlecock', 1, '', 'ACTIVE'),
+('EQ003', 'BAD', 'CAT004', 'Badminton Net', 1, '', 'ACTIVE'),
+('EQ004', 'VOL', 'CAT001', 'Volleyball', 1, '', 'ACTIVE'),
+('EQ005', 'VOL', 'CAT001', 'Volleyball Net', 1, '', 'ACTIVE'),
+('EQ006', 'VOL', 'CAT003', 'Knee Pads', 2, '', 'ACTIVE'),
+('EQ007', 'FOO', 'CAT001', 'Football', 1, '', 'ACTIVE'),
+('EQ008', 'FOO', 'CAT004', 'Goal Post', 2, '', 'ACTIVE'),
+('EQ009', 'FOO', 'CAT003', 'Shin Guards', 0, '', 'ACTIVE'),
+('EQ010', 'FOO', 'CAT004', 'Goalkeeper Gloves', 4, '', 'ACTIVE'),
+('EQ011', 'TEN', 'CAT002', 'Tennis Racket', 2, '', 'ACTIVE'),
+('EQ012', 'TEN', 'CAT001', 'Tennis Ball', 1, '', 'ACTIVE'),
+('EQ013', 'TEN', 'CAT004', 'Tennis Net', 1, '', 'ACTIVE'),
+('EQ014', 'BAS', 'CAT001', 'Basketball', 1, '', 'ACTIVE'),
+('EQ015', 'BAS', 'CAT001', 'Basketball Hoop', 0, '', 'ACTIVE'),
+('EQ016', 'BAS', NULL, 'Shot Clock', 0, '', 'ACTIVE'),
+('EQ017', 'HOC', 'CAT002', 'Hockey Stick', 1, '', 'ACTIVE'),
+('EQ018', 'HOC', 'CAT001', 'Hockey Ball', 1, '', 'ACTIVE'),
+('EQ019', 'HOC', 'CAT004', 'Goalkeeper Pads', 0, '', 'ACTIVE'),
+('EQ020', 'NET', 'CAT001', 'Netball', 1, '', 'ACTIVE'),
+('EQ021', 'NET', 'CAT001', 'Netball Post', 0, '', 'ACTIVE'),
+('EQ022', 'CRI', 'CAT002', 'Cricket Bat', 2, '', 'ACTIVE'),
+('EQ023', 'CRI', 'CAT001', 'Cricket Ball', 1, '', 'ACTIVE'),
+('EQ024', 'CRI', 'CAT002', 'Batting Pads', 4, '', 'ACTIVE'),
+('EQ025', 'CRI', 'CAT003', 'Helmet', 2, '', 'ACTIVE'),
+('EQ026', 'RUG', 'CAT001', 'Rugby Ball', 0, '', 'ACTIVE'),
+('EQ027', 'RUG', 'CAT003', 'Head Guard', 0, '', 'ACTIVE'),
+('EQ028', 'SWI', NULL, 'Swimming Goggles', 0, '', 'ACTIVE'),
+('EQ029', 'SWI', 'CAT003', 'Swim Cap', 0, '', 'ACTIVE'),
+('EQ030', 'SWI', NULL, 'Kick Board', 0, '', 'ACTIVE'),
+('EQ031', 'TT', 'CAT002', 'Table Tennis Bat', 0, '', 'ACTIVE'),
+('EQ032', 'TT', 'CAT001', 'Table Tennis Ball', 0, '', 'ACTIVE'),
+('EQ033', 'TT', NULL, 'TT Table', 0, '', 'ACTIVE'),
+('EQ034', 'WL', NULL, 'Barbell', 0, '', 'ACTIVE'),
+('EQ035', 'WL', NULL, 'Dumbbell', 0, '', 'ACTIVE'),
+('EQ036', 'WL', NULL, 'Weight Plates', 0, '', 'ACTIVE'),
+('EQ037', 'ROW', NULL, 'Rowing Boat', 0, '', 'ACTIVE'),
+('EQ038', 'ROW', NULL, 'Oars', 0, '', 'ACTIVE'),
+('EQ039', 'WRE', 'CAT006', 'Wrestling Mat', 0, '', 'ACTIVE'),
+('EQ040', 'CHE', NULL, 'Chess Board', 0, '', 'ACTIVE'),
+('EQ041', 'CHE', NULL, 'Chess Timer', 0, '', 'ACTIVE'),
+('EQ042', 'ATH', NULL, 'Starting Blocks', 0, '', 'ACTIVE'),
+('EQ043', 'ATH', NULL, 'Javelin', 0, '', 'ACTIVE'),
+('EQ044', 'ATH', NULL, 'Discus', 0, '', 'ACTIVE'),
+('EQ045', 'ATH', NULL, 'Shot Put', 0, '', 'ACTIVE'),
+('EQ046', 'BOX', 'CAT003', 'Boxing Gloves', 0, '', 'ACTIVE'),
+('EQ047', 'BOX', NULL, 'Punching Bag', 0, '', 'ACTIVE'),
+('EQ048', 'TKD', 'CAT003', 'Chest Guard', 0, '', 'ACTIVE'),
+('EQ049', 'TKD', 'CAT003', 'Head Guard', 0, '', 'ACTIVE'),
+('EQ050', 'KRT', 'CAT003', 'Karate Gi', 0, '', 'ACTIVE'),
+('EQ051', 'KRT', NULL, 'Hand Protectors', 0, '', 'ACTIVE'),
+('EQ052', 'RR', NULL, 'Stopwatch', 0, '', 'ACTIVE'),
+('EQ053', 'RR', NULL, 'Race Bib', 0, '', 'ACTIVE'),
+('EQ054', 'SCR', NULL, 'Scrabble Board', 0, '', 'ACTIVE'),
+('EQ055', 'ELL', NULL, 'Elle Game Set', 0, '', 'ACTIVE'),
+('EQ056', 'BB', 'CAT002', 'Baseball Bat', 0, '', 'ACTIVE'),
+('EQ057', 'BB', 'CAT001', 'Baseball', 0, '', 'ACTIVE'),
+('EQ058', 'BB', 'CAT001', 'Baseball Glove', 0, '', 'ACTIVE'),
+('EQ059', 'KBD', 'CAT006', 'Kabaddi Mat', 0, '', 'ACTIVE'),
+('EQ060', 'CRM', NULL, 'Carrom Board', 1, '', 'ACTIVE'),
+('EQ061', 'CRM', NULL, 'Carrom Coins', 1, '', 'ACTIVE'),
+('EQ062', 'CRM', NULL, 'Striker', 1, '', 'ACTIVE'),
+('EQ69354316b1', 'TKD', 'CAT006', 'Taekwondo Tatami', 9, 'taekwondo_tatami_2938.jpg', 'ACTIVE'),
+('EQ6937e28ddf', 'BOX', 'CAT007', 'Boxing Shoes', 1, 'boxing_shoes_3247.jpg', 'ACTIVE'),
+('EQ699563ae09', 'NET', 'CAT001', 'Netball BALL', 0, '', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -454,74 +484,126 @@ CREATE TABLE IF NOT EXISTS `equipment_inventory` (
 -- Dumping data for table `equipment_inventory`
 --
 
-INSERT INTO `equipment_inventory` (`stock_id`, `equipment_id`, `sport_id`, `quantity`, `usable`, `added_date`, `remarks`) VALUES
-('STK00001', 'EQ001', 'BAD', 20, 15, '2025-12-08', '-'),
-('STK00002', 'EQ002', 'BAD', 200, 200, '2025-12-08', '-'),
-('STK00003', 'EQ003', 'BAD', 5, 5, '2025-12-08', '-'),
-('STK00004', 'EQ004', 'VOL', 15, 15, '2025-12-08', '-'),
-('STK00005', 'EQ005', 'VOL', 6, 6, '2025-12-08', '-'),
-('STK00006', 'EQ006', 'VOL', 30, 30, '2025-12-08', '-'),
-('STK00007', 'EQ007', 'FOO', 18, 18, '2025-12-08', '-'),
-('STK00008', 'EQ008', 'FOO', 4, 4, '2025-12-08', '-'),
-('STK00009', 'EQ009', 'FOO', 25, 25, '2025-12-08', '-'),
-('STK00010', 'EQ010', 'FOO', 10, 10, '2025-12-08', '-'),
-('STK00011', 'EQ011', 'TEN', 12, 8, '2025-12-08', '-'),
-('STK00012', 'EQ012', 'TEN', 150, 150, '2025-12-08', '-'),
-('STK00013', 'EQ013', 'TEN', 4, 4, '2025-12-08', '-'),
-('STK00014', 'EQ014', 'BAS', 10, 10, '2025-12-08', '-'),
-('STK00015', 'EQ015', 'BAS', 6, 6, '2025-12-08', '-'),
-('STK00016', 'EQ016', 'BAS', 2, 2, '2025-12-08', '-'),
-('STK00017', 'EQ017', 'HOC', 20, 6, '2025-12-08', '-'),
-('STK00018', 'EQ018', 'HOC', 30, 30, '2025-12-08', '-'),
-('STK00019', 'EQ019', 'HOC', 6, 6, '2025-12-08', '-'),
-('STK00020', 'EQ020', 'NET', 10, 10, '2025-12-08', '-'),
-('STK00021', 'EQ021', 'NET', 4, 4, '2025-12-08', '-'),
-('STK00022', 'EQ022', 'CRI', 12, 10, '2025-12-08', '-'),
-('STK00023', 'EQ023', 'CRI', 60, 60, '2025-12-08', '-'),
-('STK00024', 'EQ024', 'CRI', 10, 10, '2025-12-08', '-'),
-('STK00025', 'EQ025', 'CRI', 8, 8, '2025-12-08', '-'),
-('STK00026', 'EQ026', 'RUG', 10, 10, '2025-12-08', '-'),
-('STK00027', 'EQ027', 'RUG', 12, 12, '2025-12-08', '-'),
-('STK00028', 'EQ028', 'SWI', 25, 25, '2025-12-08', '-'),
-('STK00029', 'EQ029', 'SWI', 30, 30, '2025-12-08', '-'),
-('STK00030', 'EQ030', 'SWI', 10, 10, '2025-12-08', '-'),
-('STK00031', 'EQ031', 'TT', 20, 20, '2025-12-08', '-'),
-('STK00032', 'EQ032', 'TT', 150, 150, '2025-12-08', '-'),
-('STK00033', 'EQ033', 'TT', 4, 4, '2025-12-08', '-'),
-('STK00034', 'EQ034', 'WL', 10, 10, '2025-12-08', '-'),
-('STK00035', 'EQ035', 'WL', 20, 20, '2025-12-08', '-'),
-('STK00036', 'EQ036', 'WL', 80, 80, '2025-12-08', '-'),
-('STK00037', 'EQ037', 'ROW', 6, 6, '2025-12-08', '-'),
-('STK00038', 'EQ038', 'ROW', 20, 20, '2025-12-08', '-'),
-('STK00039', 'EQ039', 'WRE', 4, 4, '2025-12-08', '-'),
-('STK00040', 'EQ040', 'CHE', 15, 3, '2025-12-08', '-'),
-('STK00041', 'EQ041', 'CHE', 10, 10, '2025-12-08', '-'),
-('STK00042', 'EQ042', 'ATH', 8, 8, '2025-12-08', '-'),
-('STK00043', 'EQ043', 'ATH', 12, 12, '2025-12-08', '-'),
-('STK00044', 'EQ044', 'ATH', 10, 10, '2025-12-08', '-'),
-('STK00045', 'EQ045', 'ATH', 14, 14, '2025-12-08', '-'),
-('STK00046', 'EQ046', 'BOX', 16, 16, '2025-12-08', '-'),
-('STK00047', 'EQ047', 'BOX', 4, 4, '2025-12-08', '-'),
-('STK00048', 'EQ048', 'TKD', 20, 20, '2025-12-08', '-'),
-('STK00049', 'EQ049', 'TKD', 20, 20, '2025-12-08', '-'),
-('STK00050', 'EQ050', 'KRT', 20, 20, '2025-12-08', '-'),
-('STK00051', 'EQ051', 'KRT', 20, 20, '2025-12-08', '-'),
-('STK00052', 'EQ052', 'RR', 30, 30, '2025-12-08', '-'),
-('STK00053', 'EQ053', 'RR', 200, 200, '2025-12-08', '-'),
-('STK00054', 'EQ054', 'SCR', 10, 10, '2025-12-08', '-'),
-('STK00055', 'EQ055', 'ELL', 8, 8, '2025-12-08', '-'),
-('STK00056', 'EQ056', 'BB', 12, 12, '2025-12-08', '-'),
-('STK00057', 'EQ057', 'BB', 40, 40, '2025-12-08', '-'),
-('STK00058', 'EQ058', 'BB', 20, 20, '2025-12-08', '-'),
-('STK00059', 'EQ059', 'KBD', 4, 4, '2025-12-08', '-'),
-('STK00060', 'EQ060', 'CRM', 10, 10, '2025-12-08', '-'),
-('STK00061', 'EQ061', 'CRM', 40, 40, '2025-12-08', '-'),
-('STK00062', 'EQ062', 'CRM', 15, 15, '2025-12-08', '-'),
-('STK00063', 'EQ69354316b1', 'TKD', 200, 200, '2025-12-08', '-'),
-('STK69354', 'EQ020', 'NET', 4, 4, '2025-12-07', '-'),
-('STK6937d', 'EQ046', 'BOX', 12, 12, '2025-12-09', 'Donated by Sri Lanka Boxing Federation'),
-('STK6937e', 'EQ6937e28ddf', 'BOX', 20, 20, '2025-12-09', 'Donated by Sri Lanka Boxing Federation'),
-('STK69956', 'EQ699563ae09', 'NET', 5, 5, '2026-12-18', '-');
+INSERT INTO `equipment_inventory` (`stock_id`, `equipment_id`, `sport_id`, `quantity`, `usable`, `added_date`, `remarks`, `status`) VALUES
+('STK00001', 'EQ001', 'BAD', 20, 15, '2025-12-08', '-', 'ACTIVE'),
+('STK00002', 'EQ002', 'BAD', 200, 200, '2025-12-08', '-', 'ACTIVE'),
+('STK00003', 'EQ003', 'BAD', 5, 5, '2025-12-08', '-', 'ACTIVE'),
+('STK00004', 'EQ004', 'VOL', 15, 15, '2025-12-08', '-', 'ACTIVE'),
+('STK00005', 'EQ005', 'VOL', 6, 6, '2025-12-08', '-', 'ACTIVE'),
+('STK00006', 'EQ006', 'VOL', 30, 30, '2025-12-08', '-', 'ACTIVE'),
+('STK00007', 'EQ007', 'FOO', 18, 18, '2025-12-08', '-', 'ACTIVE'),
+('STK00008', 'EQ008', 'FOO', 4, 4, '2025-12-08', '-', 'ACTIVE'),
+('STK00009', 'EQ009', 'FOO', 25, 25, '2025-12-08', '-', 'ACTIVE'),
+('STK00010', 'EQ010', 'FOO', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00011', 'EQ011', 'TEN', 12, 8, '2025-12-08', '-', 'ACTIVE'),
+('STK00012', 'EQ012', 'TEN', 150, 150, '2025-12-08', '-', 'ACTIVE'),
+('STK00013', 'EQ013', 'TEN', 4, 4, '2025-12-08', '-', 'ACTIVE'),
+('STK00014', 'EQ014', 'BAS', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00015', 'EQ015', 'BAS', 6, 6, '2025-12-08', '-', 'ACTIVE'),
+('STK00016', 'EQ016', 'BAS', 2, 2, '2025-12-08', '-', 'ACTIVE'),
+('STK00017', 'EQ017', 'HOC', 20, 6, '2025-12-08', '-', 'ACTIVE'),
+('STK00018', 'EQ018', 'HOC', 30, 30, '2025-12-08', '-', 'ACTIVE'),
+('STK00019', 'EQ019', 'HOC', 6, 6, '2025-12-08', '-', 'ACTIVE'),
+('STK00020', 'EQ020', 'NET', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00021', 'EQ021', 'NET', 4, 4, '2025-12-08', '-', 'ACTIVE'),
+('STK00022', 'EQ022', 'CRI', 12, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00023', 'EQ023', 'CRI', 60, 60, '2025-12-08', '-', 'ACTIVE'),
+('STK00024', 'EQ024', 'CRI', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00025', 'EQ025', 'CRI', 8, 8, '2025-12-08', '-', 'ACTIVE'),
+('STK00026', 'EQ026', 'RUG', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00027', 'EQ027', 'RUG', 12, 12, '2025-12-08', '-', 'ACTIVE'),
+('STK00028', 'EQ028', 'SWI', 25, 25, '2025-12-08', '-', 'ACTIVE'),
+('STK00029', 'EQ029', 'SWI', 30, 30, '2025-12-08', '-', 'ACTIVE'),
+('STK00030', 'EQ030', 'SWI', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00031', 'EQ031', 'TT', 20, 20, '2025-12-08', '-', 'ACTIVE'),
+('STK00032', 'EQ032', 'TT', 150, 150, '2025-12-08', '-', 'ACTIVE'),
+('STK00033', 'EQ033', 'TT', 4, 4, '2025-12-08', '-', 'ACTIVE'),
+('STK00034', 'EQ034', 'WL', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00035', 'EQ035', 'WL', 20, 20, '2025-12-08', '-', 'ACTIVE'),
+('STK00036', 'EQ036', 'WL', 80, 80, '2025-12-08', '-', 'ACTIVE'),
+('STK00037', 'EQ037', 'ROW', 6, 6, '2025-12-08', '-', 'ACTIVE'),
+('STK00038', 'EQ038', 'ROW', 20, 20, '2025-12-08', '-', 'ACTIVE'),
+('STK00039', 'EQ039', 'WRE', 4, 4, '2025-12-08', '-', 'ACTIVE'),
+('STK00040', 'EQ040', 'CHE', 15, 3, '2025-12-08', '-', 'ACTIVE'),
+('STK00041', 'EQ041', 'CHE', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00042', 'EQ042', 'ATH', 8, 8, '2025-12-08', '-', 'ACTIVE'),
+('STK00043', 'EQ043', 'ATH', 12, 12, '2025-12-08', '-', 'ACTIVE'),
+('STK00044', 'EQ044', 'ATH', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00045', 'EQ045', 'ATH', 14, 14, '2025-12-08', '-', 'ACTIVE'),
+('STK00046', 'EQ046', 'BOX', 16, 16, '2025-12-08', '-', 'ACTIVE'),
+('STK00047', 'EQ047', 'BOX', 4, 4, '2025-12-08', '-', 'ACTIVE'),
+('STK00048', 'EQ048', 'TKD', 20, 20, '2025-12-08', '-', 'ACTIVE'),
+('STK00049', 'EQ049', 'TKD', 20, 20, '2025-12-08', '-', 'ACTIVE'),
+('STK00050', 'EQ050', 'KRT', 20, 20, '2025-12-08', '-', 'ACTIVE'),
+('STK00051', 'EQ051', 'KRT', 20, 20, '2025-12-08', '-', 'ACTIVE'),
+('STK00052', 'EQ052', 'RR', 30, 30, '2025-12-08', '-', 'ACTIVE'),
+('STK00053', 'EQ053', 'RR', 200, 200, '2025-12-08', '-', 'ACTIVE'),
+('STK00054', 'EQ054', 'SCR', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00055', 'EQ055', 'ELL', 8, 8, '2025-12-08', '-', 'ACTIVE'),
+('STK00056', 'EQ056', 'BB', 12, 12, '2025-12-08', '-', 'ACTIVE'),
+('STK00057', 'EQ057', 'BB', 40, 40, '2025-12-08', '-', 'ACTIVE'),
+('STK00058', 'EQ058', 'BB', 20, 20, '2025-12-08', '-', 'ACTIVE'),
+('STK00059', 'EQ059', 'KBD', 4, 4, '2025-12-08', '-', 'ACTIVE'),
+('STK00060', 'EQ060', 'CRM', 10, 10, '2025-12-08', '-', 'ACTIVE'),
+('STK00061', 'EQ061', 'CRM', 40, 40, '2025-12-08', '-', 'ACTIVE'),
+('STK00062', 'EQ062', 'CRM', 15, 15, '2025-12-08', '-', 'ACTIVE'),
+('STK00063', 'EQ69354316b1', 'TKD', 200, 200, '2025-12-08', '-', 'ACTIVE'),
+('STK69354', 'EQ020', 'NET', 4, 4, '2025-12-07', '-', 'ACTIVE'),
+('STK6937d', 'EQ046', 'BOX', 12, 12, '2025-12-09', 'Donated by Sri Lanka Boxing Federation', 'ACTIVE'),
+('STK6937e', 'EQ6937e28ddf', 'BOX', 20, 20, '2025-12-09', 'Donated by Sri Lanka Boxing Federation', 'ACTIVE'),
+('STK69956', 'EQ699563ae09', 'NET', 5, 5, '2026-12-18', '-', 'ACTIVE');
+
+--
+-- Triggers `equipment_inventory`
+--
+DROP TRIGGER IF EXISTS `trg_equipment_inventory_delete`;
+DELIMITER $$
+CREATE TRIGGER `trg_equipment_inventory_delete` AFTER DELETE ON `equipment_inventory` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('equipment_inventory', OLD.stock_id, 'DELETE', @current_user_id);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_equipment_inventory_insert`;
+DELIMITER $$
+CREATE TRIGGER `trg_equipment_inventory_insert` AFTER INSERT ON `equipment_inventory` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('equipment_inventory', NEW.stock_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'stock_id', NULL, NEW.stock_id),
+    (v_audit_id, 'equipment_id', NULL, NEW.equipment_id),
+    (v_audit_id, 'sport_id', NULL, NEW.sport_id),
+    (v_audit_id, 'quantity', NULL, NEW.quantity),
+    (v_audit_id, 'usable', NULL, NEW.usable),
+    (v_audit_id, 'added_date', NULL, NEW.added_date),
+    (v_audit_id, 'remarks', NULL, NEW.remarks),
+    (v_audit_id, 'status', NULL, NEW.status);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_equipment_inventory_update`;
+DELIMITER $$
+CREATE TRIGGER `trg_equipment_inventory_update` AFTER UPDATE ON `equipment_inventory` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.stock_id <=> OLD.stock_id AND NEW.equipment_id <=> OLD.equipment_id AND NEW.sport_id <=> OLD.sport_id AND NEW.quantity <=> OLD.quantity AND NEW.usable <=> OLD.usable AND NEW.added_date <=> OLD.added_date AND NEW.remarks <=> OLD.remarks AND NEW.status <=> OLD.status) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('equipment_inventory', NEW.stock_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        IF NOT (NEW.stock_id <=> OLD.stock_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'stock_id', OLD.stock_id, NEW.stock_id); END IF;
+        IF NOT (NEW.equipment_id <=> OLD.equipment_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'equipment_id', OLD.equipment_id, NEW.equipment_id); END IF;
+        IF NOT (NEW.sport_id <=> OLD.sport_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_id', OLD.sport_id, NEW.sport_id); END IF;
+        IF NOT (NEW.quantity <=> OLD.quantity) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'quantity', OLD.quantity, NEW.quantity); END IF;
+        IF NOT (NEW.usable <=> OLD.usable) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'usable', OLD.usable, NEW.usable); END IF;
+        IF NOT (NEW.added_date <=> OLD.added_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'added_date', OLD.added_date, NEW.added_date); END IF;
+        IF NOT (NEW.remarks <=> OLD.remarks) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'remarks', OLD.remarks, NEW.remarks); END IF;
+        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -578,6 +660,62 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
   `flag_reason` varchar(300) DEFAULT NULL,
   PRIMARY KEY (`booking_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `facility-booking`
+--
+
+INSERT INTO `facility-booking` (`booking_id`, `user_id`, `facility_id`, `date`, `slot`, `purpose`, `status`, `payment_status`, `payment_id`, `payment_slip`, `rejection_reason`, `created_at`, `flag_status`, `flag_date`, `flag_reason`) VALUES
+('BK468865', 'H4J1OHSX', '23', '2026-04-21', 'FULL', 'hdhgdhdjg', 'BOOKED', 'PENDING', NULL, 'SLIP_BK468865_1776428796.pdf', '', '2026-04-17 12:26:12', 'NONE', NULL, NULL),
+('BK587815', 'H4J1OHSX', '1', '2026-04-17', 'MORNING', '-', 'BOOKED', 'COMPLETE', 'RETURN-1776420415', NULL, '', '2026-04-17 10:06:15', 'NONE', NULL, NULL);
+
+--
+-- Triggers `facility-booking`
+--
+DROP TRIGGER IF EXISTS `trg_facility_booking_delete`;
+DELIMITER $$
+CREATE TRIGGER `trg_facility_booking_delete` AFTER DELETE ON `facility-booking` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('facility-booking', OLD.booking_id, 'DELETE', @current_user_id);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_facility_booking_insert`;
+DELIMITER $$
+CREATE TRIGGER `trg_facility_booking_insert` AFTER INSERT ON `facility-booking` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('facility-booking', NEW.booking_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'user_id', NULL, NEW.user_id),
+    (v_audit_id, 'facility_id', NULL, NEW.facility_id),
+    (v_audit_id, 'date', NULL, NEW.date),
+    (v_audit_id, 'slot', NULL, NEW.slot),
+    (v_audit_id, 'purpose', NULL, NEW.purpose),
+    (v_audit_id, 'status', NULL, NEW.status),
+    (v_audit_id, 'payment_status', NULL, NEW.payment_status);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_facility_booking_update`;
+DELIMITER $$
+CREATE TRIGGER `trg_facility_booking_update` AFTER UPDATE ON `facility-booking` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.user_id <=> OLD.user_id AND NEW.facility_id <=> OLD.facility_id AND NEW.date <=> OLD.date AND NEW.slot <=> OLD.slot AND NEW.purpose <=> OLD.purpose AND NEW.status <=> OLD.status AND NEW.payment_status <=> OLD.payment_status AND NEW.rejection_reason <=> OLD.rejection_reason AND NEW.flag_status <=> OLD.flag_status) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('facility-booking', NEW.booking_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        IF NOT (NEW.status <=> OLD.status) THEN
+            INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status);
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `facility_rates`
@@ -744,7 +882,7 @@ CREATE TABLE IF NOT EXISTS `good_issue_notes` (
   KEY `sport_id` (`sport_id`),
   KEY `equipment_id` (`equipment_id`),
   KEY `stock_id` (`stock_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `good_issue_notes`
@@ -760,7 +898,8 @@ INSERT INTO `good_issue_notes` (`gin_id`, `sport_id`, `equipment_id`, `date`, `q
 (7, 'BAS', 'EQ014', '2026-01-08', 3, 'Nos', 'STK00014', 'usr_694d89fa', '5Q1XZO2Y', 'usr_68f82fe0', '2026-01-08 10:45:00'),
 (8, 'ATH', 'EQ042', '2026-01-15', 2, 'Nos', 'STK00042', 'SPT004', NULL, 'usr_68f89998', '2026-01-15 08:30:00'),
 (9, 'CRI', 'EQ023', '2026-02-01', 10, 'Nos', 'STK00023', 'usr_68f89be0', '5Q1XZO2Y', 'usr_68f82fe0', '2026-02-01 11:00:00'),
-(10, 'BAD', 'EQ002', '2026-02-18', 20, 'Tubes', 'STK00002', 'usr_694d89fa', NULL, 'usr_68f89998', '2026-02-18 09:00:00');
+(10, 'BAD', 'EQ002', '2026-02-18', 20, 'Tubes', 'STK00002', 'usr_694d89fa', NULL, 'usr_68f89998', '2026-02-18 09:00:00'),
+(11, 'ELL', 'EQ055', '2026-04-14', 12, 'pcs', 'STK00055', 'usr_694d89fa', '5Q1XZO2Y', 'usr_68f89998', '2026-04-17 12:33:12');
 
 -- --------------------------------------------------------
 
@@ -851,8 +990,8 @@ CREATE TABLE IF NOT EXISTS `injury_report` (
 -- Dumping data for table `injury_report`
 --
 
-INSERT INTO `injury_report` (`report_id`, `user_id`, `coach_id`, `practice_id`, `date`, `description`, `need_substitude`, `substitude_id`) VALUES
-('IRP6971E85EA', 'P001', 'NPM8O9RE', '4', '2026-01-01', 'test (Minor)', 'YES', 'P002');
+INSERT INTO `injury_report` (`report_id`, `user_id`, `coach_id`, `practice_id`, `date`, `description`, `need_substitude`, `substitude_id`, `status`) VALUES
+('IRP6971E85EA', 'P001', 'NPM8O9RE', '4', '2026-01-01', 'test (Minor)', 'YES', 'P002', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -1139,6 +1278,26 @@ CREATE TABLE IF NOT EXISTS `match_participant` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `match_players`
+--
+
+DROP TABLE IF EXISTS `match_players`;
+CREATE TABLE IF NOT EXISTS `match_players` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `match_id` varchar(50) NOT NULL,
+  `user_id` varchar(12) DEFAULT NULL,
+  `player_name` varchar(120) NOT NULL,
+  `team_side` enum('A','B') NOT NULL,
+  `is_uoc_student` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_match` (`match_id`),
+  KEY `idx_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `match_racket`
 --
 
@@ -1280,9 +1439,9 @@ CREATE TABLE IF NOT EXISTS `message` (
 -- Dumping data for table `message`
 --
 
-INSERT INTO `message` (`message_id`, `sender_id`, `recipient_id`, `recipient_type`, `sport_id`, `title`, `message`, `sent_at`, `is_read`) VALUES
-('MSG699AD6597', '5Q1XZO2Y', 'H4J1OHSX', '', 'VOL', 'Requesting Javelins', 'Hello sir, can we have the Javelins I requested today?', '2026-02-22 10:11:37', 0),
-('MSG69D921C84', '5Q1XZO2Y', 'H4J1OHSX', '', 'VOL', 'Testing 01', 'Hello', '2026-04-10 16:14:00', 0);
+INSERT INTO `message` (`message_id`, `sender_id`, `recipient_id`, `recipient_type`, `sport_id`, `title`, `message`, `sent_at`, `is_read`, `status`) VALUES
+('MSG699AD6597', '5Q1XZO2Y', 'H4J1OHSX', '', 'VOL', 'Requesting Javelins', 'Hello sir, can we have the Javelins I requested today?', '2026-02-22 10:11:37', 0, 'ACTIVE'),
+('MSG69D921C84', '5Q1XZO2Y', 'H4J1OHSX', '', 'VOL', 'Testing 01', 'Hello', '2026-04-10 16:14:00', 0, 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -1309,7 +1468,8 @@ INSERT INTO `newsfeed_post` (`post_id`, `title`, `description`, `commenting`, `d
 ('P0001', 'Track & Field and Ground Marking Workshop', 'A workshop on Track & Field and Ground Marking was held on the 30th and 31st of March 2025 at the University of Colombo ground premises. This workshop was conducted by Mr Palitha Jayathilaka, Senior Technical Official at the Sri Lanka Athletic Association, to update our staff members on the new methods and changes in ground marking. Participants who completed this workshop successfully received a valuable certificate.', 'YES', '2025-12-09', 'ACTIVE'),
 ('P0002', '36th National Rowing Championship', 'University of Colombo rowers won 5 medals at the 36th National Rowing Championship which was held on the 12-13 March 2021 at Diyawannawa Rowing Center. In the Open Category (Women\'s), Ms Ranmalee Nanayakkara and Nadani Mendis won the Silver medal in the Open Double scull, Ms Nadani Mendis and Upuli Edirisingha won the bronze medal in the open Pair and Ms Ranmalee Nanayakkara won the bronze medal in the Open Scull category. In the Intermediate Category (Women\'s), Ms Himasha Panditharatne and Vibhanga Amarasinghe won the bronze medal in the pair event. In the Intermediate Category (Men\'s), Mr Avishka Jayaweera, Mr Shehan Shamalka, Mr Dushyantha Hettiarachchi, Mr Shehan Dinusha Liyanage, Mr Samitha Wijethilake won the Bronze medal in the coxed four events.', 'NO', '2025-12-09', 'ACTIVE'),
 ('P0003', 'ggghg', 'bnvvhjbjkkbjh', 'YES', '2025-12-18', 'ACTIVE'),
-('P0004', 'Test News', 'This is a test news post for admin feature testing purposes.', 'YES', '2025-12-26', 'ACTIVE');
+('P0004', 'Test News', 'This is a test news post for admin feature testing purposes.', 'YES', '2025-12-26', 'ACTIVE'),
+('P0005', 'Still works', 'ooooo', 'YES', '2026-04-17', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -1324,7 +1484,7 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post_image` (
   `image_path` varchar(255) NOT NULL,
   PRIMARY KEY (`image_id`),
   KEY `post_id` (`post_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `newsfeed_post_image`
@@ -1333,7 +1493,8 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post_image` (
 INSERT INTO `newsfeed_post_image` (`image_id`, `post_id`, `image_path`) VALUES
 (14, 'P0001', 'images/posts/img_6937eab81c8785.14752532.jpg'),
 (15, 'P0002', 'images/posts/img_69380b0ce85be5.20787564.jpg'),
-(16, 'P0003', 'images/posts/img_6943e8018adf40.57949946.jpg');
+(16, 'P0003', 'images/posts/img_6943e8018adf40.57949946.jpg'),
+(17, 'P0005', 'images/posts/img_69e214fe734113.47643339.png');
 
 -- --------------------------------------------------------
 
@@ -1351,14 +1512,37 @@ CREATE TABLE IF NOT EXISTS `parallel_checker` (
   `selected_slot` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `session_id` (`session_id`,`facility_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=164 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=218 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `parallel_checker`
 --
 
 INSERT INTO `parallel_checker` (`id`, `session_id`, `facility_id`, `last_heartbeat`, `selected_date`, `selected_slot`) VALUES
-(36, 'do7a6c264bk06shc7gc60pjtsj', 1, '2026-04-11 15:15:23', '2026-04-14', 'AFTERNOON');
+(180, 'd3gdtqrcmr0qsadt75evfcuopm', 23, '2026-04-17 12:26:13', '2026-04-21', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_reset_tokens`
+--
+
+DROP TABLE IF EXISTS `password_reset_tokens`;
+CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
+  `user_id` varchar(12) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`,`token`),
+  KEY `fk_pwd_reset_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `password_reset_tokens`
+--
+
+INSERT INTO `password_reset_tokens` (`user_id`, `token`, `expires_at`, `created_at`) VALUES
+('H4J1OHSX', '14171b15568b35d20fd26d0cc590db74638a5e02b5c791286d14fae5f465a647', '2026-04-17 10:29:57', '2026-04-17 09:29:57');
 
 -- --------------------------------------------------------
 
@@ -1398,10 +1582,10 @@ CREATE TABLE IF NOT EXISTS `physical_facility` (
 
 INSERT INTO `physical_facility` (`facility_id`, `facility_name`, `location`) VALUES
 ('FAC_BASKETBA', 'Basketball Ground', 'Upper Campus'),
+('FAC_CARROM', 'Carrom Room', 'Upper Campus'),
 ('FAC_GROUND', 'University Main Ground', 'Lower Campus'),
 ('FAC_INDOOR', 'Main Indoor Stadium', 'Upper Campus'),
 ('FAC_TENNIS', 'Tennis Grounds', 'Upper Campus'),
-('FAC_CARROM', 'Carrom Room', 'Upper Campus'),
 ('FAC_WEIGHT', 'Weight lifting Room', 'Upper Campus');
 
 -- --------------------------------------------------------
@@ -1445,7 +1629,7 @@ CREATE TABLE IF NOT EXISTS `practice_sessions` (
   `need_equipment` varchar(10) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_practice_physical_facility` (`physical_facility_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `practice_sessions`
@@ -1464,7 +1648,8 @@ INSERT INTO `practice_sessions` (`id`, `sport_id`, `added_by`, `facility`, `phys
 (20, 'VOL', '', 'Volleyball', 'FAC_GROUND', '2026-02-02', '13:00:00', '', '', '2026-04-10 15:57:12', NULL, '17:00:00', 'Outdoor Field', 'No'),
 (21, 'VOL', '', 'Volleyball', 'FAC_GROUND', '2026-04-04', '13:00:00', '-', 'MARKED', '2026-04-10 15:58:20', '2026-04-10 16:00:20', '16:00:00', 'Outdoor Field', 'No'),
 (22, 'VOL', 'SPT', '', 'FAC_BASKETBA', '2026-01-01', '13:00:00', 'No', 'PENDING', '2026-04-11 08:28:11', NULL, '17:00:00', 'Outdoor Court', 'No'),
-(23, 'VOL', 'SPT', '', 'FAC_GROUND', '2026-04-11', '14:00:00', '-', 'PENDING', '2026-04-11 08:29:58', NULL, '17:00:00', 'Outdoor Field', 'No');
+(23, 'VOL', 'SPT', '', 'FAC_GROUND', '2026-04-11', '14:00:00', '-', 'PENDING', '2026-04-11 08:29:58', NULL, '17:00:00', 'Outdoor Field', 'No'),
+(24, 'VOL', '', 'Volleyball', NULL, '2026-04-30', '14:15:00', '-', '', '2026-04-18 04:18:43', NULL, '16:00:00', 'Indoor court', 'No');
 
 -- --------------------------------------------------------
 
@@ -1506,8 +1691,8 @@ CREATE TABLE IF NOT EXISTS `saved_emails` (
 -- Dumping data for table `saved_emails`
 --
 
-INSERT INTO `saved_emails` (`email`, `recepient_name`) VALUES
-('sports@usj.ac.lk', 'USJ');
+INSERT INTO `saved_emails` (`email`, `recepient_name`, `status`) VALUES
+('sports@usj.ac.lk', 'USJ', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -1646,13 +1831,13 @@ CREATE TABLE IF NOT EXISTS `sports-team` (
 -- Dumping data for table `sports-team`
 --
 
-INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`, `in_team`) VALUES
-('ATH', '5Q1XZO2Y', '2025-12-11', 'NO'),
-('ROW', 'L3NCL2J4', '2025-12-15', 'NO'),
-('TKD', 'L3NCL2J4', '2025-12-03', 'NO'),
-('VOL', '5Q1XZO2Y', '2025-10-25', 'NO'),
-('VOL', 'L3NCL2J4', '2025-12-09', 'NO'),
-('VOL', 'STU005', '2026-01-04', 'NO');
+INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`, `in_team`, `status`) VALUES
+('ATH', '5Q1XZO2Y', '2025-12-11', 'NO', 'ACTIVE'),
+('ROW', 'L3NCL2J4', '2025-12-15', 'NO', 'ACTIVE'),
+('TKD', 'L3NCL2J4', '2025-12-03', 'NO', 'ACTIVE'),
+('VOL', '5Q1XZO2Y', '2025-10-25', 'NO', 'ACTIVE'),
+('VOL', 'L3NCL2J4', '2025-12-09', 'NO', 'ACTIVE'),
+('VOL', 'STU005', '2026-01-04', 'NO', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -1681,10 +1866,70 @@ CREATE TABLE IF NOT EXISTS `sport_expenses` (
 -- Dumping data for table `sport_expenses`
 --
 
-INSERT INTO `sport_expenses` (`expense_id`, `sport`, `expense_title`, `sport_event`, `amount`, `receipt`, `submitted_by`, `notes`, `expense_date`, `created_at`, `updated_at`) VALUES
-(1, 'Volleyball', 'Uniforms & Apparel', 'Inter-University Tournament', '20000.00', '1775851526_Equipment_Inventory_AllTime (1).pdf', 'Dilini', NULL, '2026-04-11 01:35:26', '2026-04-10 20:05:26', '2026-04-10 20:05:26'),
-(2, 'Volleyball', 'Coaching & Training', 'National Championship', '120000.00', '1775892585_Activity_Snapshot_AllTime.pdf', 'Dilini', NULL, '2026-04-11 12:59:45', '2026-04-11 07:29:45', '2026-04-11 07:29:45'),
-(3, 'Volleyball', 'Meals & Refreshments', 'Practice Session', '20000.00', '1775923525_2021_MCQ.pdf', 'Shashini', NULL, '2026-04-11 21:35:25', '2026-04-11 16:05:25', '2026-04-11 16:05:25');
+INSERT INTO `sport_expenses` (`expense_id`, `sport`, `expense_title`, `sport_event`, `amount`, `receipt`, `submitted_by`, `notes`, `expense_date`, `created_at`, `updated_at`, `status`) VALUES
+(1, 'Volleyball', 'Uniforms & Apparel', 'Inter-University Tournament', '20000.00', '1775851526_Equipment_Inventory_AllTime (1).pdf', 'Dilini', NULL, '2026-04-11 01:35:26', '2026-04-10 20:05:26', '2026-04-10 20:05:26', 'ACTIVE'),
+(2, 'Volleyball', 'Coaching & Training', 'National Championship', '120000.00', '1775892585_Activity_Snapshot_AllTime.pdf', 'Dilini', NULL, '2026-04-11 12:59:45', '2026-04-11 07:29:45', '2026-04-11 07:29:45', 'ACTIVE'),
+(3, 'Volleyball', 'Meals & Refreshments', 'Practice Session', '20000.00', '1775923525_2021_MCQ.pdf', 'Shashini', NULL, '2026-04-11 21:35:25', '2026-04-11 16:05:25', '2026-04-11 16:05:25', 'ACTIVE');
+
+--
+-- Triggers `sport_expenses`
+--
+DROP TRIGGER IF EXISTS `trg_sport_expenses_delete`;
+DELIMITER $$
+CREATE TRIGGER `trg_sport_expenses_delete` AFTER DELETE ON `sport_expenses` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('sport_expenses', OLD.expense_id, 'DELETE', @current_user_id);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_sport_expenses_insert`;
+DELIMITER $$
+CREATE TRIGGER `trg_sport_expenses_insert` AFTER INSERT ON `sport_expenses` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('sport_expenses', NEW.expense_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'expense_id', NULL, NEW.expense_id),
+    (v_audit_id, 'sport', NULL, NEW.sport),
+    (v_audit_id, 'expense_title', NULL, NEW.expense_title),
+    (v_audit_id, 'sport_event', NULL, NEW.sport_event),
+    (v_audit_id, 'amount', NULL, NEW.amount),
+    (v_audit_id, 'receipt', NULL, NEW.receipt),
+    (v_audit_id, 'submitted_by', NULL, NEW.submitted_by),
+    (v_audit_id, 'notes', NULL, NEW.notes),
+    (v_audit_id, 'expense_date', NULL, NEW.expense_date),
+    (v_audit_id, 'created_at', NULL, NEW.created_at),
+    (v_audit_id, 'updated_at', NULL, NEW.updated_at),
+    (v_audit_id, 'status', NULL, NEW.status);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_sport_expenses_update`;
+DELIMITER $$
+CREATE TRIGGER `trg_sport_expenses_update` AFTER UPDATE ON `sport_expenses` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.expense_id <=> OLD.expense_id AND NEW.sport <=> OLD.sport AND NEW.expense_title <=> OLD.expense_title AND NEW.sport_event <=> OLD.sport_event AND NEW.amount <=> OLD.amount AND NEW.receipt <=> OLD.receipt AND NEW.submitted_by <=> OLD.submitted_by AND NEW.notes <=> OLD.notes AND NEW.expense_date <=> OLD.expense_date AND NEW.created_at <=> OLD.created_at AND NEW.updated_at <=> OLD.updated_at AND NEW.status <=> OLD.status) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('sport_expenses', NEW.expense_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        IF NOT (NEW.expense_id <=> OLD.expense_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'expense_id', OLD.expense_id, NEW.expense_id); END IF;
+        IF NOT (NEW.sport <=> OLD.sport) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport', OLD.sport, NEW.sport); END IF;
+        IF NOT (NEW.expense_title <=> OLD.expense_title) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'expense_title', OLD.expense_title, NEW.expense_title); END IF;
+        IF NOT (NEW.sport_event <=> OLD.sport_event) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_event', OLD.sport_event, NEW.sport_event); END IF;
+        IF NOT (NEW.amount <=> OLD.amount) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'amount', OLD.amount, NEW.amount); END IF;
+        IF NOT (NEW.receipt <=> OLD.receipt) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'receipt', OLD.receipt, NEW.receipt); END IF;
+        IF NOT (NEW.submitted_by <=> OLD.submitted_by) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'submitted_by', OLD.submitted_by, NEW.submitted_by); END IF;
+        IF NOT (NEW.notes <=> OLD.notes) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'notes', OLD.notes, NEW.notes); END IF;
+        IF NOT (NEW.expense_date <=> OLD.expense_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'expense_date', OLD.expense_date, NEW.expense_date); END IF;
+        IF NOT (NEW.created_at <=> OLD.created_at) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'created_at', OLD.created_at, NEW.created_at); END IF;
+        IF NOT (NEW.updated_at <=> OLD.updated_at) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'updated_at', OLD.updated_at, NEW.updated_at); END IF;
+        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -1737,6 +1982,176 @@ INSERT INTO `suppliers` (`supplier_id`, `supplier_name`, `address`, `telephone_1
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `system_audit`
+--
+
+DROP TABLE IF EXISTS `system_audit`;
+CREATE TABLE IF NOT EXISTS `system_audit` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `table_name` varchar(100) NOT NULL,
+  `record_id` varchar(100) NOT NULL,
+  `action` enum('INSERT','UPDATE','DELETE') NOT NULL,
+  `changed_by` varchar(50) DEFAULT NULL,
+  `changed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `system_audit`
+--
+
+INSERT INTO `system_audit` (`id`, `table_name`, `record_id`, `action`, `changed_by`, `changed_at`) VALUES
+(1, 'user', 'H4J1OHSX', 'UPDATE', 'SYSTEM', '2026-04-17 09:29:29'),
+(2, 'user', 'L3NCL2J4', 'UPDATE', 'SYSTEM', '2026-04-17 09:29:29'),
+(3, 'user', '5Q1XZO2Y', 'UPDATE', 'SYSTEM', '2026-04-17 09:29:29'),
+(4, 'user', 'NPM8O9RE', 'UPDATE', 'SYSTEM', '2026-04-17 09:29:30'),
+(5, 'user', 'usr_694d89fa', 'UPDATE', 'SYSTEM', '2026-04-17 09:29:30'),
+(6, 'user', 'usr_68f82fe0', 'UPDATE', 'SYSTEM', '2026-04-17 09:29:30'),
+(7, 'user', 'REG003', 'UPDATE', 'SYSTEM', '2026-04-17 09:29:30'),
+(8, 'user', '202', 'UPDATE', 'SYSTEM', '2026-04-17 09:29:30'),
+(9, 'user', 'usr_68f82fe0', 'UPDATE', 'SYSTEM', '2026-04-17 09:36:22'),
+(10, 'user', 'H4J1OHSX', 'UPDATE', 'SYSTEM', '2026-04-17 09:37:31'),
+(11, 'user', 'L3NCL2J4', 'UPDATE', 'SYSTEM', '2026-04-17 09:37:31'),
+(12, 'user', '5Q1XZO2Y', 'UPDATE', 'SYSTEM', '2026-04-17 09:37:31'),
+(13, 'user', 'NPM8O9RE', 'UPDATE', 'SYSTEM', '2026-04-17 09:37:31'),
+(14, 'user', 'usr_694d89fa', 'UPDATE', 'SYSTEM', '2026-04-17 09:37:32'),
+(15, 'user', 'REG003', 'UPDATE', 'SYSTEM', '2026-04-17 09:37:32'),
+(16, 'user', '202', 'UPDATE', 'SYSTEM', '2026-04-17 09:37:32'),
+(17, 'user', 'H4J1OHSX', 'UPDATE', 'SYSTEM', '2026-04-17 09:38:40'),
+(18, 'user', 'L3NCL2J4', 'UPDATE', 'SYSTEM', '2026-04-17 09:38:40'),
+(19, 'user', '5Q1XZO2Y', 'UPDATE', 'SYSTEM', '2026-04-17 09:38:40'),
+(20, 'user', 'NPM8O9RE', 'UPDATE', 'SYSTEM', '2026-04-17 09:38:41'),
+(21, 'user', 'usr_694d89fa', 'UPDATE', 'SYSTEM', '2026-04-17 09:38:41'),
+(22, 'user', 'usr_68f82fe0', 'UPDATE', 'SYSTEM', '2026-04-17 09:38:41'),
+(23, 'user', 'REG003', 'UPDATE', 'SYSTEM', '2026-04-17 09:38:41'),
+(24, 'user', '202', 'UPDATE', 'SYSTEM', '2026-04-17 09:38:41'),
+(25, 'user', 'REG003', 'UPDATE', 'SYSTEM', '2026-04-17 09:39:22'),
+(26, 'user', 'H4J1OHSX', 'UPDATE', 'SYSTEM', '2026-04-17 09:54:22'),
+(27, 'user', 'L3NCL2J4', 'UPDATE', 'SYSTEM', '2026-04-17 09:54:22'),
+(28, 'user', '5Q1XZO2Y', 'UPDATE', 'SYSTEM', '2026-04-17 09:54:22'),
+(29, 'user', 'NPM8O9RE', 'UPDATE', 'SYSTEM', '2026-04-17 09:54:23'),
+(30, 'user', 'usr_694d89fa', 'UPDATE', 'SYSTEM', '2026-04-17 09:54:23'),
+(31, 'user', 'usr_68f82fe0', 'UPDATE', 'SYSTEM', '2026-04-17 09:54:23'),
+(32, 'user', 'REG003', 'UPDATE', 'SYSTEM', '2026-04-17 09:54:23'),
+(33, 'user', '202', 'UPDATE', 'SYSTEM', '2026-04-17 09:54:23'),
+(34, 'user', 'H4J1OHSX', 'UPDATE', 'SYSTEM', '2026-04-17 10:05:56'),
+(35, 'facility-booking', 'BK587815', 'INSERT', 'H4J1OHSX', '2026-04-17 10:06:15'),
+(36, 'facility-booking', 'BK587815', 'UPDATE', 'H4J1OHSX', '2026-04-17 10:06:55'),
+(37, 'user', 'H4J1OHSX', 'UPDATE', 'SYSTEM', '2026-04-17 10:39:08'),
+(38, 'user', 'L3NCL2J4', 'UPDATE', 'SYSTEM', '2026-04-17 10:39:08'),
+(39, 'user', '5Q1XZO2Y', 'UPDATE', 'SYSTEM', '2026-04-17 10:39:08'),
+(40, 'user', 'NPM8O9RE', 'UPDATE', 'SYSTEM', '2026-04-17 10:39:08'),
+(41, 'user', 'usr_694d89fa', 'UPDATE', 'SYSTEM', '2026-04-17 10:39:08'),
+(42, 'user', 'usr_68f82fe0', 'UPDATE', 'SYSTEM', '2026-04-17 10:39:08'),
+(43, 'user', 'REG003', 'UPDATE', 'SYSTEM', '2026-04-17 10:39:09'),
+(44, 'user', '202', 'UPDATE', 'SYSTEM', '2026-04-17 10:39:09'),
+(45, 'facility-booking', 'BK468865', 'INSERT', 'H4J1OHSX', '2026-04-17 12:26:12'),
+(46, 'facility-booking', 'BK468865', 'UPDATE', 'H4J1OHSX', '2026-04-17 12:26:36'),
+(47, 'user', 'L3NCL2J4', 'UPDATE', 'SYSTEM', '2026-04-18 04:12:19'),
+(48, 'user', '5Q1XZO2Y', 'UPDATE', 'SYSTEM', '2026-04-18 04:14:27'),
+(49, 'user', 'H4J1OHSX', 'UPDATE', 'SYSTEM', '2026-04-18 04:55:47'),
+(50, 'user', 'L3NCL2J4', 'UPDATE', 'SYSTEM', '2026-04-18 04:55:47'),
+(51, 'user', '5Q1XZO2Y', 'UPDATE', 'SYSTEM', '2026-04-18 04:55:47'),
+(52, 'user', 'NPM8O9RE', 'UPDATE', 'SYSTEM', '2026-04-18 04:55:47'),
+(53, 'user', 'usr_694d89fa', 'UPDATE', 'SYSTEM', '2026-04-18 04:55:47'),
+(54, 'user', 'usr_68f82fe0', 'UPDATE', 'SYSTEM', '2026-04-18 04:55:48'),
+(55, 'user', 'REG003', 'UPDATE', 'SYSTEM', '2026-04-18 04:55:48'),
+(56, 'user', '202', 'UPDATE', 'SYSTEM', '2026-04-18 04:55:48'),
+(57, 'user', '5Q1XZO2Y', 'UPDATE', 'SYSTEM', '2026-04-18 04:56:24');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `system_audit_detail`
+--
+
+DROP TABLE IF EXISTS `system_audit_detail`;
+CREATE TABLE IF NOT EXISTS `system_audit_detail` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `audit_id` int NOT NULL,
+  `column_name` varchar(100) NOT NULL,
+  `old_value` text,
+  `new_value` text,
+  PRIMARY KEY (`id`),
+  KEY `fk_audit_id` (`audit_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `system_audit_detail`
+--
+
+INSERT INTO `system_audit_detail` (`id`, `audit_id`, `column_name`, `old_value`, `new_value`) VALUES
+(1, 1, 'last_login_at', NULL, '2026-04-17 14:59:29'),
+(2, 2, 'last_login_at', NULL, '2026-04-17 14:59:29'),
+(3, 3, 'last_login_at', NULL, '2026-04-17 14:59:29'),
+(4, 4, 'last_login_at', NULL, '2026-04-17 14:59:30'),
+(5, 5, 'last_login_at', NULL, '2026-04-17 14:59:30'),
+(6, 6, 'last_login_at', NULL, '2026-04-17 14:59:30'),
+(7, 7, 'last_login_at', NULL, '2026-04-17 14:59:30'),
+(8, 8, 'last_login_at', NULL, '2026-04-17 14:59:30'),
+(9, 9, 'last_login_at', '2026-04-17 14:59:30', '2026-04-17 15:06:22'),
+(10, 10, 'last_login_at', '2026-04-17 14:59:29', '2026-04-17 15:07:31'),
+(11, 11, 'last_login_at', '2026-04-17 14:59:29', '2026-04-17 15:07:31'),
+(12, 12, 'last_login_at', '2026-04-17 14:59:29', '2026-04-17 15:07:31'),
+(13, 13, 'last_login_at', '2026-04-17 14:59:30', '2026-04-17 15:07:31'),
+(14, 14, 'last_login_at', '2026-04-17 14:59:30', '2026-04-17 15:07:32'),
+(15, 15, 'last_login_at', '2026-04-17 14:59:30', '2026-04-17 15:07:32'),
+(16, 16, 'last_login_at', '2026-04-17 14:59:30', '2026-04-17 15:07:32'),
+(17, 17, 'last_login_at', '2026-04-17 15:07:31', '2026-04-17 15:08:40'),
+(18, 18, 'last_login_at', '2026-04-17 15:07:31', '2026-04-17 15:08:40'),
+(19, 19, 'last_login_at', '2026-04-17 15:07:31', '2026-04-17 15:08:40'),
+(20, 20, 'last_login_at', '2026-04-17 15:07:31', '2026-04-17 15:08:41'),
+(21, 21, 'last_login_at', '2026-04-17 15:07:32', '2026-04-17 15:08:41'),
+(22, 22, 'last_login_at', '2026-04-17 15:06:22', '2026-04-17 15:08:41'),
+(23, 23, 'last_login_at', '2026-04-17 15:07:32', '2026-04-17 15:08:41'),
+(24, 24, 'last_login_at', '2026-04-17 15:07:32', '2026-04-17 15:08:41'),
+(25, 25, 'last_login_at', '2026-04-17 15:08:41', '2026-04-17 15:09:22'),
+(26, 26, 'last_login_at', '2026-04-17 15:08:40', '2026-04-17 15:24:22'),
+(27, 27, 'last_login_at', '2026-04-17 15:08:40', '2026-04-17 15:24:22'),
+(28, 28, 'last_login_at', '2026-04-17 15:08:40', '2026-04-17 15:24:22'),
+(29, 29, 'last_login_at', '2026-04-17 15:08:41', '2026-04-17 15:24:23'),
+(30, 30, 'last_login_at', '2026-04-17 15:08:41', '2026-04-17 15:24:23'),
+(31, 31, 'last_login_at', '2026-04-17 15:08:41', '2026-04-17 15:24:23'),
+(32, 32, 'last_login_at', '2026-04-17 15:09:22', '2026-04-17 15:24:23'),
+(33, 33, 'last_login_at', '2026-04-17 15:08:41', '2026-04-17 15:24:23'),
+(34, 34, 'last_login_at', '2026-04-17 15:24:22', '2026-04-17 15:35:56'),
+(35, 35, 'user_id', NULL, 'H4J1OHSX'),
+(36, 35, 'facility_id', NULL, '1'),
+(37, 35, 'date', NULL, '2026-04-17'),
+(38, 35, 'slot', NULL, 'MORNING'),
+(39, 35, 'purpose', NULL, '-'),
+(40, 35, 'status', NULL, 'BOOKED'),
+(41, 35, 'payment_status', NULL, 'INCOMPLETE'),
+(42, 37, 'last_login_at', '2026-04-17 15:35:56', '2026-04-17 16:09:08'),
+(43, 38, 'last_login_at', '2026-04-17 15:24:22', '2026-04-17 16:09:08'),
+(44, 39, 'last_login_at', '2026-04-17 15:24:22', '2026-04-17 16:09:08'),
+(45, 40, 'last_login_at', '2026-04-17 15:24:23', '2026-04-17 16:09:08'),
+(46, 41, 'last_login_at', '2026-04-17 15:24:23', '2026-04-17 16:09:08'),
+(47, 42, 'last_login_at', '2026-04-17 15:24:23', '2026-04-17 16:09:08'),
+(48, 43, 'last_login_at', '2026-04-17 15:24:23', '2026-04-17 16:09:09'),
+(49, 44, 'last_login_at', '2026-04-17 15:24:23', '2026-04-17 16:09:09'),
+(50, 45, 'user_id', NULL, 'H4J1OHSX'),
+(51, 45, 'facility_id', NULL, '23'),
+(52, 45, 'date', NULL, '2026-04-21'),
+(53, 45, 'slot', NULL, 'FULL'),
+(54, 45, 'purpose', NULL, 'hdhgdhdjg'),
+(55, 45, 'status', NULL, 'BOOKED'),
+(56, 45, 'payment_status', NULL, 'INCOMPLETE'),
+(57, 47, 'last_login_at', '2026-04-17 16:09:08', '2026-04-18 09:42:19'),
+(58, 48, 'last_login_at', '2026-04-17 16:09:08', '2026-04-18 09:44:27'),
+(59, 49, 'last_login_at', '2026-04-17 16:09:08', '2026-04-18 10:25:47'),
+(60, 50, 'last_login_at', '2026-04-18 09:42:19', '2026-04-18 10:25:47'),
+(61, 51, 'last_login_at', '2026-04-18 09:44:27', '2026-04-18 10:25:47'),
+(62, 52, 'last_login_at', '2026-04-17 16:09:08', '2026-04-18 10:25:47'),
+(63, 53, 'last_login_at', '2026-04-17 16:09:08', '2026-04-18 10:25:47'),
+(64, 54, 'last_login_at', '2026-04-17 16:09:08', '2026-04-18 10:25:48'),
+(65, 55, 'last_login_at', '2026-04-17 16:09:09', '2026-04-18 10:25:48'),
+(66, 56, 'last_login_at', '2026-04-17 16:09:09', '2026-04-18 10:25:48'),
+(67, 57, 'last_login_at', '2026-04-18 10:25:47', '2026-04-18 10:26:24');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tournament`
 --
 
@@ -1748,6 +2163,7 @@ CREATE TABLE IF NOT EXISTS `tournament` (
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   `status` varchar(10) NOT NULL DEFAULT 'INCOMPLETE',
+  `match_level` enum('UNIVERSITY','NATIONAL','INTERNATIONAL') NOT NULL DEFAULT 'UNIVERSITY',
   PRIMARY KEY (`tournament_id`),
   KEY `sport_id` (`sport_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -1756,11 +2172,82 @@ CREATE TABLE IF NOT EXISTS `tournament` (
 -- Dumping data for table `tournament`
 --
 
-INSERT INTO `tournament` (`tournament_id`, `tournament_name`, `sport_id`, `start_date`, `end_date`, `status`) VALUES
-('TOUR_693ea72aa6387', 'Vice Chancellors Invitational Badminton Championship', 'BAD', '2026-01-01', '2026-02-26', 'INCOMPLETE'),
-('TOUR_694cd4c59abad', 'This is an sport event', 'KRT', '2026-02-01', '2026-12-01', 'INCOMPLETE'),
-('TOUR_69ccde3bc3ae2', 'Inter University Volleyball Championship', 'VOL', '2026-03-30', '2026-04-04', 'COMPLETE'),
-('TOUR_69d739fdd3a3b', 'Example Event', 'VOL', '2026-04-13', '2026-04-14', 'INCOMPLETE');
+INSERT INTO `tournament` (`tournament_id`, `tournament_name`, `sport_id`, `start_date`, `end_date`, `status`, `match_level`) VALUES
+('TOUR_693ea72aa6387', 'Vice Chancellors Invitational Badminton Championship', 'BAD', '2026-01-01', '2026-02-26', 'INCOMPLETE', 'UNIVERSITY'),
+('TOUR_694cd4c59abad', 'This is an sport event', 'KRT', '2026-02-01', '2026-12-01', 'INCOMPLETE', 'UNIVERSITY'),
+('TOUR_69ccde3bc3ae2', 'Inter University Volleyball Championship', 'VOL', '2026-03-30', '2026-04-04', 'COMPLETE', 'UNIVERSITY'),
+('TOUR_69d739fdd3a3b', 'Example Event', 'VOL', '2026-04-13', '2026-04-14', 'INCOMPLETE', 'UNIVERSITY');
+
+--
+-- Triggers `tournament`
+--
+DROP TRIGGER IF EXISTS `trg_tournament_delete`;
+DELIMITER $$
+CREATE TRIGGER `trg_tournament_delete` AFTER DELETE ON `tournament` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('tournament', OLD.tournament_id, 'DELETE', @current_user_id);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_tournament_insert`;
+DELIMITER $$
+CREATE TRIGGER `trg_tournament_insert` AFTER INSERT ON `tournament` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('tournament', NEW.tournament_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'tournament_id', NULL, NEW.tournament_id),
+    (v_audit_id, 'tournament_name', NULL, NEW.tournament_name),
+    (v_audit_id, 'sport_id', NULL, NEW.sport_id),
+    (v_audit_id, 'start_date', NULL, NEW.start_date),
+    (v_audit_id, 'end_date', NULL, NEW.end_date),
+    (v_audit_id, 'status', NULL, NEW.status);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_tournament_update`;
+DELIMITER $$
+CREATE TRIGGER `trg_tournament_update` AFTER UPDATE ON `tournament` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.tournament_id <=> OLD.tournament_id AND NEW.tournament_name <=> OLD.tournament_name AND NEW.sport_id <=> OLD.sport_id AND NEW.start_date <=> OLD.start_date AND NEW.end_date <=> OLD.end_date AND NEW.status <=> OLD.status) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('tournament', NEW.tournament_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        IF NOT (NEW.tournament_id <=> OLD.tournament_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'tournament_id', OLD.tournament_id, NEW.tournament_id); END IF;
+        IF NOT (NEW.tournament_name <=> OLD.tournament_name) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'tournament_name', OLD.tournament_name, NEW.tournament_name); END IF;
+        IF NOT (NEW.sport_id <=> OLD.sport_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_id', OLD.sport_id, NEW.sport_id); END IF;
+        IF NOT (NEW.start_date <=> OLD.start_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'start_date', OLD.start_date, NEW.start_date); END IF;
+        IF NOT (NEW.end_date <=> OLD.end_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'end_date', OLD.end_date, NEW.end_date); END IF;
+        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
+    END IF;
+END
+$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tournament_awards`
+--
+
+DROP TABLE IF EXISTS `tournament_awards`;
+CREATE TABLE IF NOT EXISTS `tournament_awards` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `tournament_id` varchar(24) NOT NULL,
+  `sport_id` varchar(4) NOT NULL,
+  `user_id` varchar(12) NOT NULL,
+  `award_title` varchar(100) NOT NULL,
+  `points` int NOT NULL DEFAULT '3',
+  `awarded_by` varchar(12) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_unique_award` (`tournament_id`,`user_id`,`award_title`),
+  KEY `idx_tournament` (`tournament_id`),
+  KEY `idx_user` (`user_id`),
+  KEY `idx_sport` (`sport_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -1799,6 +2286,25 @@ CREATE TABLE IF NOT EXISTS `tournament_match` (
 INSERT INTO `tournament_match` (`match_id`, `tournament_id`, `sport_id`, `sport_category`, `match_name`, `match_date`, `winner_id`, `winner_name`, `winner_type`, `winner_invitational_id`, `result_status`, `is_published`, `submitted_by`, `created_at`) VALUES
 ('match_695d2d74e031d4.90256849', 'TOUR_694cd4c59abad', 'KRT', 'COMBAT', 'Quarter Final', '2026-01-01', 'L3NCL2J4', NULL, NULL, NULL, 'COMPLETED', 1, 'ADMIN', '2026-01-06 15:42:44'),
 ('match_69cce68043d035.97638693', 'TOUR_69ccde3bc3ae2', 'VOL', 'BALL_COURT', 'Quarter Final Match', '2026-03-30', NULL, NULL, NULL, NULL, 'COMPLETED', 1, NULL, '2026-04-01 09:33:52');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tournament_participants`
+--
+
+DROP TABLE IF EXISTS `tournament_participants`;
+CREATE TABLE IF NOT EXISTS `tournament_participants` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `tournament_id` varchar(20) NOT NULL,
+  `user_id` varchar(12) NOT NULL,
+  `added_by` varchar(12) NOT NULL,
+  `added_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_tournament_user` (`tournament_id`,`user_id`),
+  KEY `fk_tp_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -1880,82 +2386,101 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `must_change_pass`, `joined_date`, `contact_no`, `profile_img`, `sport_id`, `student_id`, `faculty_id`, `status`) VALUES
-('1', 'Chamal', 'Chamuditha', 'PUBLIC', 'chamal@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, '', '', NULL, '', 'ACTIVE'),
-('101', 'Jayantha', 'Silva', 'PUBLIC', 'jayantha.silva@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0771234567', '', '', NULL, '', 'ACTIVE'),
-('102', 'David', 'Perera', 'PUBLIC', 'david.perera@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0779876543', '', '', NULL, '', 'ACTIVE'),
-('103', 'Alex', 'Fernando', 'PUBLIC', 'alex.fernando@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0713456789', '', '', NULL, '', 'ACTIVE'),
-('104', 'Mark', 'Silva', 'PUBLIC', 'mark.silva@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0752345678', '', '', NULL, '', 'ACTIVE'),
-('105', 'Kamal', 'Jayasinghe', 'PUBLIC', 'kamal.jayasinghe@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0761112233', '', '', NULL, '', 'ACTIVE'),
-('201', 'Sameera', 'Dissanayake', 'PUBLIC', 'sameera.dissanayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0775566778', '', '', NULL, '', 'ACTIVE'),
-('202', 'Nuwan', 'Karunaratne', 'EXECUTIVE', 'nuwan.karunaratne@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0711122334', '', '', NULL, '', 'ACTIVE'),
-('203', 'Ruwan', 'Senanayake', 'PUBLIC', 'ruwan.senanayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0729988776', '', '', NULL, '', 'ACTIVE'),
-('204', 'Suresh', 'Kumara', 'PUBLIC', 'suresh.kumara@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0765544332', '', '', NULL, '', 'ACTIVE'),
-('205', 'Ashan', 'Wijesinghe', 'PUBLIC', 'ashan.wijesinghe@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0776677889', '', '', NULL, '', 'ACTIVE'),
-('301', 'Pradeep', 'Gunawardena', 'PUBLIC', 'pradeep.gunawardena@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0718899001', '', '', NULL, '', 'ACTIVE'),
-('302', 'Chathura', 'Ekanayake', 'PUBLIC', 'chathura.ekanayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0752233445', '', '', NULL, '', 'ACTIVE'),
-('303', 'Isuru', 'Lakshan', 'PUBLIC', 'isuru.lakshan@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0723344556', '', '', NULL, '', 'ACTIVE'),
-('304', 'Gayan', 'Rathnayake', 'PUBLIC', 'gayan.rathnayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0779988775', '', '', NULL, '', 'ACTIVE'),
-('305', 'Roshan', 'Abeysinghe', 'PUBLIC', 'roshan.abeysinghe@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '0764455667', '', '', NULL, '', 'ACTIVE'),
-('43N1VK76', 'Sahan', 'Perera', 'PUBLIC', 'sahan.p@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:57:10', NULL, '', '', NULL, '', 'ACTIVE'),
-('5Q1XZO2Y', 'Jansika', 'Balakrishnan', 'CAPTAIN', 'jansibalakrish@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-23 07:23:06', NULL, '5Q1XZO2Y.jpg', '', '23020342', '', 'ACTIVE'),
-('CE02XIPB', 'Admin', 'UOC', 'PUBLIC', 'admin@uocs.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 00:01:26', NULL, '', '', NULL, '', 'ACTIVE'),
-('FK9C62HG', 'Pasindu', 'Anjana', 'PUBLIC', 'pasindu@anura.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, '', '', NULL, '', 'ACTIVE'),
-('FMX6Z8DF', 'Shashini', 'Malsha', 'STUDENT', 'shashini@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-23 07:10:43', NULL, '', '', '23020997', '', 'ACTIVE'),
-('H4J1OHSX', 'Chamal', 'Chamuditha', 'ADMIN', 'chamal.admin@uocs.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 02:04:39', NULL, 'H4J1OHSX.png', '', NULL, '', 'ACTIVE'),
-('JIIJ51LA', 'Nadeesha', 'Pathirana', 'PUBLIC', 'nadeesha.p@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:39:19', NULL, '', '', NULL, '', 'ACTIVE'),
-('JORD04QN', 'Tharindu', 'Jayasooriya', 'PUBLIC', 'tharindu.j@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:52:30', NULL, '', '', NULL, '', 'ACTIVE'),
-('KCLIH538', 'Praveen', 'Wijesinghe', 'PUBLIC', 'praveen.w@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:53:34', NULL, '', '', NULL, '', 'ACTIVE'),
-('KI5RL42D', 'Ruwan', 'Jayasuriya', 'PUBLIC', 'ruwan.j@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:29:53', NULL, '', '', NULL, '', 'ACTIVE'),
-('L3NCL2J4', 'Chamal', 'Hettiarachchi', 'STUDENT', 'chamal2@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-14 04:48:58', NULL, 'L3NCL2J4.jpg', '', '23000000', '', 'ACTIVE'),
-('NPM8O9RE', 'Chamal', 'Chamuditha', 'COACH', 'chamal1@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 22:53:08', NULL, '', '', NULL, '', 'ACTIVE'),
-('PA0XK3QZ', 'Kasun', 'Kalhara', 'PUBLIC', 'kasun.k@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:32:55', NULL, '', '', NULL, '', 'ACTIVE'),
-('R13QQJC2', 'Amal', 'Fernando', 'PUBLIC', 'amal.f@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:50:07', NULL, '', '', NULL, '', 'ACTIVE'),
-('REG003', 'Kasun', 'Silva', 'REG', 'kasun.silva@ucsc.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0773456789', '', '', '23001003', '1', 'ACTIVE'),
-('SPT004', 'Dilini', 'Jayasinghe', 'SPT', 'dilini.jayasinghe@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0774567890', '', '', '23001004', '1', 'ACTIVE'),
-('STU001', 'Ashan', 'Fernando', 'STUDENT', 'ashan.fernando@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0771234567', '', '', '23001001', '1', 'ACTIVE'),
-('STU002', 'Nimali', 'Perera', 'STUDENT', 'nimali.perera@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0772345678', '', '', '23001002', '1', 'ACTIVE'),
-('STU005', 'Tharindu', 'Wickramasinghe', 'STUDENT', 'tharindu.wickramasinghe@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0775678901', '', '', '23001005', '1', 'ACTIVE'),
-('STU006', 'Sanduni', 'Rathnayake', 'STUDENT', 'sanduni.rathnayake@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0776789012', '', '', '23001006', '1', 'ACTIVE'),
-('STU007', 'Ravindu', 'Dissanayake', 'STUDENT', 'ravindu.dissanayake@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0777890123', '', '', '23001007', '1', 'ACTIVE'),
-('STU008', 'Ishara', 'Gunasekara', 'STUDENT', 'ishara.gunasekara@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0778901234', '', '', '23001008', '1', 'ACTIVE'),
-('STU009', 'Dineth', 'Amarasinghe', 'STUDENT', 'dineth.amarasinghe@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0779012345', '', '', '23001009', '1', 'ACTIVE'),
-('STU010', 'Sachini', 'Wijewardena', 'STUDENT', 'sachini.wijewardena@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '0770123456', '', '', '23001010', '1', 'ACTIVE'),
-('UBVXZ90U', 'Dilini', 'Wickramasinghe', 'PUBLIC', 'dilini.w@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:24:32', NULL, '', '', NULL, '', 'ACTIVE'),
-('usr_68f82fe0', 'Shashini', 'Malsha', 'EQP', 'ccwrecker99@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-10-22 01:14:08', '076543213', '', '', NULL, '', 'ACTIVE'),
-('usr_68f89998', 'Jaye', 'Jayaweera', 'EQP', 'jayashinisjayaweera@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-10-22 08:45:12', '0763452143', '', '', NULL, '', 'ACTIVE'),
-('usr_68f89be0', 'J', 'Jaye', 'SPT', '2023is043@stu.ucsc.cmb.ac.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-10-22 08:54:56', '0763452145', '', 'CRI', NULL, '', 'ACTIVE'),
-('usr_694d89fa', 'Amal', 'Shantha', 'SPT', 'chamlaanil99@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-12-25 19:01:15', '0716379044', '', 'KBD', NULL, NULL, 'ACTIVE'),
-('VSSMS4ZL', 'Ravindu', 'Rasa', 'PUBLIC', 'ravi@kgla.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, '', '', NULL, '', 'ACTIVE'),
-('VTLMC3YK', 'Sanjeewa', 'Bandara', 'PUBLIC', 'sanjeewa.b@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:47:59', NULL, '', '', NULL, '', 'ACTIVE'),
-('COACH01', 'Mahesh', 'Kumarase', 'COACH', 'mahesh.coach@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0771234567', '', 'CRI', NULL, '1', 'ACTIVE'),
-('COACH02', 'Priya', 'Jayawardena', 'COACH', 'priya.coach@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0772345678', '', 'BAD', NULL, '1', 'ACTIVE'),
-('COACH03', 'Sanjeewa', 'Mani', 'COACH', 'sanjeewa.coach@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0773456789', '', 'FOO', NULL, '2', 'ACTIVE'),
-('COACH04', 'Ravi', 'Kumar', 'COACH', 'ravi.coach@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0774567890', '', 'VOL', NULL, '1', 'ACTIVE'),
-('COACH05', 'Amith', 'Rajapakse', 'COACH', 'amith.coach@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0775678901', '', 'TEN', NULL, '2', 'ACTIVE'),
-('MGR001', 'Arjun', 'Simsons', 'SPT', 'arjun.mgr@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0776789012', '', 'CRI', NULL, '1', 'ACTIVE'),
-('MGR002', 'Nadisha', 'Perera', 'SPT', 'nadisha.mgr@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0777890123', '', 'BAD', NULL, '1', 'ACTIVE'),
-('MGR003', 'Eshan', 'Fernando', 'SPT', 'eshan.mgr@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0778901234', '', 'FOO', NULL, '2', 'ACTIVE'),
-('MGR004', 'Laksha', 'Silva', 'SPT', 'laksha.mgr@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0779012345', '', 'VOL', NULL, '1', 'ACTIVE'),
-('MGR005', 'Harsha', 'Wijesinghe', 'SPT', 'harsha.mgr@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0780123456', '', 'TEN', NULL, '2', 'ACTIVE'),
-('CAP001', 'Suresh', 'Abeywardena', 'CAPTAIN', 'suresh.cap@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0781234567', '', 'CRI', '23010001', '1', 'ACTIVE'),
-('CAP002', 'Charuka', 'Weerasekera', 'CAPTAIN', 'charuka.cap@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0782345678', '', 'BAD', '23010002', '1', 'ACTIVE'),
-('CAP003', 'Danula', 'Jayasooriya', 'CAPTAIN', 'danula.cap@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0783456789', '', 'FOO', '23020001', '2', 'ACTIVE'),
-('CAP004', 'Yasira', 'Janith', 'CAPTAIN', 'yasira.cap@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0784567890', '', 'VOL', '23010003', '1', 'ACTIVE'),
-('CAP005', 'Naveen', 'Fernando', 'CAPTAIN', 'naveen.cap@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0785678901', '', 'TEN', '23020002', '2', 'ACTIVE'),
-('STU101', 'Anura', 'Jayakodi', 'STUDENT', 'anura.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0786789012', '', 'CRI', '23010101', '1', 'ACTIVE'),
-('STU102', 'Kavya', 'Bandusena', 'STUDENT', 'kavya.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0787890123', '', 'CRI', '23010102', '1', 'ACTIVE'),
-('STU103', 'Rohan', 'Senanayake', 'STUDENT', 'rohan.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0788901234', '', 'BAD', '23010103', '1', 'ACTIVE'),
-('STU104', 'Dilma', 'Hettige', 'STUDENT', 'dilma.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0789012345', '', 'BAD', '23010104', '1', 'ACTIVE'),
-('STU105', 'Akilan', 'Raj', 'STUDENT', 'akilan.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0780123456', '', 'FOO', '23020101', '2', 'ACTIVE'),
-('STU106', 'Deepika', 'Shankar', 'STUDENT', 'deepika.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0781234567', '', 'FOO', '23020102', '2', 'ACTIVE'),
-('STU107', 'Preet', 'Khurana', 'STUDENT', 'preet.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0782345678', '', 'VOL', '23010105', '1', 'ACTIVE'),
-('STU108', 'Navya', 'Gupta', 'STUDENT', 'navya.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0783456789', '', 'VOL', '23010106', '1', 'ACTIVE'),
-('STU109', 'Arjun', 'Verma', 'STUDENT', 'arjun.v.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0784567890', '', 'TEN', '23020103', '2', 'ACTIVE'),
-('STU110', 'Simran', 'Sharma', 'STUDENT', 'simran.stu@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0785678901', '', 'TEN', '23020104', '2', 'ACTIVE'),
-('EXE001', 'Nuwan', 'Karunaratne', 'EXECUTIVE', 'nuwan.exec@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0786789012', '', '', NULL, '1', 'ACTIVE'),
-('EXE002', 'Priya', 'Senanyake', 'EXECUTIVE', 'priya.exec@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '0787890123', '', '', NULL, '2', 'ACTIVE');
+INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `must_change_pass`, `joined_date`, `last_login_at`, `contact_no`, `profile_img`, `sport_id`, `student_id`, `faculty_id`, `status`) VALUES
+('1', 'Chamal', 'Chamuditha', 'PUBLIC', 'chamal@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('101', 'John', 'Smith', 'PUBLIC', 'john.smith@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0771234567', '', '', NULL, '', 'ACTIVE'),
+('102', 'David', 'Perera', 'PUBLIC', 'david.perera@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0779876543', '', '', NULL, '', 'ACTIVE'),
+('103', 'Alex', 'Fernando', 'PUBLIC', 'alex.fernando@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0713456789', '', '', NULL, '', 'ACTIVE'),
+('104', 'Mark', 'Silva', 'PUBLIC', 'mark.silva@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0752345678', '', '', NULL, '', 'ACTIVE'),
+('105', 'Kamal', 'Jayasinghe', 'PUBLIC', 'kamal.jayasinghe@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0761112233', '', '', NULL, '', 'ACTIVE'),
+('201', 'Sameera', 'Dissanayake', 'PUBLIC', 'sameera.dissanayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0775566778', '', '', NULL, '', 'ACTIVE'),
+('202', 'Nuwan', 'Karunaratne', 'EXECUTIVE', 'nuwan.karunaratne@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '2026-04-18 04:55:48', '0711122334', '', '', NULL, '', 'ACTIVE'),
+('203', 'Ruwan', 'Senanayake', 'PUBLIC', 'ruwan.senanayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0729988776', '', '', NULL, '', 'ACTIVE'),
+('204', 'Suresh', 'Kumara', 'PUBLIC', 'suresh.kumara@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0765544332', '', '', NULL, '', 'ACTIVE'),
+('205', 'Ashan', 'Wijesinghe', 'PUBLIC', 'ashan.wijesinghe@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0776677889', '', '', NULL, '', 'ACTIVE'),
+('301', 'Pradeep', 'Gunawardena', 'PUBLIC', 'pradeep.gunawardena@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0718899001', '', '', NULL, '', 'ACTIVE'),
+('302', 'Chathura', 'Ekanayake', 'PUBLIC', 'chathura.ekanayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0752233445', '', '', NULL, '', 'ACTIVE'),
+('303', 'Isuru', 'Lakshan', 'PUBLIC', 'isuru.lakshan@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0723344556', '', '', NULL, '', 'ACTIVE'),
+('304', 'Gayan', 'Rathnayake', 'PUBLIC', 'gayan.rathnayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0779988775', '', '', NULL, '', 'ACTIVE'),
+('305', 'Roshan', 'Abeysinghe', 'PUBLIC', 'roshan.abeysinghe@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0764455667', '', '', NULL, '', 'ACTIVE'),
+('43N1VK76', 'vvdsdwef', 'qeq', 'PUBLIC', 'esrdrfff@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:57:10', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('5Q1XZO2Y', 'Jansika', 'Balakrishnan', 'CAPTAIN', 'jansibalakrish@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-23 07:23:06', '2026-04-18 04:56:24', NULL, '5Q1XZO2Y.jpg', '', '23020342', '', 'ACTIVE'),
+('CE02XIPB', 'Admin', 'UOC', 'PUBLIC', 'admin@uocs.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 00:01:26', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('FK9C62HG', 'Pasindu', 'Anjana', 'PUBLIC', 'pasindu@anura.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('FMX6Z8DF', 'Shashini', 'Malsha', 'STUDENT', 'shashini@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-23 07:10:43', NULL, NULL, '', '', '23020997', '', 'ACTIVE'),
+('H4J1OHSX', 'Chamal', 'Chamuditha', 'ADMIN', 'chamal.admin@uocs.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 02:04:39', '2026-04-18 04:55:47', NULL, 'H4J1OHSX.png', '', NULL, '', 'ACTIVE'),
+('JIIJ51LA', 'kfkhef', 'ekjnv', 'PUBLIC', 'kdsjvn@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:39:19', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('JORD04QN', 'vvds', 'qeq', 'PUBLIC', 'esfef@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:52:30', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('KCLIH538', 'vvds', 'qeq', 'PUBLIC', 'esff@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:53:34', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('KI5RL42D', 'ddkjn', 'fsrvn', 'PUBLIC', 'hj@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:29:53', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('L3NCL2J4', 'Chamal', 'Hettiarachchi', 'STUDENT', 'chamal2@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-14 04:48:58', '2026-04-18 04:55:47', NULL, 'L3NCL2J4.jpg', '', '23000000', '', 'ACTIVE'),
+('NPM8O9RE', 'Chamal', 'Chamuditha', 'COACH', 'chamal1@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 22:53:08', '2026-04-18 04:55:47', NULL, '', '', NULL, '', 'ACTIVE'),
+('PA0XK3QZ', 'ddkjn', 'fsrvn', 'PUBLIC', 'hjggd@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:32:55', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('R13QQJC2', 'kfkhef', 'ekjnv', 'PUBLIC', 'kdsgvn@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:50:07', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('REG003', 'Kasun', 'Silva', 'REG', 'kasun.silva@ucsc.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '2026-04-18 04:55:48', '0773456789', '', '', '23001003', '1', 'ACTIVE'),
+('SPT004', 'Dilini', 'Jayasinghe', 'SPT', 'dilini.jayasinghe@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0774567890', '', '', '23001004', '1', 'ACTIVE'),
+('STU001', 'Ashan', 'Fernando', 'STUDENT', 'ashan.fernando@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0771234567', '', '', '23001001', '1', 'ACTIVE'),
+('STU002', 'Nimali', 'Perera', 'STUDENT', 'nimali.perera@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0772345678', '', '', '23001002', '1', 'ACTIVE'),
+('STU005', 'Tharindu', 'Wickramasinghe', 'STUDENT', 'tharindu.wickramasinghe@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0775678901', '', '', '23001005', '1', 'ACTIVE'),
+('STU006', 'Sanduni', 'Rathnayake', 'STUDENT', 'sanduni.rathnayake@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0776789012', '', '', '23001006', '1', 'ACTIVE'),
+('STU007', 'Ravindu', 'Dissanayake', 'STUDENT', 'ravindu.dissanayake@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0777890123', '', '', '23001007', '1', 'ACTIVE'),
+('STU008', 'Ishara', 'Gunasekara', 'STUDENT', 'ishara.gunasekara@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0778901234', '', '', '23001008', '1', 'ACTIVE'),
+('STU009', 'Dineth', 'Amarasinghe', 'STUDENT', 'dineth.amarasinghe@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0779012345', '', '', '23001009', '1', 'ACTIVE'),
+('STU010', 'Sachini', 'Wijewardena', 'STUDENT', 'sachini.wijewardena@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0770123456', '', '', '23001010', '1', 'ACTIVE'),
+('UBVXZ90U', 'ddkjn', 'fsrvn', 'PUBLIC', 'maximal@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:24:32', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('usr_68f82fe0', 'Shashini', 'Malsha', 'EQP', 'ccwrecker99@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-22 01:14:08', '2026-04-18 04:55:48', '076543213', '', '', NULL, '', 'ACTIVE'),
+('usr_68f89998', 'Jaye', 'Jayaweera', 'EQP', 'jayashinisjayaweera@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-10-22 08:45:12', NULL, '0763452143', '', '', NULL, '', 'ACTIVE'),
+('usr_68f89be0', 'J', 'Jaye', 'SPT', '2023is043@stu.ucsc.cmb.ac.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-10-22 08:54:56', NULL, '0763452145', '', 'CRI', NULL, '', 'ACTIVE'),
+('usr_694d89fa', 'Amal', 'Shantha', 'SPT', 'chamlaanil99@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-12-25 19:01:15', '2026-04-18 04:55:47', '0716379044', '', 'KBD', NULL, NULL, 'ACTIVE'),
+('VSSMS4ZL', 'Ravindu', 'Rasa', 'PUBLIC', 'ravi@kgla.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('VTLMC3YK', 'kfkhef', 'ekjnv', 'PUBLIC', 'kdsvn@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:47:59', NULL, NULL, '', '', NULL, '', 'ACTIVE');
 
+--
+-- Triggers `user`
+--
+DROP TRIGGER IF EXISTS `trg_user_delete`;
+DELIMITER $$
+CREATE TRIGGER `trg_user_delete` AFTER DELETE ON `user` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('user', OLD.user_id, 'DELETE', @current_user_id);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_user_insert`;
+DELIMITER $$
+CREATE TRIGGER `trg_user_insert` AFTER INSERT ON `user` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('user', NEW.user_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'fname', NULL, NEW.fname),
+    (v_audit_id, 'lname', NULL, NEW.lname),
+    (v_audit_id, 'type', NULL, NEW.type),
+    (v_audit_id, 'email', NULL, NEW.email);
+END
+$$
+DELIMITER ;
+DROP TRIGGER IF EXISTS `trg_user_update`;
+DELIMITER $$
+CREATE TRIGGER `trg_user_update` AFTER UPDATE ON `user` FOR EACH ROW BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.fname <=> OLD.fname AND NEW.lname <=> OLD.lname AND NEW.type <=> OLD.type AND NEW.email <=> OLD.email AND NEW.last_login_at <=> OLD.last_login_at AND NEW.status <=> OLD.status) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('user', NEW.user_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        
+        IF NOT (NEW.fname <=> OLD.fname) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'fname', OLD.fname, NEW.fname); END IF;
+        IF NOT (NEW.lname <=> OLD.lname) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'lname', OLD.lname, NEW.lname); END IF;
+        IF NOT (NEW.type <=> OLD.type) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'type', OLD.type, NEW.type); END IF;
+        IF NOT (NEW.email <=> OLD.email) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'email', OLD.email, NEW.email); END IF;
+        IF NOT (NEW.last_login_at <=> OLD.last_login_at) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'last_login_at', OLD.last_login_at, NEW.last_login_at); END IF;
+        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -2026,381 +2551,21 @@ CREATE TABLE IF NOT EXISTS `verification_request_students` (
 --
 ALTER TABLE `sport`
   ADD CONSTRAINT `sport_ibfk_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`);
+
+--
+-- Constraints for table `system_audit_detail`
+--
+ALTER TABLE `system_audit_detail`
+  ADD CONSTRAINT `fk_audit_id` FOREIGN KEY (`audit_id`) REFERENCES `system_audit` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `tournament_participants`
+--
+ALTER TABLE `tournament_participants`
+  ADD CONSTRAINT `fk_tp_tournament` FOREIGN KEY (`tournament_id`) REFERENCES `tournament` (`tournament_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_tp_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE;
 COMMIT;
-SET FOREIGN_KEY_CHECKS = 1;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
--- --------------------------------------------------------
--- SYSTEM AUDIT TABLES AND TRIGGERS
--- --------------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS `system_audit` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `table_name` VARCHAR(100) NOT NULL,
-  `record_id` VARCHAR(100) NOT NULL,
-  `action` ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
-  `changed_by` VARCHAR(50) DEFAULT NULL,
-  `changed_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-CREATE TABLE IF NOT EXISTS `system_audit_detail` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `audit_id` INT NOT NULL,
-  `column_name` VARCHAR(100) NOT NULL,
-  `old_value` TEXT NULL,
-  `new_value` TEXT NULL,
-  CONSTRAINT `fk_audit_id` FOREIGN KEY (`audit_id`) REFERENCES `system_audit` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Drop existing triggers
-DROP TRIGGER IF EXISTS trg_facility_booking_insert;
-DROP TRIGGER IF EXISTS trg_facility_booking_update;
-DROP TRIGGER IF EXISTS trg_facility_booking_delete;
-DROP TRIGGER IF EXISTS trg_user_insert;
-DROP TRIGGER IF EXISTS trg_user_update;
-DROP TRIGGER IF EXISTS trg_user_delete;
-
-DELIMITER $$
-
-
--- Trigger for AFTER INSERT (facility_booking)
-CREATE TRIGGER trg_facility_booking_insert
-AFTER INSERT ON `facility-booking`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('facility-booking', NEW.booking_id, 'INSERT', @current_user_id);
-    SET v_audit_id = LAST_INSERT_ID();
-    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
-    (v_audit_id, 'user_id', NULL, NEW.user_id),
-    (v_audit_id, 'facility_id', NULL, NEW.facility_id),
-    (v_audit_id, 'date', NULL, NEW.date),
-    (v_audit_id, 'slot', NULL, NEW.slot),
-    (v_audit_id, 'purpose', NULL, NEW.purpose),
-    (v_audit_id, 'status', NULL, NEW.status),
-    (v_audit_id, 'payment_status', NULL, NEW.payment_status);
-END $$
-
--- Trigger for AFTER UPDATE (facility_booking)
-CREATE TRIGGER trg_facility_booking_update
-AFTER UPDATE ON `facility-booking`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    IF NOT (NEW.user_id <=> OLD.user_id AND NEW.facility_id <=> OLD.facility_id AND NEW.date <=> OLD.date AND NEW.slot <=> OLD.slot AND NEW.purpose <=> OLD.purpose AND NEW.status <=> OLD.status AND NEW.payment_status <=> OLD.payment_status AND NEW.rejection_reason <=> OLD.rejection_reason AND NEW.flag_status <=> OLD.flag_status) THEN
-        INSERT INTO system_audit (table_name, record_id, action, changed_by)
-        VALUES ('facility-booking', NEW.booking_id, 'UPDATE', @current_user_id);
-        SET v_audit_id = LAST_INSERT_ID();
-        IF NOT (NEW.status <=> OLD.status) THEN
-            INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status);
-        END IF;
-    END IF;
-END $$
-
--- Trigger for AFTER DELETE (facility_booking)
-CREATE TRIGGER trg_facility_booking_delete
-AFTER DELETE ON `facility-booking`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('facility-booking', OLD.booking_id, 'DELETE', @current_user_id);
-END $$
-
--- -------------------------------------------------------------------------
--- USER TABLE TRIGGERS
--- -------------------------------------------------------------------------
-
-CREATE TRIGGER trg_user_insert
-AFTER INSERT ON `user`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('user', NEW.user_id, 'INSERT', @current_user_id);
-    SET v_audit_id = LAST_INSERT_ID();
-    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
-    (v_audit_id, 'fname', NULL, NEW.fname),
-    (v_audit_id, 'lname', NULL, NEW.lname),
-    (v_audit_id, 'type', NULL, NEW.type),
-    (v_audit_id, 'email', NULL, NEW.email);
-END $$
-
-CREATE TRIGGER trg_user_update
-AFTER UPDATE ON `user`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    IF NOT (NEW.fname <=> OLD.fname AND NEW.lname <=> OLD.lname AND NEW.type <=> OLD.type AND NEW.email <=> OLD.email AND NEW.last_login_at <=> OLD.last_login_at AND NEW.status <=> OLD.status) THEN
-        INSERT INTO system_audit (table_name, record_id, action, changed_by)
-        VALUES ('user', NEW.user_id, 'UPDATE', @current_user_id);
-        SET v_audit_id = LAST_INSERT_ID();
-        
-        IF NOT (NEW.fname <=> OLD.fname) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'fname', OLD.fname, NEW.fname); END IF;
-        IF NOT (NEW.lname <=> OLD.lname) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'lname', OLD.lname, NEW.lname); END IF;
-        IF NOT (NEW.type <=> OLD.type) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'type', OLD.type, NEW.type); END IF;
-        IF NOT (NEW.email <=> OLD.email) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'email', OLD.email, NEW.email); END IF;
-        IF NOT (NEW.last_login_at <=> OLD.last_login_at) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'last_login_at', OLD.last_login_at, NEW.last_login_at); END IF;
-        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
-    END IF;
-END $$
-
-CREATE TRIGGER trg_user_delete
-AFTER DELETE ON `user`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('user', OLD.user_id, 'DELETE', @current_user_id);
-END $$
-
--- -------------------------------------------------------------------------
--- BUDGET TABLE TRIGGERS
--- -------------------------------------------------------------------------
-
-DROP TRIGGER IF EXISTS trg_budget_insert;
-DROP TRIGGER IF EXISTS trg_budget_update;
-DROP TRIGGER IF EXISTS trg_budget_delete;
-
-DELIMITER $$
-CREATE TRIGGER trg_budget_insert
-AFTER INSERT ON `budget`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('budget', NEW.budget_id, 'INSERT', @current_user_id);
-    SET v_audit_id = LAST_INSERT_ID();
-    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
-    (v_audit_id, 'budget_id', NULL, NEW.budget_id),
-    (v_audit_id, 'sport_id', NULL, NEW.sport_id),
-    (v_audit_id, 'year', NULL, NEW.year),
-    (v_audit_id, 'allocated_amount', NULL, NEW.allocated_amount),
-    (v_audit_id, 'spent_amount', NULL, NEW.spent_amount),
-    (v_audit_id, 'allocation_date', NULL, NEW.allocation_date),
-    (v_audit_id, 'description', NULL, NEW.description);
-END $$
-
-CREATE TRIGGER trg_budget_update
-AFTER UPDATE ON `budget`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    IF NOT (NEW.budget_id <=> OLD.budget_id AND NEW.sport_id <=> OLD.sport_id AND NEW.year <=> OLD.year AND NEW.allocated_amount <=> OLD.allocated_amount AND NEW.spent_amount <=> OLD.spent_amount AND NEW.allocation_date <=> OLD.allocation_date AND NEW.description <=> OLD.description) THEN
-        INSERT INTO system_audit (table_name, record_id, action, changed_by)
-        VALUES ('budget', NEW.budget_id, 'UPDATE', @current_user_id);
-        SET v_audit_id = LAST_INSERT_ID();
-        IF NOT (NEW.budget_id <=> OLD.budget_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'budget_id', OLD.budget_id, NEW.budget_id); END IF;
-        IF NOT (NEW.sport_id <=> OLD.sport_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_id', OLD.sport_id, NEW.sport_id); END IF;
-        IF NOT (NEW.year <=> OLD.year) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'year', OLD.year, NEW.year); END IF;
-        IF NOT (NEW.allocated_amount <=> OLD.allocated_amount) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'allocated_amount', OLD.allocated_amount, NEW.allocated_amount); END IF;
-        IF NOT (NEW.spent_amount <=> OLD.spent_amount) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'spent_amount', OLD.spent_amount, NEW.spent_amount); END IF;
-        IF NOT (NEW.allocation_date <=> OLD.allocation_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'allocation_date', OLD.allocation_date, NEW.allocation_date); END IF;
-        IF NOT (NEW.description <=> OLD.description) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'description', OLD.description, NEW.description); END IF;
-    END IF;
-END $$
-
-CREATE TRIGGER trg_budget_delete
-AFTER DELETE ON `budget`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('budget', OLD.budget_id, 'DELETE', @current_user_id);
-END $$
-
--- -------------------------------------------------------------------------
--- SPORT_EXPENSES TABLE TRIGGERS
--- -------------------------------------------------------------------------
-
-DROP TRIGGER IF EXISTS trg_sport_expenses_insert;
-DROP TRIGGER IF EXISTS trg_sport_expenses_update;
-DROP TRIGGER IF EXISTS trg_sport_expenses_delete;
-
-DELIMITER $$
-CREATE TRIGGER trg_sport_expenses_insert
-AFTER INSERT ON `sport_expenses`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('sport_expenses', NEW.expense_id, 'INSERT', @current_user_id);
-    SET v_audit_id = LAST_INSERT_ID();
-    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
-    (v_audit_id, 'expense_id', NULL, NEW.expense_id),
-    (v_audit_id, 'sport', NULL, NEW.sport),
-    (v_audit_id, 'expense_title', NULL, NEW.expense_title),
-    (v_audit_id, 'sport_event', NULL, NEW.sport_event),
-    (v_audit_id, 'amount', NULL, NEW.amount),
-    (v_audit_id, 'receipt', NULL, NEW.receipt),
-    (v_audit_id, 'submitted_by', NULL, NEW.submitted_by),
-    (v_audit_id, 'notes', NULL, NEW.notes),
-    (v_audit_id, 'expense_date', NULL, NEW.expense_date),
-    (v_audit_id, 'created_at', NULL, NEW.created_at),
-    (v_audit_id, 'updated_at', NULL, NEW.updated_at),
-    (v_audit_id, 'status', NULL, NEW.status);
-END $$
-
-CREATE TRIGGER trg_sport_expenses_update
-AFTER UPDATE ON `sport_expenses`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    IF NOT (NEW.expense_id <=> OLD.expense_id AND NEW.sport <=> OLD.sport AND NEW.expense_title <=> OLD.expense_title AND NEW.sport_event <=> OLD.sport_event AND NEW.amount <=> OLD.amount AND NEW.receipt <=> OLD.receipt AND NEW.submitted_by <=> OLD.submitted_by AND NEW.notes <=> OLD.notes AND NEW.expense_date <=> OLD.expense_date AND NEW.created_at <=> OLD.created_at AND NEW.updated_at <=> OLD.updated_at AND NEW.status <=> OLD.status) THEN
-        INSERT INTO system_audit (table_name, record_id, action, changed_by)
-        VALUES ('sport_expenses', NEW.expense_id, 'UPDATE', @current_user_id);
-        SET v_audit_id = LAST_INSERT_ID();
-        IF NOT (NEW.expense_id <=> OLD.expense_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'expense_id', OLD.expense_id, NEW.expense_id); END IF;
-        IF NOT (NEW.sport <=> OLD.sport) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport', OLD.sport, NEW.sport); END IF;
-        IF NOT (NEW.expense_title <=> OLD.expense_title) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'expense_title', OLD.expense_title, NEW.expense_title); END IF;
-        IF NOT (NEW.sport_event <=> OLD.sport_event) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_event', OLD.sport_event, NEW.sport_event); END IF;
-        IF NOT (NEW.amount <=> OLD.amount) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'amount', OLD.amount, NEW.amount); END IF;
-        IF NOT (NEW.receipt <=> OLD.receipt) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'receipt', OLD.receipt, NEW.receipt); END IF;
-        IF NOT (NEW.submitted_by <=> OLD.submitted_by) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'submitted_by', OLD.submitted_by, NEW.submitted_by); END IF;
-        IF NOT (NEW.notes <=> OLD.notes) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'notes', OLD.notes, NEW.notes); END IF;
-        IF NOT (NEW.expense_date <=> OLD.expense_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'expense_date', OLD.expense_date, NEW.expense_date); END IF;
-        IF NOT (NEW.created_at <=> OLD.created_at) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'created_at', OLD.created_at, NEW.created_at); END IF;
-        IF NOT (NEW.updated_at <=> OLD.updated_at) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'updated_at', OLD.updated_at, NEW.updated_at); END IF;
-        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
-    END IF;
-END $$
-
-CREATE TRIGGER trg_sport_expenses_delete
-AFTER DELETE ON `sport_expenses`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('sport_expenses', OLD.expense_id, 'DELETE', @current_user_id);
-END $$
-
--- -------------------------------------------------------------------------
--- EQUIPMENT_INVENTORY TABLE TRIGGERS
--- -------------------------------------------------------------------------
-
-DROP TRIGGER IF EXISTS trg_equipment_inventory_insert;
-DROP TRIGGER IF EXISTS trg_equipment_inventory_update;
-DROP TRIGGER IF EXISTS trg_equipment_inventory_delete;
-
-DELIMITER $$
-CREATE TRIGGER trg_equipment_inventory_insert
-AFTER INSERT ON `equipment_inventory`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('equipment_inventory', NEW.stock_id, 'INSERT', @current_user_id);
-    SET v_audit_id = LAST_INSERT_ID();
-    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
-    (v_audit_id, 'stock_id', NULL, NEW.stock_id),
-    (v_audit_id, 'equipment_id', NULL, NEW.equipment_id),
-    (v_audit_id, 'sport_id', NULL, NEW.sport_id),
-    (v_audit_id, 'quantity', NULL, NEW.quantity),
-    (v_audit_id, 'usable', NULL, NEW.usable),
-    (v_audit_id, 'added_date', NULL, NEW.added_date),
-    (v_audit_id, 'remarks', NULL, NEW.remarks),
-    (v_audit_id, 'status', NULL, NEW.status);
-END $$
-
-CREATE TRIGGER trg_equipment_inventory_update
-AFTER UPDATE ON `equipment_inventory`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    IF NOT (NEW.stock_id <=> OLD.stock_id AND NEW.equipment_id <=> OLD.equipment_id AND NEW.sport_id <=> OLD.sport_id AND NEW.quantity <=> OLD.quantity AND NEW.usable <=> OLD.usable AND NEW.added_date <=> OLD.added_date AND NEW.remarks <=> OLD.remarks AND NEW.status <=> OLD.status) THEN
-        INSERT INTO system_audit (table_name, record_id, action, changed_by)
-        VALUES ('equipment_inventory', NEW.stock_id, 'UPDATE', @current_user_id);
-        SET v_audit_id = LAST_INSERT_ID();
-        IF NOT (NEW.stock_id <=> OLD.stock_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'stock_id', OLD.stock_id, NEW.stock_id); END IF;
-        IF NOT (NEW.equipment_id <=> OLD.equipment_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'equipment_id', OLD.equipment_id, NEW.equipment_id); END IF;
-        IF NOT (NEW.sport_id <=> OLD.sport_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_id', OLD.sport_id, NEW.sport_id); END IF;
-        IF NOT (NEW.quantity <=> OLD.quantity) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'quantity', OLD.quantity, NEW.quantity); END IF;
-        IF NOT (NEW.usable <=> OLD.usable) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'usable', OLD.usable, NEW.usable); END IF;
-        IF NOT (NEW.added_date <=> OLD.added_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'added_date', OLD.added_date, NEW.added_date); END IF;
-        IF NOT (NEW.remarks <=> OLD.remarks) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'remarks', OLD.remarks, NEW.remarks); END IF;
-        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
-    END IF;
-END $$
-
-CREATE TRIGGER trg_equipment_inventory_delete
-AFTER DELETE ON `equipment_inventory`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('equipment_inventory', OLD.stock_id, 'DELETE', @current_user_id);
-END $$
-
--- -------------------------------------------------------------------------
--- TOURNAMENT TABLE TRIGGERS
--- -------------------------------------------------------------------------
-
-DROP TRIGGER IF EXISTS trg_tournament_insert;
-DROP TRIGGER IF EXISTS trg_tournament_update;
-DROP TRIGGER IF EXISTS trg_tournament_delete;
-
-DELIMITER $$
-CREATE TRIGGER trg_tournament_insert
-AFTER INSERT ON `tournament`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('tournament', NEW.tournament_id, 'INSERT', @current_user_id);
-    SET v_audit_id = LAST_INSERT_ID();
-    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
-    (v_audit_id, 'tournament_id', NULL, NEW.tournament_id),
-    (v_audit_id, 'tournament_name', NULL, NEW.tournament_name),
-    (v_audit_id, 'sport_id', NULL, NEW.sport_id),
-    (v_audit_id, 'start_date', NULL, NEW.start_date),
-    (v_audit_id, 'end_date', NULL, NEW.end_date),
-    (v_audit_id, 'status', NULL, NEW.status);
-END $$
-
-CREATE TRIGGER trg_tournament_update
-AFTER UPDATE ON `tournament`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    IF NOT (NEW.tournament_id <=> OLD.tournament_id AND NEW.tournament_name <=> OLD.tournament_name AND NEW.sport_id <=> OLD.sport_id AND NEW.start_date <=> OLD.start_date AND NEW.end_date <=> OLD.end_date AND NEW.status <=> OLD.status) THEN
-        INSERT INTO system_audit (table_name, record_id, action, changed_by)
-        VALUES ('tournament', NEW.tournament_id, 'UPDATE', @current_user_id);
-        SET v_audit_id = LAST_INSERT_ID();
-        IF NOT (NEW.tournament_id <=> OLD.tournament_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'tournament_id', OLD.tournament_id, NEW.tournament_id); END IF;
-        IF NOT (NEW.tournament_name <=> OLD.tournament_name) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'tournament_name', OLD.tournament_name, NEW.tournament_name); END IF;
-        IF NOT (NEW.sport_id <=> OLD.sport_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_id', OLD.sport_id, NEW.sport_id); END IF;
-        IF NOT (NEW.start_date <=> OLD.start_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'start_date', OLD.start_date, NEW.start_date); END IF;
-        IF NOT (NEW.end_date <=> OLD.end_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'end_date', OLD.end_date, NEW.end_date); END IF;
-        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
-    END IF;
-END $$
-
-CREATE TRIGGER trg_tournament_delete
-AFTER DELETE ON `tournament`
-FOR EACH ROW
-BEGIN
-    DECLARE v_audit_id INT;
-    INSERT INTO system_audit (table_name, record_id, action, changed_by)
-    VALUES ('tournament', OLD.tournament_id, 'DELETE', @current_user_id);
-END $$
-DELIMITER ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `password_reset_tokens`
---
-
-DROP TABLE IF EXISTS `password_reset_tokens`;
-CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
-  `user_id` varchar(12) NOT NULL,
-  `token` varchar(64) NOT NULL,
-  `expires_at` datetime NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`user_id`, `token`),
-  KEY `fk_pwd_reset_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-

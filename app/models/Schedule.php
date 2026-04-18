@@ -202,6 +202,7 @@ public function getPreviousSessions($sportId) {
         FROM practice_sessions
         WHERE sport_id = :sport_id AND session_date < CURDATE()
         ORDER BY session_date DESC
+        LIMIT 5
     ");
     $stmt->bindParam(':sport_id', $sportId);
     $stmt->execute();
