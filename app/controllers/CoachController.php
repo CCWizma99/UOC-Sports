@@ -57,30 +57,35 @@ class CoachController {
             // Get Schedules
             require_once __DIR__ . '/../models/Schedule.php';
             $scheduleModel = new Schedule();
-            $data['schedules'] = $scheduleModel->getRecentAndUpcomingSessions($sportId, 10);
+            $data['schedules'] = $scheduleModel->getUpcomingSessions($sportId, 10);
 
             // Get Team Members
             require_once __DIR__ . '/../models/SportTeam.php';
             $teamModel = new SportTeam();
             $data['members'] = $teamModel->getTeamMembers($sportId);
 
-            // Get Upcoming Matches (Tournaments)
-            require_once __DIR__ . '/../models/Sport.php';
-            $sportModel = new Sport();
-            // Assuming getTournaments fetches all incomplete tournaments. It doesn't filter by sport ID though?
-            // Sport::getTournaments() returns all.
-            // Let's rely on fake data for matches or 0 if we can't filter easily. 
-            // Actually Sport.php: getTournaments() query: SELECT ... FROM tournament t JOIN sport s ...
-            // It doesn't enable filtering by ID.
-            // I'll leave fake match count or set to 0. 
-            // Wait, I can try to filter the result array.
-            $tournaments = $sportModel->getTournaments();
-            $data['upcoming_matches_count'] = 0;
-            foreach ($tournaments as $t) {
-                if ($t['sport_id'] === $sportId) {
-                    $data['upcoming_matches_count']++;
+            // Get Upcoming Tournaments (Matches)
+            require_once __DIR__ . '/../models/Tournament.php';
+            $tournamentModel = new Tournament();
+            $today = date('Y-m-d');
+            $allTournaments = $tournamentModel->getTournamentsBySportId($sportId);
+
+            $data['upcoming_matches'] = [];
+            foreach ($allTournaments as $tour) {
+                if ((isset($tour['start_date']) && $tour['start_date'] >= $today) || 
+                    (isset($tour['end_date']) && $tour['end_date'] >= $today)) {
+                    $data['upcoming_matches'][] = [
+                        'start_date' => $tour['start_date'],
+                        'end_date' => $tour['end_date'],
+                        'name' => $tour['tournament_name'] ?? 'Tournament'
+                    ];
                 }
             }
+
+            // Sort by start date
+            usort($data['upcoming_matches'], function($a, $b) {
+                return strtotime($a['start_date'] ?? 0) <=> strtotime($b['start_date'] ?? 0);
+            });
         }
 
         view('coach/team-schedules', $data);
