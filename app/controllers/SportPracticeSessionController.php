@@ -55,8 +55,13 @@ class SportPracticeSessionController
     {
         $model = new SportPracticeSession();
         $sports = $model->getAllSports();
+        $facilities = $model->getPhysicalFacilities();
         $selectedSport = $_GET['sport'] ?? null;
-        view('sports-manager/add-practice', ['sports' => $sports, 'selectedSport' => $selectedSport]);
+        view('sports-manager/add-practice', [
+            'sports' => $sports, 
+            'facilities' => $facilities,
+            'selectedSport' => $selectedSport
+        ]);
     }
 
     /**
@@ -81,8 +86,9 @@ class SportPracticeSessionController
             // Prepare data
             $data = [
                 'sport_name' => $_POST['sport'] ?? '',
-                'facility' => '',  // Can be empty
-                'location' => $_POST['location'] ?? '',
+                'facility' => '',  // Legacy field
+                'location' => $_POST['location_name'] ?? '', // Human readable location
+                'physical_facility_id' => $_POST['physical_facility_id'] ?? null,
                 'session_date' => $_POST['date'] ?? '',
                 'start_time' => $_POST['stime'] ?? '',
                 'end_time' => $_POST['etime'] ?? '',
@@ -102,16 +108,28 @@ class SportPracticeSessionController
                 exit();
             }
 
+            // Check for date conflict for the same sport
+            $hasDateConflict = $model->checkDateConflictForSport($data['sport_name'], $data['session_date']);
+
+            if ($hasDateConflict) {
+                $_SESSION['error_message'] = 'There is already an existing practice session for this sport on the selected date.';
+                header('Location: /uoc-sports/public/sport-manager/add-practice' . $sportParam);
+                exit();
+            }
+
             // Check for time conflicts
-            $hasConflict = $model->checkTimeConflict(
-                $data['location'],
+            $conflictDetails = $model->checkTimeConflict(
+                !empty($data['physical_facility_id']) ? $data['physical_facility_id'] : $data['location'],
                 $data['session_date'],
                 $data['start_time'],
                 $data['end_time']
             );
 
-            if ($hasConflict) {
-                $_SESSION['error_message'] = 'This facility is already booked for the selected date and time';
+            if ($conflictDetails) {
+                $sportName = htmlspecialchars($conflictDetails['sport_name']);
+                $sTime = date('h:i A', strtotime($conflictDetails['start_time']));
+                $eTime = date('h:i A', strtotime($conflictDetails['end_time']));
+                $_SESSION['error_message'] = "This facility is already booked for {$sportName} from {$sTime} to {$eTime}.";
                 header('Location: /uoc-sports/public/sport-manager/add-practice' . $sportParam);
                 exit();
             }
@@ -152,6 +170,7 @@ class SportPracticeSessionController
         $model = new SportPracticeSession();
         $session = $model->getById($id);
         $sports = $model->getAllSports();
+        $facilities = $model->getPhysicalFacilities();
 
         if (!$session) {
             $_SESSION['error_message'] = 'Practice session not found';
@@ -160,7 +179,12 @@ class SportPracticeSessionController
             exit();
         }
 
-        view('sports-manager/edit-practice', ['session' => $session, 'sports' => $sports, 'selectedSport' => $_GET['sport'] ?? null]);
+        view('sports-manager/edit-practice', [
+            'session' => $session, 
+            'sports' => $sports, 
+            'facilities' => $facilities,
+            'selectedSport' => $_GET['sport'] ?? null
+        ]);
     }
 
     /**
@@ -193,7 +217,8 @@ class SportPracticeSessionController
             $data = [
                 'sport_name' => $_POST['sport'] ?? '',
                 'facility' => '',
-                'location' => $_POST['location'] ?? '',
+                'location' => $_POST['location_name'] ?? '',
+                'physical_facility_id' => $_POST['physical_facility_id'] ?? null,
                 'session_date' => $_POST['date'] ?? '',
                 'start_time' => $_POST['stime'] ?? '',
                 'end_time' => $_POST['etime'] ?? '',
@@ -201,6 +226,39 @@ class SportPracticeSessionController
                 'need_equipment' => $_POST['need_equipment'] ?? 'No',
                 'status' => $_POST['status'] ?? 'ACTIVE'
             ];
+
+            // Check for date conflict for the same sport
+            $hasDateConflict = $model->checkDateConflictForSport($data['sport_name'], $data['session_date'], $id);
+
+            if ($hasDateConflict) {
+                $_SESSION['error_message'] = 'There is already an existing practice session for this sport on the selected date.';
+                header('Location: /uoc-sports/public/sport-manager/edit-practice?id=' . $id . ($sportId ? '&sport=' . urlencode($sportId) : ''));
+                exit();
+            }
+
+            // Check for time conflicts
+            if (($data['physical_facility_id'] || $data['location']) && $data['start_time'] !== '' && $data['end_time'] !== '') {
+                $conflictDetails = $model->checkTimeConflict(
+                    !empty($data['physical_facility_id']) ? $data['physical_facility_id'] : $data['location'], 
+                    $data['session_date'], 
+                    $data['start_time'], 
+                    $data['end_time'], 
+                    $id
+                );
+                
+                if ($conflictDetails) {
+                    if (is_array($conflictDetails)) {
+                        $sportName = htmlspecialchars($conflictDetails['sport_name']);
+                        $sTime = date('h:i A', strtotime($conflictDetails['start_time']));
+                        $eTime = date('h:i A', strtotime($conflictDetails['end_time']));
+                        $_SESSION['error_message'] = "This facility is already booked for {$sportName} from {$sTime} to {$eTime}.";
+                    } else {
+                        $_SESSION['error_message'] = $conflictDetails;
+                    }
+                    header('Location: /uoc-sports/public/sport-manager/edit-practice?id=' . $id . ($sportId ? '&sport=' . urlencode($sportId) : ''));
+                    exit();
+                }
+            }
 
             $result = $model->update($id, $data);
 
@@ -309,13 +367,14 @@ class SportPracticeSessionController
             exit();
         }
 
+        $sportName = trim($_GET['sport'] ?? '');
         $location = trim($_GET['location'] ?? '');
         $date = trim($_GET['date'] ?? '');
         $startTime = trim($_GET['start_time'] ?? '');
         $endTime = trim($_GET['end_time'] ?? '');
         $excludeId = isset($_GET['exclude_id']) && $_GET['exclude_id'] !== '' ? (int) $_GET['exclude_id'] : null;
 
-        if ($location === '' || $date === '' || $startTime === '' || $endTime === '') {
+        if ($date === '' || $sportName === '') {
             echo json_encode([
                 'success' => true,
                 'has_conflict' => false,
@@ -324,23 +383,48 @@ class SportPracticeSessionController
             exit();
         }
 
-        if ($endTime <= $startTime) {
-            echo json_encode([
-                'success' => true,
-                'has_conflict' => true,
-                'message' => 'End time must be later than start time.'
-            ]);
-            exit();
-        }
-
         try {
             $model = new SportPracticeSession();
-            $hasConflict = $model->checkTimeConflict($location, $date, $startTime, $endTime, $excludeId);
+
+            $hasDateConflict = $model->checkDateConflictForSport($sportName, $date, $excludeId);
+            if ($hasDateConflict) {
+                echo json_encode([
+                    'success' => true,
+                    'has_conflict' => true,
+                    'message' => 'There is already an existing practice session for this sport on the selected date.'
+                ]);
+                exit();
+            }
+
+            if ($location !== '' && $startTime !== '' && $endTime !== '') {
+                if ($endTime <= $startTime) {
+                    echo json_encode([
+                        'success' => true,
+                        'has_conflict' => true,
+                        'message' => 'End time must be later than start time.'
+                    ]);
+                    exit();
+                }
+
+                $conflictDetails = $model->checkTimeConflict($location, $date, $startTime, $endTime, $excludeId);
+                if ($conflictDetails) {
+                    $message = is_array($conflictDetails) 
+                        ? "This facility is already booked for " . htmlspecialchars($conflictDetails['sport_name']) . " from " . date('h:i A', strtotime($conflictDetails['start_time'])) . " to " . date('h:i A', strtotime($conflictDetails['end_time'])) . "."
+                        : $conflictDetails;
+                    
+                    echo json_encode([
+                        'success' => true,
+                        'has_conflict' => true,
+                        'message' => $message
+                    ]);
+                    exit();
+                }
+            }
 
             echo json_encode([
                 'success' => true,
-                'has_conflict' => $hasConflict,
-                'message' => $hasConflict ? 'This facility is already booked for the selected date and time.' : ''
+                'has_conflict' => false,
+                'message' => ''
             ]);
         } catch (Exception $e) {
             error_log('Error checking practice conflict: ' . $e->getMessage());

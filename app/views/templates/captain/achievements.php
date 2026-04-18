@@ -12,37 +12,37 @@
 		<?php } else { ?>
 			<ul style="background: #faf9fc; border-radius: 10px; padding: 18px 24px; box-shadow: 0 2px 8px #eee;">
 				<?php foreach ($team_achievements as $ach): ?>
-					<?php $compId = $ach['competition_id']; ?>
+					<?php $tid = $ach['tournament_id']; ?>
 					<li style="margin-bottom: 10px;">
 						<div style="display: flex; align-items: center; justify-content: space-between;">
 							<span>
 								<b><?= htmlspecialchars($ach['achievement']) ?></b>
-								<?php if (!empty($ach['competition_name'])): ?>
-									- <?= htmlspecialchars($ach['competition_name']) ?> (<?= htmlspecialchars($ach['competition_date']) ?>)
+								<?php if (!empty($ach['tournament_name'])): ?>
+									- <?= htmlspecialchars($ach['tournament_name']) ?> (<?= htmlspecialchars($ach['tournament_date']) ?>)
 								<?php endif; ?>
 							</span>
-							<button onclick="toggleTeamDetails('team-<?= $compId ?>')" style="background: #2d1457; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer;">View Details</button>
+							<button onclick="toggleTeamDetails('team-<?= $tid ?>')" style="background: #2d1457; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer;">View Details</button>
 						</div>
-						<div id="team-<?= $compId ?>" class="team-details" style="display:none; margin-top: 16px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #eee; padding: 16px;">
-							<?php if (!empty($team_details[$compId]['players'])): ?>
+						<div id="team-<?= $tid ?>" class="team-details" style="display:none; margin-top: 16px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #eee; padding: 16px;">
+							<?php if (!empty($team_details[$tid]['players'])): ?>
 								<div style="font-weight: bold; margin-bottom: 8px;">Players:</div>
 								<ul style="margin-bottom: 12px;">
-									<?php foreach ($team_details[$compId]['players'] as $player): ?>
+									<?php foreach ($team_details[$tid]['players'] as $player): ?>
 										<li><?= htmlspecialchars($player['fname'] . ' ' . $player['lname']) ?> (<?= htmlspecialchars($player['email']) ?>)</li>
 									<?php endforeach; ?>
 								</ul>
 							<?php else: ?>
-								<div>No players found for this competition.</div>
+								<div>No players found for this tournament.</div>
 							<?php endif; ?>
-							<div style="font-weight: bold; margin-bottom: 8px;">Individual Achievements in this Competition:</div>
-							<?php if (!empty($team_details[$compId]['individual_achievements'])): ?>
+							<div style="font-weight: bold; margin-bottom: 8px;">Individual Achievements in this Tournament:</div>
+							<?php if (!empty($team_details[$tid]['individual_achievements'])): ?>
 								<ul>
-									<?php foreach ($team_details[$compId]['individual_achievements'] as $ind): ?>
+									<?php foreach ($team_details[$tid]['individual_achievements'] as $ind): ?>
 										<li><b><?= htmlspecialchars($ind['achievement']) ?></b> - <?= htmlspecialchars($ind['fname'] . ' ' . $ind['lname']) ?> (<?= $ind['points'] ?> pts)</li>
 									<?php endforeach; ?>
 								</ul>
 							<?php else: ?>
-								<div>No individual achievements for this competition.</div>
+								<div>No individual achievements for this tournament.</div>
 							<?php endif; ?>
 						</div>
 					</li>
@@ -109,8 +109,8 @@
 						<?php foreach ($student['achievements'] as $ach): ?>
 							<li>
 								<b><?= htmlspecialchars($ach['achievement']) ?></b> (<?= $ach['points'] ?> pts)
-								<?php if (!empty($ach['competition_name'])): ?>
-									- <?= htmlspecialchars($ach['competition_name']) ?> (<?= htmlspecialchars($ach['competition_date']) ?>)
+								<?php if (!empty($ach['tournament_name'])): ?>
+									- <?= htmlspecialchars($ach['tournament_name']) ?> (<?= htmlspecialchars($ach['tournament_date']) ?>)
 								<?php endif; ?>
 							</li>
 						<?php endforeach; ?>

@@ -105,6 +105,7 @@ class Message {
                    u.fname, u.lname
             FROM message m
             LEFT JOIN user u ON m.recipient_id = u.user_id
+            WHERE m.status = 'ACTIVE'
             ORDER BY m.sent_at DESC
         ");
         $stmt->execute();
@@ -148,7 +149,7 @@ class Message {
      */
     public function deleteMessage($messageId, $senderId) {
         try {
-            $stmt = $this->db->prepare("DELETE FROM message WHERE message_id = :message_id AND sender_id = :sender_id");
+            $stmt = $this->db->prepare("UPDATE message SET status = 'DELETED' WHERE message_id = :message_id AND sender_id = :sender_id");
             $stmt->execute([
                 'message_id' => $messageId,
                 'sender_id' => $senderId
@@ -165,7 +166,7 @@ class Message {
      * @return int
      */
     public function getMessageCount($senderId) {
-        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM message WHERE sender_id = :sender_id");
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM message WHERE sender_id = :sender_id AND status = 'ACTIVE'");
         $stmt->execute(['sender_id' => $senderId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ? (int)$result['count'] : 0;
@@ -180,10 +181,9 @@ class Message {
         $stmt = $this->db->prepare("
             SELECT m.message_id, m.title, m.message, m.recipient_type, m.sender_id, m.sent_at, m.is_read,
                    u.fname, u.lname, u.type as user_type, s.sport_name
-            FROM message m
             LEFT JOIN user u ON m.sender_id = u.user_id
             LEFT JOIN sport s ON m.sport_id = s.sport_id
-            WHERE m.recipient_id = :recipient_id
+            WHERE m.recipient_id = :recipient_id AND m.status = 'ACTIVE'
             ORDER BY m.sent_at DESC
         ");
         $stmt->execute(['recipient_id' => $recipientId]);

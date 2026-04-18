@@ -1,6 +1,25 @@
 <?php
+require_once __DIR__ . '/../services/EmailService.php';
 
 class EquipmentBookingRequestController {
+
+    private function buildPracticeConflictMessage(array $practiceConflicts, string $requestDate): string {
+        $ranges = [];
+        foreach ($practiceConflicts as $conflict) {
+            $start = !empty($conflict['start_time']) ? substr((string)$conflict['start_time'], 0, 5) : '--:--';
+            $end = !empty($conflict['end_time']) ? substr((string)$conflict['end_time'], 0, 5) : '--:--';
+            $ranges[] = $start . ' to ' . $end;
+        }
+
+        $ranges = array_values(array_unique($ranges));
+        $formattedDate = !empty($requestDate) ? $requestDate : 'the selected date';
+
+        if (count($ranges) === 1) {
+            return 'A practice session that requires equipment is scheduled on ' . $formattedDate . ' from ' . $ranges[0] . '. Equipment for this sport cannot be booked during this time period.';
+        }
+
+        return 'Practice sessions that require equipment are scheduled on ' . $formattedDate . ' during: ' . implode(', ', $ranges) . '. Equipment for this sport cannot be booked during these time periods.';
+    }
 
     /**
      * Display all equipment booking requests
@@ -92,6 +111,18 @@ class EquipmentBookingRequestController {
             echo json_encode(['success' => false, 'message' => 'Missing required fields']);
             exit();
         }
+
+        // Logical Validation: Date and Time
+        $today = date('Y-m-d');
+        if ($data['request_date'] < $today) {
+            echo json_encode(['success' => false, 'message' => 'Request date cannot be in the past']);
+            exit();
+        }
+
+        if (strtotime($data['end_time']) <= strtotime($data['start_time'])) {
+            echo json_encode(['success' => false, 'message' => 'End time must be after start time']);
+            exit();
+        }
         
         $model = new EquipmentBookigRequest();
         
@@ -115,6 +146,27 @@ class EquipmentBookingRequestController {
         if ($hasConflict) {
             echo json_encode(['success' => false, 'message' => 'Time slot already booked for this equipment category']);
             exit();
+        }
+
+        if (!empty($data['sport_id']) && !empty($data['request_date']) && !empty($data['start_time']) && !empty($data['end_time']) && !empty($data['equipment_items']) && is_array($data['equipment_items'])) {
+            $slotConflicts = $model->getItemConflicts(
+                $data['sport_id'],
+                $data['request_date'],
+                $data['start_time'],
+                $data['end_time'],
+                $data['equipment_items'],
+                null,
+                true
+            );
+
+            $practiceConflicts = array_values(array_filter($slotConflicts, function ($conflict) {
+                return isset($conflict['source']) && $conflict['source'] === 'practice';
+            }));
+
+            if (!empty($practiceConflicts)) {
+                echo json_encode(['success' => false, 'message' => $this->buildPracticeConflictMessage($practiceConflicts, (string)$data['request_date'])]);
+                exit();
+            }
         }
         
         $requestId = $model->createRequest($data);
@@ -234,6 +286,39 @@ class EquipmentBookingRequestController {
                 echo json_encode(['success' => false, 'message' => 'Time slot already booked']);
                 exit();
             }
+
+            // Logical Validation: Date and Time
+            $today = date('Y-m-d');
+            if ($data['request_date'] < $today) {
+                echo json_encode(['success' => false, 'message' => 'Request date cannot be in the past']);
+                exit();
+            }
+
+            if (strtotime($data['end_time']) <= strtotime($data['start_time'])) {
+                echo json_encode(['success' => false, 'message' => 'End time must be after start time']);
+                exit();
+            }
+
+            if (!empty($data['sport_id']) && !empty($data['equipment_items']) && is_array($data['equipment_items'])) {
+                $slotConflicts = $model->getItemConflicts(
+                    $data['sport_id'],
+                    $data['request_date'],
+                    $data['start_time'],
+                    $data['end_time'],
+                    $data['equipment_items'],
+                    $data['request_id'],
+                    true
+                );
+
+                $practiceConflicts = array_values(array_filter($slotConflicts, function ($conflict) {
+                    return isset($conflict['source']) && $conflict['source'] === 'practice';
+                }));
+
+                if (!empty($practiceConflicts)) {
+                    echo json_encode(['success' => false, 'message' => $this->buildPracticeConflictMessage($practiceConflicts, (string)$data['request_date'])]);
+                    exit();
+                }
+            }
         }
         
         $requestId = $data['request_id'];
@@ -298,6 +383,21 @@ class EquipmentBookingRequestController {
         $result = $model->updateStatus($data['request_id'], 'ACTIVE');
         
         if ($result) {
+            // Send approval email
+            try {
+                $request = $model->getRequestById($data['request_id']);
+                if ($request) {
+                    $userModel = new User();
+                    $user = $userModel->getUserProfile($request['student_id']);
+                    if ($user) {
+                        $emailService = new EmailService();
+                        $emailService->sendEquipmentRequestStatusEmail($user['email'], $user['fname'], 'ACTIVE', $request);
+                    }
+                }
+            } catch (Exception $e) {
+                error_log("Failed to send equipment approval email: " . $e->getMessage());
+            }
+
             echo json_encode(['success' => true, 'message' => 'Request approved successfully']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to approve request']);
@@ -326,6 +426,21 @@ class EquipmentBookingRequestController {
         $result = $model->updateStatus($data['request_id'], 'REJECTED');
         
         if ($result) {
+            // Send rejection email
+            try {
+                $request = $model->getRequestById($data['request_id']);
+                if ($request) {
+                    $userModel = new User();
+                    $user = $userModel->getUserProfile($request['student_id']);
+                    if ($user) {
+                        $emailService = new EmailService();
+                        $emailService->sendEquipmentRequestStatusEmail($user['email'], $user['fname'], 'REJECTED', $request);
+                    }
+                }
+            } catch (Exception $e) {
+                error_log("Failed to send equipment rejection email: " . $e->getMessage());
+            }
+
             echo json_encode(['success' => true, 'message' => 'Request rejected']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to reject request']);

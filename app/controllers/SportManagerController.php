@@ -4,7 +4,7 @@ class SportManagerController {
     public function index() {
         $userId = $_SESSION['user_id'] ?? null;
         $practiceModel = new SportPracticeSession();
-        $competitionModel = new SportCompetition();
+        $tournamentModel = new TournamentParticipant();
         
         // Get the sport ID from URL parameter, session, or from managed sport
         $selectedSportId = $_GET['sport'] ?? null;
@@ -42,8 +42,8 @@ class SportManagerController {
         // Get today's practice sessions filtered by selected sport
         $todaySessions = $practiceModel->getTodaySessions($filterSportId);
         
-        // Get competitions for current month filtered by selected sport
-        $upcomingCompetitions = $competitionModel->getCompetitionsByMonth($filterSportId, $currentMonth, 10);
+        // Get upcoming tournaments filtered by selected sport
+        $upcomingTournaments = $tournamentModel->getUpcomingTournaments($filterSportId, 5);
         
         // Get all sports for the dropdown
         $db = Database::getConnection();
@@ -58,15 +58,9 @@ class SportManagerController {
         error_log("Managed Sport ID from DB: " . ($managedSportId ?? 'NULL'));
         error_log("FINAL Filter Sport ID: " . ($filterSportId ?? 'NULL'));
         error_log("Today's Sessions Count: " . count($todaySessions));
-        error_log("Competitions Count: " . count($upcomingCompetitions));
-        if (!empty($upcomingCompetitions)) {
-            error_log("First competition: " . json_encode($upcomingCompetitions[0]));
-        }
-        error_log("========================================");
-        
         view('sports-manager/index', [
             'todaySessions' => $todaySessions,
-            'upcomingCompetitions' => $upcomingCompetitions,
+            'upcomingTournaments' => $upcomingTournaments,
             'sports' => $sports,
             'managedSportId' => $filterSportId
         ]);
@@ -121,19 +115,7 @@ class SportManagerController {
         view('sports-manager/practicesessions');
     }
 
-    public function competitions() {
-        // TODO: Fetch actual competition data from database
-        $schedules = []; // Empty for now, will show dummy data
-        view('sports-manager/competitions', ['Schedules' => $schedules]);
-    }
 
-    public function addPractice() {
-        view('sports-manager/add-practice');
-    }
-
-    public function addParticipants() {
-        view('sports-manager/add-participants');
-    }
 
     public function addExpense() {
         view('sports-manager/add-expense');

@@ -17,10 +17,10 @@ class CaptainController {
         $sportTeamModel = new SportTeam();
         $scheduleModel = new Schedule();
 
-        require_once __DIR__ . '/../models/SportCompetition.php';
+        require_once __DIR__ . '/../models/TournamentParticipant.php';
         require_once __DIR__ . '/../models/Tournament.php';
 
-        $competitionModel = new SportCompetition();
+        $tournamentPartModel = new TournamentParticipant();
         $tournamentModel = new Tournament();
 
         // User name
@@ -39,24 +39,14 @@ class CaptainController {
         $sessionCount = $scheduleModel->getSessionCountById($sportId);
 
         /* ===== EVENTS ===== */
-        $upcomingCompetitions = $competitionModel->getCompetitionsByMonth($sportId, date('m'), 5);
-
         $today = date('Y-m-d');
         $allTournaments = $tournamentModel->getTournamentsBySportId($sportId);
 
         $upcomingTournaments = array_filter($allTournaments, function($t) use ($today) {
-            return isset($t['end_date']) && $t['end_date'] >= $today;
+            return (isset($t['start_date']) && $t['start_date'] >= $today) || (isset($t['end_date']) && $t['end_date'] >= $today);
         });
 
         $events = [];
-
-        foreach ($upcomingCompetitions as $comp) {
-            $events[] = [
-                'date' => $comp['date'] ?? $comp['created_at'],
-                'time' => isset($comp['date']) ? date('H:i', strtotime($comp['date'])) : '',
-                'name' => $comp['competition_name'] ?? 'Competition',
-            ];
-        }
 
         foreach ($upcomingTournaments as $tour) {
             $events[] = [
@@ -66,8 +56,9 @@ class CaptainController {
             ];
         }
 
+        // Sort by start date
         usort($events, function($a, $b) {
-            return strtotime($a['date']) <=> strtotime($b['date']);
+            return strtotime($a['start_date']) <=> strtotime($b['start_date']);
         });
 
         view('captain/index', [
@@ -97,41 +88,91 @@ class CaptainController {
         $sportModel = new Sport();
         $sportTeamModel = new SportTeam();
         $userModel = new User();
+        
+        require_once __DIR__ . '/../models/Tournament.php';
+        require_once __DIR__ . '/../models/TournamentParticipant.php';
+        $tournamentModel = new Tournament();
+        $tpModel = new TournamentParticipant();
 
         $sport = $sportModel->getSportByCaptain($userId);
         $sportId = $sport['sport_id'] ?? null;
+        
+        $selectedTournamentId = $_GET['tournament_id'] ?? null;
 
         /* ===== HANDLE ACTIONS ===== */
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+            $tid = $_POST['tournament_id'] ?? null;
+            
             if (isset($_POST['add_member_id'])) {
-                $sportTeamModel->addMember($sportId, $_POST['add_member_id']);
+                if ($tid) {
+                    $tpModel->addParticipants($tid, [$_POST['add_member_id']], $userId);
+                } else {
+                    $sportTeamModel->addMember($sportId, $_POST['add_member_id']);
+                }
             }
 
             if (isset($_POST['remove_member_id'])) {
-                $sportTeamModel->removeMember($sportId, $_POST['remove_member_id']);
+                if ($tid) {
+                    $tpModel->removeParticipant($tid, $_POST['remove_member_id']);
+                } else {
+                    $sportTeamModel->removeMember($sportId, $_POST['remove_member_id']);
+                }
             }
 
-            header("Location: /uoc-sports/public/captain/add-members");
+            $redirect = "/uoc-sports/public/captain/add-members";
+            if ($tid) $redirect .= "?tournament_id=" . $tid;
+            
+            header("Location: " . $redirect);
             exit;
         }
 
         /* ===== DATA ===== */
-        $team_members = $sportTeamModel->getTeamMembers($sportId);
-        $team_ids = array_column($team_members, 'user_id');
-
-        $all_students = $userModel->getEligibleStudents($sportId);
-
-        $available_members = array_filter($all_students, function($s) use ($team_ids) {
-            return !in_array($s['user_id'], $team_ids);
-        });
+        $permittedTournaments = $tournamentModel->getTournamentsBySportId($sportId);
+        
+        if ($selectedTournamentId) {
+            // Manage Tournament Squad (Team Card)
+            // Selected: Participants in this tournament
+            // Available: Members of the general sport team (as per user request "Only general team members eligible")
+            $squad = $tpModel->getParticipants($selectedTournamentId);
+            $team_members = array_map(function($p) {
+                return [
+                    'user_id' => $p['user_id'],
+                    'fname' => $p['first_name'],
+                    'lname' => $p['last_name'],
+                    'student_id' => $p['student_id'],
+                    'faculty_name' => '' // We can join if needed, but let's keep it simple for now
+                ];
+            }, $squad);
+            
+            // Available members: All students enrolled in this sport but not in this squad
+            $all_students = $userModel->getEligibleStudents($sportId);
+            $squadUserIds = array_column($team_members, 'user_id');
+            
+            $available_members = array_filter($all_students, function($m) use ($squadUserIds) {
+                return !in_array($m['user_id'], $squadUserIds);
+            });
+            
+            $is_tournament_mode = true;
+            $current_tournament = $tournamentModel->getTournamentById($selectedTournamentId);
+        } else {
+            // Manage General Sport Team
+            $team_members = $sportTeamModel->getTeamMembers($sportId);
+            $available_members = $sportTeamModel->getMembersNotInTeam($sportId);
+            $is_tournament_mode = false;
+            $current_tournament = null;
+        }
 
         view('captain/add-members', [
             'team_members' => $team_members,
             'available_members' => $available_members,
             'available_total' => count($available_members),
             'selected_total' => count($team_members),
-            'available_slots' => 15 - count($team_members)
+            'available_slots' => 20 - count($team_members), // User requested 20
+            'tournaments' => $permittedTournaments,
+            'selected_tournament_id' => $selectedTournamentId,
+            'is_tournament_mode' => $is_tournament_mode,
+            'current_tournament_name' => $current_tournament['tournament_name'] ?? '',
+            'sport_name' => $sport['sport_name'] ?? ''
         ]);
     }
 
@@ -168,6 +209,17 @@ class CaptainController {
         /* ===== CREATE ===== */
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create'])) {
 
+            $date = $_POST['date'];
+            $start = $_POST['start_time'];
+            $end = $_POST['end_time'];
+
+        // Check conflict
+        if ($scheduleModel->hasTimeConflict($sportId, $date, $start, $end)) {
+         $_SESSION['error'] = "Time conflict! Keep at least 10 minutes gap between sessions.";
+        header("Location: /uoc-sports/public/captain/schedule-practice");
+        exit;
+}
+
             $scheduleModel->create(
                 $sportName,
                 $_POST['date'],
@@ -185,7 +237,17 @@ class CaptainController {
 
         /* ===== UPDATE ===== */
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
+        $date = $_POST['date'];
+        $start = $_POST['start_time'];
+        $end = $_POST['end_time'];
+        $id = $_POST['id'];
 
+        // Check conflict (exclude current session)
+        if ($scheduleModel->hasTimeConflict($sportId, $date, $start, $end, $id)) {
+        $_SESSION['error'] = "Time conflict! Keep at least 10 minutes gap between sessions.";
+        header("Location: /uoc-sports/public/captain/schedule-practice");
+        exit;
+}
             $scheduleModel->update(
                 $_POST['id'],
                 $sportName,
@@ -243,11 +305,11 @@ class CaptainController {
         $teamDetails = [];
 
         foreach ($teamAchievements as $teamAch) {
-            $cid = $teamAch['competition_id'];
+            $tid = $teamAch['tournament_id'];
 
-            $teamDetails[$cid] = [
-                'players' => $achievementsModel->getPlayersByCompetition($sportId, $cid),
-                'individual_achievements' => $achievementsModel->getIndividualAchievementsByCompetition($cid)
+            $teamDetails[$tid] = [
+                'players' => $achievementsModel->getPlayersByCompetition($sportId, $tid),
+                'individual_achievements' => $achievementsModel->getIndividualAchievementsByCompetition($tid)
             ];
         }
 

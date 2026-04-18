@@ -28,9 +28,12 @@ class SportPracticeSession
                     ps.need_equipment,
                     ps.status,
                     ps.created_at,
-                    ps.updated_at
+                    ps.updated_at,
+                    ps.physical_facility_id,
+                    pf.facility_name AS physical_facility_name
                   FROM practice_sessions ps
                   LEFT JOIN sport s ON ps.sport_id = s.sport_id
+                  LEFT JOIN physical_facility pf ON ps.physical_facility_id = pf.facility_id
                   WHERE 1=1";
 
         $params = [];
@@ -111,33 +114,68 @@ class SportPracticeSession
     /**
      * Create a new practice session
      */
-    public function create($data)
-    {
-        // Get sport_id from sport_name
+    public function create($data) {
         $sportId = $this->getSportIdByName($data['sport_name']);
 
         if (!$sportId) {
             throw new Exception("Invalid sport selected");
         }
+        
+        try {
+            $this->db->beginTransaction();
 
-        $query = "INSERT INTO practice_sessions 
-                  (sport_id, added_by, facility, location, session_date, start_time, end_time, need_equipment, status)
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            // Lock the PHYSICAL facility to prevent concurrent threads from racing
+            if (!empty($data['physical_facility_id'])) {
+                $lockSql = "SELECT facility_id FROM physical_facility WHERE facility_id = ? FOR UPDATE";
+                $stmtLock = $this->db->prepare($lockSql);
+                $stmtLock->execute([$data['physical_facility_id']]);
+                
+                // Re-verify the conflict INSIDE the atomic lock
+                $conflictMessage = $this->checkTimeConflict(
+                    $data['physical_facility_id'],
+                    $data['session_date'],
+                    $data['start_time'],
+                    $data['end_time']
+                );
+                
+                if ($conflictMessage) {
+                    $this->db->rollBack();
+                    throw new Exception("Slot was just taken: " . $conflictMessage);
+                }
+            }
 
-        $stmt = $this->db->prepare($query);
-        $result = $stmt->execute([
-            $sportId,
-            $data['added_by'] ?? 'MANAGER',
-            $data['facility'] ?? '',
-            $data['location'] ?? '',
-            $data['session_date'],
-            $data['start_time'],
-            $data['end_time'],
-            $data['need_equipment'] ?? 'No',
-            $data['status'] ?? 'PENDING'
-        ]);
-
-        return $result ? $this->db->lastInsertId() : false;
+            $query = "INSERT INTO practice_sessions 
+                      (sport_id, added_by, facility, location, physical_facility_id, session_date, start_time, end_time, need_equipment, status)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $stmt = $this->db->prepare($query);
+            $result = $stmt->execute([
+                $sportId,
+                $data['added_by'] ?? 'MANAGER',
+                $data['facility'] ?? '',
+                $data['location'] ?? '',
+                $data['physical_facility_id'] ?? null,
+                $data['session_date'],
+                $data['start_time'],
+                $data['end_time'],
+                    $data['need_equipment'] ?? 'No',
+                $data['status'] ?? 'PENDING'
+            ]);
+            
+            if ($result) {
+                $lastId = $this->db->lastInsertId();
+                $this->db->commit();
+                return $lastId;
+            } else {
+                $this->db->rollBack();
+                return false;
+            }
+        } catch (Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -153,31 +191,69 @@ class SportPracticeSession
             }
             $data['sport_id'] = $sportId;
         }
+        
+        try {
+            $this->db->beginTransaction();
 
-        $query = "UPDATE practice_sessions 
-                  SET sport_id = ?,
-                      facility = ?,
-                      location = ?,
-                      session_date = ?,
-                      start_time = ?,
-                      end_time = ?,
-                      need_equipment = ?,
-                      status = ?
-                  WHERE id = ?";
+            if (!empty($data['physical_facility_id'])) {
+                $lockSql = "SELECT facility_id FROM physical_facility WHERE facility_id = ? FOR UPDATE";
+                $stmtLock = $this->db->prepare($lockSql);
+                $stmtLock->execute([$data['physical_facility_id']]);
+                
+                $conflictMessage = $this->checkTimeConflict(
+                    $data['physical_facility_id'],
+                    $data['session_date'],
+                    $data['start_time'],
+                    $data['end_time'],
+                    $id
+                );
+                
+                if ($conflictMessage) {
+                    $this->db->rollBack();
+                    throw new Exception("Slot was just taken: " . $conflictMessage);
+                }
+            }
 
-        $stmt = $this->db->prepare($query);
-        return $stmt->execute([
-            $data['sport_id'] ?? null,
-            $data['facility'] ?? '',
-            $data['location'] ?? '',
-            $data['session_date'],
-            $data['start_time'],
-            $data['end_time'],
+            $query = "UPDATE practice_sessions 
+                      SET sport_id = ?,
+                          facility = ?,
+                          location = ?,
+                          physical_facility_id = ?,
+                          session_date = ?,
+                          start_time = ?,
+                          end_time = ?,
+                              need_equipment = ?,
+                          status = ?
+                      WHERE id = ?";
+            
+            $stmt = $this->db->prepare($query);
+            $result = $stmt->execute([
+                $data['sport_id'] ?? null,
+                $data['facility'] ?? '',
+                $data['location'] ?? '',
+                $data['physical_facility_id'] ?? null,
+                $data['session_date'],
+                $data['start_time'],
+                $data['end_time'],
+             
+                $data['need_equipment'] ?? 'No',
+                $data['status'] ?? 'ACTIVE',
+                $id
+            ]);
 
-            $data['need_equipment'] ?? 'No',
-            $data['status'] ?? 'ACTIVE',
-            $id
-        ]);
+            if ($result) {
+                $this->db->commit();
+                return true;
+            } else {
+                $this->db->rollBack();
+                return false;
+            }
+        } catch (Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     /**
@@ -222,30 +298,115 @@ class SportPracticeSession
     }
 
     /**
-     * Check for time conflicts
+     * Check for time conflicts including practice sessions and facility bookings
      */
-    public function checkTimeConflict($location, $date, $startTime, $endTime, $excludeId = null)
+    public function checkTimeConflict($locationOrId, $date, $startTime, $endTime, $excludeId = null) {
+        // 1. Check for 30-minute intervals
+        $startSeconds = strtotime($startTime);
+        $endSeconds = strtotime($endTime);
+        if ($startSeconds % 1800 !== 0 || $endSeconds % 1800 !== 0) {
+            return "Times must be in 30-minute intervals (e.g., 08:00, 08:30).";
+        }
+
+        $isNumericId = is_numeric($locationOrId);
+        $physicalFacilityId = $isNumericId ? $locationOrId : null;
+        $locationName = !$isNumericId ? $locationOrId : null;
+
+        // 2. Check for other practice sessions
+        $query1 = "SELECT ps.id, s.sport_name, ps.start_time, ps.end_time 
+                   FROM practice_sessions ps
+                   LEFT JOIN sport s ON ps.sport_id = s.sport_id
+                   WHERE session_date = ? 
+                   AND (ps.start_time < ? AND ps.end_time > ?)
+                   AND ps.status NOT IN ('CANCELED', 'CANCELLED')";
+        
+        $params1 = [$date, $endTime, $startTime];
+        
+        if ($physicalFacilityId) {
+            $query1 .= " AND ps.physical_facility_id = ?";
+            $params1[] = $physicalFacilityId;
+        } else {
+            $query1 .= " AND ps.location = ?";
+            $params1[] = $locationName;
+        }
+
+        if ($excludeId) {
+            $query1 .= " AND ps.id != ?";
+            $params1[] = $excludeId;
+        }
+        
+        $stmt1 = $this->db->prepare($query1);
+        $stmt1->execute($params1);
+        $conflict = $stmt1->fetch(PDO::FETCH_ASSOC);
+        
+        if ($conflict) {
+            return $conflict; // Return conflict details for better error message
+        }
+
+        // 3. Check for facility bookings (only if we have physical_facility_id)
+        if ($physicalFacilityId) {
+            $query2 = "SELECT fb.slot 
+                       FROM `facility-booking` fb
+                       INNER JOIN facility_rates fr ON fb.facility_id = fr.id
+                       WHERE fr.facility_id = ?
+                       AND fb.date = ?
+                       AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
+            
+            $stmt2 = $this->db->prepare($query2);
+            $stmt2->execute([$physicalFacilityId, $date]);
+            $bookings = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+            $slots = [
+                'MORNING' => ['08:00:00', '12:00:00'],
+                'AFTERNOON' => ['13:00:00', '17:00:00'],
+                'FULL' => ['08:00:00', '17:00:00']
+            ];
+
+            foreach ($bookings as $b) {
+                $slotRange = $slots[$b['slot']] ?? null;
+                if ($slotRange) {
+                    if ($startTime < $slotRange[1] && $endTime > $slotRange[0]) {
+                        return "Conflict with a facility reservation (" . $b['slot'] . " slot).";
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Check if a practice session already exists for the given sport on a specific date
+     */
+    public function checkDateConflictForSport($sportName, $date, $excludeId = null)
     {
+        $sportId = $this->getSportIdByName($sportName);
+        if (!$sportId) return false;
+
         $query = "SELECT COUNT(*) FROM practice_sessions 
-                  WHERE location = ? 
+                  WHERE sport_id = ? 
                   AND session_date = ? 
-                  AND (
-                      (start_time <= ? AND end_time > ?) OR
-                      (start_time < ? AND end_time >= ?) OR
-                      (start_time >= ? AND end_time <= ?)
-                  )
-                  AND status != 'CANCELLED'";
-
-        $params = [$location, $date, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime];
-
+                  AND status NOT IN ('CANCELED', 'CANCELLED')";
+        
+        $params = [$sportId, $date];
         if ($excludeId) {
             $query .= " AND id != ?";
             $params[] = $excludeId;
         }
-
+        
         $stmt = $this->db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchColumn() > 0;
+    }
+
+
+    /**
+     * Get all physical facilities for dropdown
+     */
+    public function getPhysicalFacilities() {
+        $query = "SELECT facility_id, facility_name, location FROM physical_facility ORDER BY facility_name";
+        $stmt = $this->db->query($query);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**

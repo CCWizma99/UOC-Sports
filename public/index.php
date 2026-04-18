@@ -45,6 +45,7 @@ $router->get('/api/reservation/search', 'ReservationApiController@search');
 $router->get('/api/reservation/locations', 'ReservationApiController@getLocations');
 $router->post('/api/facility/submit-payment-slip', 'FacilityApiController@submitPaymentSlip');
 $router->post('/api/facility/verify-payment', 'FacilityApiController@verifyPayment');
+$router->post('/api/facility/flag-payment', 'FacilityApiController@flagBooking');
 $router->get('/api/reservation/stats', 'ReservationApiController@getReservationStats');
 
 
@@ -79,6 +80,11 @@ $router->get('/add-result/get-sport-fields', 'SportApiController@getSportFields'
 // Captain Match Result API routes
 $router->get('/captain/get-permitted-tournaments', 'CaptainApiController@getPermittedTournaments');
 $router->post('/captain/submit-result', 'CaptainApiController@submitResult');
+$router->post('/captain/submit-overall-awards', 'CaptainApiController@submitOverallAwards');
+$router->get('/captain/get-match-teams', 'CaptainApiController@getMatchTeamsForTournament');
+$router->get('/captain/get-award-titles', 'CaptainApiController@getAwardTitlesForSport');
+$router->get('/captain/get-student-achievements', 'CaptainApiController@getStudentAchievements');
+$router->get('/captain/get-team-roster', 'CaptainApiController@getTeamRoster');
 
 $router->get('/api/playing-teams/get-all', 'PlayingTeamApiController@getAll');
 $router->post('/api/playing-teams/update', 'PlayingTeamApiController@update');
@@ -180,7 +186,7 @@ $router->get('/sport-manager/update-transaction', 'BudgetController@updateTransa
 $router->post('/sport-manager/update-transaction', 'BudgetController@handleUpdateTransaction');
 $router->get('/sport-manager/remaining-budget', 'BudgetController@remainingBudget');
 $router->get('/sport-manager/practicesessions', 'SportPracticeSessionController@index');
-$router->get('/sport-manager/competitions', 'SportCompetitionsController@index');
+$router->get('/sport-manager/tournaments', 'SportTournamentController@index');
 $router->get('/sport-manager/add-practice', 'SportPracticeSessionController@create');
 $router->post('/sport-manager/store-practice', 'SportPracticeSessionController@store');
 $router->get('/sport-manager/edit-practice', 'SportPracticeSessionController@edit');
@@ -188,7 +194,8 @@ $router->post('/sport-manager/update-practice', 'SportPracticeSessionController@
 $router->post('/sport-manager/update-practice-status', 'SportPracticeSessionController@updateStatus');
 $router->get('/sport-manager/check-practice-conflict', 'SportPracticeSessionController@checkConflict');
 $router->post('/sport-manager/delete-practice', 'SportPracticeSessionController@delete');
-$router->get('/sport-manager/add-participants', 'SportCompetitionsController@create');
+$router->get('/sport-manager/add-participants', 'SportTournamentController@create');
+$router->post('/sport-manager/store-participants', 'SportTournamentController@store');
 $router->post('/sport-manager/store-competition', 'SportCompetitionsController@store');
 // $router->post('/sport-manager/delete-competition', 'SportCompetitionsController@delete');
 $router->get('/sport-manager/add-expense', 'SportExpensesController@create');
@@ -213,5 +220,13 @@ $router->post('/sign-up', 'AuthController@handleSignup');
 $router->post('/sign-in', 'AuthController@handleSignin');
 $router->post('sign-up-student', 'AuthController@handleStudentSignup');
 $router->get('/logout', 'AuthController@handleLogout');
+$router->get('/forgot-password', 'AuthController@showForgotPassword');
+$router->post('/forgot-password', 'AuthController@handleForgotPassword');
+$router->get('/reset-password', 'AuthController@showResetPassword');
+$router->post('/reset-password', 'AuthController@handleResetPassword');
+
+$router->get('/captain/get-sport-fields', 'SportApiController@getSportFields');
+
+$router->post('/api/sport-manager/mass-email', 'SportMessagingApiController@sendMassEmail');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

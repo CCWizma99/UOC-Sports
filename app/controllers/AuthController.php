@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../services/EmailService.php';
 
 class AuthController extends BaseController {
     public function showSignupForm($message = null) {
@@ -143,6 +144,9 @@ class AuthController extends BaseController {
             $foundUser = $user->findByEmail($email); // Make sure you have this method
     
             if ($foundUser && password_verify($password, $foundUser['password'])) {
+                // Update last login time
+                $user->updateLastLogin($foundUser['user_id']);
+                
                 // Store user session
                 $_SESSION['user_id'] = $foundUser['user_id'];
                 $_SESSION['user_name'] = $foundUser['fname'];
@@ -215,11 +219,9 @@ class AuthController extends BaseController {
     }  
     
     public function addUser() {
-        global $smtpKey, $senderEmail;
         header('Content-Type: application/json');
     
         try {
-            // Get POST data
             $input = json_decode(file_get_contents('php://input'), true);
     
             $fname = trim($input['fname'] ?? '');
@@ -230,117 +232,131 @@ class AuthController extends BaseController {
             $sport = $input['sport'] ?? null;
             $faculty = $input['faculty'] ?? null;
     
-            // Validation
             if (empty($fname) || empty($lname) || empty($email) || empty($type)) {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'All required fields must be filled.'
-                ]);
+                echo json_encode(['status' => 'error', 'message' => 'All required fields must be filled.']);
                 return;
             }
     
-            // Generate temporary password
             $tempPass = substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 8);
-    
-            // Add user
             $userModel = new User();
-            $shouldChange = 1;
-            $userId = $userModel->addUser($fname, $lname, $email, $type, $phone, $sport, $faculty, $tempPass, $shouldChange);
+            $userId = $userModel->addUser($fname, $lname, $email, $type, $phone, $sport, $faculty, $tempPass, 1);
     
-            // --- Brevo Config (from .env via config.php) ---
-            $apiKey = $smtpKey;
-            $senderAddr = $senderEmail;
+            $emailService = new EmailService();
+            $emailResult = $emailService->sendTempPasswordEmail($email, "$fname $lname", $tempPass);
     
-            if (empty($apiKey) || empty($senderAddr)) {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'User added but email not sent: Brevo API key or sender email missing in .env file.',
-                    'user_id' => $userId
-                ]);
-                return;
-            }
-    
-            // --- Prepare email payload ---
-            $payload = [
-                "sender" => [
-                    "name" => "UOC Sports System",
-                    "email" => $senderAddr
-                ],
-                "to" => [
-                    [
-                        "email" => $email,
-                        "name" => "$fname $lname"
-                    ]
-                ],
-                "subject" => "Your Temporary Password - UOC Sports System",
-                "htmlContent" => "
-                    <html>
-                        <body style='font-family: Arial, sans-serif; color: #333;'>
-                            <h3>Hello $fname,</h3>
-                            <p>Your temporary password is:</p>
-                            <p style='font-size:18px; font-weight:bold; color:#007bff;'>$tempPass</p>
-                            <p>Please change it after your first login.</p>
-                            <hr>
-                            <small>This is an automated email from the UOC Sports System.</small>
-                        </body>
-                    </html>
-                "
-            ];
-    
-            // --- Send email via Brevo ---
-            $ch = curl_init('https://api.brevo.com/v3/smtp/email');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Accept: application/json',
-                'Content-Type: application/json',
-                'api-key: ' . $apiKey
-            ]);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-    
-            $response = curl_exec($ch);
-            $error = curl_error($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-    
-            if ($error) {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => "User added but email not sent (cURL error: $error)",
-                    'user_id' => $userId
-                ]);
-                return;
-            }
-    
-            $respData = json_decode($response, true);
-    
-            // --- Handle response ---
-            if ($httpCode >= 200 && $httpCode < 300 && isset($respData['messageId'])) {
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'User added and email sent successfully.',
-                    'user_id' => $userId
-                ]);
+            if ($emailResult['status'] === 'success') {
+                echo json_encode(['status' => 'success', 'message' => 'User added and email sent successfully.', 'user_id' => $userId]);
             } else {
-                $errorMsg = $respData['message'] ?? 'Unknown Brevo error';
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => "User added but email not sent. Brevo error: $errorMsg",
-                    'user_id' => $userId
-                ]);
+                echo json_encode(['status' => 'error', 'message' => 'User added but email failed: ' . $emailResult['message'], 'user_id' => $userId]);
             }
     
         } catch (Exception $e) {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Error: ' . $e->getMessage()
-            ]);
+            echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
         }
+    }
+
+    public function showForgotPassword() {
+        view('forgot-password');
+    }
+
+    public function handleForgotPassword() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: /uoc-sports/public/forgot-password");
+            exit;
+        }
+
+        $email = $_POST['email'] ?? '';
+        if (empty($email)) {
+            $_SESSION['message'] = "Please enter your email address.";
+            $_SESSION['color'] = "red";
+            header("Location: /uoc-sports/public/forgot-password");
+            exit;
+        }
+
+        $userModel = new User();
+        $user = $userModel->findByEmail($email);
+
+        if ($user) {
+            $token = bin2hex(random_bytes(32));
+            if ($userModel->createPasswordReset($email, $token)) {
+                $emailService = new EmailService();
+                $emailService->sendPasswordResetEmail($email, $user['fname'], $token);
+            }
+        }
+
+        // Always show success message for security (don't reveal if user exists)
+        $_SESSION['message'] = "If an account exists for $email, you will receive a password reset link shortly.";
+        $_SESSION['color'] = "green";
+        header("Location: /uoc-sports/public/forgot-password");
+        exit;
+    }
+
+    public function showResetPassword() {
+        $token = $_GET['token'] ?? '';
+        if (empty($token)) {
+            $_SESSION['message'] = "Invalid or expired reset link.";
+            $_SESSION['color'] = "red";
+            header("Location: /uoc-sports/public/sign-in");
+            exit;
+        }
+
+        $userModel = new User();
+        $resetRequest = $userModel->validatePasswordReset($token);
+
+        if (!$resetRequest) {
+            $_SESSION['message'] = "Invalid or expired reset link.";
+            $_SESSION['color'] = "red";
+            header("Location: /uoc-sports/public/sign-in");
+            exit;
+        }
+
+        view('reset-password', ['token' => $token]);
+    }
+
+    public function handleResetPassword() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: /uoc-sports/public/sign-in");
+            exit;
+        }
+
+        $token = $_POST['token'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+
+        if (empty($token) || empty($password)) {
+            $_SESSION['message'] = "All fields are required.";
+            $_SESSION['color'] = "red";
+            header("Location: /uoc-sports/public/reset-password?token=$token");
+            exit;
+        }
+
+        if ($password !== $confirmPassword) {
+            $_SESSION['message'] = "Passwords do not match.";
+            $_SESSION['color'] = "red";
+            header("Location: /uoc-sports/public/reset-password?token=$token");
+            exit;
+        }
+
+        $userModel = new User();
+        $resetRequest = $userModel->validatePasswordReset($token);
+
+        if (!$resetRequest) {
+            $_SESSION['message'] = "Invalid or expired reset link.";
+            $_SESSION['color'] = "red";
+            header("Location: /uoc-sports/public/sign-in");
+            exit;
+        }
+
+        if ($userModel->resetPassword($resetRequest['user_id'], $password)) {
+            $_SESSION['message'] = "Password reset successful! You can now sign in.";
+            $_SESSION['color'] = "green";
+            header("Location: /uoc-sports/public/sign-in");
+        } else {
+            $_SESSION['message'] = "Failed to reset password. Please try again.";
+            $_SESSION['color'] = "red";
+            header("Location: /uoc-sports/public/reset-password?token=$token");
+        }
+        exit;
     }
 
     public function handleLogout() {

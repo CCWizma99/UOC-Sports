@@ -23,7 +23,6 @@ function switchTab(tabId, btn) {
     document.getElementById('tab-' + tabId).classList.add('active');
     btn.classList.add('active');
 }
-
 // ── Load Dashboard Data ──
 let equipmentDeepData = null;
 let facilityDeepData = null;
@@ -36,25 +35,25 @@ async function loadDashboard() {
             fetch('/uoc-sports/public/admin-equipments/analytics').catch(() => null),
             fetch('/uoc-sports/public/admin-reservations/analytics').catch(() => null)
         ]);
-        
+
         const result = await mainRes.json();
-        
+
         // Try parse equipment deep analytics
         try {
             if (equipRes && equipRes.ok) {
                 const eqResult = await equipRes.json();
                 if (eqResult.status === 'success') equipmentDeepData = eqResult.data;
             }
-        } catch(e) {}
-        
+        } catch (e) { }
+
         // Try parse facility deep analytics
         try {
             if (facRes && facRes.ok) {
                 const facResult = await facRes.json();
                 if (facResult.status === 'success') facilityDeepData = facResult.data;
             }
-        } catch(e) {}
-        
+        } catch (e) { }
+
         if (result.status === 'success') {
             dashboardData = result.data;
             renderKPICards();
@@ -79,7 +78,7 @@ async function loadDashboard() {
 function renderKPICards() {
     const container = document.getElementById('kpi-cards');
     const { users, reservations, equipment, events, budget } = dashboardData;
-    
+
     container.innerHTML = `
         <div class="kpi-card users">
             <div class="kpi-icon"><i class="fas fa-users"></i></div>
@@ -104,7 +103,7 @@ function renderKPICards() {
             <div class="kpi-content">
                 <div class="kpi-value">${equipment.total_quantity.toLocaleString()}</div>
                 <div class="kpi-label">Equipment Items</div>
-                <div class="kpi-sub">${equipment.needs_attention} need attention</div>
+                <div class="kpi-sub">${equipment.needs_attention} Damaged</div>
             </div>
         </div>
         
@@ -135,7 +134,7 @@ function renderUsersTab() {
     const container = document.getElementById('users-grid');
     const { users, insights } = dashboardData;
     const { athlete_engagement } = insights;
-    
+
     container.innerHTML = `
         <div class="insight-card wide horizontal-overview">
             <div class="overview-title">
@@ -188,14 +187,33 @@ function renderUsersTab() {
                 </div>
             </div>
         </div>
+
+        <div class="insight-card wide faculty-breakdown-card">
+            ${cardHeader('fa-users-viewfinder', 'Faculty Students Breakdown', 'Non-athlete and athlete student counts across faculties')}
+            <div class="card-content faculty-breakdown-content">
+                <div class="chart-wrapper faculty-chart-wrapper"><canvas id="chart-faculty-users"></canvas></div>
+            </div>
+        </div>
     `;
 
     // Render user distribution donut chart
-    const typeLabels = { STUDENT:'Student', ADMIN:'Admin', COACH:'Coach', CAPTAIN:'Captain', SPT:'Sport Manager', EQP:'Equipment Manager', REG:'Registrar' };
+    const typeLabels = { STUDENT: 'Student', ADMIN: 'Admin', COACH: 'Coach', CAPTAIN: 'Captain', SPT: 'Sport Manager', EQP: 'Equipment Manager', REG: 'Registrar' };
     if (users.type_distribution && users.type_distribution.length > 0) {
         createPieChart('chart-user-distribution',
             users.type_distribution.map(d => typeLabels[d.type] || d.type),
             users.type_distribution.map(d => d.count));
+    }
+
+    // Render faculty wise stacked bar chart
+    if (users.faculty_wise_stats && users.faculty_wise_stats.length > 0) {
+        const labels = users.faculty_wise_stats.map(f => f.faculty_name);
+        const nonAthletes = users.faculty_wise_stats.map(f => f.non_athlete_count);
+        const athletes = users.faculty_wise_stats.map(f => f.athlete_count);
+
+        createStackedBarChart('chart-faculty-users', labels, [
+            { label: 'Non-Athletes', data: nonAthletes, backgroundColor: '#8b5cf6' },
+            { label: 'Athletes', data: athletes, backgroundColor: '#06b6d4' }
+        ]);
     }
 }
 
@@ -206,7 +224,7 @@ function renderFacilitiesTab() {
     const container = document.getElementById('facilities-grid');
     const { reservations, facility_analytics, insights } = dashboardData;
     const { facility_demand } = insights;
-    
+
     container.innerHTML = `
         <div class="insight-card wide horizontal-overview">
             <div class="overview-title">
@@ -238,8 +256,8 @@ function renderFacilitiesTab() {
             <div class="card-content">
                 ${facility_analytics.utilization.length > 0 ? `
                     <div class="data-list">${facility_analytics.utilization.map(f => {
-                        const deepMatch = facilityDeepData && facilityDeepData.utilization ? facilityDeepData.utilization.find(u => u.facility_name === f.facility_name) : null;
-                        return `
+        const deepMatch = facilityDeepData && facilityDeepData.utilization ? facilityDeepData.utilization.find(u => u.facility_name === f.facility_name) : null;
+        return `
                         <div class="data-row">
                             <div class="data-info">
                                 <span class="name">${truncName(f.facility_name)}</span>
@@ -247,7 +265,7 @@ function renderFacilitiesTab() {
                             </div>
                             <span class="data-value">${deepMatch ? deepMatch.utilization_rate + '%' : f.total_bookings + ' total'}</span>
                         </div>`;
-                    }).join('')}</div>
+    }).join('')}</div>
                 ` : '<p class="no-data">No facility data available</p>'}
             </div>
         </div>
@@ -255,9 +273,9 @@ function renderFacilitiesTab() {
         <div class="insight-card">
             ${cardHeader('fa-fire', 'Top Facilities by Demand', 'Most booked facilities ranked by total reservations')}
             <div class="card-content">
-                ${facility_demand.top_facilities.length > 0 ? 
-                    renderBarChart(facility_demand.top_facilities, 'facility_name', 'total_bookings') 
-                    : '<p class="no-data">No demand data</p>'}
+                ${facility_demand.top_facilities.length > 0 ?
+            renderBarChart(facility_demand.top_facilities, 'facility_name', 'total_bookings')
+            : '<p class="no-data">No demand data</p>'}
             </div>
         </div>
         
@@ -265,8 +283,8 @@ function renderFacilitiesTab() {
             ${cardHeader('fa-chart-line', 'Monthly Booking Trend', 'Reservation volume over recent months')}
             <div class="card-content">
                 ${facility_analytics.monthly_trend.length > 0 ?
-                    '<div class="chart-wrapper line-chart"><canvas id="chart-booking-trend"></canvas></div>'
-                    : '<p class="no-data">No trend data available</p>'}
+            '<div class="chart-wrapper line-chart"><canvas id="chart-booking-trend"></canvas></div>'
+            : '<p class="no-data">No trend data available</p>'}
             </div>
         </div>
     `;
@@ -276,12 +294,12 @@ function renderFacilitiesTab() {
         let deepCards = '';
         const d = facilityDeepData;
         if (d.high_demand && d.high_demand.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-fire', 'High Demand Facilities', 'Facilities with highest daily demand rate')}<div class="card-content"><div class="data-list">${d.high_demand.slice(0,6).map(item => `
+            deepCards += `<div class="insight-card">${cardHeader('fa-fire', 'High Demand Facilities', 'Facilities with highest daily demand rate')}<div class="card-content"><div class="data-list">${d.high_demand.slice(0, 6).map(item => `
                 <div class="data-row"><div class="data-info"><span class="name">${truncName(item.facility_name)}</span><span class="sub">${item.facility_type} &bull; ${item.bookings_last_30_days} bookings/mo</span></div><span class="data-value" style="color:#ef4444">${item.daily_demand_rate}% daily</span></div>
             `).join('')}</div></div></div>`;
         }
         if (d.peak_days && d.peak_days.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-calendar-week', 'Peak Booking Days', 'Days with highest facility reservation volume')}<div class="card-content">${renderBarChart(d.peak_days.slice(0,5), 'day_name', 'booking_count')}</div></div>`;
+            deepCards += `<div class="insight-card">${cardHeader('fa-calendar-week', 'Peak Booking Days', 'Days with highest facility reservation volume')}<div class="card-content">${renderBarChart(d.peak_days.slice(0, 5), 'day_name', 'booking_count')}</div></div>`;
         }
         if (d.user_type && d.user_type.length) {
             deepCards += `<div class="insight-card">${cardHeader('fa-users', 'Booking by User Type', 'Reservation distribution across user roles')}<div class="card-content">${renderBarChart(d.user_type, 'user_type', 'booking_count')}</div></div>`;
@@ -290,7 +308,7 @@ function renderFacilitiesTab() {
             deepCards += `<div class="insight-card">${cardHeader('fa-building', 'Facility Type Distribution', 'Booking volume across different facility types')}<div class="card-content">${renderBarChart(d.facility_type, 'facility_type', 'booking_count')}</div></div>`;
         }
         if (d.underutilized && d.underutilized.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-box-open', 'Underutilized Facilities', 'Facilities with low or no recent bookings')}<div class="card-content"><div class="data-list">${d.underutilized.slice(0,6).map(item => `
+            deepCards += `<div class="insight-card">${cardHeader('fa-box-open', 'Underutilized Facilities', 'Facilities with low or no recent bookings')}<div class="card-content"><div class="data-list">${d.underutilized.slice(0, 6).map(item => `
                 <div class="data-row"><div class="data-info"><span class="name">${truncName(item.facility_name)}</span><span class="sub">${item.facility_type} &bull; ${item.total_bookings} bookings</span></div><span class="data-value" style="color:#d97706">${item.days_since_last_booking ? item.days_since_last_booking + 'd idle' : 'Never'}</span></div>
             `).join('')}</div></div></div>`;
         }
@@ -299,7 +317,7 @@ function renderFacilitiesTab() {
 
     // Render line chart for booking trend
     if (facility_analytics.monthly_trend.length > 0) {
-        createLineChart('chart-booking-trend', 
+        createLineChart('chart-booking-trend',
             facility_analytics.monthly_trend.map(t => t.month),
             facility_analytics.monthly_trend.map(t => t.bookings),
             'Bookings');
@@ -312,7 +330,7 @@ function renderFacilitiesTab() {
 function renderEquipmentTab() {
     const container = document.getElementById('equipment-grid');
     const { equipment, equipment_analytics } = dashboardData;
-    
+
     container.innerHTML = `
         <div class="insight-card wide horizontal-overview">
             <div class="overview-title">
@@ -339,8 +357,8 @@ function renderEquipmentTab() {
             ${cardHeader('fa-trophy', 'Equipment by Sport', 'Distribution of equipment items across sports')}
             <div class="card-content">
                 ${equipment_analytics.by_sport.length > 0 ?
-                    '<div class="chart-wrapper"><canvas id="chart-equipment-sport"></canvas></div>'
-                    : '<p class="no-data">No equipment data</p>'}
+            '<div class="chart-wrapper"><canvas id="chart-equipment-sport"></canvas></div>'
+            : '<p class="no-data">No equipment data</p>'}
             </div>
         </div>
         
@@ -385,31 +403,31 @@ function renderEquipmentTab() {
         let deepCards = '';
         const d = equipmentDeepData;
         if (d.utilization && d.utilization.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-chart-pie', 'Utilization Rate', 'How frequently each equipment item is booked')}<div class="card-content"><div class="data-list">${d.utilization.slice(0,8).map(item => `
+            deepCards += `<div class="insight-card">${cardHeader('fa-chart-pie', 'Utilization Rate', 'How frequently each equipment item is booked')}<div class="card-content"><div class="data-list">${d.utilization.slice(0, 8).map(item => `
                 <div class="data-row"><div class="data-info"><span class="name">${truncName(item.equipment_name)}</span><span class="sub">${item.sport_name}</span></div><span class="data-value">${item.utilization_rate}%</span></div>
             `).join('')}</div></div></div>`;
         }
         if (d.high_demand && d.high_demand.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-fire', 'High Demand Items', 'Equipment with highest demand pressure ratio')}<div class="card-content"><div class="data-list">${d.high_demand.slice(0,6).map(item => `
+            deepCards += `<div class="insight-card">${cardHeader('fa-fire', 'High Demand Items', 'Equipment with highest demand pressure ratio')}<div class="card-content"><div class="data-list">${d.high_demand.slice(0, 6).map(item => `
                 <div class="data-row"><div class="data-info"><span class="name">${truncName(item.equipment_name)}</span><span class="sub">${item.sport_name} &bull; ${item.total_bookings_last_30_days} bookings/mo</span></div><span class="data-value" style="color:#ef4444">${item.demand_pressure}%</span></div>
             `).join('')}</div></div></div>`;
         }
         if (d.peak_hours && d.peak_hours.length) {
             const maxH = Math.max(...d.peak_hours.map(h => h.booking_count));
             deepCards += `<div class="insight-card">${cardHeader('fa-clock', 'Peak Booking Hours', 'Busiest hours for equipment checkouts')}<div class="card-content"><div class="bar-chart">${d.peak_hours.map(item => `
-                <div class="bar-row"><span class="bar-label">${formatHour(item.hour)}</span><div class="bar-track"><div class="bar-fill" style="width:${(item.booking_count/maxH)*100}%"></div></div><span class="bar-value">${item.booking_count}</span></div>
+                <div class="bar-row"><span class="bar-label">${formatHour(item.hour)}</span><div class="bar-track"><div class="bar-fill" style="width:${(item.booking_count / maxH) * 100}%"></div></div><span class="bar-value">${item.booking_count}</span></div>
             `).join('')}</div></div></div>`;
         }
         if (d.peak_days && d.peak_days.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-calendar-week', 'Peak Booking Days', 'Days of the week with most equipment bookings')}<div class="card-content">${renderBarChart(d.peak_days.slice(0,5), 'day_name', 'booking_count')}</div></div>`;
+            deepCards += `<div class="insight-card">${cardHeader('fa-calendar-week', 'Peak Booking Days', 'Days of the week with most equipment bookings')}<div class="card-content">${renderBarChart(d.peak_days.slice(0, 5), 'day_name', 'booking_count')}</div></div>`;
         }
         if (d.condition_alerts && d.condition_alerts.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-wrench', 'Condition Alerts', 'Equipment with damage or wear issues')}<div class="card-content"><div class="data-list">${d.condition_alerts.slice(0,6).map(item => `
+            deepCards += `<div class="insight-card">${cardHeader('fa-wrench', 'Condition Alerts', 'Equipment with damage or wear issues')}<div class="card-content"><div class="data-list">${d.condition_alerts.slice(0, 6).map(item => `
                 <div class="data-row"><div class="data-info"><span class="name">${truncName(item.equipment_name)}</span><span class="sub">${item.sport_name} &bull; ${item.damaged_count}/${item.total_stock} damaged</span></div><span class="data-value" style="color:#ef4444">${item.damage_rate}%</span></div>
             `).join('')}</div></div></div>`;
         }
         if (d.underutilized && d.underutilized.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-box-open', 'Underutilized Equipment', 'Items with low or no recent booking activity')}<div class="card-content"><div class="data-list">${d.underutilized.slice(0,6).map(item => `
+            deepCards += `<div class="insight-card">${cardHeader('fa-box-open', 'Underutilized Equipment', 'Items with low or no recent booking activity')}<div class="card-content"><div class="data-list">${d.underutilized.slice(0, 6).map(item => `
                 <div class="data-row"><div class="data-info"><span class="name">${truncName(item.equipment_name)}</span><span class="sub">${item.sport_name} &bull; ${item.available_stock} in stock</span></div><span class="data-value" style="color:#d97706">${item.days_since_last_booking ? item.days_since_last_booking + 'd idle' : 'Never'}</span></div>
             `).join('')}</div></div></div>`;
         }
@@ -437,7 +455,7 @@ function renderBudgetTab() {
     const container = document.getElementById('budget-grid');
     const { budget, insights } = dashboardData;
     const { budget_efficiency } = insights;
-    
+
     container.innerHTML = `
         <div class="insight-card wide horizontal-overview">
             <div class="overview-title">
@@ -492,6 +510,13 @@ function renderBudgetTab() {
                 ` : '<p class="no-data">No budget data available</p>'}
             </div>
         </div>
+
+        <div class="insight-card">
+            ${cardHeader('fa-chart-line', 'Budget Trend', 'Budget allocation vs spending over recent months')}
+            <div class="card-content">
+                <div class="chart-wrapper line-chart"><canvas id="chart-budget-trend"></canvas></div>
+            </div>
+        </div>
     `;
 
     // Render budget donut chart
@@ -499,6 +524,63 @@ function renderBudgetTab() {
         ['Spent', 'Remaining'],
         [Number(budget.spent), Number(budget.remaining)],
         ['#ef4444', '#059669']);
+
+    if (budget.allocated && budget.utilization.length > 0) {
+        const months = ['Start', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        // Build lookup from API data
+        const lookup = {};
+        budget.utilization.forEach(item => {
+            lookup[item.month] = Number(item.spent_amount);
+        });
+
+        // Cumulative allocation — starts at 0, grows each month
+        const monthlyAllocation = Number(budget.allocated) / 12;
+        const cumulativeAllocation = [0, ...months.slice(1).map((_, i) =>
+            parseFloat((monthlyAllocation * (i + 1)).toFixed(2))
+        )];
+
+        // Cumulative spend — starts at 0, fills in known months
+        let runningTotal = 0;
+        let hasStarted = false;
+        const cumulativeSpend = [0, ...months.slice(1).map(m => {
+            if (lookup[m] !== undefined) {
+                hasStarted = true;
+                runningTotal += lookup[m];
+                return runningTotal;
+            }
+            return hasStarted ? null : 0;  // 0 before first data, null after last
+        })];
+
+        createMultiLineChart('chart-budget-trend', months, [
+            {
+                label: 'Budget Target',
+                data: cumulativeAllocation,
+                borderColor: '#6b21a8',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [6, 4],
+                tension: 0,
+                pointRadius: 0,
+                fill: false
+            },
+            {
+                label: 'Actual Spend',
+                data: cumulativeSpend,
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                borderWidth: 2.5,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#ef4444',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                spanGaps: false,
+                fill: true
+            }
+        ]);
+    }
 }
 
 // ══════════════════════════════════════════
@@ -507,7 +589,7 @@ function renderBudgetTab() {
 function renderAchievementsTab() {
     const container = document.getElementById('achievements-grid');
     const { events, achievements } = dashboardData;
-    
+
     container.innerHTML = `
         <div class="insight-card wide horizontal-overview">
             <div class="overview-title">
@@ -555,8 +637,8 @@ function renderAchievementsTab() {
             ${cardHeader('fa-chart-bar', 'Achievements by Sport', 'Award distribution across different sports')}
             <div class="card-content">
                 ${achievements.by_sport.length > 0 ?
-                    renderBarChart(achievements.by_sport, 'sport_name', 'count')
-                    : '<p class="no-data">No sport achievements data</p>'}
+            renderBarChart(achievements.by_sport, 'sport_name', 'count')
+            : '<p class="no-data">No sport achievements data</p>'}
             </div>
         </div>
         
@@ -586,7 +668,7 @@ function renderAchievementsTab() {
 function renderCommunityTab() {
     const container = document.getElementById('community-grid');
     const { community } = dashboardData;
-    
+
     container.innerHTML = `
         <div class="insight-card wide horizontal-overview">
             <div class="overview-title">
@@ -752,43 +834,88 @@ function createPieChart(canvasId, labels, data, colors = null) {
                 borderColor: '#fff',
                 borderWidth: 2,
                 hoverOffset: 8
-			}]
-		},
-		options: {
-			responsive: true,
-			maintainAspectRatio: true,
-			cutout: '55%',
-			plugins: {
-				legend: {
-					position: 'bottom',
-					labels: {
-						padding: 12,
-						usePointStyle: true,
-						pointStyle: 'circle',
-						font: { family: 'Inter', size: 11, weight: 500 }
-					}
-				},
-				tooltip: {
-					backgroundColor: '#1a1a2e',
-					titleFont: { family: 'Inter', weight: 600 },
-					bodyFont: { family: 'Inter' },
-					padding: 12,
-					cornerRadius: 8,
-					callbacks: {
-						label: function(ctx) {
-							const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-							const pct = ((ctx.parsed / total) * 100).toFixed(1);
-							return ` ${ctx.label}: ${ctx.parsed.toLocaleString()} (${pct}%)`;
-						}
-					}
-				}
-			},
-			animation: {
-				animateRotate: true,
-				duration: 800
-			}
-		}
-	});
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '55%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        font: { family: 'Inter', size: 11, weight: 500 }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#1a1a2e',
+                    titleFont: { family: 'Inter', weight: 600 },
+                    bodyFont: { family: 'Inter' },
+                    padding: 12,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function (ctx) {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                            return ` ${ctx.label}: ${ctx.parsed.toLocaleString()} (${pct}%)`;
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateRotate: true,
+                duration: 800
+            }
+        }
+    });
+}
+
+function createStackedBarChart(canvasId, labels, datasets) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+
+    if (activeCharts[canvasId]) activeCharts[canvasId].destroy();
+
+    activeCharts[canvasId] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    stacked: true,
+                    grid: { display: false }
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        font: { family: 'Inter', size: 12 }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#1a1a2e',
+                    titleFont: { family: 'Inter', weight: 600 },
+                    bodyFont: { family: 'Inter' },
+                    padding: 10,
+                    cornerRadius: 6
+                }
+            }
+        }
+    });
 }
 
 function createLineChart(canvasId, labels, data, label) {
@@ -846,6 +973,55 @@ function createLineChart(canvasId, labels, data, label) {
                     grid: { color: 'rgba(0,0,0,0.05)' },
                     ticks: {
                         font: { family: 'Inter', size: 11 },
+                        color: '#888'
+                    }
+                }
+            },
+            animation: {
+                duration: 800
+            }
+        }
+    });
+}
+
+function createMultiLineChart(canvasId, labels, datasets) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+
+    if (activeCharts[canvasId]) activeCharts[canvasId].destroy();
+
+    activeCharts[canvasId] = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: { display: true },
+                tooltip: {
+                    backgroundColor: '#1a1a2e',
+                    padding: 12,
+                    cornerRadius: 8
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#888'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: {
                         color: '#888'
                     }
                 }

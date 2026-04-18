@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sports manager - Add Practice Session</title>
+  <title>Sports manager - <?= isset($session) ? 'Edit' : 'Add' ?> Practice Session</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
@@ -33,6 +33,7 @@
 <body>
 <?php
     require "../app/views/templates/general/header.php";
+     $minRequestDate = date('Y-m-d', strtotime('today'));
 ?>
 
         <div class="main-wrapper">
@@ -45,8 +46,8 @@
 
                     <p class="page-path">Sport Manager / Practice Sessions / Add Practice Session</p>
 
-                    <h2>Add Practice Session</h2>
-                    <p>Schedule a new practice session</p>
+                    <h2><?= isset($session) ? 'Edit' : 'Add' ?> Practice Session</h2>
+                    <p><?= isset($session) ? 'Update practice session details' : 'Schedule a new practice session' ?></p>
                 </div>
                
             </div>
@@ -56,14 +57,19 @@
             if (isset($_GET['sport'])) {
                 $db = Database::getConnection();
                 $stmt = $db->prepare("SELECT sport_name FROM sport WHERE sport_id = ?");
-                $stmt->execute([$_GET['sport']]);
+                $stmt->execute([isset($session) ? ($session['sport_id'] ?? $_GET['sport']) : $_GET['sport']]);
                 $sportResult = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($sportResult) {
                     $selectedSportFromUrl = $sportResult['sport_name'];
                 }
+            } elseif (isset($session['sport_name'])) {
+                $selectedSportFromUrl = $session['sport_name'];
             }
             ?>
-            <form id="addPracticeForm" class="form" method="POST" action="/uoc-sports/public/sport-manager/store-practice<?= isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '' ?>">
+            <form id="addPracticeForm" class="form" method="POST" action="/uoc-sports/public/sport-manager/<?= isset($session) ? 'update-practice' : 'store-practice' ?><?= isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '' ?>">
+                <?php if (isset($session)): ?>
+                    <input type="hidden" name="id" value="<?= htmlspecialchars($session['id']) ?>">
+                <?php endif; ?>
                 <?php if (isset($_GET['sport'])): ?>
                     <input type="hidden" name="sport_param" value="<?php echo htmlspecialchars($_GET['sport']); ?>">
                 <?php endif; ?>
@@ -114,41 +120,63 @@
 
                     <div class="form-group">
                         <label for="practiceSessionDate">Practice Session Date <span class="required-star">*</span></label>
-                        <input type="date" id="practiceSessionDate" name="date" required>
+                        <input type="date" id="practiceSessionDate" name="date" min="<?php echo htmlspecialchars($minRequestDate); ?>" value="<?= isset($session) ? htmlspecialchars($session['session_date']) : '' ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="startTime">Start Time <span class="required-star">*</span></label>
-                        <input type="time" id="startTime" name="stime" required>
+                        <input type="time" id="startTime" name="stime" min="06:00" max="20:00" step="1800" value="<?= isset($session) ? htmlspecialchars($session['start_time']) : '' ?>" required>
+                        <small>Use 30-minute intervals (e.g. 08:00, 08:30)</small>
                     </div>
 
                     <div class="form-group">
                         <label for="endTime">End Time <span class="required-star">*</span></label>
-                        <input type="time" id="endTime" name="etime" required>
+                        <input type="time" id="endTime" name="etime" min="06:00" max="20:00" step="1800" value="<?= isset($session) ? htmlspecialchars($session['end_time']) : '' ?>" required>
+                        <small>Use 30-minute intervals</small>
                     </div>
 
                     <div class="form-group">
                         <label for="needEquipment">Need Equipment <span class="required-star">*</span></label>
                         <select id="needEquipment" name="need_equipment" required>
-                            <option value="No">No</option>
-                            <option value="Yes">Yes</option>
+                            <option value="No" <?= (isset($session) && ($session['need_equipment'] ?? 'No') === 'No') ? 'selected' : '' ?>>No</option>
+                            <option value="Yes" <?= (isset($session) && ($session['need_equipment'] ?? 'No') === 'Yes') ? 'selected' : '' ?>>Yes</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Location <span class="required-star">*</span></label>
-                        <select id="location" name="location" required>
-                            <option>Select the Location</option>
-                            <option value="Indoor Court">Indoor Tennis Court</option>
-                            <option value="Indoor court">Indoor Badminton Court</option>
-                            <option value="Outdoor Court">Outdoor Basketball court</option>
-                            <option value="Outdoor Field">Outdoor Baseball court</option>
-                            <option value="Outdoor Field">Indoor volleyball court</option>
-                            <option value="Outdoor Field">Outdoor Cricket Field</option>
-                            <option value="Swimming Pool">Elle Field</option>
-                            <option value="Carrom room">Carrom Room</option>
+                        <label for="location">Physical Facility *</label>
+                        <select id="location" name="physical_facility_id" required onchange="updateLocationName(this)">
+                            <option value="">Select the Facility</option>
+                            <?php if (!empty($facilities)): ?>
+                                <?php foreach ($facilities as $facility): ?>
+                                    <option value="<?= htmlspecialchars($facility['facility_id']) ?>" 
+                                            data-name="<?= htmlspecialchars($facility['facility_name']) ?>">
+                                        <?= htmlspecialchars($facility['facility_name']) ?> (<?= htmlspecialchars($facility['location']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                        <input type="hidden" name="location_name" id="location_name">
+                        <script>
+                            function updateLocationName(select) {
+                                const selectedOption = select.options[select.selectedIndex];
+                                const name = selectedOption.getAttribute('data-name');
+                                document.getElementById('location_name').value = name || '';
+                            }
+                        </script>
+                    </div>
+
+                    <?php if (isset($session)): ?>
+                    <div class="form-group">
+                        <label for="status">Status <span class="required-star">*</span></label>
+                        <select id="status" name="status" required>
+                           
+                            <option value="ACTIVE" <?= $session['status'] === 'ACTIVE' ? 'selected' : '' ?>>ACTIVE</option>
+                            <option value="ACCEPTED" <?= $session['status'] === 'ACCEPTED' ? 'selected' : '' ?>>ACCEPTED</option>
+                            <option value="CANCELED" <?= $session['status'] === 'CANCELED' ? 'selected' : '' ?>>CANCELED</option>
                         </select>
                     </div>
+                    <?php endif; ?>
 
 
                 </div>
@@ -158,7 +186,7 @@
                        Cancel
                     </button>
                     <button type="submit">
-                       Add Practice Session
+                       <?= isset($session) ? 'Update' : 'Add' ?> Practice Session
                     </button>
                 </div>
             </form>
@@ -167,6 +195,7 @@
 
 <script>
 const addPracticeForm = document.getElementById('addPracticeForm');
+const sportField = document.getElementById('sport');
 const locationField = document.getElementById('location');
 const dateField = document.getElementById('practiceSessionDate');
 const startTimeField = document.getElementById('startTime');
@@ -175,6 +204,7 @@ const conflictAlert = document.getElementById('practiceConflictAlert');
 const conflictAlertText = document.getElementById('practiceConflictAlertText');
 let hasPracticeConflict = false;
 let conflictCheckTimer = null;
+const currentSessionId = <?= isset($session) ? (int)$session['id'] : 'null' ?>;
 
 function showPracticeConflict(message) {
     hasPracticeConflict = true;
@@ -189,22 +219,28 @@ function hidePracticeConflict() {
 }
 
 function checkPracticeConflictLive() {
+    const sport = sportField.value.trim();
     const location = locationField.value.trim();
     const date = dateField.value.trim();
     const startTime = startTimeField.value.trim();
     const endTime = endTimeField.value.trim();
 
-    if (!location || !date || !startTime || !endTime) {
+    if (!sport || !date) {
         hidePracticeConflict();
         return;
     }
 
     const params = new URLSearchParams({
+        sport: sport,
         location: location,
         date: date,
         start_time: startTime,
         end_time: endTime
     });
+
+    if (currentSessionId !== null) {
+        params.append('exclude_id', currentSessionId);
+    }
 
     fetch('/uoc-sports/public/sport-manager/check-practice-conflict?' + params.toString())
         .then(response => response.json())
@@ -229,10 +265,15 @@ function queuePracticeConflictCheck() {
     conflictCheckTimer = setTimeout(checkPracticeConflictLive, 250);
 }
 
-[locationField, dateField, startTimeField, endTimeField].forEach((field) => {
+[sportField, locationField, dateField, startTimeField, endTimeField].forEach((field) => {
     field.addEventListener('change', queuePracticeConflictCheck);
     field.addEventListener('input', queuePracticeConflictCheck);
 });
+
+// Run conflict check on page load if editing
+if (currentSessionId !== null) {
+    queuePracticeConflictCheck();
+}
 
 addPracticeForm.addEventListener('submit', function(e) {
     if (hasPracticeConflict) {
@@ -242,9 +283,10 @@ addPracticeForm.addEventListener('submit', function(e) {
 });
 </script>
 
- <?php
-    require "../app/views/templates/general/footer.php";
-?>
+ 
 
 </body>
+<?php
+    require "../app/views/templates/general/footer.php";
+?>
 </html>

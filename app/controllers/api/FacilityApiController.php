@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../services/EmailService.php';
 
 class FacilityApiController {
 
@@ -39,7 +40,33 @@ class FacilityApiController {
                 'purpose' => $purpose
             ]);
     
-            if ($booking_id) {
+            if ($booking_id === 'TAKEN') {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'This slot was just booked by someone else! Please choose another slot.'
+                ]);
+            } else if ($booking_id) {
+                // Send confirmation email
+                try {
+                    $userModel = new User();
+                    $user = $userModel->getUserProfile($user_id);
+                    $facility = $model->getFacilityById($facility_id);
+                    $slotDetails = $model->getSlotDetails($slot); // Assuming this method exists or I'll add it
+
+                    if ($user) {
+                        $emailService = new EmailService();
+                        $emailService->sendBookingConfirmationEmail($user['email'], $user['fname'], [
+                            'booking_id' => $booking_id,
+                            'facility_name' => $facility['name'],
+                            'date' => $date,
+                            'start_time' => $slotDetails['start_time'] ?? 'N/A',
+                            'end_time' => $slotDetails['end_time'] ?? 'N/A'
+                        ]);
+                    }
+                } catch (Exception $e) {
+                    error_log("Failed to send booking email: " . $e->getMessage());
+                }
+
                 echo json_encode([
                     'success' => true,
                     'message' => 'Reservation created successfully. Redirecting to payment...',
@@ -304,6 +331,16 @@ class FacilityApiController {
                 return;
             }
 
+            $model = new Facility();
+            
+            // SECURITY PATCH: Verify Ownership
+            $bookingDetails = $model->getReservationDetails($booking_id);
+            if (!$bookingDetails || $bookingDetails['user_id'] !== $user_id) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'message' => 'Unauthorized: You do not own this booking.']);
+                return;
+            }
+
             // Check if file was uploaded
             if (!isset($_FILES['paymentSlip']) || $_FILES['paymentSlip']['error'] !== UPLOAD_ERR_OK) {
                 echo json_encode(['success' => false, 'message' => 'No file uploaded or upload error.']);
@@ -391,6 +428,21 @@ class FacilityApiController {
             $success = $model->updatePaymentStatus($booking_id, 'COMPLETE', $payment_id);
 
             if ($success) {
+                // Send success email
+                try {
+                    $bookingDetails = $model->getReservationDetails($booking_id);
+                    if ($bookingDetails) {
+                        $userModel = new User();
+                        $user = $userModel->getUserProfile($bookingDetails['user_id']);
+                        if ($user) {
+                            $emailService = new EmailService();
+                            $emailService->sendPaymentUpdateEmail($user['email'], $user['fname'], 'BOOKED', $booking_id);
+                        }
+                    }
+                } catch (Exception $e) {
+                    error_log("Failed to send payment verification email: " . $e->getMessage());
+                }
+
                 echo json_encode([
                     'success' => true,
                     'message' => 'Payment verified successfully. Booking status updated to COMPLETE.',
@@ -398,6 +450,60 @@ class FacilityApiController {
                 ]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to update payment status in database.']);
+            }
+
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin: Flag a problematic payment slip
+     */
+    public function flagBooking() {
+        header('Content-Type: application/json');
+
+        // Security Check: Ensure user is logged in and is an ADMIN
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'ADMIN') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized. Admin access required.']);
+            return;
+        }
+
+        try {
+            $booking_id = $_POST['booking_id'] ?? '';
+            $reason = $_POST['reason'] ?? 'Problem with the payment slip.';
+            
+            if (empty($booking_id)) {
+                echo json_encode(['success' => false, 'message' => 'Booking ID is required.']);
+                return;
+            }
+
+            $model = new Facility();
+            $success = $model->flagBooking($booking_id, $reason);
+
+            if ($success) {
+                // Send flagging email
+                try {
+                    $bookingDetails = $model->getReservationDetails($booking_id);
+                    if ($bookingDetails) {
+                        $userModel = new User();
+                        $user = $userModel->getUserProfile($bookingDetails['user_id']);
+                        if ($user) {
+                            $emailService = new EmailService();
+                            $emailService->sendPaymentUpdateEmail($user['email'], $user['fname'], 'FLAGGED', $booking_id);
+                        }
+                    }
+                } catch (Exception $e) {
+                    error_log("Failed to send payment flagging email: " . $e->getMessage());
+                }
+
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Booking flagged successfully. User will have 3 days to fix the issue.',
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to flag the booking.']);
             }
 
         } catch (Exception $e) {

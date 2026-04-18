@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../services/EmailService.php';
 
 class SportExpensesController {
 
@@ -54,6 +55,13 @@ class SportExpensesController {
             'submitted_by' => $_POST['submittedBy'] ?? '',
             'notes' => $_POST['notes'] ?? ''
         ];
+
+        if (!is_numeric($data['amount']) || floatval($data['amount']) <= 0) {
+            $_SESSION['error_message'] = 'Amount must be a positive number.';
+            $sportParam = isset($_POST['sport_param']) ? '?sport=' . urlencode($_POST['sport_param']) : (isset($_GET['sport']) ? '?sport=' . urlencode($_GET['sport']) : '');
+            header('Location: /uoc-sports/public/sport-manager/add-expense' . $sportParam);
+            exit();
+        }
         
         $file = isset($_FILES['receipt']) ? $_FILES['receipt'] : null;
         
@@ -67,6 +75,20 @@ class SportExpensesController {
             } else {
                 $result = $expenseModel->addExpense($data, $file);
                 $_SESSION['success_message'] = 'Expense added successfully!';
+
+                // Notify Administrator
+                try {
+                    $db = Database::getConnection();
+                    $stmt = $db->query("SELECT email, fname FROM user WHERE type = 'ADMIN' AND status = 'ACTIVE' LIMIT 1");
+                    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($admin) {
+                        $emailService = new EmailService();
+                        $emailService->sendExpenseAddedEmail($admin['email'], $admin['fname'], $data);
+                    }
+                } catch (Exception $e) {
+                    error_log("Failed to send expense notification email: " . $e->getMessage());
+                }
             }
             
             header('Location: /uoc-sports/public/sport-manager/expenses' . $sportParam);

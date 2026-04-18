@@ -92,7 +92,7 @@ switch ($userType) {
             ['name' => 'Home', 'url' => '/uoc-sports/public/sport-manager' . $sportParam],
             ['name' => 'Expenses', 'url' => '/uoc-sports/public/sport-manager/expenses' . $sportParam],
             ['name' => 'Practice Sessions', 'url' => '/uoc-sports/public/sport-manager/practicesessions' . $sportParam],
-            ['name' => 'Competitions', 'url' => '/uoc-sports/public/sport-manager/competitions' . $sportParam],
+            ['name' => 'Sport Events', 'url' => '/uoc-sports/public/sport-manager/tournaments' . $sportParam],
             ['name' => 'Achievements', 'url' => '/uoc-sports/public/sport-manager/team' . $sportParam],
             ['name' => 'Messages', 'url' => '/uoc-sports/public/sport-manager/messages' . $sportParam],
         ];

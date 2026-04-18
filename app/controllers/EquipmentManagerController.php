@@ -2,6 +2,24 @@
 
 class EquipmentManagerController {
 
+    private function formatTimeRangeMessage(array $practiceConflicts, string $requestDate): string {
+        $ranges = [];
+        foreach ($practiceConflicts as $conflict) {
+            $start = !empty($conflict['start_time']) ? substr((string)$conflict['start_time'], 0, 5) : '--:--';
+            $end = !empty($conflict['end_time']) ? substr((string)$conflict['end_time'], 0, 5) : '--:--';
+            $ranges[] = $start . ' to ' . $end;
+        }
+
+        $ranges = array_values(array_unique($ranges));
+        $formattedDate = !empty($requestDate) ? $requestDate : 'the selected date';
+
+        if (count($ranges) === 1) {
+            return 'A practice session that requires equipment is scheduled on ' . $formattedDate . ' from ' . $ranges[0] . '. Equipment for this sport cannot be booked during this time period.';
+        }
+
+        return 'Practice sessions that require equipment are scheduled on ' . $formattedDate . ' during: ' . implode(', ', $ranges) . '. Equipment for this sport cannot be booked during these time periods.';
+    }
+
     public function index() {
         $lostitemModel = new Lostitem(Database::getConnection());
         $lostitem = $lostitemModel->getUnclaimedItemsCurrentMonth();
@@ -16,8 +34,12 @@ class EquipmentManagerController {
         // Debug: Log today's date
         error_log("Fetching reservations for date: " . $today);
         
-        // Fetch today's reservations
-        $todayReservations = $bookingModel->getAllRequests(['date_from' => $today, 'date_to' => $today]);
+        // Fetch only today's pending reservations for the left sidebar
+        $todayReservations = $bookingModel->getAllRequests([
+            'date_from' => $today,
+            'date_to' => $today,
+            'status' => 'PENDING'
+        ]);
         
         // Debug: Log count of reservations
         error_log("Today's reservations count: " . count($todayReservations));
@@ -162,8 +184,8 @@ class EquipmentManagerController {
                 'notes' => $_POST['notes'] ?? ''
             ]);
 
-            // Enforce server-side conflict checks for each selected equipment item.
-            $conflicts = $model->getItemConflicts(
+            // Hard block bookings that overlap practice sessions where equipment is required.
+            $slotConflicts = $model->getItemConflicts(
                 $commonData['sport_id'],
                 $commonData['request_date'],
                 $commonData['start_time'],
@@ -173,50 +195,12 @@ class EquipmentManagerController {
                 true
             );
 
-            if (!empty($conflicts)) {
-                $selectedDisplayMap = [];
-                foreach ($equipmentItems as $item) {
-                    $name = trim((string)($item['equipment_name'] ?? ''));
-                    if ($name === '') {
-                        continue;
-                    }
-                    $selectedDisplayMap[strtolower($name)] = [
-                        'name' => $name,
-                        'qty' => max(1, (int)($item['quantity'] ?? 1)),
-                    ];
-                }
+            $practiceConflicts = array_values(array_filter($slotConflicts, function ($conflict) {
+                return isset($conflict['source']) && $conflict['source'] === 'practice';
+            }));
 
-                $selectedSummary = [];
-                foreach ($selectedDisplayMap as $selected) {
-                    $selectedSummary[] = $selected['name'] . ' (x' . $selected['qty'] . ')';
-                }
-
-                $conflictDetails = [];
-                foreach ($conflicts as $conflict) {
-                    $rawName = trim((string)($conflict['equipment_name'] ?? 'Selected equipment'));
-                    $lookupKey = strtolower($rawName);
-                    $displayName = $selectedDisplayMap[$lookupKey]['name'] ?? $rawName;
-                    $selectedQty = $selectedDisplayMap[$lookupKey]['qty'] ?? 1;
-
-                    $start = !empty($conflict['start_time']) ? date('H:i', strtotime($conflict['start_time'])) : '--:--';
-                    $end = !empty($conflict['end_time']) ? date('H:i', strtotime($conflict['end_time'])) : '--:--';
-                    $status = strtoupper((string)($conflict['status'] ?? 'UNKNOWN'));
-                    $source = ($conflict['source'] ?? '') === 'practice' ? 'practice session' : 'booking request';
-
-                    $conflictDetails[] = $displayName
-                        . ' (selected x' . $selectedQty . ')'
-                        . ' -> conflict with ' . $source
-                        . ' [' . $status . ']'
-                        . ' at ' . $start . ' - ' . $end;
-                }
-
-                $conflictDetails = array_values(array_unique($conflictDetails));
-
-                $_SESSION['error_message'] = 'Selected equipment: '
-                    . implode(', ', $selectedSummary)
-                    . '. Conflicts: '
-                    . implode('; ', $conflictDetails)
-                    . '. Please choose another time or remove conflicting items.';
+            if (!empty($practiceConflicts)) {
+                $_SESSION['error_message'] = $this->formatTimeRangeMessage($practiceConflicts, (string)$commonData['request_date']);
                 header('Location: /uoc-sports/public/equipment-manager/add-booking' . ($isEdit ? '?id=' . $requestId : ''));
                 exit();
             }

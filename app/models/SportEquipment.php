@@ -22,9 +22,9 @@ class SportEquipment {
                     COALESCE(SUM(ei.quantity), 0) as quantity,
                     COALESCE(SUM(ei.usable), 0) as usable_count
                 FROM equipment e
-                LEFT JOIN equipment_categories ec ON e.equipment_id = ec.equipment_id
-                LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
-                WHERE e.sport_id = ?
+                LEFT JOIN equipment_categories ec ON e.category_id = ec.category_id
+                LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id AND ei.status = 'ACTIVE'
+                WHERE e.sport_id = ? AND e.status = 'ACTIVE'
                 GROUP BY e.equipment_id, e.equipment_name, e.sport_id, e.max_allow, ec.category_id, ec.category_name
                 ORDER BY ec.category_name, e.equipment_name";
         
@@ -32,7 +32,7 @@ class SportEquipment {
         $stmt->execute([$sportId]);
         $equipment = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Now get active booking requests for this sport
+        // Now get active and accepted booking requests for this sport
         // Match by sport_id (for new requests) OR by equipment name (for legacy requests)
         $requestQuery = "SELECT DISTINCT
                             er.request_id,
@@ -43,7 +43,7 @@ class SportEquipment {
                             er.end_time,
                             er.reserved_location
                         FROM `equipment-requests` er
-                        WHERE er.status = 'ACTIVE' 
+                        WHERE er.status IN ('ACTIVE', 'ACCEPTED')
                         AND (er.sport_id = ? OR er.category_name IN (
                             SELECT e.equipment_name 
                             FROM equipment e 
@@ -117,8 +117,8 @@ class SportEquipment {
                     COALESCE(SUM(ei.quantity), 0) as total_quantity,
                     COALESCE(SUM(ei.usable), 0) as usable_count
                 FROM equipment e
-                LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
-                WHERE e.equipment_id = ?
+                LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id AND ei.status = 'ACTIVE'
+                WHERE e.equipment_id = ? AND e.status = 'ACTIVE'
                 GROUP BY e.equipment_id";
         
         $stmt = $this->db->prepare($query);
@@ -131,7 +131,7 @@ class SportEquipment {
      */
     public function getActiveReservations($equipmentId) {
         // Get equipment name for this equipment first
-        $nameQuery = "SELECT equipment_name FROM equipment WHERE equipment_id = ?";
+        $nameQuery = "SELECT equipment_name FROM equipment WHERE equipment_id = ? AND status = 'ACTIVE'";
         $nameStmt = $this->db->prepare($nameQuery);
         $nameStmt->execute([$equipmentId]);
         $equipmentName = $nameStmt->fetchColumn();
@@ -193,7 +193,7 @@ class SportEquipment {
      */
     public function deleteEquipment($equipmentId) {
         // Get equipment name for this equipment
-        $nameQuery = "SELECT equipment_name FROM equipment WHERE equipment_id = ?";
+        $nameQuery = "SELECT equipment_name FROM equipment WHERE equipment_id = ? AND status = 'ACTIVE'";
         $nameStmt = $this->db->prepare($nameQuery);
         $nameStmt->execute([$equipmentId]);
         $equipmentName = $nameStmt->fetchColumn();
@@ -211,12 +211,12 @@ class SportEquipment {
         try {
             $this->db->beginTransaction();
             
-            // Delete inventory first
-            $delInvQuery = "DELETE FROM equipment_inventory WHERE equipment_id = ?";
+            // Delete inventory first (Soft Delete)
+            $delInvQuery = "UPDATE equipment_inventory SET status = 'DELETED' WHERE equipment_id = ?";
             $this->db->prepare($delInvQuery)->execute([$equipmentId]);
             
-            // Delete equipment
-            $delEqQuery = "DELETE FROM equipment WHERE equipment_id = ?";
+            // Delete equipment (Soft Delete)
+            $delEqQuery = "UPDATE equipment SET status = 'DELETED' WHERE equipment_id = ?";
             $this->db->prepare($delEqQuery)->execute([$equipmentId]);
             
             $this->db->commit();
@@ -246,8 +246,8 @@ class SportEquipment {
                     COALESCE(SUM(ei.quantity), 0) as total_items,
                     COALESCE(SUM(ei.usable), 0) as usable_items
                 FROM equipment e
-                LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id
-                WHERE e.sport_id = ?";
+                LEFT JOIN equipment_inventory ei ON e.equipment_id = ei.equipment_id AND ei.status = 'ACTIVE'
+                WHERE e.sport_id = ? AND e.status = 'ACTIVE'";
         
         $stmt = $this->db->prepare($query);
         $stmt->execute([$sportId]);

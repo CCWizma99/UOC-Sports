@@ -1570,8 +1570,8 @@ body {
 /* ------------------ MONTHLY CALENDAR OVERVIEW ------------------ */
 .monthly-calendar-section {
     background: white;
-    padding: 1.5rem;
-    border-radius: 16px;
+    padding: 1rem;
+    border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     margin-top: 1rem;
 }
@@ -1598,8 +1598,8 @@ body {
 .calendar-nav span {
     font-weight: 700;
     color: #4b0082;
-    font-size: 0.95rem;
-    min-width: 130px;
+    font-size: 0.85rem;
+    min-width: 100px;
     text-align: center;
 }
 
@@ -1625,8 +1625,8 @@ body {
 .monthly-calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-    margin-bottom: 1rem;
+    gap: 3px;
+    margin-bottom: 0.8rem;
 }
 
 .calendar-grid-header {
@@ -1648,8 +1648,8 @@ body {
     justify-content: center;
     background: #fff;
     border: 1px solid #f0f0f0;
-    border-radius: 6px;
-    font-size: 0.9rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
     cursor: pointer;
     position: relative;
     transition: all 0.2s;

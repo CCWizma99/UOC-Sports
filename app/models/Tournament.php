@@ -10,12 +10,19 @@ class Tournament {
     /**
      * Create a new tournament
      */
-    public function createTournament($name, $sportId, $startDate, $endDate) {
+    public function createTournament($name, $sportId, $startDate, $endDate, $matchLevel = 'UNIVERSITY') {
         try {
+            // Ensure match_level column exists
+            try {
+                $this->db->exec("ALTER TABLE tournament ADD COLUMN `match_level` ENUM('UNIVERSITY','NATIONAL','INTERNATIONAL') NOT NULL DEFAULT 'UNIVERSITY' AFTER `status`");
+            } catch (PDOException $e) {
+                // Column already exists, ignore
+            }
+
             $tournamentId = 'TOUR_' . uniqid();
             
-            $sql = "INSERT INTO tournament (tournament_id, tournament_name, sport_id, start_date, end_date, status) 
-                    VALUES (:tournament_id, :tournament_name, :sport_id, :start_date, :end_date, 'INCOMPLETE')";
+            $sql = "INSERT INTO tournament (tournament_id, tournament_name, sport_id, start_date, end_date, status, match_level) 
+                    VALUES (:tournament_id, :tournament_name, :sport_id, :start_date, :end_date, 'INCOMPLETE', :match_level)";
             
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
@@ -23,7 +30,8 @@ class Tournament {
                 'tournament_name' => $name,
                 'sport_id' => $sportId,
                 'start_date' => $startDate,
-                'end_date' => $endDate
+                'end_date' => $endDate,
+                'match_level' => $matchLevel
             ]);
             
             return $tournamentId;

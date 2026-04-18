@@ -168,10 +168,25 @@ class DashboardApiController {
         $stmt = $db->query($newSQL);
         $newThisMonth = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
 
+        // Faculty wise non-athlete and athlete counts
+        $facultyWiseSQL = "
+            SELECT 
+                f.faculty_name,
+                COUNT(DISTINCT CASE WHEN u.type = 'STUDENT' AND st.student_id IS NULL THEN u.user_id END) as non_athlete_count,
+                COUNT(DISTINCT st.student_id) as athlete_count
+            FROM faculty f
+            LEFT JOIN user u ON f.faculty_id = u.faculty_id AND u.type = 'STUDENT' AND u.status = 'ACTIVE'
+            LEFT JOIN `sports-team` st ON u.user_id = st.student_id
+            GROUP BY f.faculty_id, f.faculty_name
+        ";
+        $stmt = $db->query($facultyWiseSQL);
+        $facultyWiseStats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return [
             'total' => $totalUsers,
             'new_this_month' => $newThisMonth,
-            'type_distribution' => $typeDistribution
+            'type_distribution' => $typeDistribution,
+            'faculty_wise_stats' => $facultyWiseStats
         ];
     }
 
@@ -536,9 +551,13 @@ class DashboardApiController {
         ];
     }
 
-    private function getBudgetStats() {
+    private function getBudgetStats($year = null) {
+        if ($year === null) {
+            $year = date('Y');
+        }
         // Get current year budget summary
-        $summary = $this->budgetModel->getBudgetSummary();
+        $summary = $this->budgetModel->getBudgetSummary($year);
+        $utilization = $this->budgetModel->getBudgetUtilization($year);
         
         $allocated = floatval($summary['total_allocated'] ?? 0);
         $spent = floatval($summary['total_spent'] ?? 0);
@@ -552,7 +571,13 @@ class DashboardApiController {
             'spent' => $spent,
             'remaining' => $remaining,
             'percent_used' => $percentUsed,
-            'year' => date('Y')
+            'year' => date('Y'),
+            'utilization'  => array_map(function($row) {     // cast types cleanly
+                return [
+                    'month'        => $row['month'],
+                    'spent_amount' => floatval($row['spent_amount'])
+                ];
+            }, $utilization)
         ];
     }
 
@@ -643,11 +668,11 @@ class DashboardApiController {
         // Build WHERE clause for faculty filtering
         $whereClause = '';
         if ($this->currentFacultyId) {
-            $whereClause = " JOIN sport s ON sa.sport_id = s.sport_id WHERE s.faculty_id = " . $this->quoteFacultyId($this->currentFacultyId);
+            $whereClause = " JOIN sport s ON a.sport_id = s.sport_id WHERE s.faculty_id = " . $this->quoteFacultyId($this->currentFacultyId);
         }
         
         // Total achievements
-        $totalSQL = "SELECT COUNT(*) as total FROM sport_achievements sa" . $whereClause;
+        $totalSQL = "SELECT COUNT(*) as total FROM achievement a" . $whereClause;
         try {
             $stmt = $db->query($totalSQL);
             $total = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
@@ -657,14 +682,15 @@ class DashboardApiController {
         }
         
         // Recent achievements (last 5)
-        $recentSQL = "SELECT sa.id, sa.achievement_type, sa.points, sa.date_achieved,
+        $recentSQL = "SELECT a.achievement_id as id, a.achievement as achievement_type, a.points, COALESCE(c.date, '2026-04-01') as date_achieved,
                              CONCAT(u.fname, ' ', u.lname) as student_name,
                              s.sport_name
-                      FROM sport_achievements sa
-                      JOIN user u ON sa.user_id = u.user_id
-                      LEFT JOIN sport s ON sa.sport_id = s.sport_id" .
+                      FROM achievement a
+                      JOIN user u ON a.user_id = u.user_id
+                      LEFT JOIN sport s ON a.sport_id = s.sport_id
+                      LEFT JOIN competition c ON a.competition_id = c.competition_id" .
                      ($this->currentFacultyId ? " WHERE s.faculty_id = " . $this->quoteFacultyId($this->currentFacultyId) : "") .
-                     " ORDER BY sa.date_achieved DESC
+                     " ORDER BY a.achievement_id DESC
                       LIMIT 5";
         try {
             $stmt = $db->query($recentSQL);
@@ -675,14 +701,14 @@ class DashboardApiController {
         
         // Top performers
         $topSQL = "SELECT CONCAT(u.fname, ' ', u.lname) as student_name,
-                          SUM(sa.points) as total_points,
+                          SUM(a.points) as total_points,
                           COUNT(*) as achievement_count
-                   FROM sport_achievements sa
-                   JOIN user u ON sa.user_id = u.user_id" .
-                  ($this->currentFacultyId ? " WHERE sa.sport_id IN (" .
+                   FROM achievement a
+                   JOIN user u ON a.user_id = u.user_id" .
+                  ($this->currentFacultyId ? " WHERE a.sport_id IN (" .
                       "SELECT sport_id FROM sport WHERE faculty_id = " . $this->quoteFacultyId($this->currentFacultyId) . ")"
                       : "") .
-                  " GROUP BY sa.user_id
+                  " GROUP BY a.user_id
                    ORDER BY total_points DESC
                    LIMIT 5";
         try {
@@ -693,11 +719,11 @@ class DashboardApiController {
         }
         
         // Achievements by sport
-        $bySportSQL = "SELECT s.sport_name, COUNT(*) as count, SUM(sa.points) as total_points
-                       FROM sport_achievements sa
-                       JOIN sport s ON sa.sport_id = s.sport_id" .
+        $bySportSQL = "SELECT s.sport_name, COUNT(*) as count, SUM(a.points) as total_points
+                       FROM achievement a
+                       JOIN sport s ON a.sport_id = s.sport_id" .
                       ($this->currentFacultyId ? " WHERE s.faculty_id = " . $this->quoteFacultyId($this->currentFacultyId) : "") .
-                      " GROUP BY sa.sport_id
+                      " GROUP BY a.sport_id
                        ORDER BY count DESC
                        LIMIT 8";
         try {
@@ -874,15 +900,15 @@ class DashboardApiController {
             }
             
             // Events for this sport
-            $eventsSQL = "SELECT te.tournament_id, te.tournament_name, te.date as event_date,
+            $eventsSQL = "SELECT te.tournament_id, te.tournament_name, te.start_date as event_date,
                                  COUNT(DISTINCT tm.match_id) as total_matches,
-                                 SUM(CASE WHEN tm.status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_matches
+                                 SUM(CASE WHEN tm.result_status = 'COMPLETED' THEN 1 ELSE 0 END) as completed_matches
                           FROM tournament te
-                          LEFT JOIN `tournament-match` tm ON te.tournament_id = tm.tournament_id
+                          LEFT JOIN `tournament_match` tm ON te.tournament_id = tm.tournament_id
                           WHERE te.sport_id = $sportId 
-                            AND te.date BETWEEN '$startDate' AND '$endDate'
+                            AND te.start_date BETWEEN '$startDate' AND '$endDate'
                           GROUP BY te.tournament_id
-                          ORDER BY te.date DESC";
+                          ORDER BY te.start_date DESC";
             try {
                 $stmt = $db->query($eventsSQL);
                 $eventsData = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];

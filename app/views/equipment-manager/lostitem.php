@@ -100,8 +100,8 @@
                         <td><?= $lst['description'] ?></td>
                         <td>
                             <select class="status-dropdown" onchange="updateStatus('<?= $lst['lostItem_id'] ?>', this.value)">
-                                <option value="unclaimed" <?= $lst['item_status'] === 'unclaimed' ? 'selected' : '' ?>>Unclaimed</option>
-                                <option value="claimed" <?= $lst['item_status'] === 'claimed' ? 'selected' : '' ?>>Claimed</option>
+                                <option value="Not Found" <?= $lst['item_status'] === 'Not Found' ? 'selected' : '' ?>>Not Found</option>
+                                <option value="Found" <?= $lst['item_status'] === 'Found' ? 'selected' : '' ?>>Found</option>
                             </select>
                         </td>
                         <td>

@@ -92,11 +92,11 @@ function handleDayClick(day) {
                 </div>
                 <div class="booking-field">
                   <span class="field-label">Facility</span>
-                  <span class="field-value">${booking.facility_id}</span>
+                  <span class="field-value">${booking.facility_name || 'N/A'}</span>
                 </div>
                 <div class="booking-field">
                   <span class="field-label">Time</span>
-                  <span class="field-value">${booking.start_time || 'N/A'} - ${booking.end_time || 'N/A'}</span>
+                  <span class="field-value">${booking.start_time} - ${booking.end_time}</span>
                 </div>
                 <div class="booking-field">
                   <span class="field-label">Payment</span>

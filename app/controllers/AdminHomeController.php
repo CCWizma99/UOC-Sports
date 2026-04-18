@@ -50,11 +50,20 @@ class AdminHomeController {
         if ($userData && in_array($userData['type'], ['STUDENT', 'CAPTAIN'])) {
             $enrolledSports = $userModel->getEnrolledSports($userId);
         }
+
+        // Fetch all sports and faculties for the edit modal
+        $sportModel = new Sport();
+        $sports = $sportModel->getSports();
+        
+        $facultyModel = new Faculty();
+        $faculties = $facultyModel->getAllFaculties();
         
         view('admin/user-profile', [
             'title' => 'User Profile',
             'user_data' => $userData,
-            'enrolled_sports' => $enrolledSports
+            'enrolled_sports' => $enrolledSports,
+            'sport_data' => $sports,
+            'faculty_data' => $faculties
         ]);
     }
     public function reservations() {

@@ -38,7 +38,7 @@ class LostItemController {
             'reported_by' => $_POST['foundBy'] ?? '',
             'contact_number' => $_POST['contactNumber'] ?? '',
             'image' => $_POST['image'] ?? '',
-            'item_status' => $_POST['itemStatus'] ?? 'unclaimed'
+            'item_status' => $_POST['itemStatus'] ?? 'Not Found'
         ];
 
         $minAllowedDate = new DateTime('yesterday');

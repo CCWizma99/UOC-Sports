@@ -203,16 +203,12 @@
     <script>
         const API_BASE = '/uoc-sports/public';
         const sportId = new URLSearchParams(window.location.search).get('sport_id');
-        const initialFacultyId = new URLSearchParams(window.location.search).get('faculty_id');
         
         function loadSportData() {
             const startDate = document.getElementById('start-date').value;
             const endDate = document.getElementById('end-date').value;
             
             let url = `${API_BASE}/api/drill-down/sport-performance?sport_id=${sportId}&start_date=${startDate}&end_date=${endDate}`;
-            if (initialFacultyId) {
-                url += `&faculty_id=${initialFacultyId}`;
-            }
             
             fetch(url)
                 .then(response => response.json())

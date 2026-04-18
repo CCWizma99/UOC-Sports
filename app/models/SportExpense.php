@@ -146,7 +146,9 @@ class SportExpense {
         }
         
         if (count($conditions) > 0) {
-            $sql .= " WHERE " . implode(" AND ", $conditions);
+            $sql .= " WHERE status = 'ACTIVE' AND " . implode(" AND ", $conditions);
+        } else {
+            $sql .= " WHERE status = 'ACTIVE'";
         }
         
         $sql .= " ORDER BY expense_date DESC";
@@ -165,6 +167,7 @@ class SportExpense {
                 FROM sport_expenses
                 WHERE YEAR(expense_date) = YEAR(CURDATE())
                 AND MONTH(expense_date) = MONTH(CURDATE())
+                AND status = 'ACTIVE'
                 ORDER BY expense_date DESC";
         
         $stmt = $this->conn->query($sql);
@@ -177,7 +180,7 @@ class SportExpense {
      * @return array|false
      */
     public function getById($expense_id) {
-        $sql = "SELECT * FROM sport_expenses WHERE expense_id = ?";
+        $sql = "SELECT * FROM sport_expenses WHERE expense_id = ? AND status = 'ACTIVE'";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$expense_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -189,17 +192,9 @@ class SportExpense {
      * @return bool
      */
     public function delete($expense_id) {
-        // Get expense to delete receipt file
-        $expense = $this->getById($expense_id);
+        // No longer deleting receipt file to preserve audit trail
         
-        if ($expense && $expense['receipt']) {
-            $receiptPath = __DIR__ . '/../internal/sport_exp_receipt/' . $expense['receipt'];
-            if (file_exists($receiptPath)) {
-                unlink($receiptPath);
-            }
-        }
-        
-        $sql = "DELETE FROM sport_expenses WHERE expense_id = ?";
+        $sql = "UPDATE sport_expenses SET status = 'DELETED' WHERE expense_id = ?";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([$expense_id]);
     }
@@ -213,9 +208,10 @@ class SportExpense {
         $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
                        notes, expense_date 
                 FROM sport_expenses
-                WHERE expense_title LIKE :query 
+                WHERE (expense_title LIKE :query 
                    OR sport LIKE :query 
-                   OR submitted_by LIKE :query
+                   OR submitted_by LIKE :query)
+                AND status = 'ACTIVE'
                 
                 ORDER BY expense_date DESC";
         
@@ -249,7 +245,7 @@ class SportExpense {
         $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
                      expense_date 
                 FROM sport_expenses
-                WHERE sport = ?
+                WHERE sport = ? AND status = 'ACTIVE'
                 ORDER BY expense_date DESC";
         
         $stmt = $this->conn->prepare($sql);
@@ -267,7 +263,7 @@ class SportExpense {
         $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
                      expense_date 
                 FROM sport_expenses
-                WHERE expense_date BETWEEN ? AND ?
+                WHERE (expense_date BETWEEN ? AND ?) AND status = 'ACTIVE'
                 ORDER BY expense_date DESC";
         
         $stmt = $this->conn->prepare($sql);
@@ -280,7 +276,7 @@ class SportExpense {
      * @return int
      */
     public function getTotalCount() {
-        $sql = "SELECT COUNT(*) as count FROM sport_expenses";
+        $sql = "SELECT COUNT(*) as count FROM sport_expenses WHERE status = 'ACTIVE'";
         $stmt = $this->conn->query($sql);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)$result['count'];
@@ -295,6 +291,7 @@ class SportExpense {
         $sql = "SELECT expense_id, sport, expense_title, sport_event, amount, receipt, submitted_by, 
                       expense_date 
                 FROM sport_expenses
+                WHERE status = 'ACTIVE'
                 ORDER BY expense_date DESC
                 LIMIT ?";
         
@@ -324,10 +321,10 @@ class SportExpense {
         
         if ($sportId !== null && $sportId !== '') {
             $sql .= " INNER JOIN sport s ON se.sport COLLATE utf8mb4_unicode_ci = s.sport_name COLLATE utf8mb4_unicode_ci
-                      WHERE YEAR(se.expense_date) = ? AND s.sport_id = ?";
+                      WHERE YEAR(se.expense_date) = ? AND s.sport_id = ? AND se.status = 'ACTIVE'";
             $params[] = $sportId;
         } else {
-            $sql .= " WHERE YEAR(se.expense_date) = ?";
+            $sql .= " WHERE YEAR(se.expense_date) = ? AND se.status = 'ACTIVE'";
         }
         
         $sql .= " GROUP BY MONTH(se.expense_date), MONTHNAME(se.expense_date)
@@ -376,10 +373,10 @@ class SportExpense {
         
         if ($sportId !== null && $sportId !== '') {
             $sql .= " INNER JOIN sport s ON se.sport COLLATE utf8mb4_unicode_ci = s.sport_name COLLATE utf8mb4_unicode_ci
-                      WHERE YEAR(se.expense_date) = ? AND s.sport_id = ?";
+                      WHERE YEAR(se.expense_date) = ? AND s.sport_id = ? AND se.status = 'ACTIVE'";
             $params[] = $sportId;
         } else {
-            $sql .= " WHERE YEAR(se.expense_date) = ?";
+            $sql .= " WHERE YEAR(se.expense_date) = ? AND se.status = 'ACTIVE'";
         }
         
         $sql .= " ORDER BY se.expense_date ASC";

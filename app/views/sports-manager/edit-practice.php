@@ -14,20 +14,6 @@
 
     @import url("/uoc-sports/public/css/sports-manager/report.css");
     @import url("/uoc-sports/public/css/sports-manager/page.css");
-
-        .conflict-alert {
-            display: none;
-            margin-bottom: 14px;
-            padding: 12px 14px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            border-left: 4px solid #dc2626;
-            color: #991b1b;
-            font-weight: 600;
-            font-size: 14px;
-            align-items: center;
-            gap: 8px;
-        }
   </style>
 </head>
 <body>
@@ -52,10 +38,6 @@
                 <?php if (isset($selectedSport)): ?>
                     <input type="hidden" name="sport_param" value="<?= htmlspecialchars($selectedSport) ?>">
                 <?php endif; ?>
-                <div id="practiceConflictAlert" class="conflict-alert">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span id="practiceConflictAlertText"></span>
-                </div>
                 
                 <div class="form-row">
                     <div class="form-group">
@@ -81,14 +63,16 @@
 
                     <div class="form-group">
                         <label for="startTime">Start Time *</label>
-                        <input type="time" id="startTime" name="stime" 
+                        <input type="time" id="startTime" name="stime" step="1800"
                                value="<?= htmlspecialchars($session['start_time']) ?>" required>
+                        <small>Use 30-minute intervals (e.g. 08:00, 08:30)</small>
                     </div>
 
                     <div class="form-group">
                         <label for="endTime">End Time *</label>
-                        <input type="time" id="endTime" name="etime" 
+                        <input type="time" id="endTime" name="etime" step="1800"
                                value="<?= htmlspecialchars($session['end_time']) ?>" required>
+                        <small>Use 30-minute intervals</small>
                     </div>
 
                     <div class="form-group">
@@ -100,18 +84,27 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Location *</label>
-                        <select id="location" name="location" required>
-                            <option value="">Select the Location</option>
-                            <option value="Indoor Court" <?= $session['location'] === 'Indoor Court' ? 'selected' : '' ?>>Indoor Tennis Court</option>
-                            <option value="Indoor court" <?= $session['location'] === 'Indoor court' ? 'selected' : '' ?>>Indoor Badminton Court</option>
-                            <option value="Outdoor Court" <?= $session['location'] === 'Outdoor Court' ? 'selected' : '' ?>>Outdoor Basketball court</option>
-                            <option value="Outdoor Field" <?= $session['location'] === 'Outdoor Field' ? 'selected' : '' ?>>Outdoor Baseball court</option>
-                            <option value="Outdoor Field" <?= $session['location'] === 'Outdoor Field' ? 'selected' : '' ?>>Indoor volleyball court</option>
-                            <option value="Outdoor Field" <?= $session['location'] === 'Outdoor Field' ? 'selected' : '' ?>>Outdoor Cricket Field</option>
-                            <option value="Swimming Pool" <?= $session['location'] === 'Swimming Pool' ? 'selected' : '' ?>>Elle Field</option>
-                            <option value="Carrom room" <?= $session['location'] === 'Carrom room' ? 'selected' : '' ?>>Carrom Room</option>
+                        <label for="location">Physical Facility *</label>
+                        <select id="location" name="physical_facility_id" required onchange="updateLocationName(this)">
+                            <option value="">Select the Facility</option>
+                            <?php if (!empty($facilities)): ?>
+                                <?php foreach ($facilities as $facility): ?>
+                                    <option value="<?= htmlspecialchars($facility['facility_id']) ?>" 
+                                            data-name="<?= htmlspecialchars($facility['facility_name']) ?>"
+                                            <?= $session['physical_facility_id'] === $facility['facility_id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($facility['facility_name']) ?> (<?= htmlspecialchars($facility['location']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
+                        <input type="hidden" name="location_name" id="location_name" value="<?= htmlspecialchars($session['location']) ?>">
+                        <script>
+                            function updateLocationName(select) {
+                                const selectedOption = select.options[select.selectedIndex];
+                                const name = selectedOption.getAttribute('data-name');
+                                document.getElementById('location_name').value = name || '';
+                            }
+                        </script>
                     </div>
 
                     <div class="form-group">
@@ -141,87 +134,6 @@
             </form>
         </div>
 </div>
-
-<script>
-const editPracticeForm = document.getElementById('editPracticeForm');
-const locationField = document.getElementById('location');
-const dateField = document.getElementById('practiceSessionDate');
-const startTimeField = document.getElementById('startTime');
-const endTimeField = document.getElementById('endTime');
-const conflictAlert = document.getElementById('practiceConflictAlert');
-const conflictAlertText = document.getElementById('practiceConflictAlertText');
-const currentSessionId = <?= (int)$session['id'] ?>;
-let hasPracticeConflict = false;
-let conflictCheckTimer = null;
-
-function showPracticeConflict(message) {
-    hasPracticeConflict = true;
-    conflictAlertText.textContent = message;
-    conflictAlert.style.display = 'flex';
-}
-
-function hidePracticeConflict() {
-    hasPracticeConflict = false;
-    conflictAlertText.textContent = '';
-    conflictAlert.style.display = 'none';
-}
-
-function checkPracticeConflictLive() {
-    const location = locationField.value.trim();
-    const date = dateField.value.trim();
-    const startTime = startTimeField.value.trim();
-    const endTime = endTimeField.value.trim();
-
-    if (!location || !date || !startTime || !endTime) {
-        hidePracticeConflict();
-        return;
-    }
-
-    const params = new URLSearchParams({
-        location: location,
-        date: date,
-        start_time: startTime,
-        end_time: endTime,
-        exclude_id: String(currentSessionId)
-    });
-
-    fetch('/uoc-sports/public/sport-manager/check-practice-conflict?' + params.toString())
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) {
-                return;
-            }
-
-            if (data.has_conflict) {
-                showPracticeConflict(data.message || 'This facility is already booked for the selected date and time.');
-            } else {
-                hidePracticeConflict();
-            }
-        })
-        .catch(() => {
-            // Keep silent for network errors, avoid noisy UX
-        });
-}
-
-function queuePracticeConflictCheck() {
-    clearTimeout(conflictCheckTimer);
-    conflictCheckTimer = setTimeout(checkPracticeConflictLive, 250);
-}
-
-[locationField, dateField, startTimeField, endTimeField].forEach((field) => {
-    field.addEventListener('change', queuePracticeConflictCheck);
-    field.addEventListener('input', queuePracticeConflictCheck);
-});
-
-queuePracticeConflictCheck();
-
-editPracticeForm.addEventListener('submit', function(e) {
-    if (hasPracticeConflict) {
-        e.preventDefault();
-        conflictAlert.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-});
-</script>
 
  <?php
     require "../app/views/templates/general/footer.php";

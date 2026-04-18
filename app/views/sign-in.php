@@ -39,6 +39,7 @@
             <a href="#" id="submit-btn" class="no-dec text-black">Sign In</a>
             
             <div id="other-opt">
+                <a href="/uoc-sports/public/forgot-password" class="no-dec">Forgot Password?</a><br>
                 <span>Don't have an account? </span><a href="/uoc-sports/public/sign-up" class="no-dec">Sign Up</a><br>
                 Or <br>
                 <span>Are you a student of UOC? </span><a class="no-dec" href="/uoc-sports/public/student-sign-up">Sign Up as a Student</a>

@@ -108,7 +108,7 @@
                     <th onclick="sortTable(8)">Location<span class="sort-indicator"></span></th>
                   
                     <th onclick="sortTable(10)">Status<span class="sort-indicator"></span></th>
-                      <th onclick="sortTable(9)">Notes<span class="sort-indicator"></span></th>
+                      <th onclick="sortTable(9)">Special Requests<span class="sort-indicator"></span></th>
                     <th>Action</th>
                 </tr>
             </thead>

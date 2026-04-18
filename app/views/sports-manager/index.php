@@ -147,7 +147,6 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
     .chart-wrapper {
         width: 100%;
         overflow: visible;
-            width: 100%;
         }
 
         /* Show mobile menu button */
@@ -251,7 +250,7 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
             padding: 0.2rem 0.5rem;
         }
 
-        #competitionMonth {
+        #tournamentMonth {
             width: auto !important;
             min-width: 100px;
         }
@@ -389,44 +388,39 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                 </div>
             </div>
 
-            <!-- Upcoming Competitions -->
+            <!-- Upcoming Tournaments -->
             <div class="sidebar-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h3 style="margin: 0;">Upcoming Competitions</h3>
-                    <select id="competitionMonth" class="btn-select" style="width: auto; padding: 0.25rem; font-size: 0.8rem; margin-bottom: 0.65rem; border:2px solid #6b21a8; background: #f3e8ff;
+                    <h3 style="margin: 0;">Upcoming Tournaments</h3>
+                    <select id="tournamentMonth" class="btn-select" style="width: auto; padding: 0.25rem; font-size: 0.8rem; margin-bottom: 0.65rem; border:2px solid #6b21a8; background: #f3e8ff;
     color: #6b21a8; box-shadow:none;">
-                        <option value="01">January</option>
-                        <option value="02">February</option>
-                        <option value="03">March</option>
-                        <option value="04">April</option>
-                        <option value="05">May</option>
-                        <option value="06">June</option>
-                        <option value="07">July</option>
-                        <option value="08">August</option>
-                        <option value="09">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
+                        <?php $currentMonth = date('m'); ?>
+                        <option value="01" <?= $currentMonth == '01' ? 'selected' : '' ?>>January</option>
+                        <option value="02" <?= $currentMonth == '02' ? 'selected' : '' ?>>February</option>
+                        <option value="03" <?= $currentMonth == '03' ? 'selected' : '' ?>>March</option>
+                        <option value="04" <?= $currentMonth == '04' ? 'selected' : '' ?>>April</option>
+                        <option value="05" <?= $currentMonth == '05' ? 'selected' : '' ?>>May</option>
+                        <option value="06" <?= $currentMonth == '06' ? 'selected' : '' ?>>June</option>
+                        <option value="07" <?= $currentMonth == '07' ? 'selected' : '' ?>>July</option>
+                        <option value="08" <?= $currentMonth == '08' ? 'selected' : '' ?>>August</option>
+                        <option value="09" <?= $currentMonth == '09' ? 'selected' : '' ?>>September</option>
+                        <option value="10" <?= $currentMonth == '10' ? 'selected' : '' ?>>October</option>
+                        <option value="11" <?= $currentMonth == '11' ? 'selected' : '' ?>>November</option>
+                        <option value="12" <?= $currentMonth == '12' ? 'selected' : '' ?>>December</option>
                     </select>
                 </div>
-                <div class="session-list" id="upcomingCompetitionsContainer">
-                    <?php 
-                    // Debug: Show what sport is being used
-                    if (!empty($upcomingCompetitions)) {
-                        error_log("Rendering " . count($upcomingCompetitions) . " competitions for sport: " . ($managedSportId ?? 'ALL'));
-                    }
-                    ?>
-                    <?php if (!empty($upcomingCompetitions)): ?>
-                        <?php foreach ($upcomingCompetitions as $competition): ?>
+                <div class="session-list" id="upcomingTournamentsContainer">
+                    <?php if (!empty($upcomingTournaments)): ?>
+                        <?php foreach ($upcomingTournaments as $tournament): ?>
                             <div class="session-item">
-                                <div class="session-details"><?= htmlspecialchars($competition['competition_name']) ?></div>
-                                <div class="session-com"><?= htmlspecialchars($competition['sport_name'] ?? 'Unknown Sport') ?></div>
-                                <div class="session-com"><?= !empty($competition['date']) ? htmlspecialchars(date('M d, Y', strtotime($competition['date']))) : 'Date TBD' ?></div>
+                                <div class="session-details"><?= htmlspecialchars($tournament['tournament_name']) ?></div>
+                                <div class="session-com"><?= htmlspecialchars($tournament['sport_name'] ?? 'Unknown Sport') ?></div>
+                                <div class="session-com"><?= !empty($tournament['date']) ? htmlspecialchars(date('M d, Y', strtotime($tournament['date']))) : 'Date TBD' ?></div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div class="session-item" style="text-align: center; color: #9ca3af; padding: 1rem;">
-                           <p>No competitions scheduled</p>
+                           <p>No upcoming tournaments</p>
                         </div>
                     <?php endif; ?>
 

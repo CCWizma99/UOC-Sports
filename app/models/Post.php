@@ -22,7 +22,7 @@ class Post {
                    GROUP_CONCAT(pi.image_path) AS images
             FROM newsfeed_post p
             LEFT JOIN newsfeed_post_image pi ON p.post_id = pi.post_id
-            WHERE p.title LIKE :query OR p.post_id LIKE :query
+            WHERE (p.status = 'ACTIVE') AND (p.title LIKE :query OR p.post_id LIKE :query)
             GROUP BY p.post_id
             ORDER BY p.date_posted DESC
             LIMIT 4
@@ -159,7 +159,7 @@ class Post {
                 GROUP_CONCAT(i.image_path) AS images
             FROM newsfeed_post p
             LEFT JOIN newsfeed_post_image i ON p.post_id = i.post_id
-            WHERE p.post_id = :post_id
+            WHERE p.post_id = :post_id AND p.status = 'ACTIVE'
             GROUP BY p.post_id
             LIMIT 1
         ";
@@ -179,7 +179,7 @@ class Post {
             SELECT c.*, u.fname, u.lname 
             FROM comment c
             JOIN user u ON c.comment_from = u.user_id
-            WHERE c.post_id = :post_id
+            WHERE c.post_id = :post_id AND c.status = 'ACTIVE'
             ORDER BY c.comment_id ASC
         ");
         $stmt->execute(['post_id' => $postId]);
@@ -216,7 +216,7 @@ class Post {
     }
 
     public function deleteComment($comment_id) {
-        $sql = "DELETE FROM comment WHERE comment_id = :comment_id";
+        $sql = "UPDATE comment SET status = 'INACTIVE' WHERE comment_id = :comment_id";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['comment_id' => $comment_id]);
     }
