@@ -31,10 +31,10 @@
 
             <div class="footer-section">
                 <h4>Support</h4>
-                <a href="/uoc-sports/public/">Help Center</a>
+                <a href="/uoc-sports/public/support#help-center">Help Center</a>
                 <a href="/uoc-sports/public/#contact">Contact Us</a>
-                <a href="/uoc-sports/public/">FAQs</a>
-                <a href="/uoc-sports/public/">Feedback</a>
+                <a href="/uoc-sports/public/support#faqs">FAQs</a>
+                <a href="/uoc-sports/public/support#feedback">Feedback</a>
             </div>
         </div>
 
