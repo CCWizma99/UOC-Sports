@@ -138,6 +138,37 @@ class AttendanceApiController {
     }
 
     /**
+     * Get attendance history for the logged-in student in a specific sport
+     * GET /api/attendance/student-history/{sport_id}
+     */
+    public function getStudentHistory($sportId) {
+        header('Content-Type: application/json');
+        
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Unauthorized'
+            ]);
+            return;
+        }
+
+        try {
+            $history = $this->attendanceModel->getStudentAttendanceHistory($_SESSION['user_id'], $sportId);
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $history
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Server error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
      * Get last session attendance
      * GET /api/attendance/last-session/{sport_id}
      */

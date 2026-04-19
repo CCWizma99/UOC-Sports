@@ -52,6 +52,55 @@ document.addEventListener('DOMContentLoaded', function() {
     return getFilteredStudents().filter(s => s.selected);
   }
 
+  async function sendMemberAction(student, isSelected, btn) {
+    const tid = <?php echo json_encode($selected_tournament_id); ?>;
+    if (!tid) return;
+
+    // Loading state
+    const originalText = btn.textContent;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+
+    const formData = new FormData();
+    formData.append('tournament_id', tid);
+    formData.append(isSelected ? 'remove_member_id' : 'add_member_id', student.id);
+
+    try {
+      const response = await fetch('', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+      
+      const result = await response.json();
+
+      if (result.success) {
+        // Update local state
+        const studentIndex = allStudents.findIndex(s => s.id === student.id);
+        if (studentIndex !== -1) {
+          allStudents[studentIndex].selected = !isSelected;
+          render();
+        }
+      } else {
+        alert('Error: ' + (result.message || 'Something went wrong'));
+        btn.textContent = originalText;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
+      alert('Network error. Please try again.');
+      btn.textContent = originalText;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+
   function createRow(student, isSelected) {
     const row = document.createElement('tr');
     const tid = <?php echo json_encode($selected_tournament_id); ?>;
@@ -63,13 +112,16 @@ document.addEventListener('DOMContentLoaded', function() {
       <td class="student-id">${student.idNumber}</td>
       <td class="faculty">${student.faculty}</td>
       <td>
-        <form method="post" action="">
-          <input type="hidden" name="tournament_id" value="${tid || ''}">
-          <input type="hidden" name="${isSelected ? 'remove_member_id' : 'add_member_id'}" value="${student.id}">
-          <button class="action-btn ${buttonClass}" type="submit">${buttonText}</button>
-        </form>
+        <button class="action-btn ${buttonClass}" type="button">${buttonText}</button>
       </td>
     `;
+
+    const btn = row.querySelector('.action-btn');
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sendMemberAction(student, isSelected, btn);
+    });
+
     return row;
   }
 

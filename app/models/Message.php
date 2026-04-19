@@ -50,7 +50,7 @@ class Message {
                 $recipients[] = [
                     'user_id' => $result['manager_id'],
                     'name' => trim($result['manager_fname'] . ' ' . $result['manager_lname']) ?: 'Sports Manager',
-                    'type' => 'MANAGER',
+                    'type' => 'SPT',
                     'label' => 'Sports Manager - ' . (trim($result['manager_fname'] . ' ' . $result['manager_lname']) ?: 'Not Assigned')
                 ];
             }

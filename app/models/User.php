@@ -402,7 +402,7 @@ class User {
             SELECT u.user_id, u.fname, u.lname, u.student_id, u.email, u.contact_no, f.faculty_name
             FROM user u
             LEFT JOIN faculty f ON u.faculty_id = f.faculty_id
-            WHERE u.type = 'STUDENT'
+            WHERE u.type IN ('STUDENT', 'CAPTAIN')
               AND u.status = 'ACTIVE'
               AND (u.sport_id = :sport_id OR u.sport_id IS NULL)
               AND u.user_id NOT IN (

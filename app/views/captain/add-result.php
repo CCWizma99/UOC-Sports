@@ -451,13 +451,20 @@ async function loadStudents() {
 // Handle UOC Match Toggle
 function handleUocToggle(checked) {
     if (checked) {
+        // Try all possible name fields for UOC side detection
         const teamA = document.getElementById('team_a_name');
-        if (teamA && teamA.value.includes('Colombo')) {
-            autoloadTeamRoster('A', teamA.value);
+        const fighterA = document.getElementById('fighter_a_name');
+        const targetA = teamA || fighterA;
+
+        if (targetA && targetA.value.includes('Colombo')) {
+            autoloadTeamRoster('A', targetA.value);
         } else {
             const teamB = document.getElementById('team_b_name');
-            if (teamB && teamB.value.includes('Colombo')) {
-                autoloadTeamRoster('B', teamB.value);
+            const fighterB = document.getElementById('fighter_b_name');
+            const targetB = teamB || fighterB;
+            
+            if (targetB && targetB.value.includes('Colombo')) {
+                autoloadTeamRoster('B', targetB.value);
             }
         }
     }
@@ -525,7 +532,8 @@ async function selectTournament(el) {
                     data.data.category === 'CRICKET' || 
                     data.data.category === 'RACKET' ||
                     data.data.category === 'BALL_COURT' ||
-                    data.data.category === 'BOARD_GAME'
+                    data.data.category === 'BOARD_GAME' ||
+                    data.data.category === 'COMBAT'
                 );
                 trigger.style.display = isRosterSport ? 'block' : 'none';
                 
@@ -537,17 +545,19 @@ async function selectTournament(el) {
             // UX Improvement: Pre-fill UOC by default for captains
             setTimeout(() => {
                 const teamA = document.getElementById('team_a_name');
-                if (teamA && !teamA.value) {
-                    teamA.value = 'University of Colombo';
+                const fighterA = document.getElementById('fighter_a_name');
+                const targetA = teamA || fighterA;
+                
+                if (targetA && !targetA.value) {
+                    targetA.value = 'University of Colombo';
                     if (typeof updateTeamWinnerOptions === 'function') updateTeamWinnerOptions();
-                    // NO AUTOMATIC LOAD - Wait for user to tick the box
                 }
             }, 200);
         } else {
-            container.innerHTML = '<p class="hint-text"><i class="fas fa-info-circle"></i> No additional fields for this sport.</p>';
+            teamsContainer.innerHTML = '<p class="hint-text"><i class="fas fa-info-circle"></i> No additional fields for this sport.</p>';
         }
     } catch (e) {
-        container.innerHTML = '<p style="color:#dc2626;font-size:13px;">Error loading sport fields.</p>';
+        teamsContainer.innerHTML = '<p style="color:#dc2626;font-size:13px;">Error loading sport fields.</p>';
         console.error(e);
     }
 }
@@ -851,8 +861,9 @@ document.getElementById('add-result-form').addEventListener('submit', async func
             msg.textContent = '✓ ' + data.message;
             msg.style.display = 'block';
             this.reset();
-            document.getElementById('captain-sport-fields').innerHTML =
+            document.getElementById('captain-performance-fields').innerHTML =
                 '<p class="hint-text"><i class="fas fa-check-circle" style="color:#16a34a;"></i> Result submitted! Select tournament again to add another match.</p>';
+            document.getElementById('captain-teams-fields').innerHTML = '';
             document.getElementById('captain-category-badge').style.display = 'none';
             document.getElementById('captain-tournament-display').value = '';
             document.getElementById('captain-sport-display').value = '';

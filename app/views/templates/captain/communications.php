@@ -226,8 +226,8 @@
   async function loadMessages() {
     try {
       const [inboxRes, sentRes] = await Promise.all([
-        fetch('/uoc-sports/public/api/inbox/messages'),
-        fetch('/uoc-sports/public/api/captain/message/list')
+        fetch('/uoc-sports/public/api/message/inbox'),
+        fetch('/uoc-sports/public/api/message/list')
       ]);
 
       const inboxResult = await inboxRes.json();
@@ -361,7 +361,7 @@
         const formData = new FormData();
         formData.append('message_id', msg.id);
         
-        await fetch('/uoc-sports/public/api/inbox/mark-read', {
+        await fetch('/uoc-sports/public/api/message/mark-read', {
           method: 'POST',
           body: formData
         });
@@ -389,7 +389,7 @@
       // If received from Manager, set recipient to MANAGER
       let targetRole = '';
       if (currentMessageSender.sender_role === 'Coach' || currentMessageSender.sender === 'Coach') targetRole = 'COACH';
-      if (currentMessageSender.sender_role === 'Sports Manager' || currentMessageSender.sender === 'Sports Manager') targetRole = 'MANAGER';
+      if (currentMessageSender.sender_role === 'Sports Manager' || currentMessageSender.sender === 'Sports Manager') targetRole = 'SPT';
       if (currentMessageSender.sender_role === 'Admin' || currentMessageSender.sender === 'Admin') targetRole = 'ADMIN';
       
       // Better: use sender_id if available? 
@@ -440,7 +440,7 @@
       const formData = new FormData();
       formData.append('message_id', id);
 
-      const response = await fetch('/uoc-sports/public/api/captain/message/delete', {
+      const response = await fetch('/uoc-sports/public/api/message/delete', {
         method: 'POST',
         body: formData
       });
@@ -497,7 +497,7 @@
       formData.append('title', titleInput.value);
       formData.append('message', messageInput.value);
 
-      const response = await fetch('/uoc-sports/public/api/captain/message/send', {
+      const response = await fetch('/uoc-sports/public/api/message/send', {
         method: 'POST',
         body: formData
       });

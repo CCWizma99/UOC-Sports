@@ -200,7 +200,7 @@ class TournamentParticipant {
                     u.email, 
                     u.student_id
                   FROM user u
-                  WHERE u.type = 'STUDENT' 
+                  WHERE u.type IN ('STUDENT', 'CAPTAIN') 
                     AND u.sport_id = ?
                     AND u.status = 'ACTIVE'
                   ORDER BY u.fname, u.lname";

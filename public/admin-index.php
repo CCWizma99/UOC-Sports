@@ -80,6 +80,7 @@ $router->post('/admin-inquiry/update-status', 'InquiryController@updateStatus');
 $router->post('/admin-inquiry/delete', 'InquiryController@delete');
 $router->get('/admin-teams/search-team', 'TeamApiController@search');
 $router->post('/admin-teams/remove-member', 'TeamApiController@removeMember');
+$router->post('/admin-teams/promote-to-captain', 'TeamApiController@promoteToCaptain');
 $router->get('/admin-equipments/search-equipment', 'EquipmentApiController@searchEquipment');
 $router->get('/admin-equipments/get-equipments', 'EquipmentApiController@getEquipments');
 $router->get('/admin-equipments/get-sports', 'EquipmentApiController@getSports');

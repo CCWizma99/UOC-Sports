@@ -41,29 +41,23 @@
         .student-portal-wrapper {
             display: flex;
             flex-direction: column;
-            max-width: 100%;
-            margin: 0;
-            padding: 20px 40px;
-            /* Increased padding */
-            height: calc(100vh - 120px);
-            min-height: 520px;
+            gap: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
             box-sizing: border-box;
-            overflow-y: auto;
         }
 
         .portal-card.welcome-card {
-            flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 30px 45px;
-            /* Significantly increased padding */
+            padding: 20px 30px;
             margin-bottom: 0;
-            overflow-y: auto;
             box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .portal-card h2 {
@@ -99,8 +93,8 @@
         .summary-card.equipment,
         .summary-card.facilities {
             --accent: #5e2d91;
-            --bg: #f9f6ff;
-            --border: #e9e4f5;
+            --bg: #ffffff;
+            --border: #f1f5f9;
         }
 
         /* Standard Cards on the Left */
@@ -428,16 +422,33 @@
             color: #999;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 1100px) {
             .summary-grid {
                 grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+            .summary-card.sessions {
+                grid-column: 1;
+                grid-row: auto;
+            }
+            .student-portal-wrapper {
+                padding: 15px;
             }
         }
 
         @media (max-width: 768px) {
-            .student-portal-wrapper {
-                height: auto;
-                min-height: 100vh;
+            .portal-card.welcome-card {
+                padding: 15px 20px;
+            }
+            .portal-card h2 {
+                font-size: 1.1rem;
+            }
+            .calendar-grid {
+                gap: 1px;
+            }
+            .calendar-day {
+                min-height: 40px;
+                font-size: 0.7rem;
             }
         }
     </style>
@@ -483,7 +494,7 @@
                     <div class="card-summary" id="listEquipment"></div>
                 </a>
 
-                <a href="/uoc-sports/public/student/facilities" class="summary-card facilities">
+                <a href="/uoc-sports/public/facility-reservation" class="summary-card facilities">
                     <div class="card-header">
                         <div class="card-header-left">
                             <i class="fas fa-building main-icon"></i>

@@ -180,25 +180,12 @@
                     <h2><i class="fas fa-clipboard-list"></i> Reserve Equipment</h2>
                     <form id="reserve-equipment-form">
                         <div class="input-row">
-                            <div class="input-div">
+                            <div class="input-div" style="grid-column: span 2;">
                                 <label for="sport"><i class="fas fa-running"></i> Sport *</label>
                                 <select id="sport" name="sport" required>
                                     <option value="">Select Sport</option>
                                     <?php foreach ($data['sports'] as $sport): ?>
                                         <option value="<?= $sport['sport_id'] ?>"><?= $sport['sport_name'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="input-div">
-                                <label for="reserved_location"><i class="fas fa-map-marker-alt"></i> Location</label>
-                                <select id="reserved_location" name="reserved_location">
-                                    <option value="">Select Location</option>
-                                    <?php 
-                                    $locations = ['Badminton Court', 'Tennis Court', 'Baseball Pitch', 'Cricket Pitch', 
-                                                 'Football Ground', 'Basketball Court', 'Volleyball Court', 'Swimming Pool', 'Gym', 'Ground'];
-                                    foreach ($locations as $location):
-                                    ?>
-                                        <option value="<?= $location ?>"><?= $location ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -211,11 +198,11 @@
                             </div>
                             <div class="input-div">
                                 <label for="start-time"><i class="fas fa-clock"></i> Start *</label>
-                                <input type="time" id="start-time" name="start_time" required>
+                                <input type="time" id="start-time" name="start_time" step="1800" required>
                             </div>
                             <div class="input-div">
                                 <label for="end-time"><i class="fas fa-clock"></i> End *</label>
-                                <input type="time" id="end-time" name="end_time" required>
+                                <input type="time" id="end-time" name="end_time" step="1800" required>
                             </div>
                         </div>
 
@@ -391,8 +378,23 @@
 
         // Reload equipment when date/time changes to update availability
         document.getElementById('date').addEventListener('change', tryLoadEquipment);
+
+        const roundTo30 = (timeStr) => {
+            if (!timeStr) return "";
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            const roundedMinutes = minutes < 15 ? 0 : (minutes < 45 ? 30 : 0);
+            let roundedHours = (minutes >= 45) ? (hours + 1) % 24 : hours;
+            return `${String(roundedHours).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')}`;
+        };
+
         ['start-time', 'end-time'].forEach(id => {
-            document.getElementById(id).addEventListener('change', () => {
+            const el = document.getElementById(id);
+            el.addEventListener('change', () => {
+                const rounded = roundTo30(el.value);
+                if (rounded !== el.value) {
+                    el.value = rounded;
+                }
+                
                 const sportId = sportSelect.value;
                 const date = document.getElementById('date').value;
                 if (sportId && date) loadEquipmentBySport(sportId);

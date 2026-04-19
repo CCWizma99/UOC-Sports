@@ -129,6 +129,14 @@ if (isset($_GET['sport_id'])) {
                                     onclick="removeMember('<?php echo $sport_id; ?>', '<?php echo $member['user_id']; ?>', '<?php echo htmlspecialchars($member['fname'] . ' ' . $member['lname']); ?>')">
                                 <i class="fas fa-user-minus"></i> Remove
                             </button>
+                            <?php if ($member['user_id'] !== $sport['captain_id']): ?>
+                            <button class="btn-action btn-promote" 
+                                    onclick="promoteToCaptain('<?php echo $sport_id; ?>', '<?php echo $member['user_id']; ?>', '<?php echo htmlspecialchars($member['fname'] . ' ' . $member['lname']); ?>')">
+                                <i class="fas fa-user-shield"></i> Promote
+                            </button>
+                            <?php else: ?>
+                            <span class="badge-captain"><i class="fas fa-check-circle"></i> Current Captain</span>
+                            <?php endif; ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -169,6 +177,33 @@ function removeMember(sportId, userId, userName) {
         })
         .catch(err => {
             showNotification('Error removing member', 'error');
+            console.error(err);
+        });
+    }
+}
+function promoteToCaptain(sportId, userId, userName) {
+    if (confirm(`Are you sure you want to promote ${userName} to Captain? This will demote the current captain if one exists.`)) {
+        fetch('/uoc-sports/admin-teams/promote-to-captain', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                sport_id: sportId,
+                user_id: userId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showNotification('User promoted to captain successfully', 'success');
+                location.reload();
+            } else {
+                showNotification('Error: ' + (data.message || 'Failed to promote user'), 'error');
+            }
+        })
+        .catch(err => {
+            showNotification('Error promoting user', 'error');
             console.error(err);
         });
     }

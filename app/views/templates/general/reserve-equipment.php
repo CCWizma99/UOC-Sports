@@ -36,12 +36,12 @@
 
         <div class="input-div half">
           <label for="start-time"><i class="fas fa-clock"></i> Start Time</label>
-          <input type="time" id="start-time" name="start_time" required>
+          <input type="time" id="start-time" name="start_time" step="1800" required>
         </div>
 
         <div class="input-div half">
           <label for="end-time"><i class="fas fa-clock"></i> End Time</label>
-          <input type="time" id="end-time" name="end_time" required>
+          <input type="time" id="end-time" name="end_time" step="1800" required>
         </div>
       </div>
 
@@ -181,6 +181,24 @@ document.addEventListener("DOMContentLoaded", () => {
       timesDiv.style.display = "none";
     }
   }
+
+  const roundTo30 = (timeStr) => {
+    if (!timeStr) return "";
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const roundedMinutes = minutes < 15 ? 0 : (minutes < 45 ? 30 : 0);
+    let roundedHours = (minutes >= 45) ? (hours + 1) % 24 : hours;
+    return `${String(roundedHours).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')}`;
+  };
+
+  ['start-time', 'end-time'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('change', () => {
+      const rounded = roundTo30(el.value);
+      if (rounded !== el.value) {
+        el.value = rounded;
+      }
+    });
+  });
 
   // 🧾 Submit reservation
   document.getElementById("reserve-equipment-form").addEventListener("submit", async e => {

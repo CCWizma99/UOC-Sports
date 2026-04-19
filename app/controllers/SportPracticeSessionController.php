@@ -94,7 +94,7 @@ class SportPracticeSessionController
                 'end_time' => $_POST['etime'] ?? '',
 
                 'need_equipment' => $_POST['need_equipment'] ?? 'No',
-                'added_by' => $_SESSION['user_type'] ?? 'MANAGER',
+                'added_by' => $_SESSION['user_type'] ?? 'SPT',
                 'status' => 'PENDING'
             ];
 

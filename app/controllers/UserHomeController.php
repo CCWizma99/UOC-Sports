@@ -67,6 +67,10 @@ class UserHomeController {
         $enrolledSports = [];
         if ($user['type'] === 'STUDENT' || $user['type'] === 'CAPTAIN') {
             $enrolledSports = $userModel->getEnrolledSports($user_id);
+            $attendanceModel = new Attendance();
+            foreach ($enrolledSports as &$sport) {
+                $sport['attendance_pct'] = $attendanceModel->calculateAttendancePercentage($user_id, $sport['sport_id']);
+            }
         }
 
         // Get facility bookings

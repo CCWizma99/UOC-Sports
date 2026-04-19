@@ -102,12 +102,12 @@
 
                     <div class="form-group">
                         <label for="start_time">Start Time <span class="required-star">*</span></label>
-                        <input type="time" id="start_time" name="start_time" min="06:00" max="20:00" value="<?= isset($editData) ? htmlspecialchars($editData['start_time'] ?? '') : '' ?>" required>
+                        <input type="time" id="start_time" name="start_time" min="06:00" max="20:00" step="1800" value="<?= isset($editData) ? htmlspecialchars($editData['start_time'] ?? '') : '' ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="end_time">End Time <span class="required-star">*</span></label>
-                        <input type="time" id="end_time" name="end_time" min="06:00" max="20:00" value="<?= isset($editData) ? htmlspecialchars($editData['end_time'] ?? '') : '' ?>" required>      
+                        <input type="time" id="end_time" name="end_time" min="06:00" max="20:00" step="1800" value="<?= isset($editData) ? htmlspecialchars($editData['end_time'] ?? '') : '' ?>" required>      
                     </div>
 
                     <div class="form-group equipment-selection-container">
@@ -117,21 +117,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="reserved_location">Reserved Location <span class="required-star">*</span></label>
-                        <select id="reserved_location" name="reserved_location" required>
-                            <?php 
-                            $selectedLocation = isset($editData) ? $editData['reserved_location'] : '';
-                            $locations = ['', 'Badminton Court', 'Tennis Court', 'Baseball Pitch', 'Cricket Pitch', 
-                                         'Football Ground', 'Basketball Court', 'Volleyball Court', 'Swimming Pool', 'Gym', 'Ground'];
-                            foreach ($locations as $location):
-                            ?>
-                                <option value="<?= $location ?>" <?= $selectedLocation === $location ? 'selected' : '' ?>>
-                                    <?= $location === '' ? 'Select Location' : $location ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
 
 
 
@@ -780,7 +765,18 @@ document.getElementById('reservation_date').addEventListener('change', function(
     validateBookingInstantly();
 });
 
+const roundTo30 = (timeStr) => {
+    if (!timeStr) return "";
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    const roundedMinutes = minutes < 15 ? 0 : (minutes < 45 ? 30 : 0);
+    let roundedHours = (minutes >= 45) ? (hours + 1) % 24 : hours;
+    return `${String(roundedHours).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')}`;
+};
+
 document.getElementById('start_time').addEventListener('change', function() {
+    const rounded = roundTo30(this.value);
+    if (rounded !== this.value) this.value = rounded;
+    
     const sportId = document.getElementById('sport').value;
     if (sportId) {
         loadEquipmentBySport(sportId);
@@ -789,6 +785,9 @@ document.getElementById('start_time').addEventListener('change', function() {
 });
 
 document.getElementById('end_time').addEventListener('change', function() {
+    const rounded = roundTo30(this.value);
+    if (rounded !== this.value) this.value = rounded;
+
     const sportId = document.getElementById('sport').value;
     if (sportId) {
         loadEquipmentBySport(sportId);

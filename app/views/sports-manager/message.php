@@ -3,308 +3,523 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Send a Message | UOC Sports E-Portal</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <title>Communicate | UOC Sports E-Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    @import url("/uoc-sports/public/css/global.css");
+    @import url("/uoc-sports/public/css/general/header.css");
+    @import url("/uoc-sports/public/css/general/footer.css");
+    @import url("/uoc-sports/public/css/sports-manager/messages.css");
+    
+    .page-container {
+        padding: 20px 40px;
+        min-height: calc(100vh - 160px);
+    }
 
-  	<style>
-		@import url("/uoc-sports/public/css/global.css");
-		@import url("/uoc-sports/public/css/general/header.css");
-		@import url("/uoc-sports/public/css/sports-manager/messages.css");
-		@import url("/uoc-sports/public/css/general/footer.css");
-    @import url("/uoc-sports/public/css/sports-manager/report.css");
-	</style>
-  <script src="/uoc-sports/public/js/sports-manager/page.js" defer></script>  
-</head> 
-<body data-user-id="<?= htmlspecialchars($userId ?? '') ?>">
-<?php
-    require "../app/views/templates/general/header.php";
-?>
+    .container-header {
+        margin-bottom: 30px;
+    }
 
-<script>
-// Pass backend conversations data to JavaScript
-const backendConversations = <?= json_encode($conversations ?? []) ?>;
-</script>
+    .container-header h2 {
+        color: #2b0c4d;
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .container-header p {
+        color: #666;
+    }
+
+    /* Standardized Communication UI Styles */
+    .content-wrapper {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 30px;
+    }
+
+    .form-section {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        height: fit-content;
+    }
+
+    .form-section h2 {
+        font-size: 20px;
+        color: #2b0c4d;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .form-group select,
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: inherit;
+    }
+
+    .form-group textarea {
+        height: 120px;
+        resize: vertical;
+    }
+
+    .send-btn {
+        background: linear-gradient(135deg, #6b3fa0 0%, #8e5fb8 100%);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        width: 100%;
+    }
+
+    .send-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(107, 63, 160, 0.4);
+    }
+
+    .messages-section {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .messages-header {
+        padding: 20px 25px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .messages-header h2 {
+        font-size: 18px;
+        color: #2b0c4d;
+        margin: 0;
+    }
+
+    .message-count {
+        background: #6b3fa0;
+        color: white;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        margin-left: 8px;
+    }
+
+    .messages-container {
+        padding: 15px;
+        min-height: 400px;
+    }
+
+    .title-group {
+        margin-bottom: 25px;
+    }
+
+    .title-group-header {
+        font-weight: 700;
+        color: #6b3fa0;
+        padding: 0 10px 10px;
+        border-bottom: 1px dashed #ddd;
+        margin-bottom: 10px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .message-item {
+        padding: 15px;
+        border-radius: 12px;
+        background: #fff;
+        border: 1px solid #f0f0f0;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: 0.2s;
+        position: relative;
+    }
+
+    .message-item:hover {
+        background: #f9f6ff;
+        border-color: #dcd0ff;
+    }
+
+    .message-item.unread {
+        background: #f0ebf7;
+        border-left: 4px solid #6b3fa0;
+    }
+
+    .message-sender {
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .message-text {
+        font-size: 13px;
+        color: #666;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .message-date {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 11px;
+        color: #999;
+    }
+
+    .status {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 13px;
+        display: none;
+    }
+
+    .status.success { display: block; background: #d1fae5; color: #065f46; }
+    .status.error { display: block; background: #fee2e2; color: #991b1b; }
+
+    /* Modal */
+    .modal {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 600px;
+        overflow: hidden;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+        background: #2b0c4d;
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-body { padding: 25px; }
+
+    .modal-meta {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 15px;
+        display: flex;
+        gap: 15px;
+    }
+
+    .modal-message {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #333;
+        white-space: pre-wrap;
+        margin-bottom: 25px;
+    }
+
+    .reply-btn {
+        background: #6b3fa0;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .loading-state {
+        text-align: center;
+        padding: 50px;
+        color: #999;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 50px;
+        color: #666;
+    }
+  </style>
+</head>
+<body>
+
+<?php require "../app/views/templates/general/header.php"; ?>
 
 <div class="page-container">
-  <!-- Header -->
     <div class="container-header">
-        <h2>Messages</h2>
-        <p>Manage important messages among the sport's team members.</p>
-      </div>
-
-  <?php if (isset($_SESSION['success_message'])): ?>
-    <div style="padding: 0.75rem; background: #d1fae5; color: #065f46; border-radius: 8px; margin: 0 2rem 1rem;">
-        <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
-    </div>
-  <?php endif; ?>
-
-  <?php if (isset($_SESSION['error_message'])): ?>
-    <div style="padding: 0.75rem; background: #fee2e2; color: #991b1b; border-radius: 8px; margin: 0 2rem 1rem;">
-        <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
-    </div>
-  <?php endif; ?>
-
-  <!-- Send Message Form (Initially Hidden) -->
- 
-  <div class="form-container" id="messageFormSection" style="display: none;">
-    <div class="page-header" style="margin-bottom: 1.5rem;">
-      <h2 style="color: #5e2d91; margin: 0 0 0.5rem 0;">Send a Message</h2>
-      <p style="color: rgba(0,0,0,0.6); margin: 0;">Compose a new message to team members</p>
-    </div>
-    <form class="form" id="messageForm" method="POST" action="/uoc-sports/public/sport-manager/messages/send" style="padding: 0;">
-      <div class="form-grid">
-      <div class="form-group">
-        <label for="recipient">To</label>
-        <select name="receiver_id" id="recipient" required>
-          <option value="" disabled selected>Select Recipient</option>
-          <option value="all-students">All Students (Enrolled in this Sport)</option>
-          <option value="coaches">Cricket Coach</option>
-          <option value="players">Equipment Manager</option>
-          <?php if (!empty($recipients)): ?>
-            <?php foreach ($recipients as $recipient): ?>
-              <option value="<?= htmlspecialchars($recipient['user_id']) ?>">
-                <?= htmlspecialchars($recipient['name']) ?> - <?= htmlspecialchars($recipient['role']) ?>
-              </option>
-            <?php endforeach; ?>
-          <?php endif; ?>
-        </select>
-      </div>
-
-
-      <div class="form-group">
-        <label for="title">Title</label>
-        <input type="text" name="title" id="title" placeholder="Add Title" required>
-      </div>
-      </div>
-
-      <div class="form-group">
-        <label for="message">Message</label>
-        <textarea name="message" id="message" placeholder="Add Message ..." required></textarea>
-      </div>
-
-      <div class="form-actions">
-        <button type="button" class="view-all-link" onclick="toggleMessageForm()" style="width: fit-content; cursor: pointer;">Cancel</button>
-        <button type="submit" class="view-all-link">Send</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- Messages Grid -->
-  <div class="messages-section" style="margin: 0 2rem;">
-    <div class="messages-header">
-      <h2>Conversations</h2>
-      <!-- Toggle Button -->
-  <div>
-    <button class="view-all-link" onclick="toggleMessageForm()">
-     New Message
-    </button>
-  </div>
+        <h2>Messages & Communication</h2>
+        <p>Coordinate with your sport's Coach, Captain, and University Admins.</p>
     </div>
 
-    <div class="messages-container" id="messagesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-      <!-- Dummy Conversation 1 -->
-      <div class="message-card" style="background: white; border: 2px solid #5e2d91; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
-        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-          <div>
-            <h3 style="margin: 0 0 0.25rem 0; color: #5e2d91; font-size: 1.1rem;">
-              John Smith
-            </h3>
-            <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
-              Coach
-            </p>
-          </div>
-          <span style="color: #9ca3af; font-size: 0.75rem;">2 hours ago</span>
-        </div>
-        <div style="margin-bottom: 0.5rem;">
-          <strong style="color: #374151; display: block; margin-bottom: 0.25rem;">Practice Session Update</strong>
-          <p style="margin: 0; color: #374151; line-height: 1.5;">
-            The practice session scheduled for tomorrow has been moved to 4:00 PM instead of 3:00 PM. Please inform all team members.
-          </p>
-        </div>
-        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-          <button onclick="alert('Reply feature coming soon')" style="background: #2b0c4d; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
-            Reply
-          </button>
-          <button onclick="alert('View full conversation')" style="background: white; color: #5e2d91; border: 1px solid #5e2d91; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
-            View Thread
-          </button>
-        </div>
-      </div>
+    <div class="content-wrapper">
+        <!-- Send Message Form -->
+        <div class="form-section">
+            <h2>Compose Message</h2>
+            <form id="messageForm">
+                <div class="form-group">
+                    <label for="recipient">To</label>
+                    <select id="recipient" name="recipient" required>
+                        <option value="" disabled selected>Loading contacts...</option>
+                    </select>
+                </div>
 
-      
-      <!-- Dummy Conversation 3 -->
-      <div class="message-card" style="background: white; border: 2px solid #5e2d91; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
-        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-          <div>
-            <h3 style="margin: 0 0 0.25rem 0; color: #5e2d91; font-size: 1.1rem;">
-              Michael Chen
-            </h3>
-            <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
-              Captain
-            </p>
-          </div>
-          <span style="color: #9ca3af; font-size: 0.75rem;">1 day ago</span>
-        </div>
-        <div style="margin-bottom: 0.5rem;">
-          <strong style="color: #374151; display: block; margin-bottom: 0.25rem;">Tournament Registration</strong>
-          <p style="margin: 0; color: #374151; line-height: 1.5;">
-            We need to finalize the team roster for the inter-university tournament. Please review the attached list and confirm by end of week.
-          </p>
-        </div>
-        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-          <button onclick="alert('Reply feature coming soon')" style="background: #2b0c4d; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
-            Reply
-          </button>
-          <button onclick="alert('View full conversation')" style="background: white; color: #5e2d91; border: 1px solid #5e2d91; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
-            View Thread
-          </button>
-        </div>
-      </div>
+                <div class="form-group">
+                    <label for="title">Subject</label>
+                    <input type="text" id="title" name="title" placeholder="What is this about?" required>
+                </div>
 
-      <!-- Dummy Conversation 4 -->
-      <div class="message-card" style="background: white; border: 2px solid #5e2d91; border-radius: 8px; padding: 1.5rem; transition: all 0.3s ease;">
-        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-          <div>
-            <h3 style="margin: 0 0 0.25rem 0; color: #5e2d91; font-size: 1.1rem;">
-              Emma Davis
-            </h3>
-            <p style="margin: 0; color: #6b7280; font-size: 0.875rem;">
-              Team Member
-            </p>
-          </div>
-          <span style="color: #9ca3af; font-size: 0.75rem;">2 days ago</span>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" placeholder="Write your message here..." required></textarea>
+                </div>
+
+                <button type="submit" class="send-btn">Send Message</button>
+                <div id="statusMsg" class="status"></div>
+            </form>
         </div>
-        <div style="margin-bottom: 0.5rem;">
-          <strong style="color: #374151; display: block; margin-bottom: 0.25rem;">Injury Report</strong>
-          <p style="margin: 0; color: #374151; line-height: 1.5;">
-            I injured my ankle during yesterday's practice. Medical report attached. I'll need to sit out for the next two weeks per doctor's recommendation.
-          </p>
+
+        <!-- Inbox Section -->
+        <div class="messages-section">
+            <div class="messages-header">
+                <h2>Message History <span class="message-count" id="messageCount">0</span></h2>
+            </div>
+            <div class="messages-container" id="messagesContainer">
+                <div class="loading-state">
+                    <p><i class="fas fa-spinner fa-spin"></i> Fetching messages...</p>
+                </div>
+            </div>
         </div>
-        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-          <button onclick="alert('Reply feature coming soon')" style="background: #2b0c4d; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; margin-right: 0.5rem;">
-            Reply
-          </button>
-          <button onclick="alert('View full conversation')" style="background: white; color: #5e2d91; border: 1px solid #5e2d91; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
-            View Thread
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
 </div>
 
+<!-- View Message Modal -->
+<div id="messageModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Message Title</h3>
+            <button onclick="closeModal()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-meta">
+                <span id="modalSender"></span>
+                <span id="modalDate"></span>
+            </div>
+            <div class="modal-message" id="modalMessage"></div>
+            <button class="reply-btn" onclick="replyToMessage()">Reply</button>
+        </div>
+    </div>
+</div>
 
-         <?php
-    require "../app/views/templates/general/footer.php";
-?>
+<?php require "../app/views/templates/general/footer.php"; ?>
 
 <script>
-function toggleMessageForm() {
-    const formSection = document.getElementById('messageFormSection');
-    if (formSection.style.display === 'none') {
-        formSection.style.display = 'block';
-        formSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-        formSection.style.display = 'none';
-        document.getElementById('messageForm').reset();
-    }
-}
+    let messagesData = [];
+    let currentMessage = null;
 
-// Debug function to check form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const messageForm = document.getElementById('messageForm');
-    if (messageForm) {
-        console.log('Message form found');
-        messageForm.addEventListener('submit', async function(e) {
-            const recipient = document.getElementById('recipient').value;
-            const title = document.getElementById('title').value;
-            const message = document.getElementById('message').value;
-
-            if (recipient === 'all-students') {
-                e.preventDefault();
-                
-                if (!confirm('Are you sure you want to send this email to ALL students enrolled in this sport?')) {
-                    return;
-                }
-
-                const submitBtn = messageForm.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerText;
-                submitBtn.innerText = 'Sending...';
-                submitBtn.disabled = true;
-
-                try {
-                    const response = await fetch('/uoc-sports/public/api/sport-manager/mass-email', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            subject: title,
-                            message: message,
-                            sport_id: '<?= $_SESSION["selected_sport_id"] ?? "" ?>'
-                        })
-                    });
-
-                    const result = await response.json();
-                    
-                    if (result.status === 'success') {
-                        alert(result.message);
-                        toggleMessageForm();
-                    } else {
-                        alert('Error: ' + result.message);
-                    }
-                } catch (err) {
-                    console.error('Mass email error:', err);
-                    alert('An error occurred while sending mass email.');
-                } finally {
-                    submitBtn.innerText = originalText;
-                    submitBtn.disabled = false;
-                }
+    async function loadRecipients() {
+        try {
+            const res = await fetch('/uoc-sports/public/api/manager/message/recipients');
+            const result = await res.json();
+            const select = document.getElementById('recipient');
+            
+            if (result.status === 'success') {
+                select.innerHTML = '<option value="" disabled selected>-- Select Recipient --</option>';
+                result.data.forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value = JSON.stringify({id: r.user_id, type: r.type});
+                    opt.textContent = r.label;
+                    select.appendChild(opt);
+                });
+            } else {
+                select.innerHTML = '<option value="" disabled selected>Error loading contacts</option>';
             }
-        });
+        } catch (e) {
+            console.error(e);
+        }
     }
-});
 
-function viewConversation(partnerId) {
-    // Redirect to conversation view or open modal
-    window.location.href = '/uoc-sports/public/sport-manager/messages/conversation?partner_id=' + partnerId;
-}
+    async function loadMessages() {
+        try {
+            const [inboxRes, sentRes] = await Promise.all([
+                fetch('/uoc-sports/public/api/message/inbox'),
+                fetch('/uoc-sports/public/api/message/list')
+            ]);
 
-function deleteConversation(partnerId) {
-    if (!confirm('Are you sure you want to delete this conversation?')) {
-        return;
+            const inbox = await inboxRes.json();
+            const sent = await sentRes.json();
+            
+            let all = [];
+            if (inbox.status === 'success') all = all.concat(inbox.data.map(m => ({...m, flow: 'received'})));
+            if (sent.status === 'success') all = all.concat(sent.data.map(m => ({...m, flow: 'sent', is_read: true})));
+
+            all.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            messagesData = all;
+            renderMessages();
+        } catch (e) {
+            console.error(e);
+        }
     }
-    
-    // In a real implementation, you'd call an API to delete all messages in conversation
-    alert('Delete conversation functionality - implement as needed');
-}
 
-// Auto-hide success/error messages after 5 seconds
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function() {
-        const alerts = document.querySelectorAll('[style*="background: #d1fae5"], [style*="background: #fee2e2"]');
-        alerts.forEach(alert => {
-            alert.style.transition = 'opacity 0.5s';
-            alert.style.opacity = '0';
-            setTimeout(() => alert.remove(), 500);
-        });
-    }, 5000);
-});
+    function renderMessages() {
+        const container = document.getElementById('messagesContainer');
+        container.innerHTML = '';
+        
+        if (messagesData.length === 0) {
+            container.innerHTML = '<div class="empty-state"><p>No messages yet.</p></div>';
+            return;
+        }
 
-// Add hover effect to message cards
-document.addEventListener('DOMContentLoaded', function() {
-    const cards = document.querySelectorAll('.message-card');
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-            this.style.borderColor = '#5e2d91';
+        const grouped = {};
+        messagesData.forEach(m => {
+            const t = m.title || 'No Subject';
+            if (!grouped[t]) grouped[t] = [];
+            grouped[t].push(m);
         });
-        card.addEventListener('mouseleave', function() {
-            this.style.boxShadow = 'none';
-            this.style.borderColor = '#e5e7eb';
+
+        Object.keys(grouped).forEach(title => {
+            const group = document.createElement('div');
+            group.className = 'title-group';
+            group.innerHTML = `<div class="title-group-header">${title}</div>`;
+
+            grouped[title].forEach(msg => {
+                const item = document.createElement('div');
+                item.className = 'message-item' + (msg.is_read ? '' : ' unread');
+                item.onclick = () => openMessage(msg);
+                
+                const senderLabel = msg.flow === 'sent' ? `To: ${msg.recipient_name}` : `From: ${msg.sender} (${msg.sender_role})`;
+                
+                item.innerHTML = `
+                    <div class="message-sender">${senderLabel}</div>
+                    <div class="message-text">${msg.text}</div>
+                    <span class="message-date">${msg.date}</span>
+                `;
+                group.appendChild(item);
+            });
+            container.appendChild(group);
         });
+
+        document.getElementById('messageCount').textContent = messagesData.length;
+    }
+
+    function openMessage(msg) {
+        currentMessage = msg;
+        document.getElementById('modalTitle').textContent = msg.title;
+        document.getElementById('modalSender').textContent = msg.flow === 'sent' ? `To: ${msg.recipient_name}` : `From: ${msg.sender}`;
+        document.getElementById('modalDate').textContent = msg.date;
+        document.getElementById('modalMessage').textContent = msg.full_message;
+        document.getElementById('messageModal').style.display = 'flex';
+
+        if (!msg.is_read) {
+            const fd = new FormData();
+            fd.append('message_id', msg.id);
+            fetch('/uoc-sports/public/api/message/mark-read', { method: 'POST', body: fd });
+            msg.is_read = true;
+            renderMessages();
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('messageModal').style.display = 'none';
+    }
+
+    function replyToMessage() {
+        if (!currentMessage) return;
+        document.getElementById('title').value = 'Re: ' + currentMessage.title;
+        
+        const select = document.getElementById('recipient');
+        const targetId = currentMessage.sender_id;
+        
+        for (let i = 0; i < select.options.length; i++) {
+            try {
+                const val = JSON.parse(select.options[i].value);
+                if (val.id === targetId) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            } catch(e) {}
+        }
+        
+        closeModal();
+        document.getElementById('message').focus();
+    }
+
+    document.getElementById('messageForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const status = document.getElementById('statusMsg');
+        
+        try {
+            const recipientData = JSON.parse(document.getElementById('recipient').value);
+            const formData = new FormData();
+            formData.append('recipient_id', recipientData.id);
+            formData.append('recipient_type', recipientData.type);
+            formData.append('title', document.getElementById('title').value);
+            formData.append('message', document.getElementById('message').value);
+
+            const res = await fetch('/uoc-sports/public/api/message/send', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await res.json();
+
+            if (result.status === 'success') {
+                status.textContent = 'Message sent!';
+                status.className = 'status success';
+                e.target.reset();
+                loadMessages();
+            } else {
+                status.textContent = result.message || 'Error sending';
+                status.className = 'status error';
+            }
+        } catch (err) {
+            status.textContent = 'Error sending message';
+            status.className = 'status error';
+        }
+
+        setTimeout(() => status.style.display = 'none', 3000);
     });
-});
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadRecipients();
+        loadMessages();
+    });
 </script>
 
 </body>

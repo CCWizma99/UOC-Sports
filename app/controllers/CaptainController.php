@@ -105,19 +105,39 @@ class CaptainController {
 
         /* ===== HANDLE ACTIONS ===== */
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
             $tid = $_POST['tournament_id'] ?? null;
             
             if (!$tid) {
+                if ($isAjax) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'message' => 'Tournament ID is missing.']);
+                    exit;
+                }
                 header("Location: /uoc-sports/public/captain/add-members");
                 exit;
             }
 
-            if (isset($_POST['add_member_id'])) {
-                $tpModel->addParticipants($tid, [$_POST['add_member_id']], $userId);
-            }
+            try {
+                if (isset($_POST['add_member_id'])) {
+                    $tpModel->addParticipants($tid, [$_POST['add_member_id']], $userId);
+                }
 
-            if (isset($_POST['remove_member_id'])) {
-                $tpModel->removeParticipant($tid, $_POST['remove_member_id']);
+                if (isset($_POST['remove_member_id'])) {
+                    $tpModel->removeParticipant($tid, $_POST['remove_member_id']);
+                }
+
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => true]);
+                    exit;
+                }
+            } catch (Exception $e) {
+                if ($isAjax) {
+                    http_response_code(500);
+                    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+                    exit;
+                }
             }
 
             header("Location: /uoc-sports/public/captain/add-members?tournament_id=" . $tid);

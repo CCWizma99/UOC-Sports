@@ -139,6 +139,26 @@ ORDER BY lname, fname
     }
 
     /**
+     * Get attendance history for a single student in a specific sport
+     */
+    public function getStudentAttendanceHistory($userId, $sportId) {
+        $stmt = $this->db->prepare("
+            SELECT ps.session_date, ps.start_time, a.status 
+            FROM attendance a
+            INNER JOIN practice_sessions ps ON a.practice_id = ps.id
+            WHERE a.user_id = :user_id 
+              AND ps.sport_id = :sport_id
+              AND a.record_status = 'ACTIVE'
+            ORDER BY ps.session_date DESC, ps.start_time DESC
+        ");
+        $stmt->execute([
+            'user_id' => $userId,
+            'sport_id' => $sportId
+        ]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Get attendance percentages for all team members
      * @param string $sportId - Sport ID
      * @return array - Array of user_id => percentage

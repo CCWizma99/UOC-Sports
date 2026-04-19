@@ -568,20 +568,40 @@ class EmailService {
     }
 
     /**
-     * Notify Admin of a new expense submission
+     * Notify Admin of a new expense submission and budget warnings
      */
-    public function sendExpenseAddedEmail($adminEmail, $adminName, $expenseData) {
+    public function sendExpenseAddedEmail($adminEmail, $adminName, $expenseData, $remainingBalance = null) {
         $subject = "New Expense Submitted: " . $expenseData['expense_title'];
         
+        $warningHtml = "";
+        $headerColor = "#1e293b";
+        $headerTitle = "New Expense Submission";
+        
+        if ($remainingBalance !== null) {
+            if ($remainingBalance <= 0) {
+                $subject = "URGENT: Budget Exceeded - " . $expenseData['sport'];
+                $headerColor = "#dc2626"; // Red
+                $headerTitle = "⚠️ Budget Exceeded Limit";
+                $warningHtml = "<div style='background-color: #fee2e2; color: #dc2626; padding: 15px; border-left: 4px solid #dc2626; margin: 20px 0; font-weight: bold;'>WARNING: The remaining budget for " . $expenseData['sport'] . " has exceeded the allocation or hit zero. Current Remaining: LKR " . number_format($remainingBalance, 2) . "</div>";
+            } elseif ($remainingBalance < 10000) {
+                $subject = "WARNING: Low Budget - " . $expenseData['sport'];
+                $headerColor = "#f59e0b"; // Yellow 
+                $headerTitle = "⚠️ Low Budget Warning";
+                $warningHtml = "<div style='background-color: #fef3c7; color: #d97706; padding: 15px; border-left: 4px solid #f59e0b; margin: 20px 0; font-weight: bold;'>WARNING: The remaining budget for " . $expenseData['sport'] . " is running low. Current Remaining: LKR " . number_format($remainingBalance, 2) . "</div>";
+            }
+        }
+
         $htmlContent = "
             <html>
                 <body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>
-                    <div style='background: #1e293b; color: white; padding: 20px; text-align: center;'>
-                        <h1>New Expense Submission</h1>
+                    <div style='background: $headerColor; color: white; padding: 20px; text-align: center;'>
+                        <h1>$headerTitle</h1>
                     </div>
                     <div style='padding: 20px;'>
                         <h2>Hello $adminName,</h2>
                         <p>A new sport expense has been submitted for review.</p>
+                        
+                        $warningHtml
                         
                         <div style='background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;'>
                             <h3 style='margin: 0 0 10px; color: #1e40af;'>Expense Details</h3>
@@ -602,6 +622,138 @@ class EmailService {
             </html>
         ";
         return $this->sendEmail($adminEmail, $adminName, $subject, $htmlContent);
+    }
+
+    /**
+     * Send a portal message notification email.
+     * Called automatically whenever a message is sent through the UOC Sports messaging system.
+     *
+     * @param string $recipientEmail  Registered email of the recipient
+     * @param string $recipientName   Full name of the recipient
+     * @param string $senderName      Full name of the sender
+     * @param string $senderRole      Human-readable role of the sender (e.g., "Sports Manager")
+     * @param string $subject         Message subject/title
+     * @param string $messageText     The actual message content
+     * @param string $inboxUrl        Deep-link to the recipient's inbox
+     * @return array
+     */
+    public function sendMessageNotification(
+        $recipientEmail,
+        $recipientName,
+        $senderName,
+        $senderRole,
+        $subject,
+        $messageText,
+        $inboxUrl = 'http://localhost/uoc-sports/public/'
+    ) {
+        $emailSubject = "New Message: " . htmlspecialchars($subject) . " — UOC Sports E-Portal";
+        $safeMessage  = nl2br(htmlspecialchars($messageText));
+        $safeSubject  = htmlspecialchars($subject);
+        $safeSender   = htmlspecialchars($senderName);
+        $safeRole     = htmlspecialchars($senderRole);
+        $safeRecipient = htmlspecialchars($recipientName);
+        $date         = date('F j, Y \a\t g:i A');
+
+        $htmlContent = "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        </head>
+        <body style='margin:0; padding:0; font-family: Arial, Helvetica, sans-serif; background-color:#f4f6f9; color:#333;'>
+
+            <!-- Wrapper -->
+            <table width='100%' cellpadding='0' cellspacing='0' style='background:#f4f6f9; padding:30px 0;'>
+                <tr>
+                    <td align='center'>
+                        <table width='600' cellpadding='0' cellspacing='0' style='background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08);'>
+
+                            <!-- Header -->
+                            <tr>
+                                <td style='background: linear-gradient(135deg, #2b0c4d 0%, #6b3fa0 100%); padding:30px 40px; text-align:center;'>
+                                    <h1 style='color:#ffffff; margin:0 0 6px; font-size:22px; font-weight:700; letter-spacing:-0.5px;'>
+                                        ✉️ New Message
+                                    </h1>
+                                    <p style='color:rgba(255,255,255,0.8); margin:0; font-size:13px;'>
+                                        University of Colombo Sports E-Portal
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <!-- Body -->
+                            <tr>
+                                <td style='padding:36px 40px;'>
+                                    <p style='font-size:15px; margin:0 0 20px;'>
+                                        Dear <strong>$safeRecipient</strong>,
+                                    </p>
+                                    <p style='font-size:14px; color:#555; margin:0 0 24px; line-height:1.6;'>
+                                        You have received a new message from <strong>$safeSender</strong>
+                                        (<span style='color:#6b3fa0;'>$safeRole</span>) on the UOC Sports portal.
+                                    </p>
+
+                                    <!-- Message Card -->
+                                    <table width='100%' cellpadding='0' cellspacing='0' style='border:1px solid #e8e0f5; border-radius:8px; overflow:hidden; margin-bottom:28px;'>
+                                        <tr>
+                                            <td style='background:#f5f0ff; padding:14px 20px; border-bottom:1px solid #e8e0f5;'>
+                                                <p style='margin:0; font-size:13px; color:#888;'>SUBJECT</p>
+                                                <p style='margin:4px 0 0; font-size:16px; font-weight:700; color:#2b0c4d;'>$safeSubject</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style='padding:20px; font-size:14px; line-height:1.7; color:#333;'>
+                                                $safeMessage
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style='padding:12px 20px; background:#fafafa; border-top:1px solid #f0f0f0;'>
+                                                <p style='margin:0; font-size:12px; color:#aaa;'>Sent on $date</p>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <!-- CTA Button -->
+                                    <table width='100%' cellpadding='0' cellspacing='0'>
+                                        <tr>
+                                            <td align='center'>
+                                                <a href='$inboxUrl'
+                                                   style='display:inline-block; padding:14px 32px;
+                                                          background:linear-gradient(135deg,#6b3fa0,#8e5fb8);
+                                                          color:#ffffff; text-decoration:none;
+                                                          border-radius:8px; font-size:14px;
+                                                          font-weight:700; letter-spacing:0.3px;'>
+                                                    View &amp; Reply in Portal →
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <p style='font-size:13px; color:#999; margin:28px 0 0; line-height:1.6;'>
+                                        If you did not expect this message, please log in and review your inbox.
+                                        You can always manage your notifications in your profile settings.
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <!-- Footer -->
+                            <tr>
+                                <td style='background:#f8f8f8; border-top:1px solid #eee; padding:20px 40px; text-align:center;'>
+                                    <p style='margin:0; font-size:12px; color:#aaa; line-height:1.6;'>
+                                        This is an automated notification from the UOC Sports E-Portal.<br>
+                                        University of Colombo | Physical Education Department | Colombo 03, Sri Lanka
+                                    </p>
+                                </td>
+                            </tr>
+
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+        </body>
+        </html>";
+
+        return $this->sendEmail($recipientEmail, $recipientName, $emailSubject, $htmlContent);
     }
 }
 
