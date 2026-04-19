@@ -230,4 +230,20 @@ class Message {
             return false;
         }
     }
+
+    /**
+     * Get count of unread messages for a recipient
+     * @param string $recipientId
+     * @return int
+     */
+    public function getUnreadCount($recipientId) {
+        try {
+            $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM message WHERE recipient_id = :recipient_id AND is_read = 0 AND status = 'ACTIVE'");
+            $stmt->execute(['recipient_id' => $recipientId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? (int)$result['count'] : 0;
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
 }

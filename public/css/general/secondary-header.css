@@ -47,6 +47,7 @@
 
 .nav-tabs li a {
     display: block;
+    position: relative;
     padding: 10px 16px;
     color: rgba(255, 255, 255, 0.85);
     text-decoration: none;
@@ -69,6 +70,26 @@
     font-weight: 600;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 6px;
+}
+
+/* Notification Badge */
+.notification-badge {
+    position: absolute;
+    top: 4px;
+    right: 2px;
+    background-color: #ff3b30;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1.5px solid var(--primary-color);
 }
 
 /* Sport Selector */

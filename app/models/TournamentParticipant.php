@@ -67,12 +67,14 @@ class TournamentParticipant {
                     u.fname as first_name,
                     u.lname as last_name,
                     u.student_id,
+                    f.faculty_name,
                     COALESCE(tp.added_at, t.start_date) as added_at
                   FROM tournament t
                   JOIN sport s ON t.sport_id = s.sport_id
                   JOIN user u ON (u.user_id = s.captain_id OR u.user_id IN (
                       SELECT user_id FROM tournament_participants WHERE tournament_id = ? AND status = 'ACTIVE'
                   ))
+                  LEFT JOIN faculty f ON u.faculty_id = f.faculty_id
                   LEFT JOIN tournament_participants tp ON tp.user_id = u.user_id AND tp.tournament_id = t.tournament_id
                   WHERE t.tournament_id = ?
                   ORDER BY u.fname, u.lname";

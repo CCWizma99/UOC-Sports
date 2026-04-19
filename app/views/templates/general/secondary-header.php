@@ -46,6 +46,15 @@ if (!$isAuthorized) {
 
 $roleInfo = $roleMap[$activePortal] ?? ['name' => 'User Portal', 'url' => '#'];
 
+// Fetch unread messages count
+$unreadCount = 0;
+$userId = $_SESSION['user_id'] ?? null;
+if ($userId) {
+    require_once APP_ROOT . '/app/models/Message.php';
+    $messageModel = new Message();
+    $unreadCount = $messageModel->getUnreadCount($userId);
+}
+
 // Define navigation links for each portal
 $navLinks = [];
 
@@ -64,14 +73,14 @@ switch ($activePortal) {
             ['name' => 'Schedule', 'url' => '/uoc-sports/public/captain/schedule-practice'],
             ['name' => 'Attendance', 'url' => '/uoc-sports/public/captain/mark-attendance'],
             ['name' => 'Add Result', 'url' => '/uoc-sports/public/captain/add-result'],
-            ['name' => 'Communication', 'url' => '/uoc-sports/public/captain/communication']
+            ['name' => 'Communication', 'url' => '/uoc-sports/public/captain/communication', 'unread' => $unreadCount]
         ];
         break;
     case 'COACH':
         $navLinks = [
             ['name' => 'Home', 'url' => '/uoc-sports/public/coach'],
             ['name' => 'Injuries', 'url' => '/uoc-sports/public/coach/report-injury'],
-            ['name' => 'Communication', 'url' => '/uoc-sports/public/coach/coach-communicate'],
+            ['name' => 'Communication', 'url' => '/uoc-sports/public/coach/coach-communicate', 'unread' => $unreadCount],
         ];
         break;
     case 'EQP':
@@ -110,7 +119,7 @@ switch ($activePortal) {
             ['name' => 'Practice Sessions', 'url' => '/uoc-sports/public/sport-manager/practicesessions' . $sportParam],
             ['name' => 'Sport Events', 'url' => '/uoc-sports/public/sport-manager/tournaments' . $sportParam],
             ['name' => 'Achievements', 'url' => '/uoc-sports/public/sport-manager/team' . $sportParam],
-            ['name' => 'Messages', 'url' => '/uoc-sports/public/sport-manager/messages' . $sportParam],
+            ['name' => 'Messages', 'url' => '/uoc-sports/public/sport-manager/messages' . $sportParam, 'unread' => $unreadCount],
         ];
         break;
     case 'REG':
@@ -142,6 +151,9 @@ switch ($activePortal) {
                     <li>
                         <a href="<?= htmlspecialchars($link['url']) ?>" class="<?= $isActive ? 'active' : '' ?>">
                             <?= htmlspecialchars($link['name']) ?>
+                            <?php if (isset($link['unread']) && $link['unread'] > 0): ?>
+                                <span class="notification-badge"><?= $link['unread'] ?></span>
+                            <?php endif; ?>
                         </a>
                     </li>
                 <?php endforeach; ?>

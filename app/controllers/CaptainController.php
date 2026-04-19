@@ -165,7 +165,7 @@ class CaptainController {
                     'fname' => $p['first_name'],
                     'lname' => $p['last_name'],
                     'student_id' => $p['student_id'],
-                    'faculty_name' => ''
+                    'faculty_name' => $p['faculty_name'] ?? ''
                 ];
             }, $squad);
             

@@ -317,8 +317,11 @@
           item.onclick = () => openMessage(msg);
           
           let senderDisplay = '';
+          let actions = '';
+
           if (msg.type === 'sent') {
             senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.sender} - ${msg.recipient_name}</span>`;
+            actions = `<button class="message-delete" title="Delete" onclick="event.stopPropagation(); deleteMessage('${msg.id}')">×</button>`;
           } else {
             senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender_role} - ${msg.sender} (${msg.sport})</span>`;
           }
@@ -327,7 +330,7 @@
             <div class="message-sender">${senderDisplay}</div>
             <div class="message-text">${msg.text}</div>
             <div class="message-date">${msg.date}</div>
-            <div></div>
+            ${actions || '<div></div>'}
           `;
           titleGroup.appendChild(item);
         });
@@ -346,10 +349,12 @@
     if (msg.type === 'sent') {
        document.getElementById('modalSender').innerHTML = '↗ To: ' + (msg.sender && msg.recipient_name ? msg.sender + ' - ' + msg.recipient_name : (msg.recipient_name || 'Recipient'));
        document.getElementById('modalSport').style.display = 'none'; // Hide sport for sent items
+       document.getElementById('replyBtn').style.display = 'none';
     } else {
        document.getElementById('modalSender').textContent = '👤 ' + (msg.sender_role ? msg.sender_role + ' - ' : '') + msg.sender;
        document.getElementById('modalSport').textContent = '🏅 ' + msg.sport;
        document.getElementById('modalSport').style.display = 'block';
+       document.getElementById('replyBtn').style.display = 'inline-block';
     }
     document.getElementById('modalDate').textContent = '📅 ' + msg.date;
     document.getElementById('modalMessage').textContent = msg.full_message;
@@ -434,6 +439,40 @@
       closeModal();
     }
   });
+
+  // Delete message via API
+  async function deleteMessage(id) {
+    if (!confirm('Are you sure you want to delete this message?')) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('message_id', id);
+
+      const response = await fetch('/uoc-sports/public/api/message/delete', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        // Remove from local data
+        const index = messagesData.findIndex(msg => msg.id === id);
+        if (index > -1) {
+          messagesData.splice(index, 1);
+          renderMessages();
+        }
+        showStatus('Message deleted successfully', 'success');
+      } else {
+        showStatus(result.message || 'Failed to delete message', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      showStatus('Error deleting message', 'error');
+    }
+  }
 
   // Show status message
   function showStatus(message, type) {
