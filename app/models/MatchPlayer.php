@@ -139,9 +139,9 @@ class MatchPlayer {
 
         // Manually add external_id if it's missing (one-time migration for existing tables)
         try {
-            $this->db->exec("ALTER TABLE `match_players` ADD COLUMN `external_id` varchar(50) DEFAULT NULL AFTER `is_uoc_student` text");
+            $this->db->exec("ALTER TABLE `match_players` ADD COLUMN `external_id` varchar(50) DEFAULT NULL AFTER `player_name` ");
         } catch (Exception $e) {
-            // Probably already exists
+            // Already exists or table missing
         }
     }
 }

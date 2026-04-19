@@ -52,6 +52,55 @@ document.addEventListener('DOMContentLoaded', function() {
     return getFilteredStudents().filter(s => s.selected);
   }
 
+  async function sendMemberAction(student, isSelected, btn) {
+    const tid = <?php echo json_encode($selected_tournament_id); ?>;
+    if (!tid) return;
+
+    // Loading state
+    const originalText = btn.textContent;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+
+    const formData = new FormData();
+    formData.append('tournament_id', tid);
+    formData.append(isSelected ? 'remove_member_id' : 'add_member_id', student.id);
+
+    try {
+      const response = await fetch('', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+      });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+      
+      const result = await response.json();
+
+      if (result.success) {
+        // Update local state
+        const studentIndex = allStudents.findIndex(s => s.id === student.id);
+        if (studentIndex !== -1) {
+          allStudents[studentIndex].selected = !isSelected;
+          render();
+        }
+      } else {
+        alert('Error: ' + (result.message || 'Something went wrong'));
+        btn.textContent = originalText;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
+      alert('Network error. Please try again.');
+      btn.textContent = originalText;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+
   function createRow(student, isSelected) {
     const row = document.createElement('tr');
     const tid = <?php echo json_encode($selected_tournament_id); ?>;
@@ -63,13 +112,16 @@ document.addEventListener('DOMContentLoaded', function() {
       <td class="student-id">${student.idNumber}</td>
       <td class="faculty">${student.faculty}</td>
       <td>
-        <form method="post" action="">
-          <input type="hidden" name="tournament_id" value="${tid || ''}">
-          <input type="hidden" name="${isSelected ? 'remove_member_id' : 'add_member_id'}" value="${student.id}">
-          <button class="action-btn ${buttonClass}" type="submit">${buttonText}</button>
-        </form>
+        <button class="action-btn ${buttonClass}" type="button">${buttonText}</button>
       </td>
     `;
+
+    const btn = row.querySelector('.action-btn');
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sendMemberAction(student, isSelected, btn);
+    });
+
     return row;
   }
 
@@ -148,36 +200,67 @@ document.addEventListener('DOMContentLoaded', function() {
     tourSelect.addEventListener('change', function() {
       const val = this.value;
       const url = new URL(window.location.href);
-      if (val === 'general') {
-        url.searchParams.delete('tournament_id');
-      } else {
-        url.searchParams.set('tournament_id', val);
-      }
+      url.searchParams.set('tournament_id', val);
       window.location.href = url.toString();
     });
   }
 });
 </script>
+
+<?php if (!$selected_tournament_id): ?>
+<!-- Tournament Selection Overlay -->
+<div id="tournamentOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; border-radius: 16px; width: 100%; max-width: 500px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div style="background: #f3f0f7; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: #5e2d91;">
+                <i class="fas fa-trophy fa-2x"></i>
+            </div>
+            <h2 style="color: #1e293b; margin-bottom: 8px;">Select Tournament</h2>
+            <p style="color: #64748b; font-size: 14px;">Select an active tournament to manage your squad member selection.</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto; padding-right: 4px;">
+            <?php if (empty($tournaments)): ?>
+                <div style="text-align: center; padding: 20px; color: #94a3b8; font-style: italic;">
+                    No active tournaments found for your sport.
+                </div>
+            <?php else: ?>
+                <?php foreach ($tournaments as $t): ?>
+                    <a href="?tournament_id=<?php echo $t['tournament_id']; ?>" 
+                       style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; text-decoration: none; transition: all 0.2s; color: #334155; font-weight: 600;">
+                        <span><?php echo htmlspecialchars($t['tournament_name']); ?></span>
+                        <i class="fas fa-chevron-right" style="color: #94a3b8; font-size: 12px;"></i>
+                    </a>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+        
+        <div style="margin-top: 24px; text-align: center;">
+            <a href="/uoc-sports/public/captain" style="color: #64748b; font-size: 14px; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 <div class="container">
   <!-- Header -->
   <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px;">
     <div>
-      <h1 style="margin: 0; color: #1e293b;"><?php echo $is_tournament_mode ? 'Tournament Squad' : 'Manage Team Members'; ?></h1>
+      <h1 style="margin: 0; color: #1e293b;">Squad Management</h1>
       <div class="team-name" style="color: #64748b; font-size: 0.9rem; margin-top: 4px;">
         <i class="fas fa-shield-alt"></i> <?php echo htmlspecialchars($sport_name); ?>
       </div>
     </div>
     <div style="text-align: right;">
-        <label style="display: block; font-size: 10px; text-transform: uppercase; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">Select Management Area</label>
+        <label style="display: block; font-size: 10px; text-transform: uppercase; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">Switch Tournament</label>
         <select id="managementAreaSelect" style="padding: 8px 12px; border-radius: 8px; border: 2px solid #5e2d91; background: white; color: #5e2d91; font-weight: 600; font-size: 13px; cursor: pointer; outline: none;">
-            <option value="general" <?php echo !$is_tournament_mode ? 'selected' : ''; ?>>General Sport Team Pool</option>
-            <optgroup label="Tournaments (Team Card Management)">
-                <?php foreach ($tournaments as $t): ?>
-                    <option value="<?php echo $t['tournament_id']; ?>" <?php echo ($selected_tournament_id == $t['tournament_id']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($t['tournament_name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </optgroup>
+            <option value="" disabled <?php echo !$is_tournament_mode ? 'selected' : ''; ?>>Select a Tournament...</option>
+            <?php foreach ($tournaments as $t): ?>
+                <option value="<?php echo $t['tournament_id']; ?>" <?php echo ($selected_tournament_id == $t['tournament_id']) ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($t['tournament_name']); ?>
+                </option>
+            <?php endforeach; ?>
         </select>
     </div>
   </div>

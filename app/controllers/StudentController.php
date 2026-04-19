@@ -54,13 +54,6 @@ class StudentController {
         view('student/facilities');
     }
 
-    public function bookings() {
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: /uoc-sports/public/sign-in');
-            exit;
-        }
-        view('student/bookings');
-    }
 
     /**
      * Get dashboard statistics (API)

@@ -19,17 +19,17 @@
 
      <div class="form-group">
                         <label for="practiceSessionDate">Practice Session Date *</label>
-                        <input type="date" id="practiceSessionDate" name="date" required>
+                        <input type="date" id="practiceSessionDate" name="date" min="<?= date('Y-m-d') ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="start_time">Start Time *</label>
-                        <input type="time" id="start_time" name="start_time" required>
+                        <input type="time" id="start_time" name="start_time" step="1800" required>
                     </div>
 
                     <div class="form-group">
                         <label for="end_time">End Time *</label>
-                        <input type="time" id="end_time" name="end_time" required>
+                        <input type="time" id="end_time" name="end_time" step="1800" required>
                     </div>
 
                     <div class="form-group">
@@ -43,15 +43,12 @@
                     <div class="form-group">
                         <label for="location">Location *</label>
                         <select id="location" name="location" required>
-                            <option>Select the Location</option>
-                            <option value="Indoor Court">Indoor Tennis Court</option>
-                            <option value="Indoor court">Indoor Badminton Court</option>
-                            <option value="Outdoor Court">Outdoor Basketball court</option>
-                            <option value="Outdoor Field">Outdoor Baseball court</option>
-                            <option value="Outdoor Field">Indoor volleyball court</option>
-                            <option value="Outdoor Field">Outdoor Cricket Field</option>
-                            <option value="Swimming Pool">Elle Field</option>
-                            <option value="Carrom room">Carrom Room</option>
+                            <option value="">Select the Location</option>
+                            <?php foreach ($locations as $loc): ?>
+                                <option value="<?= htmlspecialchars($loc['facility_name']) ?>">
+                                    <?= htmlspecialchars($loc['facility_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
 
@@ -86,7 +83,6 @@
                 <table class="practice-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Facility</th>
                             <th>Date</th>
                             <th>Start Time</th>
@@ -131,19 +127,19 @@
                 <!-- Date -->
                 <div class="form-group">
                     <label>Date *</label>
-                    <input type="date" id="edit-date" name="date" required>
+                    <input type="date" id="edit-date" name="date" min="<?= date('Y-m-d') ?>" required>
                 </div>
 
                 <!-- Start & End Time Side by Side -->
                 <div class="datetime">
                     <div class="form-group">
                         <label>Start Time *</label>
-                        <input type="time" id="edit-start-time" name="start_time" required>
+                        <input type="time" id="edit-start-time" name="start_time" step="1800" required>
                     </div>
 
                     <div class="form-group">
                         <label>End Time *</label>
-                        <input type="time" id="edit-end-time" name="end_time" required>
+                        <input type="time" id="edit-end-time" name="end_time" step="1800" required>
                     </div>
                 </div>
 
@@ -160,14 +156,11 @@
                 <div class="form-group">
                     <label>Location *</label>
                     <select id="edit-location" name="location" required>
-                        <option value="Indoor Tennis Court">Indoor Tennis Court</option>
-                        <option value="Indoor Badminton Court">Indoor Badminton Court</option>
-                        <option value="Outdoor Basketball Court">Outdoor Basketball Court</option>
-                        <option value="Outdoor Baseball Court">Outdoor Baseball Court</option>
-                        <option value="Indoor Volleyball Court">Indoor Volleyball Court</option>
-                        <option value="Outdoor Cricket Field">Outdoor Cricket Field</option>
-                        <option value="Elle Field">Elle Field</option>
-                        <option value="Carrom Room">Carrom Room</option>
+                        <?php foreach ($locations as $loc): ?>
+                            <option value="<?= htmlspecialchars($loc['facility_name']) ?>">
+                                <?= htmlspecialchars($loc['facility_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 
@@ -260,9 +253,35 @@
 
         // Load facilities and schedules on page load
         document.addEventListener('DOMContentLoaded', function() {
-            
             loadSchedules();
+            
+            setupTimeSnapping('start_time');
+            setupTimeSnapping('end_time');
+            setupTimeSnapping('edit-start-time');
+            setupTimeSnapping('edit-end-time');
         });
+
+        function setupTimeSnapping(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            
+            input.addEventListener('change', function() {
+                if (!this.value) return;
+                let [h, m] = this.value.split(':');
+                m = parseInt(m);
+                
+                if (m < 15) {
+                    m = '00';
+                } else if (m < 45) {
+                    m = '30';
+                } else {
+                    m = '00';
+                    h = String((parseInt(h) + 1) % 24).padStart(2, '0');
+                }
+                
+                this.value = `${h}:${m}`;
+            });
+        }
 
         // Load upcoming schedules
         async function loadSchedules() {
@@ -277,7 +296,6 @@
                     data.sessions.forEach(session => {
                         const row = document.createElement('tr');
                        row.innerHTML = `
-<td>#${session.id}</td>
 <td>${session.facility}</td>
 <td>${session.session_date}</td>
 <td>${formatTime(session.start_time)}</td>
@@ -536,4 +554,6 @@ function clearScheduleForm() {
 }
 
     </script>
+</body>
+</html>
 

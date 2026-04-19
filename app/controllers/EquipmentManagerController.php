@@ -149,7 +149,7 @@ class EquipmentManagerController {
                 'request_date' => $_POST['request_date'] ?? '',
                 'start_time' => $_POST['start_time'] ?? '',
                 'end_time' => $_POST['end_time'] ?? '',
-                'reserved_location' => $_POST['reserved_location'] ?? '',
+                'reserved_location' => '',
                 'requester_name' => $_POST['requester_name'] ?? '',
                 'status' => $isEdit ? ($_POST['status'] ?? 'PENDING') : 'PENDING'
             ];
@@ -158,6 +158,13 @@ class EquipmentManagerController {
             if (empty($commonData['requester_name']) || empty($commonData['request_date']) || 
                 empty($commonData['start_time']) || empty($commonData['end_time'])) {
                 $_SESSION['error_message'] = 'Please fill in all required fields';
+                header('Location: /uoc-sports/public/equipment-manager/add-booking' . ($isEdit ? '?id=' . $requestId : ''));
+                exit();
+            }
+
+            // Validate 30-minute intervals
+            if (!$this->isValid30MinInterval($commonData['start_time']) || !$this->isValid30MinInterval($commonData['end_time'])) {
+                $_SESSION['error_message'] = 'Booking times must be in 30-minute intervals (e.g., 10:00, 10:30)';
                 header('Location: /uoc-sports/public/equipment-manager/add-booking' . ($isEdit ? '?id=' . $requestId : ''));
                 exit();
             }
@@ -278,5 +285,13 @@ class EquipmentManagerController {
             'equipment' => $equipment,
             'summary' => $summary
         ]);
+    }
+
+    private function isValid30MinInterval($time) {
+        if (empty($time)) return false;
+        $parts = explode(':', $time);
+        if (count($parts) < 2) return false;
+        $minutes = intval($parts[1]);
+        return ($minutes === 0 || $minutes === 30);
     }
 }

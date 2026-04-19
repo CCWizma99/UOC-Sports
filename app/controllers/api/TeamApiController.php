@@ -32,10 +32,34 @@ class TeamApiController {
                 'status' => 'success',
                 'message' => 'Member removed successfully'
             ]);
+        }
+    }
+
+    public function promoteToCaptain() {
+        header('Content-Type: application/json');
+        
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        $sportId = $input['sport_id'] ?? null;
+        $userId  = $input['user_id'] ?? null;
+        
+        if (!$sportId || !$userId) {
+            echo json_encode(['status' => 'error', 'message' => 'Missing sport_id or user_id']);
+            return;
+        }
+
+        $sportModel = new Sport();
+        $result = $sportModel->promoteToCaptain($sportId, $userId);
+
+        if ($result) {
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'User promoted to captain successfully'
+            ]);
         } else {
             echo json_encode([
                 'status' => 'error',
-                'message' => 'Failed to remove member'
+                'message' => 'Failed to promote user to captain'
             ]);
         }
     }

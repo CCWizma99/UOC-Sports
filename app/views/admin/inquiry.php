@@ -65,6 +65,20 @@ require '../app/views/templates/admin/sidebar.php';
         <div class="modal-body" id="modalBody">
             <!-- Details will be loaded here -->
         </div>
+        <div class="modal-footer" id="modalFooter" style="padding: 20px; border-top: 1px solid #eee; display: none;">
+            <div id="replySection">
+                <h4>Send a Reply Message</h4>
+                <div class="form-group" style="margin-top: 10px;">
+                    <textarea id="replyMessage" placeholder="Type your response here..." style="width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                    <button class="btn-view-all" onclick="sendInquiryReply()" style="padding: 8px 20px; font-size: 14px;">
+                        <i class="fas fa-paper-plane"></i> Send Reply
+                    </button>
+                </div>
+                <div id="replyStatus" style="margin-top: 10px; font-size: 13px;"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -179,6 +193,18 @@ async function viewInquiry(inquiryId) {
                     <p>${escapeHtml(inquiry.message)}</p>
                 </div>
             `;
+            
+            // Show reply section only if user_id exists
+            const footer = document.getElementById('modalFooter');
+            if (inquiry.user_id && inquiry.user_id !== 'PUBLIC' && inquiry.user_id !== 'Guest') {
+                footer.style.display = 'block';
+                footer.setAttribute('data-user-id', inquiry.user_id);
+                footer.setAttribute('data-subject', inquiry.subject);
+                footer.setAttribute('data-inquiry-id', inquiry.inquiry_id);
+            } else {
+                footer.style.display = 'none';
+            }
+
             document.getElementById('inquiryModal').style.display = 'flex';
         } else {
             showNotification('Failed to load inquiry details', 'error');
@@ -279,9 +305,58 @@ function formatDate(dateStr) {
 }
 
 function escapeHtml(text) {
+    if (!text) return "";
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Send reply via messaging system
+async function sendInquiryReply() {
+    const footer = document.getElementById('modalFooter');
+    const userId = footer.getAttribute('data-user-id');
+    const subject = footer.getAttribute('data-subject');
+    const inquiryId = footer.getAttribute('data-inquiry-id');
+    const message = document.getElementById('replyMessage').value.trim();
+    const statusEl = document.getElementById('replyStatus');
+
+    if (!message) {
+        statusEl.innerHTML = '<span style="color:red">Please enter a message</span>';
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('recipient_id', userId);
+        formData.append('recipient_type', ''); // Backend will deduce this from userId
+        formData.append('title', 'RE: ' + subject);
+        formData.append('message', message);
+        formData.append('sport_id', 'GEN'); // Generic inquiry sport
+
+        const res = await fetch('/uoc-sports/public/api/message/send', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await res.json();
+
+        if (result.status === 'success') {
+            statusEl.innerHTML = '<span style="color:green">Reply sent successfully via messaging system!</span>';
+            document.getElementById('replyMessage').value = '';
+            
+            // Optionally auto-resolve the inquiry
+            const resolveFormData = new FormData();
+            resolveFormData.append('inquiry_id', inquiryId);
+            resolveFormData.append('status', 'RESOLVED');
+            fetch('/uoc-sports/public/admin-inquiry/update-status', { method: 'POST', body: resolveFormData });
+            
+        } else {
+            // Try as MANAGER if CAPTAIN failed? Or just error.
+            statusEl.innerHTML = '<span style="color:red">Error: ' + result.message + '</span>';
+        }
+    } catch (error) {
+        statusEl.innerHTML = '<span style="color:red">Failed to send reply</span>';
+    }
 }
 </script>
 

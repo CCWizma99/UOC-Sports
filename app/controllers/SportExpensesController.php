@@ -32,10 +32,24 @@ class SportExpensesController {
             $isEdit = true;
         }
         
+        $remainingBalance = null;
+        $sportIdToCheck = $_GET['sport'] ?? ($_SESSION['selected_sport_id'] ?? null);
+        
+        if ($sportIdToCheck) {
+            $budgetModel = new Budget();
+            $budgetInfo = $budgetModel->getRemainingBySport($sportIdToCheck);
+            if ($budgetInfo) {
+                $remainingBalance = $budgetInfo['remaining'];
+            } else {
+                $remainingBalance = 'unallocated';
+            }
+        }
+
         view('sports-manager/add-expense', [
             'editData' => $editData, 
             'isEdit' => $isEdit,
-            'selectedSportName' => $selectedSportName
+            'selectedSportName' => $selectedSportName,
+            'remainingBalance' => $remainingBalance
         ]);
     }
 
@@ -76,15 +90,33 @@ class SportExpensesController {
                 $result = $expenseModel->addExpense($data, $file);
                 $_SESSION['success_message'] = 'Expense added successfully!';
 
-                // Notify Administrator
+                // Notify Administrator(s) if limit is low or exceeded
                 try {
                     $db = Database::getConnection();
-                    $stmt = $db->query("SELECT email, fname FROM user WHERE type = 'ADMIN' AND status = 'ACTIVE' LIMIT 1");
-                    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
                     
-                    if ($admin) {
-                        $emailService = new EmailService();
-                        $emailService->sendExpenseAddedEmail($admin['email'], $admin['fname'], $data);
+                    // Get sport ID from sport name
+                    $sportStmt = $db->prepare("SELECT sport_id FROM sport WHERE sport_name = ?");
+                    $sportStmt->execute([$data['sport']]);
+                    $sportData = $sportStmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($sportData) {
+                        $sportId = $sportData['sport_id'];
+                        $budgetModel = new Budget();
+                        $budgetInfo = $budgetModel->getRemainingBySport($sportId);
+                        
+                        $remainingBefore = $budgetInfo ? $budgetInfo['remaining'] : 0;
+                        $remainingAfter = $remainingBefore - $data['amount'];
+                        
+                        if ($remainingAfter < 10000) {
+                            $stmt = $db->query("SELECT email, fname FROM user WHERE type = 'ADMIN' AND status = 'ACTIVE'");
+                            $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            
+                            $emailService = new EmailService();
+                            foreach ($admins as $admin) {
+                                // Send individually
+                                $emailService->sendExpenseAddedEmail($admin['email'], $admin['fname'], $data, $remainingAfter);
+                            }
+                        }
                     }
                 } catch (Exception $e) {
                     error_log("Failed to send expense notification email: " . $e->getMessage());

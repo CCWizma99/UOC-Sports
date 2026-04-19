@@ -61,12 +61,16 @@ class CaptainController {
             return strtotime($a['start_date']) <=> strtotime($b['start_date']);
         });
 
+        $attendanceModel = new Attendance();
+        $attendanceRate = $attendanceModel->getOverallAttendanceRate($sportId);
+
         view('captain/index', [
             'username' => $username,
             'sport_name' => $sportName,
             'member_count' => $memberCount,
             'practice_sessions' => $practiceSessions,
             'session_count' => $sessionCount,
+            'attendance_rate' => $attendanceRate,
             'upcoming_events' => $events
         ]);
     }
@@ -101,38 +105,59 @@ class CaptainController {
 
         /* ===== HANDLE ACTIONS ===== */
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
             $tid = $_POST['tournament_id'] ?? null;
             
-            if (isset($_POST['add_member_id'])) {
-                if ($tid) {
+            if (!$tid) {
+                if ($isAjax) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'message' => 'Tournament ID is missing.']);
+                    exit;
+                }
+                header("Location: /uoc-sports/public/captain/add-members");
+                exit;
+            }
+
+            try {
+                if (isset($_POST['add_member_id'])) {
                     $tpModel->addParticipants($tid, [$_POST['add_member_id']], $userId);
-                } else {
-                    $sportTeamModel->addMember($sportId, $_POST['add_member_id']);
                 }
-            }
 
-            if (isset($_POST['remove_member_id'])) {
-                if ($tid) {
+                if (isset($_POST['remove_member_id'])) {
                     $tpModel->removeParticipant($tid, $_POST['remove_member_id']);
-                } else {
-                    $sportTeamModel->removeMember($sportId, $_POST['remove_member_id']);
+                }
+
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => true]);
+                    exit;
+                }
+            } catch (Exception $e) {
+                if ($isAjax) {
+                    http_response_code(500);
+                    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+                    exit;
                 }
             }
 
-            $redirect = "/uoc-sports/public/captain/add-members";
-            if ($tid) $redirect .= "?tournament_id=" . $tid;
-            
-            header("Location: " . $redirect);
+            header("Location: /uoc-sports/public/captain/add-members?tournament_id=" . $tid);
             exit;
         }
 
         /* ===== DATA ===== */
-        $permittedTournaments = $tournamentModel->getTournamentsBySportId($sportId);
+        // Only active tournaments (Eradicating completed ones)
+        $allTournaments = $tournamentModel->getTournamentsBySportId($sportId);
+        $activeTournaments = array_filter($allTournaments, function($t) {
+            return ($t['status'] ?? '') !== 'COMPLETED';
+        });
         
+        $team_members = [];
+        $available_members = [];
+        $is_tournament_mode = false;
+        $current_tournament = null;
+
         if ($selectedTournamentId) {
             // Manage Tournament Squad (Team Card)
-            // Selected: Participants in this tournament
-            // Available: Members of the general sport team (as per user request "Only general team members eligible")
             $squad = $tpModel->getParticipants($selectedTournamentId);
             $team_members = array_map(function($p) {
                 return [
@@ -140,12 +165,12 @@ class CaptainController {
                     'fname' => $p['first_name'],
                     'lname' => $p['last_name'],
                     'student_id' => $p['student_id'],
-                    'faculty_name' => '' // We can join if needed, but let's keep it simple for now
+                    'faculty_name' => ''
                 ];
             }, $squad);
             
             // Available members: All students enrolled in this sport but not in this squad
-            $all_students = $userModel->getEligibleStudents($sportId);
+            $all_students = $userModel->getAllEnrolledStudents($sportId);
             $squadUserIds = array_column($team_members, 'user_id');
             
             $available_members = array_filter($all_students, function($m) use ($squadUserIds) {
@@ -155,11 +180,8 @@ class CaptainController {
             $is_tournament_mode = true;
             $current_tournament = $tournamentModel->getTournamentById($selectedTournamentId);
         } else {
-            // Manage General Sport Team
-            $team_members = $sportTeamModel->getTeamMembers($sportId);
-            $available_members = $sportTeamModel->getMembersNotInTeam($sportId);
-            $is_tournament_mode = false;
-            $current_tournament = null;
+            // No tournament selected -> Available members is the full pool for selection UI
+            $available_members = $userModel->getAllEnrolledStudents($sportId);
         }
 
         view('captain/add-members', [
@@ -167,8 +189,8 @@ class CaptainController {
             'available_members' => $available_members,
             'available_total' => count($available_members),
             'selected_total' => count($team_members),
-            'available_slots' => 20 - count($team_members), // User requested 20
-            'tournaments' => $permittedTournaments,
+            'available_slots' => 20 - count($team_members),
+            'tournaments' => array_values($activeTournaments),
             'selected_tournament_id' => $selectedTournamentId,
             'is_tournament_mode' => $is_tournament_mode,
             'current_tournament_name' => $current_tournament['tournament_name'] ?? '',
@@ -187,6 +209,10 @@ class CaptainController {
         $userId = $_SESSION['user_id'];
         $pdo = Database::getConnection();
         $scheduleModel = new Schedule();
+        
+        require_once __DIR__ . '/../models/Facility.php';
+        $facilityModel = new Facility();
+        $locations = $facilityModel->getPhysicalFacilities();
 
         // Get sport ID
         if (!isset($_SESSION['captain_sport_id'])) {
@@ -212,6 +238,15 @@ class CaptainController {
             $date = $_POST['date'];
             $start = $_POST['start_time'];
             $end = $_POST['end_time'];
+
+            // Validate 30-minute increments
+            $start_min = date('i', strtotime($start));
+            $end_min = date('i', strtotime($end));
+            if ($start_min % 30 !== 0 || $end_min % 30 !== 0) {
+                $_SESSION['error'] = "Invalid time format! Practice sessions must start and end at 30-minute intervals (e.g., :00 or :30).";
+                header("Location: /uoc-sports/public/captain/schedule-practice");
+                exit;
+            }
 
         // Check conflict
         if ($scheduleModel->hasTimeConflict($sportId, $date, $start, $end)) {
@@ -241,6 +276,15 @@ class CaptainController {
         $start = $_POST['start_time'];
         $end = $_POST['end_time'];
         $id = $_POST['id'];
+
+        // Validate 30-minute increments
+        $start_min = date('i', strtotime($start));
+        $end_min = date('i', strtotime($end));
+        if ($start_min % 30 !== 0 || $end_min % 30 !== 0) {
+            $_SESSION['error'] = "Invalid time format! Practice sessions must start and end at 30-minute intervals (e.g., :00 or :30).";
+            header("Location: /uoc-sports/public/captain/schedule-practice");
+            exit;
+        }
 
         // Check conflict (exclude current session)
         if ($scheduleModel->hasTimeConflict($sportId, $date, $start, $end, $id)) {
@@ -274,7 +318,8 @@ class CaptainController {
 
         view('captain/schedule-practice', [
             'schedules' => $schedules,
-            'sport_name' => $sportName
+            'sport_name' => $sportName,
+            'locations' => $locations
         ]);
     }
 

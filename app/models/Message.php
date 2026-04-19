@@ -50,7 +50,7 @@ class Message {
                 $recipients[] = [
                     'user_id' => $result['manager_id'],
                     'name' => trim($result['manager_fname'] . ' ' . $result['manager_lname']) ?: 'Sports Manager',
-                    'type' => 'MANAGER',
+                    'type' => 'SPT',
                     'label' => 'Sports Manager - ' . (trim($result['manager_fname'] . ' ' . $result['manager_lname']) ?: 'Not Assigned')
                 ];
             }
@@ -181,6 +181,7 @@ class Message {
         $stmt = $this->db->prepare("
             SELECT m.message_id, m.title, m.message, m.recipient_type, m.sender_id, m.sent_at, m.is_read,
                    u.fname, u.lname, u.type as user_type, s.sport_name
+            FROM message m
             LEFT JOIN user u ON m.sender_id = u.user_id
             LEFT JOIN sport s ON m.sport_id = s.sport_id
             WHERE m.recipient_id = :recipient_id AND m.status = 'ACTIVE'

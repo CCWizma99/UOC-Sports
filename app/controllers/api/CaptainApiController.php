@@ -2,6 +2,17 @@
 
 class CaptainApiController {
 
+    public function getStudents() {
+        header('Content-Type: application/json');
+        try {
+            $model = new Sport();
+            $results = $model->getStudents();
+            echo json_encode(['status'=>'success', 'data'=>$results]);
+        } catch(Exception $e) {
+            echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
+        }
+    }
+
     /**
      * Get tournaments where the logged-in captain has ACTIVE permission
      * and the event has already started.
@@ -266,18 +277,24 @@ class CaptainApiController {
             
             $db = Database::getConnection();
 
-            // Determine winning side
+            // Determine winning side or student
             $winningSide = null;
-            if ($resultStatus === 'COMPLETED' && $winnerType === 'TEAM' && !empty($winnerName)) {
-                // Compare winner_name with team names from match details
-                // Team A name is stored in details; for simplicity check match_players
-                $teamAName = $_POST['details']['team_a_name'] ?? '';
-                $teamBName = $_POST['details']['team_b_name'] ?? '';
-                
-                if (strcasecmp(trim($winnerName), trim($teamAName)) === 0) {
-                    $winningSide = 'A';
-                } elseif (strcasecmp(trim($winnerName), trim($teamBName)) === 0) {
-                    $winningSide = 'B';
+            $winningStudentId = null;
+
+            if ($resultStatus === 'COMPLETED') {
+                if ($winnerType === 'TEAM' && !empty($winnerName)) {
+                    // Compare winner_name with team names from match details
+                    $teamAName = $_POST['details']['team_a_name'] ?? $_POST['details']['fighter_a_name'] ?? '';
+                    $teamBName = $_POST['details']['team_b_name'] ?? $_POST['details']['fighter_b_name'] ?? '';
+                    
+                    if (strcasecmp(trim($winnerName), trim($teamAName)) === 0) {
+                        $winningSide = 'A';
+                    } elseif (strcasecmp(trim($winnerName), trim($teamBName)) === 0) {
+                        $winningSide = 'B';
+                    }
+                } elseif ($winnerType === 'INTERNAL') {
+                    // Specific student was selected as winner
+                    $winningStudentId = $_POST['winner_id'] ?? null;
                 }
             }
             
@@ -297,8 +314,10 @@ class CaptainApiController {
                                       VALUES (?, ?, ?, 'Participant', 1, 'ACTIVE')");
                 $stmt->execute([$userId, $sportId, $tournamentId]);
                 
-                // 2. Award win points (2 pts) if their team won
-                if ($winningSide !== null && $side === $winningSide) {
+                // 2. Award win points (2 pts) if their team won or they are the individual winner
+                $isWinner = ($winningSide !== null && $side === $winningSide) || ($winningStudentId !== null && $userId === $winningStudentId);
+                
+                if ($isWinner) {
                     $stmt = $db->prepare("INSERT INTO achievement (user_id, sport_id, tournament_id, achievement, points, status)
                                           VALUES (?, ?, ?, 'Match Winner', 2, 'ACTIVE')");
                     $stmt->execute([$userId, $sportId, $tournamentId]);

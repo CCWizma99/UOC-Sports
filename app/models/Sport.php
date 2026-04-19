@@ -41,7 +41,7 @@ class Sport {
      * Get all students (to pick winners)
      */
     public function getStudents() {
-        $stmt = $this->db->query("SELECT user_id, CONCAT(fname,' ',lname) AS name FROM user WHERE type='STUDENT' ORDER BY fname");
+        $stmt = $this->db->query("SELECT user_id, CONCAT(fname,' ',lname) AS name FROM user WHERE type IN ('STUDENT', 'CAPTAIN') ORDER BY fname");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -319,5 +319,49 @@ class Sport {
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['sport_id' => $sportId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Promote a student to captain of a sport
+     * Handles demoting the previous captain and updating user types
+     */
+    public function promoteToCaptain($sportId, $studentId) {
+        try {
+            $this->db->beginTransaction();
+
+            // 1. Get current captain of this sport to demote them
+            $stmt = $this->db->prepare("SELECT captain_id FROM sport WHERE sport_id = ?");
+            $stmt->execute([$sportId]);
+            $currentCaptainId = $stmt->fetchColumn();
+
+            // 2. Update the sport table with the new captain
+            $stmt = $this->db->prepare("UPDATE sport SET captain_id = ? WHERE sport_id = ?");
+            $stmt->execute([$studentId, $sportId]);
+
+            // 3. Promote the new captain: Set user type to 'CAPTAIN'
+            $stmt = $this->db->prepare("UPDATE user SET type = 'CAPTAIN' WHERE user_id = ?");
+            $stmt->execute([$studentId]);
+
+            // 4. Demote the previous captain if they existed
+            if ($currentCaptainId && $currentCaptainId !== $studentId) {
+                // Check if they are captain of any other sport
+                $stmt = $this->db->prepare("SELECT COUNT(*) FROM sport WHERE captain_id = ?");
+                $stmt->execute([$currentCaptainId]);
+                $otherCaptaincies = $stmt->fetchColumn();
+
+                if ($otherCaptaincies == 0) {
+                    // Revert to STUDENT if no longer a captain anywhere
+                    $stmt = $this->db->prepare("UPDATE user SET type = 'STUDENT' WHERE user_id = ?");
+                    $stmt->execute([$currentCaptainId]);
+                }
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log("Promote to Captain error: " . $e->getMessage());
+            return false;
+        }
     }
 }

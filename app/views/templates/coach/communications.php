@@ -232,8 +232,8 @@
   async function loadMessages() {
     try {
       const [inboxRes, sentRes] = await Promise.all([
-        fetch('/uoc-sports/public/api/inbox/messages'),
-        fetch('/uoc-sports/public/api/coach/message/list')
+        fetch('/uoc-sports/public/api/message/inbox'),
+        fetch('/uoc-sports/public/api/message/list')
       ]);
 
       const inboxResult = await inboxRes.json();
@@ -318,9 +318,9 @@
           
           let senderDisplay = '';
           if (msg.type === 'sent') {
-            senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.recipient_name}</span>`;
+            senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.sender} - ${msg.recipient_name}</span>`;
           } else {
-            senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender} (${msg.sport})</span>`;
+            senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender_role} - ${msg.sender} (${msg.sport})</span>`;
           }
 
           item.innerHTML = `
@@ -344,10 +344,10 @@
     currentMessageSender = msg;
     document.getElementById('modalTitle').textContent = msg.title;
     if (msg.type === 'sent') {
-       document.getElementById('modalSender').innerHTML = '↗ To: ' + msg.recipient_name;
+       document.getElementById('modalSender').innerHTML = '↗ To: ' + (msg.sender && msg.recipient_name ? msg.sender + ' - ' + msg.recipient_name : (msg.recipient_name || 'Recipient'));
        document.getElementById('modalSport').style.display = 'none'; // Hide sport for sent items
     } else {
-       document.getElementById('modalSender').textContent = '👤 ' + msg.sender;
+       document.getElementById('modalSender').textContent = '👤 ' + (msg.sender_role ? msg.sender_role + ' - ' : '') + msg.sender;
        document.getElementById('modalSport').textContent = '🏅 ' + msg.sport;
        document.getElementById('modalSport').style.display = 'block';
     }
@@ -361,7 +361,7 @@
         const formData = new FormData();
         formData.append('message_id', msg.id);
         
-        await fetch('/uoc-sports/public/api/inbox/mark-read', {
+        await fetch('/uoc-sports/public/api/message/mark-read', {
           method: 'POST',
           body: formData
         });
@@ -383,7 +383,7 @@
       // Identify target role based on sender
       let targetRole = '';
       if (currentMessageSender.sender_role === 'Captain' || currentMessageSender.sender === 'Captain') targetRole = 'CAPTAIN';
-      if (currentMessageSender.sender_role === 'Sports Manager' || currentMessageSender.sender === 'Sports Manager') targetRole = 'MANAGER';
+      if (currentMessageSender.sender_role === 'Sports Manager' || currentMessageSender.sender === 'Sports Manager') targetRole = 'SPT';
       if (currentMessageSender.sender_role === 'Admin' || currentMessageSender.sender === 'Admin') targetRole = 'ADMIN';
 
       // Try to select the sender in the dropdown
@@ -468,7 +468,7 @@
       formData.append('title', titleInput.value);
       formData.append('message', messageInput.value);
 
-      const response = await fetch('/uoc-sports/public/api/coach/message/send', {
+      const response = await fetch('/uoc-sports/public/api/message/send', {
         method: 'POST',
         body: formData
       });

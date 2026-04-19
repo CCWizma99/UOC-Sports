@@ -60,19 +60,21 @@
                 <div id="facilityDetails" class="facility-details hidden"></div>
             </section>
 
-            <!-- Monthly Bookings Calendar Section -->
-            <section class="section monthly-calendar-section">
+            <!-- My Bookings Card-Table Section (Replaces Old Monthly Grid) -->
+            <section class="section my-bookings-overview">
                 <div class="calendar-header">
-                    <h3><i class="fas fa-calendar-alt"></i> Booking Overview</h3>
+                    <h3><i class="fas fa-clipboard-check"></i> My Upcoming Reservations</h3>
                     <div class="calendar-nav">
-                        <button type="button" onclick="changeCalendarMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-                        <span id="calendarMonthLabel"></span>
-                        <button type="button" onclick="changeCalendarMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                        <span id="overviewScheduleLabel">This Month & Next Month</span>
                     </div>
                 </div>
-                <div id="monthlyCalendar" class="monthly-calendar-grid"></div>
+                
+                <div id="overviewBookingsContainer" class="overview-bookings-grid">
+                    <p class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading your schedule...</p>
+                </div>
+
                 <div class="calendar-legend">
-                    <span class="legend-item"><span class="legend-dot booked"></span> Booked</span>
+                    <span class="legend-item"><span class="legend-dot booked"></span> Reserved</span>
                     <span class="legend-item"><span class="legend-dot today"></span> Today</span>
                 </div>
             </section>
@@ -186,7 +188,7 @@ let currentCalendarDate = new Date();
 
 document.addEventListener("DOMContentLoaded", () => {
     loadFacilities();
-    renderMonthlyCalendar();
+    renderBookingOverview();
     
     // Add event listeners for both fields to trigger updates
     document.getElementById("date").addEventListener("change", handleFacilityChange);
@@ -804,91 +806,74 @@ document.getElementById('date').addEventListener('change', () => {
     if (facilityId && date) startChartAutoRefresh();
 });
 
-// -------------------- MONTHLY CALENDAR OVERVIEW ---------------------
-async function renderMonthlyCalendar() {
-    const calendarEl = document.getElementById('monthlyCalendar');
-    const labelEl = document.getElementById('calendarMonthLabel');
-    
-    const month = currentCalendarDate.getMonth() + 1;
-    const year = currentCalendarDate.getFullYear();
-    
-    labelEl.textContent = currentCalendarDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-    
+// -------------------- BOOKING OVERVIEW (CARD TABLE) ---------------------
+async function renderBookingOverview() {
+    const container = document.getElementById('overviewBookingsContainer');
+    if (!container) return;
+
     try {
-        const response = await fetch(`${MONTHLY_BOOKINGS_API}?month=${month}&year=${year}`);
-        const result = await response.json();
-        
-        if (!result.success) throw new Error(result.message);
-        
-        const bookings = result.data; // Grouped by date
-        
-        // Build Grid
-        const firstDay = new Date(year, month - 1, 1).getDay();
-        const daysInMonth = new Date(year, month, 0).getDate();
-        
-        let html = `
-            <div class="calendar-grid-header">Sun</div>
-            <div class="calendar-grid-header">Mon</div>
-            <div class="calendar-grid-header">Tue</div>
-            <div class="calendar-grid-header">Wed</div>
-            <div class="calendar-grid-header">Thu</div>
-            <div class="calendar-grid-header">Fri</div>
-            <div class="calendar-grid-header">Sat</div>
-        `;
-        
-        // Padding
-        for (let i = 0; i < firstDay; i++) {
-            html += '<div class="calendar-day padding"></div>';
-        }
-        
-        // Days
-        const todayStr = new Date().toISOString().split('T')[0];
-        
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-            const isToday = (dateStr === todayStr);
-            const dayBookings = bookings[dateStr] || [];
-            
-            const bookedClass = dayBookings.length > 0 ? 'booked' : '';
-            const todayClass = isToday ? 'today' : '';
-            
-            // Build tooltip content
-            let tooltip = '';
-            if (dayBookings.length > 0) {
-                tooltip = 'Bookings:\n' + dayBookings.map(b => `- ${b.facility_name} (${b.slot})`).join('\n');
-            }
-            
-            html += `
-                <div class="calendar-day ${bookedClass} ${todayClass}" title="${tooltip}" onclick="selectDateFromCalendar('${dateStr}', ${dayBookings.length > 0})">
-                    <span class="day-number">${d}</span>
-                    ${dayBookings.length > 0 ? `<span class="booking-indicator">${dayBookings.length}</span>` : ''}
+        const res = await fetch(RESERVATIONS_API);
+        const packet = await res.json();
+        const data = packet.data || [];
+
+        if (data.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-calendar-day"></i>
+                    <p>No reservations found for this month or next month.</p>
                 </div>
             `;
+            return;
         }
-        
-        calendarEl.innerHTML = html;
-        
+
+        // Get Current and Next Month labels
+        const now = new Date();
+        const nextMonthDate = new Date();
+        nextMonthDate.setMonth(now.getMonth() + 1);
+
+        const currentMonthName = now.toLocaleString('default', { month: 'long' });
+        const nextMonthName = nextMonthDate.toLocaleString('default', { month: 'long' });
+
+        const thisMonthKey = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0');
+        const nextMonthKey = nextMonthDate.getFullYear() + "-" + String(nextMonthDate.getMonth() + 1).padStart(2, '0');
+
+        // Filter and Group
+        const thisMonthBookings = data.filter(b => b.date.startsWith(thisMonthKey));
+        const nextMonthBookings = data.filter(b => b.date.startsWith(nextMonthKey));
+
+        let html = '';
+
+        const renderMonthSection = (title, bookings) => {
+            if (bookings.length === 0) return '';
+            let sectionHtml = `<div class="month-group"><h4>${title}</h4><div class="overview-cards">`;
+            bookings.forEach(b => {
+                sectionHtml += `
+                    <div class="overview-card ${b.status.toLowerCase()}">
+                        <div class="card-info">
+                            <span class="card-facility">${b.facility_name}</span>
+                            <span class="card-date"><i class="fas fa-clock"></i> ${b.date} | ${b.start_time}</span>
+                        </div>
+                        <span class="card-status-dot"></span>
+                    </div>
+                `;
+            });
+            sectionHtml += `</div></div>`;
+            return sectionHtml;
+        };
+
+        html += renderMonthSection(currentMonthName, thisMonthBookings);
+        html += renderMonthSection(nextMonthName, nextMonthBookings);
+
+        if (!html) {
+            html = '<p class="no-results">No upcoming bookings for April or May.</p>';
+        }
+
+        container.innerHTML = html;
+
     } catch (e) {
-        console.error("Calendar Error:", e);
-        calendarEl.innerHTML = `<p class="error">Failed to load calendar</p>`;
+        console.error("Overview Error:", e);
+        container.innerHTML = `<p class="error">Log in to view your booking schedule.</p>`;
     }
-}
-
-function changeCalendarMonth(offset) {
-    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
-    renderMonthlyCalendar();
-}
-
-function selectDateFromCalendar(dateStr, isBooked) {
-    if (isBooked) {
-        window.location.href = '/uoc-sports/public/my-bookings?date=' + dateStr;
-        return;
-    }
-    const dateInput = document.getElementById('date');
-    dateInput.value = dateStr;
-    
-    // Trigger update
-    handleFacilityChange();
 }
 
 </script>

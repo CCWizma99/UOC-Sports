@@ -364,76 +364,177 @@ body {
     font-size: 0.75rem;
 }
 
-.reservation-item {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid #e9ecef;
-    border-radius: 10px;
-    background: #fff;
-    transition: all 0.3s ease;
+/* Facility Booking Cards */
+.my-bookings-section {
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.my-bookings-section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1.2rem;
+    color: #1a1a1a;
+    display: flex;
     align-items: center;
+    gap: 10px;
 }
 
-.reservation-item:hover {
-    border-color: #4b0082;
-    box-shadow: 0 4px 15px rgba(75, 0, 130, 0.1);
+.bookings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
 }
 
-.reservation-item.unpaid {
-    background: linear-gradient(135deg, rgba(255, 193, 7, 0.02) 0%, rgba(255, 152, 0, 0.02) 100%);
-    border-color: #ffd89b;
+.booking-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
 }
 
-.reservation-item .info h3 {
+.booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(75, 0, 130, 0.1);
+    border-color: #5e2d91;
+}
+
+.booking-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #5e2d91;
+}
+
+.booking-card.flagged::before { background: #dc2626; }
+.booking-card.cancelled::before { background: #94a3b8; }
+.booking-card.completed::before { background: #10b981; }
+
+.booking-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.booking-card-header .facility-name {
     font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: 0.4rem;
     color: #1a1a1a;
-}
-
-.reservation-item .info p {
-    font-size: 0.9rem;
-    color: #666;
-    line-height: 1.4;
     margin: 0;
 }
 
-.reservation-item .info strong {
-    color: #4b0082;
-    font-weight: 600;
+.booking-card .booking-id {
+    font-size: 0.75rem;
+    color: #888;
+    background: #f3f4f6;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: monospace;
 }
 
-.status {
+.booking-card-body {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    align-items: flex-end;
+    gap: 8px;
 }
 
-.status-tag {
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: capitalize;
-    display: inline-block;
-}
-
-.status-tag.paid {
-    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-    color: white;
-}
-
-.status-tag.pending {
-    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-    color: white;
-}
-
-.actions {
+.booking-info-item {
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.booking-info-item i {
+    width: 16px;
+    color: #5e2d91;
+}
+
+.booking-status-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-status-booked { background: #e0e7ff; color: #4338ca; }
+.badge-status-cancelled { background: #f1f5f9; color: #475569; }
+.badge-status-flagged { background: #fee2e2; color: #dc2626; }
+.badge-status-completed { background: #d1fae5; color: #065f46; }
+
+.badge-payment-incomplete { background: #fff7ed; color: #c2410c; }
+.badge-payment-complete { background: #ecfdf5; color: #047857; }
+
+.booking-card-footer {
+    margin-top: auto;
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid #f3f4f6;
+}
+
+.card-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-pay { background: #5e2d91; color: white; }
+.btn-pay:hover { background: #4a2373; }
+
+.btn-cancel { background: #fee2e2; color: #dc2626; }
+.btn-cancel:hover { background: #fecaca; }
+
+.timer-countdown {
+    font-size: 0.75rem;
+    color: #dc2626;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.flag-reason-note {
+    font-size: 0.8rem;
+    color: #dc2626;
+    font-style: italic;
+    background: #fff5f5;
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+    .bookings-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Scoped to facility page to avoid header button conflicts */
@@ -1727,4 +1828,120 @@ body {
     .right-panel {
         order: 1;
     }
+}
+
+/* My Bookings Overview (Replaces Grid) */
+.my-bookings-overview {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.overview-bookings-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.month-group h4 {
+    font-size: 0.95rem;
+    color: #4b0082;
+    border-bottom: 2px solid #f0e6ff;
+    padding-bottom: 5px;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.overview-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.overview-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+    cursor: default;
+}
+
+.overview-card:hover {
+    background: #f1f3f5;
+    border-color: #dee2e6;
+}
+
+.card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.card-facility {
+    font-weight: 700;
+    color: #1a1a1a;
+    font-size: 0.9rem;
+}
+
+.card-date {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.card-date i {
+    color: #4b0082;
+    margin-right: 4px;
+}
+
+.card-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4b0082;
+}
+
+.overview-card.flagged { border-left: 4px solid #dc2626; }
+.overview-card.booked { border-left: 4px solid #4338ca; }
+.overview-card.completed { border-left: 4px solid #10b981; }
+
+.empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #888;
+}
+
+.empty-state i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    opacity: 0.3;
+}
+
+/* Student Portal Monthly Grouping */
+.month-group-title {
+    font-size: 1.1rem;
+    color: #4b0082;
+    border-bottom: 2px solid #f0e6ff;
+    padding-bottom: 8px;
+    margin: 1.5rem 0 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    grid-column: 1 / -1;
+}
+
+.bookings-month-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    margin-bottom: 1rem;
 }

@@ -17,6 +17,7 @@ $router->get('/services', 'UserHomeController@services');
 $router->get('/stories', 'UserHomeController@stories');
 $router->get('/results', 'UserHomeController@matchResults');
 $router->get('/public/match-results-api', 'MatchResultApiController@getPublicResults');
+$router->get('/public/match-details/{id}', 'MatchResultApiController@getMatchDetails');
 $router->get('/profile', 'UserHomeController@profile');
 $router->get('/my-bookings', 'UserHomeController@myBookings');
 $router->get('/post/{id}', 'PostController@viewPost');
@@ -33,7 +34,9 @@ $router->post('/create-facility-booking', 'FacilityApiController@createBooking')
 $router->get('/payment', 'UserHomeController@payment');
 $router->get('/payment/success', 'PaymentController@success');
 $router->get('/payment/cancel', 'PaymentController@cancel');
-$router->post('/payment/notify', 'PaymentController@notify');
+$router->get('/payment/notify', 'PaymentController@notify');
+$router->get('/support', 'UserHomeController@support');
+$router->post('/submit-feedback', 'UserHomeController@handleFeedback');
 
 // User Registration Stats API
 $router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
@@ -51,7 +54,6 @@ $router->get('/student', 'StudentController@index');
 $router->get('/student/sports', 'StudentController@sports');
 $router->get('/student/equipment', 'StudentController@equipment');
 $router->get('/student/facilities', 'StudentController@facilities');
-$router->get('/student/bookings', 'StudentController@bookings');
 $router->get('/student/dashboard-stats', 'StudentController@dashboardStats');
 $router->get('/student/practice-sessions', 'StudentController@getStudentPracticeSessions');
 
@@ -83,8 +85,11 @@ $router->get('/captain/get-match-teams', 'CaptainApiController@getMatchTeamsForT
 $router->get('/captain/get-award-titles', 'CaptainApiController@getAwardTitlesForSport');
 $router->get('/captain/get-student-achievements', 'CaptainApiController@getStudentAchievements');
 $router->get('/captain/get-team-roster', 'CaptainApiController@getTeamRoster');
+$router->get('/captain/get-students', 'CaptainApiController@getStudents');
 
 $router->get('/api/playing-teams/get-all', 'PlayingTeamApiController@getAll');
+$router->get('/api/playing-teams/search', 'PlayingTeamApiController@search');
+$router->post('/api/playing-teams/ensure', 'PlayingTeamApiController@ensure');
 $router->post('/api/playing-teams/update', 'PlayingTeamApiController@update');
 $router->post('/api/playing-teams/delete', 'PlayingTeamApiController@delete');
 
@@ -92,6 +97,7 @@ $router->post('/api/playing-teams/delete', 'PlayingTeamApiController@delete');
 $router->post('/api/attendance/save', 'AttendanceApiController@saveAttendance');
 $router->get('/api/attendance/session/{id}', 'AttendanceApiController@getAttendanceBySession');
 $router->get('/api/attendance/team-members/{sport_id}', 'AttendanceApiController@getTeamMembersWithPercentages');
+$router->get('/api/attendance/student-history/{sport_id}', 'AttendanceApiController@getStudentHistory');
 $router->get('/api/attendance/history/{sport_id}', 'AttendanceApiController@getAttendanceHistory');
 $router->get('/api/attendance/last-session/{sport_id}', 'AttendanceApiController@getLastSessionAttendance');
 $router->get('/api/attendance/upcoming-sessions/{sport_id}', 'AttendanceApiController@getUpcomingSessions');
@@ -100,19 +106,25 @@ $router->get('/api/attendance/exists/{practice_id}', 'AttendanceApiController@ch
 
 
 
-// Captain Message API routes
-$router->get('/api/captain/message/recipients', 'MessageApiController@getRecipients');
-$router->post('/api/captain/message/send', 'MessageApiController@sendMessage');
-$router->get('/api/captain/message/list', 'MessageApiController@getMessages');
-$router->post('/api/captain/message/delete', 'MessageApiController@deleteMessage');
+// Universal Message API routes
+$router->post('/api/message/send', 'MessageApiController@sendMessage');
+$router->get('/api/message/inbox', 'MessageApiController@getInbox');
+$router->post('/api/message/mark-read', 'MessageApiController@markRead');
+$router->get('/api/message/list', 'MessageApiController@getMessages');
+$router->post('/api/message/delete', 'MessageApiController@deleteMessage');
 
-// Coach/Manager Inbox API routes
+// Role-specific recipient routes
+$router->get('/api/captain/message/recipients', 'MessageApiController@getRecipients');
+$router->get('/api/coach/message/recipients', 'MessageApiController@getCoachRecipients');
+$router->get('/api/manager/message/recipients', 'MessageApiController@getManagerRecipients');
+$router->get('/api/admin/message/recipients', 'MessageApiController@getAdminRecipients');
+
+// Legacy Bridge (Point to new universal endpoints)
 $router->get('/api/inbox/messages', 'MessageApiController@getInbox');
 $router->post('/api/inbox/mark-read', 'MessageApiController@markRead');
-
-// Coach Message API routes
-$router->get('/api/coach/message/recipients', 'MessageApiController@getCoachRecipients');
-$router->post('/api/coach/message/send', 'MessageApiController@sendCoachMessage');
+$router->post('/api/captain/message/send', 'MessageApiController@sendMessage');
+$router->post('/api/coach/message/send', 'MessageApiController@sendMessage');
+$router->get('/api/captain/message/list', 'MessageApiController@getMessages');
 $router->get('/api/coach/message/list', 'MessageApiController@getMessages');
 
 $router->get('/coach', 'CoachController@TeamSchedules');

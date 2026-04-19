@@ -11,20 +11,14 @@
         @import url(/uoc-sports/public/css/registrar/verify-bookings.css);
         @import url(/uoc-sports/public/css/general/footer.css);
 
-        .mesh-sporty {
-            background: 
-                linear-gradient(rgba(94, 45, 145, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(94, 45, 145, 0.05) 1px, transparent 1px),
-                linear-gradient(135deg, #faf9fc 0%, #f3f1f7 100%);
-            background-size: 40px 40px, 40px 40px, 100% 100%;
-        }
+        
         .active{
             border: none !important;
             font-weight: 300 !important;
         }
     </style>
 </head>
-<body class="mesh-sporty">
+<body class="">
     <?php
         require '../app/views/templates/general/header.php';
         require '../app/views/templates/registrar/verify-bookings.php';

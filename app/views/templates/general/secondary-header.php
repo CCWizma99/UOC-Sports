@@ -21,24 +21,40 @@ $roleMap = [
     'REG'     => ['name' => 'Registrar', 'url' => '/uoc-sports/public/registrar'],
 ];
 
-// Check if the current page belongs to the user's specific portal
-$userPortalUrl = $roleMap[$userType]['url'] ?? '';
-if (strpos($currentPage, $userPortalUrl) === false) {
+// Determine which portal is currently being viewed based on URL
+$activePortal = null;
+foreach ($roleMap as $role => $info) {
+    if (strpos($currentPage, $info['url']) !== false) {
+        $activePortal = $role;
+        break;
+    }
+}
+
+// If no portal detected or user has no business here, return
+if (!$activePortal) {
     return;
 }
 
-$roleInfo = $roleMap[$userType] ?? ['name' => 'User Portal', 'url' => '#'];
+// Security Check: Ensure user is authorized for this portal
+// Rule: Captains can access Student and Captain portals. Others are role-locked.
+$isAuthorized = ($userType === $activePortal) || 
+                ($userType === 'CAPTAIN' && $activePortal === 'STUDENT');
 
-// Define navigation links for each role
+if (!$isAuthorized) {
+    return;
+}
+
+$roleInfo = $roleMap[$activePortal] ?? ['name' => 'User Portal', 'url' => '#'];
+
+// Define navigation links for each portal
 $navLinks = [];
 
-switch ($userType) {
+switch ($activePortal) {
     case 'STUDENT':
         $navLinks = [
             ['name' => 'Overview', 'url' => '/uoc-sports/public/student/'],
             ['name' => 'Sports', 'url' => '/uoc-sports/public/student/sports/'],
             ['name' => 'Equipments', 'url' => '/uoc-sports/public/student/equipment/'],
-            ['name' => 'My Bookings', 'url' => '/uoc-sports/public/student/bookings/'],
         ];
         break;
     case 'CAPTAIN':

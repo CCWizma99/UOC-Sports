@@ -226,8 +226,8 @@
   async function loadMessages() {
     try {
       const [inboxRes, sentRes] = await Promise.all([
-        fetch('/uoc-sports/public/api/inbox/messages'),
-        fetch('/uoc-sports/public/api/captain/message/list')
+        fetch('/uoc-sports/public/api/message/inbox'),
+        fetch('/uoc-sports/public/api/message/list')
       ]);
 
       const inboxResult = await inboxRes.json();
@@ -312,10 +312,10 @@
           let actions = '';
           
           if (msg.type === 'sent') {
-            senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.recipient_name}</span>`;
+            senderDisplay = `<span style="color: #6b3fa0;">↗ To: ${msg.sender} - ${msg.recipient_name}</span>`;
             actions = `<button class="message-delete" title="Delete" onclick="event.stopPropagation(); deleteMessage('${msg.id}')">×</button>`;
           } else {
-            senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender}</span>`;
+            senderDisplay = `<span style="color: #2d3748;">↙ From: ${msg.sender_role} - ${msg.sender}</span>`;
             // No delete action for received messages
           }
 
@@ -341,11 +341,11 @@
     document.getElementById('modalTitle').textContent = msg.title;
     
     if (msg.type === 'sent') {
-       document.getElementById('modalSender').innerHTML = '↗ To: ' + (msg.recipient_name || msg.recipient || 'Recipient');
+       document.getElementById('modalSender').innerHTML = '↗ To: ' + (msg.sender && msg.recipient_name ? msg.sender + ' - ' + msg.recipient_name : (msg.recipient_name || 'Recipient'));
        document.getElementById('modalSport').style.display = 'none'; // Hide sport for sent items? Or show my sport
        document.getElementById('replyBtn').style.display = 'none'; // Can't reply to sent message (unless follow up)
     } else {
-       document.getElementById('modalSender').textContent = '👤 ' + msg.sender;
+       document.getElementById('modalSender').textContent = '👤 ' + (msg.sender_role ? msg.sender_role + ' - ' : '') + msg.sender;
        document.getElementById('modalSport').textContent = '🏅 ' + (msg.sport || 'General'); // Sport might not be in captain inbox msg
        document.getElementById('modalSport').style.display = 'block';
        document.getElementById('replyBtn').style.display = 'inline-block';
@@ -361,7 +361,7 @@
         const formData = new FormData();
         formData.append('message_id', msg.id);
         
-        await fetch('/uoc-sports/public/api/inbox/mark-read', {
+        await fetch('/uoc-sports/public/api/message/mark-read', {
           method: 'POST',
           body: formData
         });
@@ -389,7 +389,7 @@
       // If received from Manager, set recipient to MANAGER
       let targetRole = '';
       if (currentMessageSender.sender_role === 'Coach' || currentMessageSender.sender === 'Coach') targetRole = 'COACH';
-      if (currentMessageSender.sender_role === 'Sports Manager' || currentMessageSender.sender === 'Sports Manager') targetRole = 'MANAGER';
+      if (currentMessageSender.sender_role === 'Sports Manager' || currentMessageSender.sender === 'Sports Manager') targetRole = 'SPT';
       if (currentMessageSender.sender_role === 'Admin' || currentMessageSender.sender === 'Admin') targetRole = 'ADMIN';
       
       // Better: use sender_id if available? 
@@ -440,7 +440,7 @@
       const formData = new FormData();
       formData.append('message_id', id);
 
-      const response = await fetch('/uoc-sports/public/api/captain/message/delete', {
+      const response = await fetch('/uoc-sports/public/api/message/delete', {
         method: 'POST',
         body: formData
       });
@@ -497,7 +497,7 @@
       formData.append('title', titleInput.value);
       formData.append('message', messageInput.value);
 
-      const response = await fetch('/uoc-sports/public/api/captain/message/send', {
+      const response = await fetch('/uoc-sports/public/api/message/send', {
         method: 'POST',
         body: formData
       });

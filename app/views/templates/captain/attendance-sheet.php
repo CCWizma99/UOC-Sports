@@ -45,7 +45,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
                 </div>
                 <div class="info-item">
                     <i class="fas fa-location-dot"></i>
-                    <span><strong>Facility:</strong> <span id="sessionFacility"></span></span>
+                    <span><strong>Location:</strong> <span id="sessionLocation"></span></span>
                 </div>
             </div>
             <div class="session-description" id="sessionDescription"></div>
@@ -284,7 +284,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
 .modal-content {
     border-radius: 16px;
     padding: 0; /* remove big white spacing */
-    overflow: hidden;
+    overflow: visible;
     background: #f8fafc; /* soft background instead of white block */
 }
 
@@ -296,6 +296,8 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
     background: linear-gradient(135deg, #2b0c4d 0%, #2b0c4d 70%, #1f1722 100%);
     color: white;
     border-bottom: none;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
 }
 
 .modal-header h2 {
@@ -321,6 +323,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
 .modal-body {
     padding: 20px;
     border-radius: 12px;
+    position: relative; /* Base for absolute positioned calendar */
 }
 
 
@@ -339,7 +342,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
 }
 
 #historySessions button {
-    width: 40%;
+    width: 50%;
     text-align: left;
     background: white;
     border: 1px solid #e2e8f0;
@@ -475,19 +478,18 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
     width: 100%;
 }
 
-.date-picker-wrapper .calendar-icon {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #5e2d91;
-    pointer-events: none; /* So clicking goes to input */
-    font-size: 16px;
+/* Icon removed */
+
+#historyDate::placeholder {
+    color: #718096;
+    opacity: 1;
 }
 
-.date-picker-wrapper input.form-select {
-    padding-right: 40px; /* Make space for icon */
+.filter-section .form-select {
+    width: 100%;
 }
+
+/* Removed forced absolute positioning to allow calendar to float correctly */
 
 
 </style>
@@ -516,7 +518,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
                 data.sessions.forEach(session => {
                     const option = document.createElement('option');
                     option.value = session.id;
-                    option.textContent = `${session.session_date} at ${session.start_time} - ${session.facility}`;
+                    option.textContent = `${session.session_date} at ${session.start_time} - ${session.location}`;
                     option.dataset.session = JSON.stringify(session);
                     select.appendChild(option);
                 });
@@ -543,7 +545,7 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
         // Show session details
         document.getElementById('sessionDate').textContent = session.session_date;
         document.getElementById('startTime').textContent = session.start_time;
-        document.getElementById('sessionFacility').textContent = session.facility;
+        document.getElementById('sessionLocation').textContent = session.location;
         document.getElementById('sessionDescription').textContent = session.description || 'Regular practice session';
         document.getElementById('sessionDetails').style.display = 'block';
 
@@ -764,7 +766,7 @@ if (sessionDateTime > now) {
 
             if (data.status === 'success' && data.data) {
                 const session = data.data;
-                let html = `<div class="modal-date">📅 ${session.session_date} | ${session.facility}</div>`;
+                let html = `<div class="modal-date">📅 ${session.session_date} | ${session.location}</div>`;
                 if (session.attendance && session.attendance.length > 0) {
                     html += session.attendance.map(att => `
                         <div class="attendance-item ${att.status === 'ABSENT' ? 'absent' : ''}">
@@ -848,7 +850,7 @@ async function openAttendanceRecords() {
     modalBody.innerHTML = `
         <div class="filter-section">
             <label>Select Date</label>
-            <input type="date" id="historyDate" class="form-select" />
+            <input type="text" id="historyDate" class="form-select" placeholder="Select Date" autocomplete="off" />
         </div>
         <div id="historySessions"></div>
         <div id="historyDetails"></div>
@@ -876,13 +878,13 @@ function initializeCalendar() {
     flatpickr("#historyDate", {
     dateFormat: "Y-m-d",
     maxDate: "today",
-
-    appendTo: document.body,   // move outside modal
-    static: false,             // must be false
-    position: "auto",          // dynamic positioning
-
+    appendTo: document.body,   // Let it float over everything
+    static: false,             // Prevents layout shift and "hiding inside box"
+    allowInput: true,
+    disableMobile: "true",
     onOpen: function(selectedDates, dateStr, instance) {
-        instance.calendarContainer.style.position = "fixed"; // ⭐ FORCE FIXED
+        // Re-calculate position in case modal shifted
+        setTimeout(() => instance.positionCalendar(), 10);
     },
 
     onDayCreate: function(dObj, dStr, fp, dayElem) {
@@ -906,38 +908,7 @@ function initializeCalendar() {
 }
 
 
-    document.addEventListener('change', function(e) {
 
-    if (e.target.id === 'historyDate') {
-
-        const selectedDate = e.target.value;
-        const sessionsDiv = document.getElementById('historySessions');
-        const detailsDiv = document.getElementById('historyDetails');
-
-        sessionsDiv.innerHTML = '';
-        detailsDiv.innerHTML = '';
-
-        if (!selectedDate) return;
-
-        const filtered = historySessions.filter(s =>
-            s.session_date.split(' ')[0] === selectedDate
-        );
-
-        if (filtered.length === 0) {
-            sessionsDiv.innerHTML = '<div class="empty-message">No sessions on this date</div>';
-            return;
-        }
-
-        filtered.forEach(session => {
-            const btn = document.createElement('button');
-            btn.className = 'btn btn-secondary';
-            btn.style.margin = '5px 0';
-            btn.textContent = `${session.start_time} | ${session.facility}`;
-            btn.onclick = () => showSessionDetails(session);
-            sessionsDiv.appendChild(btn);
-        });
-    }
-});
 function filterSessionsByDate(selectedDate) {
 
     const sessionsDiv = document.getElementById('historySessions');
@@ -961,7 +932,7 @@ function filterSessionsByDate(selectedDate) {
         const btn = document.createElement('button');
         btn.className = 'btn btn-secondary';
         btn.style.margin = '5px 0';
-        btn.textContent = `${session.start_time} | ${session.facility}`;
+        btn.textContent = `${session.start_time} | ${session.location}`;
         btn.onclick = () => showSessionDetails(session);
         sessionsDiv.appendChild(btn);
     });
@@ -974,7 +945,7 @@ function showSessionDetails(session) {
     let html = `
         <div class="history-session">
             <h4>📅 ${session.session_date} | ${session.start_time}</h4>
-            <p><strong>Facility:</strong> ${session.facility}</p>
+            <p><strong>Location:</strong> ${session.location}</p>
             <hr>
     `;
 

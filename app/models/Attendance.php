@@ -100,23 +100,7 @@ FROM attendance a
 INNER JOIN user u ON a.user_id = u.user_id
 WHERE a.practice_id = :practice_id AND a.record_status = 'ACTIVE'
 
-UNION ALL
-
-SELECT 
-    NULL AS attendance_id,
-    c.user_id,
-    NULL AS status,
-    c.fname,
-    c.lname,
-    c.student_id,
-    'COACH' AS participant_type
-FROM practice_sessions ps
-INNER JOIN sport s ON ps.sport_id = s.sport_id
-INNER JOIN user c ON s.coach_id = c.user_id
-WHERE ps.id = :practice_id
-  AND s.coach_id != ''
-
-ORDER BY participant_type DESC, lname, fname
+ORDER BY lname, fname
         ");
         $stmt->execute(['practice_id' => $practiceId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -152,6 +136,26 @@ ORDER BY participant_type DESC, lname, fname
         }
         
         return round(($result['present_count'] / $result['total_sessions']) * 100, 1);
+    }
+
+    /**
+     * Get attendance history for a single student in a specific sport
+     */
+    public function getStudentAttendanceHistory($userId, $sportId) {
+        $stmt = $this->db->prepare("
+            SELECT ps.session_date, ps.start_time, a.status 
+            FROM attendance a
+            INNER JOIN practice_sessions ps ON a.practice_id = ps.id
+            WHERE a.user_id = :user_id 
+              AND ps.sport_id = :sport_id
+              AND a.record_status = 'ACTIVE'
+            ORDER BY ps.session_date DESC, ps.start_time DESC
+        ");
+        $stmt->execute([
+            'user_id' => $userId,
+            'sport_id' => $sportId
+        ]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -198,7 +202,7 @@ ORDER BY participant_type DESC, lname, fname
 
     // Step 1: Fetch last N session IDs for the sport
     $sessionStmt = $this->db->prepare("
-        SELECT id, facility, session_date, start_time, notes
+        SELECT id, location, session_date, start_time, notes
         FROM practice_sessions
         WHERE sport_id = :sport_id
         ORDER BY session_date DESC, start_time DESC
@@ -232,7 +236,7 @@ ORDER BY participant_type DESC, lname, fname
     foreach ($sessions as $s) {
         $grouped[$s['id']] = [
             'practice_id' => $s['id'],
-            'facility' => $s['facility'],
+            'location' => $s['location'],
             'session_date' => $s['session_date'],
             'start_time' => $s['start_time'],
             'description' => $s['notes'],
@@ -261,7 +265,7 @@ ORDER BY participant_type DESC, lname, fname
     public function getLastSessionAttendance($sportId) {
         // Get the most recent practice session before today for the sport
         $stmt = $this->db->prepare("
-            SELECT id, facility, session_date, start_time, notes
+            SELECT id, location, session_date, start_time, notes
             FROM practice_sessions
             WHERE sport_id = :sport_id
               AND session_date < CURDATE()
@@ -299,7 +303,7 @@ ORDER BY participant_type DESC, lname, fname
 public function getSessionsByDate($sportId)
 {
      $stmt = $this->db->prepare("
-        SELECT id, session_date, start_time, facility, notes AS description
+        SELECT id, session_date, start_time, location, notes AS description
         FROM practice_sessions
         WHERE sport_id = :sport_id
           AND session_date <= CURDATE()
@@ -313,4 +317,27 @@ public function getSessionsByDate($sportId)
 
 
 
+    /**
+     * Get overall attendance rate for a sport
+     * @param string $sportId
+     * @return int - Percentage (0-100)
+     */
+    public function getOverallAttendanceRate($sportId) {
+        if (!$sportId) return 0;
+        
+        $stmt = $this->db->prepare("
+            SELECT 
+                COUNT(*) as total_records,
+                SUM(CASE WHEN a.status = 'PRESENT' THEN 1 ELSE 0 END) as present_count
+            FROM attendance a
+            JOIN practice_sessions ps ON a.practice_id = ps.id
+            WHERE ps.sport_id = :sport_id AND a.record_status = 'ACTIVE'
+        ");
+        $stmt->execute(['sport_id' => $sportId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$result || $result['total_records'] == 0) return 0;
+        
+        return (int)round(($result['present_count'] / $result['total_records']) * 100);
+    }
 }

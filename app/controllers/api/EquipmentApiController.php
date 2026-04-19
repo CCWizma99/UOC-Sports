@@ -241,7 +241,6 @@ class EquipmentApiController {
             $requestDate = $_POST['date'] ?? '';
             $startTime = $_POST['start_time'] ?? '';
             $endTime = $_POST['end_time'] ?? '';
-            $reservedLocation = $_POST['reserved_location'] ?? '';
             $notes = $_POST['notes'] ?? '';
             
             // Get selected equipment and quantities
@@ -250,6 +249,12 @@ class EquipmentApiController {
 
             if (empty($sportId) || empty($requestDate) || empty($startTime) || empty($endTime) || empty($selectedEquipment)) {
                 echo json_encode(['status' => 'error', 'message' => 'Please fill all required fields and select at least one equipment item.']);
+                return;
+            }
+
+            // Validate 30-minute intervals
+            if (!$this->isValid30MinInterval($startTime) || !$this->isValid30MinInterval($endTime)) {
+                echo json_encode(['status' => 'error', 'message' => 'Booking times must be in 30-minute intervals (e.g., 10:00, 10:30).']);
                 return;
             }
 
@@ -282,7 +287,7 @@ class EquipmentApiController {
                 'request_date' => $requestDate,
                 'start_time' => $startTime,
                 'end_time' => $endTime,
-                'reserved_location' => $reservedLocation,
+                'reserved_location' => '',
                 'requester_name' => $requesterName,
                 'status' => 'PENDING',
                 'category_name' => $categoryNameSummary,
@@ -672,5 +677,14 @@ class EquipmentApiController {
         } catch (Exception $e) {
             echo json_encode(['status' => 'error', 'message' => 'Failed to load report']);
         }
+    }
+
+    private function isValid30MinInterval($time) {
+        if (empty($time)) return false;
+        // Handle both HH:MM and HH:MM:SS formats
+        $parts = explode(':', $time);
+        if (count($parts) < 2) return false;
+        $minutes = intval($parts[1]);
+        return ($minutes === 0 || $minutes === 30);
     }
 }

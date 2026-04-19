@@ -53,6 +53,31 @@
                 <?php if (isset($_GET['sport'])): ?>
                     <input type="hidden" name="sport_param" value="<?php echo htmlspecialchars($_GET['sport']); ?>">
                 <?php endif; ?>
+
+                <?php if (isset($remainingBalance)): ?>
+                    <?php if ($remainingBalance === 'unallocated'): ?>
+                        <div style="background-color: #f1f5f9; color: #475569; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; border: 1px solid #cbd5e1;">
+                            <span><i class="fas fa-wallet" style="margin-right: 8px;"></i> Remaining Budget Allocation</span>
+                            <span style="font-size: 1.1rem; opacity: 0.8;">No Budget Allocated</span>
+                        </div>
+                    <?php else: ?>
+                        <?php 
+                            $balanceColor = '#10b981'; // Green by default
+                            $balanceBg = '#d1fae5';
+                            if ($remainingBalance <= 0) {
+                                $balanceColor = '#ef4444'; // Red
+                                $balanceBg = '#fee2e2';
+                            } elseif ($remainingBalance < 10000) {
+                                $balanceColor = '#f59e0b'; // Yellow
+                                $balanceBg = '#fef3c7';
+                            }
+                        ?>
+                        <div style="background-color: <?= $balanceBg ?>; color: <?= $balanceColor ?>; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; border: 1px solid <?= $balanceColor ?>;">
+                            <span><i class="fas fa-wallet" style="margin-right: 8px;"></i> Remaining Budget Allocation</span>
+                            <span style="font-size: 1.1rem;">LKR <?= number_format((float)$remainingBalance, 2) ?></span>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="Sport name">Sport <span class="required-star">*</span></label>

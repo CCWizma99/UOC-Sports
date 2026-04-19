@@ -427,3 +427,16 @@
 
 .participant-result-row select { flex: 2; }
 .participant-result-row input  { flex: 1; }
+
+/* Outcome Section */
+.Outcome-section {
+    border: 2px solid rgba(94, 45, 145, 0.15) !important;
+    background: linear-gradient(145deg, #ffffff 0%, #faf5ff 100%) !important;
+    box-shadow: 0 4px 12px rgba(94, 45, 145, 0.04);
+}
+
+.Outcome-section h3 {
+    color: #5e2d91 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}

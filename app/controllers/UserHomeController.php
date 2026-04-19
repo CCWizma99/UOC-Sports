@@ -67,6 +67,10 @@ class UserHomeController {
         $enrolledSports = [];
         if ($user['type'] === 'STUDENT' || $user['type'] === 'CAPTAIN') {
             $enrolledSports = $userModel->getEnrolledSports($user_id);
+            $attendanceModel = new Attendance();
+            foreach ($enrolledSports as &$sport) {
+                $sport['attendance_pct'] = $attendanceModel->calculateAttendancePercentage($user_id, $sport['sport_id']);
+            }
         }
 
         // Get facility bookings
@@ -176,5 +180,44 @@ class UserHomeController {
     }
      
 
+    public function support() {
+        view('general/support');
+    }
+
+    public function handleFeedback() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /uoc-sports/public/support');
+            exit;
+        }
+
+        $feedbackModel = new Feedback();
+        
+        $data = [
+            'user_id' => $_SESSION['user_id'] ?? null,
+            'name' => $_POST['name'] ?? '',
+            'email' => $_POST['email'] ?? '',
+            'feedback_type' => $_POST['feedback_type'] ?? 'General',
+            'message' => $_POST['message'] ?? ''
+        ];
+
+        // Basic validation
+        if (empty($data['name']) || empty($data['email']) || empty($data['message'])) {
+            $_SESSION['message'] = "Please fill in all required fields.";
+            $_SESSION['color'] = "red";
+            header('Location: /uoc-sports/public/support#feedback');
+            exit;
+        }
+
+        if ($feedbackModel->create($data)) {
+            $_SESSION['message'] = "Thank you for your feedback! We appreciate your input.";
+            $_SESSION['color'] = "green";
+        } else {
+            $_SESSION['message'] = "Something went wrong. Please try again later.";
+            $_SESSION['color'] = "red";
+        }
+
+        header('Location: /uoc-sports/public/support#feedback');
+        exit;
+    }
 
 }

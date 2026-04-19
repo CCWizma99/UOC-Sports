@@ -92,7 +92,7 @@ class AttendanceApiController {
         header('Content-Type: application/json');
         
         try {
-            $members = $this->teamModel->getTeamMembers($sportId);
+            $members = $this->teamModel->getAllEnrolledStudents($sportId);
             $percentages = $this->attendanceModel->getTeamAttendancePercentages($sportId);
             
             // Merge percentages into members array
@@ -123,6 +123,37 @@ class AttendanceApiController {
         try {
             $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
             $history = $this->attendanceModel->getAttendanceHistory($sportId, $limit);
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $history
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Server error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Get attendance history for the logged-in student in a specific sport
+     * GET /api/attendance/student-history/{sport_id}
+     */
+    public function getStudentHistory($sportId) {
+        header('Content-Type: application/json');
+        
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Unauthorized'
+            ]);
+            return;
+        }
+
+        try {
+            $history = $this->attendanceModel->getStudentAttendanceHistory($_SESSION['user_id'], $sportId);
             
             echo json_encode([
                 'status' => 'success',
@@ -173,7 +204,7 @@ class AttendanceApiController {
     $date = $input['date'] ?? null;
 
     $query = "
-        SELECT id, start_time AS session_time, facility
+        SELECT id, start_time AS session_time, location
         FROM practice_sessions
         WHERE sport_id = :sport_id
     ";
@@ -184,7 +215,8 @@ class AttendanceApiController {
 
     $query .= " ORDER BY start_time ASC";
 
-    $stmt = $this->db->prepare($query);
+    $pdo = Database::getConnection();
+    $stmt = $pdo->prepare($query);
 
     $params = ['sport_id' => $sportId];
     if ($date) {

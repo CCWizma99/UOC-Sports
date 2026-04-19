@@ -257,6 +257,35 @@
     box-shadow: 0 4px 8px rgba(255, 71, 87, 0.3);
 }
 
+.btn-promote {
+    background: #00b894;
+    color: #fff;
+    margin-left: 8px;
+}
+
+.btn-promote:hover {
+    background: #00d1a3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 184, 148, 0.3);
+}
+
+.badge-captain {
+    background: #f1f2f6;
+    color: #2f3542;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #ced6e0;
+}
+
+.badge-captain i {
+    color: #2ed573;
+}
+
 .empty-state {
     text-align: center;
     padding: 60px 20px;

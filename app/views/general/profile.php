@@ -126,11 +126,11 @@
                     <?php if (!empty($enrolledSports)): ?>
                     <div class="sport-attend-list">
                         <?php foreach ($enrolledSports as $sp):
-                            $pct = rand(72, 98);
+                            $pct = isset($sp['attendance_pct']) ? $sp['attendance_pct'] : 0;
                             $icon = getSportIcon($sp['sport_name'], $sportIcons);
                             $joinedFormatted = date('M Y', strtotime($sp['joined_date']));
                         ?>
-                        <div class="sport-attend-item">
+                        <div class="sport-attend-item" style="cursor: pointer; transition: background 0.2s; border-radius: 8px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'" onclick="showAttendanceDetails('<?= htmlspecialchars($sp['sport_id']) ?>', '<?= htmlspecialchars($sp['sport_name']) ?>', <?= $pct ?>)">
                             <div class="sport-icon-circle"><?= $icon ?></div>
                             <div class="sport-attend-details">
                                 <div class="sport-attend-name"><?= htmlspecialchars($sp['sport_name']) ?></div>
@@ -325,6 +325,36 @@
     </div>
 </div>
 
+<!-- ── Attendance Details Modal ──────────────────────────────────── -->
+<div id="attendanceModal" class="modal">
+    <div class="modal-content" style="max-width: 500px; text-align: left; padding: 24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+            <h3 id="attendanceModalTitle" style="margin: 0;">Attendance Details</h3>
+            <button onclick="hideAttendanceModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#94a3b8;">&times;</button>
+        </div>
+        <div style="margin-bottom: 20px; font-size: 14px; color: #475569;">
+            <strong>Overall Attendance:</strong> <span id="attendanceModalPct" style="font-weight: 600; color: #0ea5e9;">-</span>
+        </div>
+        <div style="max-height: 300px; overflow-y: auto; padding-right: 8px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <th style="padding: 8px; text-align: left; color: #64748b; font-weight: 600;">Date</th>
+                        <th style="padding: 8px; text-align: left; color: #64748b; font-weight: 600;">Time</th>
+                        <th style="padding: 8px; text-align: right; color: #64748b; font-weight: 600;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceModalBody">
+                    <tr><td colspan="3" style="text-align: center; padding: 20px;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-actions" style="margin-top: 24px; justify-content: flex-end;">
+            <button class="btn-cancel-modal" onclick="hideAttendanceModal()">Close</button>
+        </div>
+    </div>
+</div>
+
 <?php require '../app/views/templates/general/footer.php'; ?>
 
 <script>
@@ -441,6 +471,55 @@ function showDeleteModal()   { document.getElementById('deleteModal').classList.
 function hideDeleteModal()   { document.getElementById('deleteModal').classList.remove('show'); }
 function confirmDelete()     { alert('Account deletion requested.'); hideDeleteModal(); }
 function payNow(id)          { window.location.href = '/uoc-sports/public/payment?booking_id=' + id; }
+
+// ── Attendance Modal ──────────────────────────────────────────
+async function showAttendanceDetails(sportId, sportName, pct) {
+    document.getElementById('attendanceModalTitle').innerText = 'Attendance Details: ' + sportName;
+    document.getElementById('attendanceModalPct').innerText = pct + '%';
+    document.getElementById('attendanceModal').classList.add('show');
+    
+    const tbody = document.getElementById('attendanceModalBody');
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px;">Loading history...</td></tr>';
+
+    try {
+        const res = await fetch('/uoc-sports/public/api/attendance/student-history/' + sportId);
+        const json = await res.json();
+        
+        if (json.status === 'success') {
+            const data = json.data;
+            if (data && data.length > 0) {
+                let html = '';
+                data.forEach(row => {
+                    let d = new Date(row.session_date);
+                    let formattedDate = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+                    
+                    let statusColor = row.status === 'PRESENT' ? '#10b981' : '#ef4444';
+                    let statusText = row.status === 'PRESENT' ? 'Present' : 'Absent';
+                    let statusIcon = row.status === 'PRESENT' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
+
+                    html += `<tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 10px 8px;">${formattedDate}</td>
+                        <td style="padding: 10px 8px; color: #64748b;">${row.start_time}</td>
+                        <td style="padding: 10px 8px; text-align: right; color: ${statusColor}; font-weight: 500;">
+                           ${statusIcon} ${statusText}
+                        </td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: #64748b;">No practice sessions found for this sport.</td></tr>';
+            }
+        } else {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: #ef4444;">Failed to load attendance history.</td></tr>';
+        }
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; padding: 20px; color: #ef4444;">Error connecting to the server.</td></tr>';
+    }
+}
+
+function hideAttendanceModal() {
+    document.getElementById('attendanceModal').classList.remove('show');
+}
 
 init();
 
