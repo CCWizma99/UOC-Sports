@@ -96,6 +96,14 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="location">Reserved Location <span class="required-star">*</span></label>
+                        <select id="location" name="location" required>
+                            <option value="">Select Location</option>
+                            <!-- Locations will be loaded via JS -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="reservation_date">Requested Date <span class="required-star">*</span></label>
                         <input type="date" id="reservation_date" name="request_date" min="<?php echo htmlspecialchars($minRequestDate); ?>" value="<?= isset($editData) ? htmlspecialchars($editData['request_date'] ?? '') : '' ?>" required>
                     </div>
@@ -448,6 +456,32 @@ document.getElementById('requester_name').addEventListener('blur', function(e) {
             console.error('Error looking up user by name:', error);
         });
 });
+
+async function loadLocations() {
+    const locationSelect = document.getElementById('location');
+    try {
+        const res = await fetch("/uoc-sports/public/api/reservation/locations");
+        const locations = await res.json();
+        
+        locationSelect.innerHTML = '<option value="">Select Location</option>';
+        if (Array.isArray(locations)) {
+            locations.forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc.facility_name;
+                option.textContent = loc.facility_name;
+                if (editData && editData.reserved_location === loc.facility_name) {
+                    option.selected = true;
+                }
+                locationSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error("Error loading locations:", error);
+        locationSelect.innerHTML = '<option value="">Error loading locations</option>';
+    }
+}
+
+loadLocations();
 
 function loadEquipmentBySport(sportId, preSelectItems = null) {
     const equipmentContainer = document.getElementById('equipment-checkboxes');

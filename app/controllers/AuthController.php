@@ -11,7 +11,59 @@ class AuthController extends BaseController {
     }
 
     public function showStudentSignupForm($message = null) {
-        view('student-sign-up', ['message' => $message]);
+        $email = $_GET['email'] ?? null;
+        
+        // If no email or not verified, redirect to verify
+        if (!$email || !isset($_SESSION['verified_student_email']) || $_SESSION['verified_student_email'] !== $email) {
+            header("Location: /uoc-sports/public/student/verify-email");
+            exit;
+        }
+
+        view('student-sign-up', ['message' => $message, 'email' => $email]);
+    }
+
+    public function showStudentEmailVerify() {
+        view('student-email-verify');
+    }
+
+    public function handleSendOTP() {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents('php://input'), true);
+        $email = trim($data['email'] ?? '');
+
+        if (!$email || !str_ends_with(strtolower($email), '.cmb.ac.lk')) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid university email domain.']);
+            return;
+        }
+
+        require_once __DIR__ . '/../models/EmailVerification.php';
+        $verifyModel = new EmailVerification();
+        $otp = $verifyModel->generateOTP($email);
+
+        if ($otp) {
+            $emailService = new EmailService();
+            $result = $emailService->sendVerificationOTP($email, $otp);
+            echo json_encode($result);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to generate verification code.']);
+        }
+    }
+
+    public function handleVerifyOTP() {
+        header('Content-Type: application/json');
+        $data = json_decode(file_get_contents('php://input'), true);
+        $email = trim($data['email'] ?? '');
+        $otp = trim($data['otp'] ?? '');
+
+        require_once __DIR__ . '/../models/EmailVerification.php';
+        $verifyModel = new EmailVerification();
+
+        if ($verifyModel->verifyOTP($email, $otp)) {
+            $_SESSION['verified_student_email'] = $email;
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid or expired code.']);
+        }
     }
 
     public function handleSignup() {
@@ -26,6 +78,9 @@ class AuthController extends BaseController {
             ];
 
             if ($user->create($data)) {
+                $emailService = new EmailService();
+                $emailService->sendWelcomeEmail($data['email'], $data['fname']);
+
                 $_SESSION['message'] = "Sign Up Successful! Please Sign In.";
                 $_SESSION['redirectURL'] = "/uoc-sports/public/sign-in";
                 $_SESSION['color'] = "green";
@@ -53,57 +108,34 @@ class AuthController extends BaseController {
                 'faculty_id' => $_POST['faculty_id'] ?? ''
             ];
 
-            // Handle file upload
-            $idCardImage = null;
-            if (isset($_FILES['id_card']) && $_FILES['id_card']['error'] === UPLOAD_ERR_OK) {
-                $uploadDir = '../app/student_id/';
-                
-                // Create directory if it doesn't exist
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0755, true);
-                }
+            // CRITICAL: Verify email in session matches submitted email
+            if (!isset($_SESSION['verified_student_email']) || $_SESSION['verified_student_email'] !== $data['email']) {
+                $_SESSION['message'] = 'Session expired or email mismatch. Please verify your email again.';
+                $_SESSION['color'] = 'red';
+                header("Location: /uoc-sports/public/student/verify-email");
+                exit;
+            }
 
-                // Generate unique filename
-                $ext = pathinfo($_FILES['id_card']['name'], PATHINFO_EXTENSION);
-                $idCardImage = $data['student_id'] . '_' . time() . '.' . $ext;
-                $targetPath = $uploadDir . $idCardImage;
-
-                // Validate file type
-                $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-                if (!in_array($_FILES['id_card']['type'], $allowedTypes)) {
-                    $_SESSION['message'] = 'Invalid file type. Please upload JPG or PNG image.';
-                    $_SESSION['color'] = 'red';
-                    header("Location: /uoc-sports/public/student-sign-up");
-                    exit;
-                }
-
-                // Validate file size (5MB max)
-                if ($_FILES['id_card']['size'] > 5 * 1024 * 1024) {
-                    $_SESSION['message'] = 'File too large. Maximum size is 5MB.';
-                    $_SESSION['color'] = 'red';
-                    header("Location: /uoc-sports/public/student-sign-up");
-                    exit;
-                }
-
-                // Move uploaded file
-                if (!move_uploaded_file($_FILES['id_card']['tmp_name'], $targetPath)) {
-                    $_SESSION['message'] = 'Failed to upload ID card image.';
-                    $_SESSION['color'] = 'red';
-                    header("Location: /uoc-sports/public/student-sign-up");
-                    exit;
-                }
+            // Validate Student ID format based on Faculty
+            if (!$this->validateStudentId($data['faculty_id'], $data['student_id'])) {
+                $_SESSION['message'] = 'Invalid Student ID format for the selected faculty.';
+                $_SESSION['color'] = 'red';
+                header("Location: /uoc-sports/public/student-sign-up");
+                exit;
             }
 
             // Create student user
             if ($user->createStudent($data)) {
-                // Save ID card info to database if uploaded
-                if ($idCardImage) {
-                    $this->saveStudentIdCard($data['student_id'], $idCardImage);
-                }
+
+                $emailService = new EmailService();
+                $emailService->sendWelcomeEmail($data['email'], $data['fname']);
 
                 $_SESSION['message'] = "Sign Up Successful! Please Sign In.";
                 $_SESSION['redirectURL'] = "/uoc-sports/public/sign-in";
                 $_SESSION['color'] = "green";
+                // Cleanup verification session
+                unset($_SESSION['verified_student_email']);
+                
                 header("Location: /uoc-sports/public/sign-in");
                 exit;
             } else {
@@ -118,16 +150,25 @@ class AuthController extends BaseController {
         exit;
     }
 
-    private function saveStudentIdCard($studentId, $imageName) {
-        $db = Database::getConnection();
-        $sql = "INSERT INTO student_id_cards (student_id, image_name) VALUES (:student_id, :image_name)
-                ON DUPLICATE KEY UPDATE image_name = :image_name2";
-        $stmt = $db->prepare($sql);
-        $stmt->execute([
-            ':student_id' => $studentId,
-            ':image_name' => $imageName,
-            ':image_name2' => $imageName
-        ]);
+    private function validateStudentId($facultyId, $studentId) {
+        $patterns = [
+            '1' => '/^\d{4}\s*\/\s*(CS|IS)\s*\/\s*\d{3,4}$/i', // UCSC
+            '2' => '/^\d{4}\s*\/\s*S\s*\/\s*\d{4}$/i', // Science
+            '3' => '/^\d{4}\s*\/\s*A\s*\/\s*\d{4}$/i', // Arts
+            '4' => '/^\d{4}\s*\/\s*E\s*\/\s*\d{4}$/i', // Education
+            '5' => '/^\d{4}\s*\/\s*IM\s*\/\s*\d{4}$/i', // Indigenous Medicine
+            '6' => '/^\d{4}\s*\/\s*L\s*\/\s*\d{4}$/i', // Law
+            '7' => '/^\d{4}\s*\/\s*BA\s*\/\s*\d{4}$/i', // Management & Finance
+            '8' => '/^\d{4}\s*\/\s*M\s*\/\s*\d{4}$/i', // Medicine
+            '9' => '/^\d{4}\s*\/\s*N\s*\/\s*\d{4}$/i', // Nursing
+            '10' => '/^\d{4}\s*\/\s*T\s*\/\s*\d{4}$/i' // Technology
+        ];
+
+        if (!isset($patterns[$facultyId])) {
+            return true; 
+        }
+
+        return preg_match($patterns[$facultyId], $studentId);
     }
 
     public function handleSignin() {

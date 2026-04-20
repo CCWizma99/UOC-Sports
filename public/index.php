@@ -226,6 +226,9 @@ $router->get('/api/chart/activity-analysis', 'ChartController@getActivityAnalysi
 $router->get('/sign-up', 'AuthController@showSignupForm');
 $router->get('/sign-in', 'AuthController@showSigninForm');
 $router->get('/student-sign-up', 'AuthController@showStudentSignupForm');
+$router->get('/student/verify-email', 'AuthController@showStudentEmailVerify');
+$router->post('/student/send-otp', 'AuthController@handleSendOTP');
+$router->post('/student/verify-otp', 'AuthController@handleVerifyOTP');
 $router->post('/sign-up', 'AuthController@handleSignup');
 $router->post('/sign-in', 'AuthController@handleSignin');
 $router->post('sign-up-student', 'AuthController@handleStudentSignup');

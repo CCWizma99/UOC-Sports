@@ -200,9 +200,9 @@ public function getPreviousSessions($sportId) {
     $stmt = $this->pdo->prepare("
         SELECT id, facility, session_date, start_time, end_time, need_equipment, location, notes
         FROM practice_sessions
-        WHERE sport_id = :sport_id AND session_date < CURDATE()
-        ORDER BY session_date DESC
-        LIMIT 5
+        WHERE sport_id = :sport_id AND session_date <= CURDATE()
+        ORDER BY session_date DESC, start_time DESC
+        LIMIT 15
     ");
     $stmt->bindParam(':sport_id', $sportId);
     $stmt->execute();

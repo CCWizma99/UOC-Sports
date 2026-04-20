@@ -1324,6 +1324,7 @@ body {
         height: 36px;
     }
 
+
     .user-booking-calendar .dot {
         width: 5px;
         height: 5px;
@@ -1796,29 +1797,7 @@ body {
     font-weight: 700;
 }
 
-.calendar-legend {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 0.5rem;
-}
-
-.legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 4px;
-}
-
-.legend-dot.booked {
-    background: #4b0082;
-}
-
-.legend-dot.today {
-    border: 2px solid #4b0082;
-}
+/* Removed calendar-legend as per request */
 
 @media (max-width: 1024px) {
     .left-panel {
@@ -1885,6 +1864,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    flex: 1;
 }
 
 .card-facility {
@@ -1903,16 +1883,131 @@ body {
     margin-right: 4px;
 }
 
-.card-status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #4b0082;
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-pill {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-pill.pending {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
+}
+
+.status-pill.cancelled {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+}
+
+.card-pay-btn {
+    font-size: 0.7rem;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.card-pay-btn:hover { 
+    background: #4338ca; 
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+.timer-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    padding: 2px 8px;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    color: #4b5563;
+    font-weight: 700;
+    margin-top: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.timer-wrapper i {
+    color: #dc2626;
+    animation: pulse 2s infinite;
+}
+
+.pay-countdown {
+    color: #dc2626;
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.overview-card.pay-pending {
+    background: #fffbeb;
+    border-color: #fde68a;
+    border-left: 5px solid #fbbf24;
+}
+
+.overview-card.pay-complete {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    border-left: 5px solid #22c55e;
+}
+
+.overview-card.cancelled {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+    border-left: 5px solid #9ca3af;
+    opacity: 0.8;
 }
 
 .overview-card.flagged { border-left: 4px solid #dc2626; }
 .overview-card.booked { border-left: 4px solid #4338ca; }
 .overview-card.completed { border-left: 4px solid #10b981; }
+
+.card-cancel-btn, .btn-cancel {
+    font-size: 0.7rem;
+    background: #dc2626 !important;
+    color: white !important;
+    border: none !important;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.card-cancel-btn:hover, .btn-cancel:hover { 
+    background: #b91c1c !important; 
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
+}
 
 .empty-state {
     text-align: center;

@@ -58,11 +58,11 @@
             <?php endif; ?>
 
             <?php
-                $isResultsPage = strpos($currentPage, '/results') !== false;
-                $resultsActiveClass = $isResultsPage ? ' active-portal' : '';
+                $isNewsPage = strpos($currentPage, '/news') !== false || strpos($currentPage, '/results') !== false;
+                $newsActiveClass = $isNewsPage ? ' active-portal' : '';
             ?>
-            <a href="/uoc-sports/public/results" id="nav-results" class="btn-primary<?php echo $resultsActiveClass; ?>">
-                Match Results
+            <a href="/uoc-sports/public/news" id="nav-news" class="btn-primary<?php echo $newsActiveClass; ?>">
+                News
             </a>
 
             <?php

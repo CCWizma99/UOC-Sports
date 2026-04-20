@@ -67,7 +67,7 @@ class SportPracticeSession
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getStudentPracticeSessions($month, $year)
+    public function getStudentPracticeSessions($month, $year, $userId, $studentId = null)
     {
         $query = "SELECT 
                 ps.id,
@@ -82,10 +82,12 @@ class SportPracticeSession
                 ps.notes
               FROM practice_sessions ps
               LEFT JOIN sport s ON ps.sport_id = s.sport_id
+              INNER JOIN `sports-team` st ON ps.sport_id = st.sport_id
               WHERE MONTH(ps.session_date) = ?
-                AND YEAR(ps.session_date) = ?";
+                AND YEAR(ps.session_date) = ?
+                AND (st.student_id = ? OR st.student_id = ?)";
 
-        $params = [$month, $year];
+        $params = [$month, $year, $userId, $studentId ?: $userId];
 
         $query .= " ORDER BY ps.session_date ASC, ps.start_time ASC";
 

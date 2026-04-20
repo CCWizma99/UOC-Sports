@@ -125,6 +125,16 @@ class AdminHomeController {
     public function budget() {
         view('admin/budget', ['title' => 'Budget']);
     }
+    public function expenses() {
+        $db = Database::getConnection();
+        $expenseModel = new SportExpense($db);
+        $expenses = $expenseModel->getAll();
+        
+        view('admin/expenses', [
+            'title' => 'Expense Records',
+            'expenses' => $expenses
+        ]);
+    }
     public function news() {
         view('admin/news', ['title' => 'News Feed']);
     }
@@ -141,5 +151,14 @@ class AdminHomeController {
 
     public function eventPermissions() {
         view('admin/event-permissions', ['title' => 'Event Permissions']);
+    }
+
+    public function facilityRates() {
+        $facilityModel = new Facility();
+        $rates = $facilityModel->getAllRates();
+        view('admin/facility-rates', [
+            'title' => 'Facility Rate Management',
+            'rates' => $rates
+        ]);
     }
 }

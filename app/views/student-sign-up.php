@@ -26,21 +26,22 @@
             </div>
 
             <div class="input-div">
-                <input type="text" name="student_id" id="student-id-inp" placeholder="Student ID Number" title="Enter your Student ID">
-                <div class="error">Invalid Student ID!</div>
-            </div>
-
-            <div class="input-div">
                 <select name="faculty_id" id="faculty-inp" title="Select your Faculty">
                     <option value="none">-- Select Faculty --</option>
                 </select>
                 <div class="error">Faculty cannot be empty!</div>
             </div>
 
+            <div class="input-div">
+                <input type="text" name="student_id" id="student-id-inp" placeholder="Student ID Number" title="Enter your Student ID">
+                <div class="error">Invalid Student ID!</div>
+            </div>
+
 
             <div class="input-div">
-                <input type="email" name="email" id="email-inp" placeholder="Email" title="Enter your Email">
-                <div class="error">The email is invalid!</div>
+                <input type="email" name="email" id="email-inp" value="<?php echo htmlspecialchars($email ?? ''); ?>" readonly style="background: #f3f4f6; color: #6b7280; cursor: not-allowed;" title="Verified University Email">
+                <div class="error" style="display:none">Email is verified</div>
+                <small style="color: #059669; font-size: 0.8rem; display: block; margin-top: 4px;"><i class="fas fa-check-circle"></i> Verified University Email</small>
             </div>
 
             <div class="input-div password-wrapper">
@@ -59,14 +60,6 @@
                 </div>
             </div>
 
-            <div class="input-div file-upload-div">
-                <label for="id-card-inp" class="file-label">
-                    <i class="fa-solid fa-id-card"></i>
-                    <span id="file-name">Upload Student ID Card Image</span>
-                </label>
-                <input type="file" name="id_card" id="id-card-inp" accept="image/jpeg,image/png,image/jpg" style="display:none">
-                <div class="error">Please upload your student ID card image!</div>
-            </div>
 
             <a href="#" id="submit-btn" class="no-dec text-black">Sign Up</a>
 
@@ -107,37 +100,6 @@
                 }
             }
 
-            // File upload handling
-            const fileInput = document.getElementById('id-card-inp');
-            const fileLabel = document.querySelector('.file-label');
-            const fileNameSpan = document.getElementById('file-name');
-
-            if (fileInput) {
-                fileInput.addEventListener('change', function() {
-                    if (this.files && this.files[0]) {
-                        const file = this.files[0];
-                        const maxSize = 5 * 1024 * 1024; // 5MB
-
-                        if (file.size > maxSize) {
-                            alert('File size must be less than 5MB');
-                            this.value = '';
-                            fileNameSpan.textContent = 'Upload Student ID Card Image';
-                            fileLabel.classList.remove('has-file');
-                            return;
-                        }
-
-                        fileNameSpan.textContent = file.name;
-                        fileLabel.classList.add('has-file');
-                        
-                        // Hide error if file selected
-                        const errorDiv = this.parentElement.querySelector('.error');
-                        if (errorDiv) errorDiv.style.display = 'none';
-                    } else {
-                        fileNameSpan.textContent = 'Upload Student ID Card Image';
-                        fileLabel.classList.remove('has-file');
-                    }
-                });
-            }
         });
     </script>
 </body>

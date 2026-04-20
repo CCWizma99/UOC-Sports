@@ -27,11 +27,15 @@ class SportPracticeSessionController
         // If no sport selected, get the first managed sport as default
         if (!$selectedSportId && $userId) {
             $db = Database::getConnection();
-            $stmt = $db->prepare("SELECT s.sport_id FROM manager_sport ms
-                                  JOIN sport s ON ms.sport_id = s.sport_id
-                                  WHERE ms.user_id = ?
-                                  ORDER BY s.sport_name DESC LIMIT 1");
-            $stmt->execute([$userId]);
+            $stmt = $db->prepare("
+                SELECT sport_id FROM manager_sport WHERE user_id = :uid AND date_relieved IS NULL
+                UNION
+                SELECT sport_id FROM user WHERE user_id = :uid2 AND sport_id IS NOT NULL AND sport_id != ''
+                UNION
+                SELECT sport_id FROM sport WHERE manager_id = :uid3
+                LIMIT 1
+            ");
+            $stmt->execute(['uid' => $userId, 'uid2' => $userId, 'uid3' => $userId]);
             $selectedSportId = $stmt->fetchColumn();
         }
 

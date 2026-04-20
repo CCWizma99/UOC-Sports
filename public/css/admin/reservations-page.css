@@ -344,6 +344,11 @@
     color: white;
 }
 
+.status-badge.status-pending_cancel {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: white;
+}
+
 .minimal-body {
     padding: 12px 15px;
 }

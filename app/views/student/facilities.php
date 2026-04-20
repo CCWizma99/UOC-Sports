@@ -1,3 +1,7 @@
+<?php 
+header("Location: /uoc-sports/public/facility-reservation");
+exit;
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +15,7 @@
         @import url(/uoc-sports/public/css/student/student-portal.css);
         @import url(/uoc-sports/public/css/student/sub-nav.css);
         @import url(/uoc-sports/public/css/general/footer.css);
-        @import url(/uoc-sports/public/css/general/facility-reservation-page.css?v=3.17);
+        @import url(/uoc-sports/public/css/general/facility-reservation-page.css?v=3.20);
 
         .page-container {
             width: 100%;
@@ -282,6 +286,121 @@
             background: #f44336;
         }
 
+        /* Cancellation Modal */
+        .cancel-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .cancel-modal-overlay.active {
+            display: flex;
+        }
+
+        .cancel-modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .cancel-modal-content h3 {
+            color: #d32f2f;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cancel-modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+
+        .cancel-modal-close:hover {
+            color: #333;
+        }
+
+        .cancel-form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .cancel-form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #444;
+        }
+
+        .cancel-form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            min-height: 120px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: none;
+            transition: border-color 0.2s;
+        }
+
+        .cancel-form-group textarea:focus {
+            outline: none;
+            border-color: #d32f2f;
+        }
+
+        .btn-submit-cancel {
+            width: 100%;
+            padding: 1rem;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-submit-cancel:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+        }
+
+        .badge-status-pending_cancel {
+            background-color: #ff9800;
+            color: white;
+        }
+
         @media (max-width: 1024px) {
             .grid-layout {
                 grid-template-columns: 1fr;
@@ -295,6 +414,28 @@
 <body class="">
     <?php require APP_ROOT . '/app/views/templates/general/header.php'; ?>
     <?php require APP_ROOT . '/app/views/templates/student/sub_header.php'; ?>
+
+    <!-- Cancellation Request Modal -->
+    <div id="cancelModal" class="cancel-modal-overlay">
+        <div class="cancel-modal-content">
+            <button class="cancel-modal-close" onclick="closeCancelModal()">&times;</button>
+            <h3><i class="fas fa-exclamation-circle"></i> Request Cancellation</h3>
+            <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Please provide a reason for cancelling this reservation. Your request will be reviewed by the administrator.
+            </p>
+            
+            <input type="hidden" id="cancelBookingId">
+            
+            <div class="cancel-form-group">
+                <label for="cancelReason">Reason for Cancellation</label>
+                <textarea id="cancelReason" placeholder="Describe why you need to cancel (e.g., Change of plans, Weather, etc.)"></textarea>
+            </div>
+            
+            <button class="btn-submit-cancel" onclick="submitCancelRequest()">
+                <i class="fas fa-paper-plane"></i> Submit Request
+            </button>
+        </div>
+    </div>
 
     <div class="page-container">
         <div class="grid-layout">
@@ -531,11 +672,11 @@
                         if (booking.payment_status === 'INCOMPLETE' || booking.flag_status === 'FLAGGED') {
                             actionButtons += `<button class="card-btn btn-pay" onclick="payBooking('${booking.booking_id}')"><i class="fas fa-wallet"></i> ${booking.flag_status === 'FLAGGED' ? 'Fix Payment' : 'Pay Now'}</button>`;
                         }
-                        actionButtons += `<button class="card-btn btn-cancel" onclick="cancelBooking('${booking.booking_id}')"><i class="fas fa-times"></i> Cancel</button>`;
+                        actionButtons += `<button class="card-btn btn-cancel" onclick="openCancelModal('${booking.booking_id}')"><i class="fas fa-times"></i> Request Cancel</button>`;
                     }
 
                     let statusBadges = `
-                        <span class="status-badge badge-status-${booking.status.toLowerCase()}">${booking.status}</span>
+                        <span class="status-badge badge-status-${booking.status.toLowerCase()}">${booking.status.replace('_', ' ')}</span>
                         <span class="status-badge badge-payment-${booking.payment_status.toLowerCase()}">${booking.payment_status}</span>
                     `;
 
@@ -599,19 +740,56 @@
         window.location.href = `/uoc-sports/public/payment?booking_id=${id}`;
     };
 
-    window.cancelBooking = async (id) => {
-        if (!confirm("Are you sure you want to cancel this booking?")) return;
+    /* -------------------- CANCELLATION REQUESTS ----------------------- */
+    window.openCancelModal = (id) => {
+        document.getElementById("cancelBookingId").value = id;
+        document.getElementById("cancelReason").value = "";
+        document.getElementById("cancelModal").classList.add("active");
+    };
+
+    window.closeCancelModal = () => {
+        document.getElementById("cancelModal").classList.remove("active");
+    };
+
+    window.submitCancelRequest = async () => {
+        const id = document.getElementById("cancelBookingId").value;
+        const reason = document.getElementById("cancelReason").value.trim();
+
+        if (!reason) {
+            showFloatingMessage("Please provide a reason for cancellation.", "error");
+            return;
+        }
+
+        const btn = document.querySelector(".btn-submit-cancel");
+        const originalContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
         try {
+            const formData = new URLSearchParams();
+            formData.append('booking_id', id);
+            formData.append('reason', reason);
+
             const res = await fetch(CANCEL_RESERVATION_API, {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `booking_id=${id}`
+                body: formData.toString()
             });
-            const text = await res.text();
-            showFloatingMessage(text);
-            loadMyBookings();
+            
+            const result = await res.json();
+            
+            if (result.success) {
+                showFloatingMessage(result.message, "success");
+                closeCancelModal();
+                loadMyBookings();
+            } else {
+                showFloatingMessage(result.message, "error");
+            }
         } catch (e) {
-            showFloatingMessage("Cancellation failed.", "error");
+            showFloatingMessage("Request execution failed.", "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
         }
     };
 

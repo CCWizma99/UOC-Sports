@@ -149,7 +149,7 @@ class EquipmentManagerController {
                 'request_date' => $_POST['request_date'] ?? '',
                 'start_time' => $_POST['start_time'] ?? '',
                 'end_time' => $_POST['end_time'] ?? '',
-                'reserved_location' => '',
+                'reserved_location' => $_POST['location'] ?? '',
                 'requester_name' => $_POST['requester_name'] ?? '',
                 'status' => $isEdit ? ($_POST['status'] ?? 'PENDING') : 'PENDING'
             ];

@@ -23,11 +23,21 @@ try {
     // Get database connection
     $db = Database::getConnection();
     
+    // Get initial spent amount from budget table to use as starting point for cumulative chart
+    $initialSpent = 0;
+    if ($sportId) {
+        $budgetSql = "SELECT spent_amount FROM budget WHERE sport_id = :sport_id AND year = :year ORDER BY allocation_date DESC LIMIT 1";
+        $budgetStmt = $db->prepare($budgetSql);
+        $budgetStmt->execute(['sport_id' => $sportId, 'year' => (int)$year]);
+        $budgetRow = $budgetStmt->fetch(PDO::FETCH_ASSOC);
+        $initialSpent = $budgetRow ? (float)$budgetRow['spent_amount'] : 0;
+    }
+    
     // Create model instance
     $expenseModel = new SportExpense($db);
     
-    // Get cumulative expenses for line chart
-    $cumulativeExpenses = $expenseModel->getCumulativeExpenses($sportId, (int)$year);
+    // Get cumulative expenses for line chart, starting with the initial pre-expended amount
+    $cumulativeExpenses = $expenseModel->getCumulativeExpenses($sportId, (int)$year, $initialSpent);
     
     // Log result count
     error_log("Found " . count($cumulativeExpenses) . " expenses");

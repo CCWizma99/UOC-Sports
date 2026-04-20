@@ -71,6 +71,7 @@ $router->post('/admin-results/toggle-publish', 'MatchResultApiController@toggleP
 $router->post('/admin-results/publish-tournament', 'MatchResultApiController@publishTournament');
 
 $router->get('/admin-budget', 'AdminHomeController@budget');
+$router->get('/admin-budget/expenses', 'AdminHomeController@expenses');
 $router->get('/admin-news', 'AdminHomeController@news');
 $router->get('/admin-inquiry', 'AdminHomeController@inquiry');
 $router->get('/admin-inquiry/search', 'InquiryController@search');
@@ -164,5 +165,10 @@ $router->post('/admin-tournament/revoke-captain-permission', 'TournamentControll
 // Audit Logs routes
 $router->get('/admin-audit-logs', 'AuditController@index');
 $router->get('/admin-api/audit/logs', 'AuditApiController@getLogs');
+
+// Facility Rate Management
+$router->get('/admin-facility-rates', 'AdminHomeController@facilityRates');
+$router->post('/admin-api/facility/update-rates', 'FacilityApiController@updateFacilityRates');
+$router->post('/admin-api/facility/resolve-cancellation', 'FacilityApiController@resolveCancellation');
 
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

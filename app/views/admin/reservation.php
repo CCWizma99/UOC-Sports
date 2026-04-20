@@ -87,6 +87,10 @@ require '../app/views/templates/admin/sidebar.php';
                     <label>Rejection Reason:</label>
                     <span id="rejection-reason" class="rejection-text"></span>
                 </div>
+                <div class="detail-item full-width" id="cancellation-reason-container" style="display: none; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 8px; padding: 15px;">
+                    <label style="color: #c53030; font-weight: 700;"><i class="fa-solid fa-triangle-exclamation"></i> Cancellation Request Reason:</label>
+                    <span id="cancellation-reason" style="color: #9b2c2c; display: block; margin-top: 5px; font-weight: 500;"></span>
+                </div>
             </div>
 
             <div class="action-buttons" id="action-buttons">
@@ -98,6 +102,12 @@ require '../app/views/templates/admin/sidebar.php';
                 </button>
                 <button class="btn-verify" id="verify-payment-btn" style="display: none;">
                     <i class="fa-solid fa-check-circle"></i> Mark as Paid
+                </button>
+                <button class="btn-approve-cancel" id="approve-cancel-btn" style="display: none; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+                    <i class="fa-solid fa-check"></i> Approve Cancellation
+                </button>
+                <button class="btn-reject-cancel" id="reject-cancel-btn" style="display: none; background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;">
+                    <i class="fa-solid fa-xmark"></i> Keep Booking
                 </button>
             </div>
         </div>
@@ -382,10 +392,8 @@ function loadReservationDetails() {
             const verifyBtn = document.getElementById('verify-payment-btn');
             const flagBtn = document.getElementById('flag-payment-btn');
             
-            if (data.payment_status !== 'COMPLETE') {
+            if (data.payment_status !== 'COMPLETE' && data.status !== 'PENDING_CANCEL') {
                 verifyBtn.style.display = 'flex';
-                // Show flag button even if no slip yet, or only if slip exists?
-                // User requirement implies flagging the SLIP, so show if slip exists.
                 if (data.payment_slip) {
                     flagBtn.style.display = 'flex';
                 } else {
@@ -394,6 +402,22 @@ function loadReservationDetails() {
             } else {
                 verifyBtn.style.display = 'none';
                 flagBtn.style.display = 'none';
+            }
+
+            // Cancellation Actions
+            const approveCancelBtn = document.getElementById('approve-cancel-btn');
+            const rejectCancelBtn = document.getElementById('reject-cancel-btn');
+            const cancelReasonContainer = document.getElementById('cancellation-reason-container');
+
+            if (data.status === 'PENDING_CANCEL') {
+                approveCancelBtn.style.display = 'flex';
+                rejectCancelBtn.style.display = 'flex';
+                cancelReasonContainer.style.display = 'block';
+                document.getElementById('cancellation-reason').textContent = data.cancellation_reason || 'No reason provided.';
+            } else {
+                approveCancelBtn.style.display = 'none';
+                rejectCancelBtn.style.display = 'none';
+                cancelReasonContainer.style.display = 'none';
             }
 
             // Payment Proof
@@ -413,7 +437,7 @@ function loadReservationDetails() {
 
             // Status badge
             const statusBadge = document.getElementById('status-badge');
-            statusBadge.textContent = data.status;
+            statusBadge.textContent = data.status.replace('_', ' ');
             statusBadge.className = 'status-badge status-' + data.status.toLowerCase();
 
             // Show rejection reason if rejected
@@ -607,6 +631,62 @@ if (confirmFlagBtn) {
             flagBtn.disabled = false;
             flagBtn.innerHTML = originalBtnText;
         });
+    });
+}
+
+// Cancellation Resolution Logic
+const approveCancelBtn = document.getElementById('approve-cancel-btn');
+const rejectCancelBtn = document.getElementById('reject-cancel-btn');
+
+if (approveCancelBtn) {
+    approveCancelBtn.addEventListener('click', () => {
+        if (!confirm('Are you sure you want to APPROVE this cancellation request? The reservation will be marked as CANCELLED.')) return;
+        resolveCancellationRequest('APPROVE');
+    });
+}
+
+if (rejectCancelBtn) {
+    rejectCancelBtn.addEventListener('click', () => {
+        if (!confirm('Are you sure you want to REJECT this cancellation request? The reservation will remain BOOKED.')) return;
+        resolveCancellationRequest('REJECT');
+    });
+}
+
+function resolveCancellationRequest(action) {
+    const btn = action === 'APPROVE' ? approveCancelBtn : rejectCancelBtn;
+    const originalContent = btn.innerHTML;
+    
+    // Disable both buttons
+    approveCancelBtn.disabled = true;
+    rejectCancelBtn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${action === 'APPROVE' ? 'Approving...' : 'Rejecting...'}`;
+
+    const formData = new FormData();
+    formData.append('booking_id', bookingId);
+    formData.append('action', action);
+
+    fetch('/uoc-sports/public/admin-api/facility/resolve-cancellation', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            UI.showToast(data.message, 'success');
+            loadReservationDetails();
+        } else {
+            UI.showToast(data.message, 'error');
+            approveCancelBtn.disabled = false;
+            rejectCancelBtn.disabled = false;
+            btn.innerHTML = originalContent;
+        }
+    })
+    .catch(err => {
+        console.error('Error resolving cancellation:', err);
+        UI.showToast('An error occurred.', 'error');
+        approveCancelBtn.disabled = false;
+        rejectCancelBtn.disabled = false;
+        btn.innerHTML = originalContent;
     });
 }
 

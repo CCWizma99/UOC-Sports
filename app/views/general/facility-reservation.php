@@ -8,7 +8,7 @@
     <style>
         @import url(/uoc-sports/public/css/global.css);
         @import url(/uoc-sports/public/css/general/header.css);
-        @import url(/uoc-sports/public/css/general/facility-reservation-page.css?v=3.17);
+        @import url(/uoc-sports/public/css/general/facility-reservation-page.css?v=3.21);
         @import url(/uoc-sports/public/css/general/footer.css);
 
         .parallel-booking-alert {
@@ -37,10 +37,240 @@
         .parallel-booking-alert.active {
             display: flex;
         }
+
+        /* Cancellation Modal Styles */
+        .cancel-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cancel-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .cancel-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .cancel-modal-overlay.active .cancel-modal-content {
+            transform: scale(1);
+        }
+
+        .cancel-modal-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .cancel-modal-header i {
+            font-size: 3rem;
+            color: #ef4444;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .cancel-modal-header h3 {
+            font-size: 1.5rem;
+            color: #1a1a1a;
+            font-weight: 800;
+        }
+
+        .cancel-modal-body textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            resize: none;
+            transition: all 0.3s ease;
+        }
+
+        .cancel-modal-body textarea:focus {
+            outline: none;
+            border-color: #4b0082;
+            box-shadow: 0 0 0 4px rgba(75, 0, 130, 0.1);
+        }
+
+        .cancel-modal-footer {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-cancel-modal {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-align: center;
+        }
+
+        .btn-close-cancel { background: #f3f4f6; color: #4b5563; }
+        .btn-submit-cancel { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+
+        .btn-cancel-modal:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        .overview-card.pending_cancel { border-left: 4px solid #f97316; }
+
+        /* Policy Modal Specifics */
+        .policy-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 11000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .policy-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .policy-modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 2rem;
+            width: 90%;
+            max-width: 550px;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+        }
+
+        .policy-modal-overlay.active .policy-modal-content {
+            transform: translateY(0);
+        }
+
+        .policy-icon {
+            width: 70px;
+            height: 70px;
+            background: #f0ebff;
+            color: #4b0082;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .policy-body {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 1.5rem 0;
+            padding-right: 10px;
+            text-align: left;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #4b5563;
+        }
+
+        .policy-body b { color: #111; }
+        .policy-body ul { padding-left: 1.2rem; }
+        .policy-body li { margin-bottom: 0.8rem; }
+
+        .policy-footer {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-policy {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-policy-decline { background: #f3f4f6; color: #4b5563; }
+        .btn-policy-agree { 
+            background: linear-gradient(135deg, #4b0082 0%, #6d28d9 100%); 
+            color: white;
+            box-shadow: 0 4px 15px rgba(75, 0, 130, 0.3);
+        }
+
+        .btn-policy:hover { transform: translateY(-2px); filter: brightness(1.1); }
     </style>
 </head>
 <body>
     <?php require '../app/views/templates/general/header.php'; ?>
+    
+    <!-- Cancellation Modal -->
+    <div id="cancelModal" class="cancel-modal-overlay">
+        <div class="cancel-modal-content">
+            <div class="cancel-modal-header">
+                <i class="fas fa-exclamation-circle"></i>
+                <h3>Request Cancellation</h3>
+                <p style="color: #666; font-size: 0.9rem;">Please provide a reason for cancelling this booking.</p>
+            </div>
+            <div class="cancel-modal-body">
+                <input type="hidden" id="cancelBookingId">
+                <textarea id="cancelReason" placeholder="Describe why you need to cancel (e.g., medical reason, emergency)..." maxlength="500"></textarea>
+            </div>
+            <div class="cancel-modal-footer">
+                <button type="button" class="btn-cancel-modal btn-close-cancel" onclick="closeCancelModal()">Dismiss</button>
+                <button type="button" class="btn-cancel-modal btn-submit-cancel" onclick="submitCancelRequest()">Submit Request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Policy Confirmation Modal -->
+    <div id="policyModal" class="policy-modal-overlay">
+        <div class="policy-modal-content">
+            <div class="policy-icon"><i class="fas fa-file-contract"></i></div>
+            <h2 style="text-align:center; color:#111; margin-bottom:0.5rem;">Booking Policies</h2>
+            <p style="text-align:center; color:#666; font-size:0.9rem;">Please review and accept our terms to proceed.</p>
+            
+            <div class="policy-body">
+                <ul>
+                    <li><b>Discretionary Refunds:</b> Once a booking is created, any refunding is solely dependent on the <b>Physical Education Department's</b> discretion.</li>
+                    <li><b>Facility Usage:</b> Users must explicitly follow all facility-specific instructions and maintaining the property's integrity.</li>
+                    <li><b>Equipment:</b> Any damage to facility equipment will be charged to the person who made the reservation.</li>
+                </ul>
+            </div>
+
+            <div class="policy-footer">
+                <button type="button" class="btn-policy btn-policy-decline" onclick="closePolicyModal()">Go Back</button>
+                <button type="button" class="btn-policy btn-policy-agree" onclick="confirmPolicyAndSubmit()">I Agree & Proceed</button>
+            </div>
+        </div>
+    </div>
 
     <div class="facility-page-wrapper">
         
@@ -73,10 +303,6 @@
                     <p class="loading-msg"><i class="fas fa-spinner fa-spin"></i> Loading your schedule...</p>
                 </div>
 
-                <div class="calendar-legend">
-                    <span class="legend-item"><span class="legend-dot booked"></span> Reserved</span>
-                    <span class="legend-item"><span class="legend-dot today"></span> Today</span>
-                </div>
             </section>
         </div>
 
@@ -183,6 +409,7 @@ const BOOKING_API = "/uoc-sports/public/create-facility-booking";
 const SLOTS_API = "/uoc-sports/public/get-reserved-slots";
 const RESERVATIONS_API = "/uoc-sports/public/reserve-facilities/view-reservations";
 const MONTHLY_BOOKINGS_API = "/uoc-sports/public/reserve-facilities/monthly-bookings";
+const CANCEL_RESERVATION_API = "/uoc-sports/public/reserve-facilities/cancel";
 
 let currentCalendarDate = new Date();
 
@@ -746,6 +973,27 @@ async function submitReservation(e) {
         return;
     }
 
+    // Show Policy Modal Instead of Submitting
+    openPolicyModal();
+}
+
+function openPolicyModal() {
+    document.getElementById("policyModal").classList.add("active");
+}
+
+function closePolicyModal() {
+    document.getElementById("policyModal").classList.remove("active");
+}
+
+async function confirmPolicyAndSubmit() {
+    closePolicyModal();
+    
+    const facilityId = document.getElementById("facility_id").value;
+    const date = document.getElementById("date").value;
+    const slotId = document.getElementById("slot_id").value;
+    const purpose = document.getElementById("purpose").value;
+    const msg = document.getElementById("reservationMessage");
+
     try {
         const formData = new FormData();
         formData.append("facility_id", facilityId);
@@ -760,9 +1008,11 @@ async function submitReservation(e) {
         const result = await response.json();
 
         if (result.success) {
-            // Redirect to payment page immediately
-            showFloatingMessage("Reservation created! Redirecting to payment...", "success");
-            window.location.href = `/uoc-sports/public/payment?booking_id=${result.booking_id}`;
+            // Redirect back to same page to show countdown/payment shortcut
+            showFloatingMessage("Reservation created successfully!", "success");
+            setTimeout(() => {
+                window.location.href = `/uoc-sports/public/facility-reservation?success=1`;
+            }, 1000);
         } else {
             // Check if user needs to login
             if (result.redirect) {
@@ -847,13 +1097,28 @@ async function renderBookingOverview() {
             if (bookings.length === 0) return '';
             let sectionHtml = `<div class="month-group"><h4>${title}</h4><div class="overview-cards">`;
             bookings.forEach(b => {
+                const isPaid = b.payment_status === 'COMPLETE';
+                const statusClass = b.status.toLowerCase();
+                const paymentClass = isPaid ? 'pay-complete' : 'pay-pending';
+
                 sectionHtml += `
-                    <div class="overview-card ${b.status.toLowerCase()}">
+                    <div class="overview-card ${statusClass} ${paymentClass}">
                         <div class="card-info">
                             <span class="card-facility">${b.facility_name}</span>
                             <span class="card-date"><i class="fas fa-clock"></i> ${b.date} | ${b.start_time}</span>
+                            ${!isPaid && b.status === 'BOOKED' ? `
+                                <div class="timer-wrapper">
+                                    <i class="fas fa-hourglass-half"></i> 
+                                    Expires in: <span class="pay-countdown" data-created="${b.created_at}">--:--</span>
+                                </div>
+                            ` : ''}
                         </div>
-                        <span class="card-status-dot"></span>
+                        <div class="card-actions">
+                            ${!isPaid && b.status === 'BOOKED' ? `<button class="card-pay-btn" onclick="payBooking('${b.booking_id}')"><i class="fas fa-wallet"></i> Pay Now</button>` : ''}
+                            ${b.status === 'BOOKED' ? `<button class="card-cancel-btn" onclick="openCancelModal('${b.booking_id}')"><i class="fas fa-times"></i> Request Cancel</button>` : ''}
+                            ${b.status === 'PENDING_CANCEL' ? `<span class="status-pill pending">Pending Request</span>` : ''}
+                            ${b.status === 'CANCELLED' ? `<span class="status-pill cancelled">Cancelled</span>` : ''}
+                        </div>
                     </div>
                 `;
             });
@@ -869,12 +1134,105 @@ async function renderBookingOverview() {
         }
 
         container.innerHTML = html;
+        startPaymentCountdowns();
 
     } catch (e) {
         console.error("Overview Error:", e);
         container.innerHTML = `<p class="error">Log in to view your booking schedule.</p>`;
     }
 }
+
+/* -------------------- CANCELLATION REQUESTS ----------------------- */
+window.openCancelModal = (id) => {
+    document.getElementById("cancelBookingId").value = id;
+    document.getElementById("cancelReason").value = "";
+    document.getElementById("cancelModal").classList.add("active");
+};
+
+window.closeCancelModal = () => {
+    document.getElementById("cancelModal").classList.remove("active");
+};
+
+window.submitCancelRequest = async () => {
+    const id = document.getElementById("cancelBookingId").value;
+    const reason = document.getElementById("cancelReason").value.trim();
+
+    if (!reason) {
+        showFloatingMessage("Please provide a reason for cancellation.", "error");
+        return;
+    }
+
+    const btn = document.querySelector(".btn-submit-cancel");
+    const originalContent = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+    try {
+        const formData = new URLSearchParams();
+        formData.append('booking_id', id);
+        formData.append('reason', reason);
+
+        const res = await fetch(CANCEL_RESERVATION_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData.toString()
+        });
+        
+        const result = await res.json();
+        
+        if (result.success) {
+            showFloatingMessage(result.message, "success");
+            closeCancelModal();
+            renderBookingOverview(); // Refresh overview
+        } else {
+            showFloatingMessage(result.message, "error");
+        }
+    } catch (e) {
+        showFloatingMessage("Request execution failed.", "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+    }
+};
+
+/* -------------------- PAYMENT COUNTDOWN TIMER ----------------------- */
+let paymentTimerInterval = null;
+
+function startPaymentCountdowns() {
+    if (paymentTimerInterval) clearInterval(paymentTimerInterval);
+
+    const updateTimers = () => {
+        const countdowns = document.querySelectorAll(".pay-countdown");
+        if (countdowns.length === 0) {
+            clearInterval(paymentTimerInterval);
+            return;
+        }
+
+        countdowns.forEach(el => {
+            const createdAt = new Date(el.dataset.created).getTime();
+            const now = new Date().getTime();
+            const expiryTime = createdAt + (30 * 60 * 1000); // 30 minutes
+            const timeLeft = expiryTime - now;
+
+            if (timeLeft <= 0) {
+                el.innerText = "Expired";
+                el.closest(".overview-card").style.opacity = "0.5";
+                // Optionally refresh the list to remove expired items
+            } else {
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                el.innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+        });
+    };
+
+    updateTimers();
+    paymentTimerInterval = setInterval(updateTimers, 1000);
+}
+
+window.payBooking = (id) => {
+    window.location.href = `/uoc-sports/public/payment?booking_id=${id}`;
+};
 
 </script>
 </html>

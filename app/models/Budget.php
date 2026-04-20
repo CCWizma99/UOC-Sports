@@ -20,9 +20,19 @@ class Budget {
                 COALESCE(m.contact_no, 'N/A') AS manager_contact,
                 b.year,
                 b.allocated_amount,
-                b.spent_amount,
+                (b.spent_amount + COALESCE((
+                    SELECT SUM(amount) 
+                    FROM sport_expenses se 
+                    WHERE se.sport COLLATE utf8mb4_unicode_ci = s.sport_name COLLATE utf8mb4_unicode_ci 
+                    AND YEAR(se.expense_date) = b.year AND se.status = 'ACTIVE'
+                ), 0)) AS spent_amount,
                 b.allocation_date,
-                (b.allocated_amount - b.spent_amount) AS remaining_amount,
+                (b.allocated_amount - (b.spent_amount + COALESCE((
+                    SELECT SUM(amount) 
+                    FROM sport_expenses se 
+                    WHERE se.sport COLLATE utf8mb4_unicode_ci = s.sport_name COLLATE utf8mb4_unicode_ci 
+                    AND YEAR(se.expense_date) = b.year AND se.status = 'ACTIVE'
+                ), 0))) AS remaining_amount,
                 t.transaction_id,
                 t.amount AS transaction_amount,
                 t.purpose,
@@ -31,7 +41,15 @@ class Budget {
             FROM budget b
             INNER JOIN sport s ON b.sport_id = s.sport_id
             LEFT JOIN user m ON s.manager_id = m.user_id
-            LEFT JOIN transaction t ON b.budget_id = t.budget_id
+            LEFT JOIN (
+                SELECT transaction_id, budget_id, amount, purpose, timestamp, proof_doc FROM `transaction`
+                UNION ALL
+                SELECT CONCAT('EXP', se.id), b2.budget_id, se.amount, se.description as purpose, se.expense_date as timestamp, se.voucher as proof_doc 
+                FROM sport_expenses se 
+                JOIN sport sp ON se.sport COLLATE utf8mb4_unicode_ci = sp.sport_name COLLATE utf8mb4_unicode_ci
+                JOIN budget b2 ON sp.sport_id = b2.sport_id AND YEAR(se.expense_date) = b2.year
+                WHERE se.status = 'ACTIVE'
+            ) t ON b.budget_id = t.budget_id
             WHERE s.sport_name LIKE :query
             ORDER BY b.allocation_date DESC, t.timestamp DESC
             LIMIT 4
@@ -282,13 +300,13 @@ class Budget {
         
         $stmt = $this->db->prepare("
             SELECT 
-                SUM(spent_amount) AS total_spent, 
-                SUM(allocated_amount - spent_amount) AS total_remaining,
-                SUM(allocated_amount) AS total_allocated
+                (COALESCE(SUM(spent_amount), 0) + COALESCE((SELECT SUM(amount) FROM sport_expenses WHERE YEAR(expense_date) = :year AND status = 'ACTIVE'), 0)) AS total_spent,
+                SUM(allocated_amount) AS total_allocated,
+                (SUM(allocated_amount) - (COALESCE(SUM(spent_amount), 0) + COALESCE((SELECT SUM(amount) FROM sport_expenses WHERE YEAR(expense_date) = :year2 AND status = 'ACTIVE'), 0))) AS total_remaining
             FROM budget
-            WHERE year = ?
+            WHERE year = :year3
         ");
-        $stmt->execute([$year]);
+        $stmt->execute(['year' => $year, 'year2' => $year, 'year3' => $year]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -300,16 +318,33 @@ public function getBudgetUtilization($year = null) {
     try {
         $stmt = $this->db->prepare("
             SELECT 
-                DATE_FORMAT(t.timestamp, '%b') AS month,
-                YEAR(t.timestamp) AS year,
-                SUM(t.amount) AS spent_amount
-            FROM `transaction` t
-            JOIN budget b ON t.budget_id = b.budget_id
-            WHERE YEAR(t.timestamp) = ?
-            GROUP BY YEAR(t.timestamp), MONTH(t.timestamp), DATE_FORMAT(t.timestamp, '%b')
-            ORDER BY MONTH(t.timestamp)
+                month,
+                year,
+                SUM(amount) AS spent_amount
+            FROM (
+                SELECT 
+                    DATE_FORMAT(t.timestamp, '%b') AS month,
+                    YEAR(t.timestamp) AS year,
+                    t.amount,
+                    MONTH(t.timestamp) as m_num
+                FROM `transaction` t
+                JOIN budget b ON t.budget_id = b.budget_id
+                WHERE YEAR(t.timestamp) = :year
+                
+                UNION ALL
+                
+                SELECT 
+                    DATE_FORMAT(se.expense_date, '%b') AS month,
+                    YEAR(se.expense_date) AS year,
+                    se.amount,
+                    MONTH(se.expense_date) as m_num
+                FROM sport_expenses se
+                WHERE YEAR(se.expense_date) = :year2 AND se.status = 'ACTIVE'
+            ) combined
+            GROUP BY year, m_num, month
+            ORDER BY m_num
         ");
-        $stmt->execute([$year]);
+        $stmt->execute(['year' => $year, 'year2' => $year]);
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     } catch (PDOException $e) {

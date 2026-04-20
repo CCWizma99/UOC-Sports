@@ -304,9 +304,10 @@ class SportExpense {
      * Get monthly expenses grouped by month for a specific sport and year
      * @param string $sportId - Sport ID (optional, null for all sports)
      * @param int $year - Year (default: current year)
+     * @param float $initialSpent - Pre-expended amount from budget table (default: 0)
      * @return array - Array with month names as keys and total amounts as values
      */
-    public function getMonthlyExpenses($sportId = null, $year = null) {
+    public function getMonthlyExpenses($sportId = null, $year = null, $initialSpent = 0) {
         if ($year === null) {
             $year = date('Y');
         }
@@ -346,6 +347,9 @@ class SportExpense {
             $months[$row['month_name']] = (float)$row['total_amount'];
         }
         
+        // Add initial spent amount to the first active month or January if not specified
+        $months['January'] += (float)$initialSpent;
+        
         return $months;
     }
     
@@ -353,9 +357,10 @@ class SportExpense {
      * Get cumulative expenses over time for line chart
      * @param string $sportId - Sport ID (optional, null for all sports)
      * @param int $year - Year (default: current year)
+     * @param float $initialSpent - Pre-expended amount from budget table (default: 0)
      * @return array - Array of expense entries with cumulative totals
      */
-    public function getCumulativeExpenses($sportId = null, $year = null) {
+    public function getCumulativeExpenses($sportId = null, $year = null, $initialSpent = 0) {
         if ($year === null) {
             $year = date('Y');
         }
@@ -386,8 +391,19 @@ class SportExpense {
         $expenses = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Calculate cumulative totals
-        $cumulative = 0;
+        $cumulative = (float)$initialSpent;
         $result = [];
+        
+        // Prepend initial spent data point if non-zero
+        if ($cumulative > 0) {
+            $result[] = [
+                'date' => "$year-01-01",
+                'label' => "Jan 1",
+                'expense_title' => "Admin Adjustment / Initial Spend",
+                'amount' => (float)$initialSpent,
+                'cumulative' => $cumulative
+            ];
+        }
         
         foreach ($expenses as $expense) {
             $cumulative += (float)$expense['amount'];

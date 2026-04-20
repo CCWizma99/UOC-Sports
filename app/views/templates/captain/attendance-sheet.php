@@ -89,6 +89,10 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
                     <!-- Team members will be loaded here dynamically -->
                 </div>
             </div>
+            
+            <!-- Pagination Controls -->
+            <div id="paginationControls" class="pagination-controls"></div>
+
             <button class="submit-btn" id="submitBtn" onclick="submitAttendance()">
                 <i class="fas fa-check"></i> Submit Attendance
             </button>
@@ -142,6 +146,31 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
             <div class="loading-state">
                 <div class="spinner"></div>
                 <p>Loading last session...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submission Warning Modal -->
+<div id="cautionModal" class="modal">
+    <div class="modal-content warning-theme">
+        <div class="modal-header warning">
+            <h2><i class="fas fa-exclamation-triangle"></i> Incomplete Review</h2>
+            <button class="close-btn" onclick="closeCautionModal()">&times;</button>
+        </div>
+        <div class="modal-body text-center">
+            <div class="warning-icon">
+                <i class="fas fa-file-circle-exclamation"></i>
+            </div>
+            <p class="warning-text">
+                You have only viewed <strong id="visitedCount">0</strong> out of <strong id="totalCount">0</strong> pages of students.
+            </p>
+            <p class="secondary-text">
+                Submitting now might lead to missing attendance records for some students. Are you sure you want to proceed?
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeCautionModal()">Go Back</button>
+                <button class="btn btn-warning" onclick="executeFinalSubmit()">Continue to Submit</button>
             </div>
         </div>
     </div>
@@ -492,6 +521,122 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
 /* Removed forced absolute positioning to allow calendar to float correctly */
 
 
+/* Pagination Controls */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 25px;
+    padding: 10px;
+}
+
+.pagination-btn {
+    padding: 8px 14px;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    color: #4a5568;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    border-color: #6b3fa0;
+    color: #6b3fa0;
+    background: #f8fafc;
+}
+
+.pagination-btn.active {
+    background: #6b3fa0;
+    color: white;
+    border-color: #6b3fa0;
+    box-shadow: 0 4px 10px rgba(107, 63, 160, 0.2);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f1f5f9;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #718096;
+    margin: 0 10px;
+    font-weight: 500;
+}
+
+.pagination-btn.visited:not(.active) {
+    background: #f0e6ff;
+    border-color: #9f7aea;
+    color: #6b3fa0;
+}
+
+/* Warning Modal Specifics */
+.warning-theme {
+    max-width: 450px !important;
+}
+
+.modal-header.warning {
+    background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+}
+
+.warning-icon {
+    font-size: 48px;
+    color: #f57c00;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.warning-text {
+    font-size: 18px;
+    color: #2d3748;
+    margin-bottom: 12px;
+}
+
+.secondary-text {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 30px;
+}
+
+.text-center { text-align: center; }
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-warning {
+    background: #f57c00;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-warning:hover {
+    background: #e65100;
+    box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3);
+}
+
 </style>
 
 <script>
@@ -499,14 +644,19 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
     let currentSessionId = null;
     let teamMembers = [];
     let attendanceData = {};
+    
+    // Pagination state
+    let currentPage = 1;
+    let visitedPages = new Set();
+    const itemsPerPage = 10;
 
-    // Load upcoming sessions on page load
+    // Load available sessions on page load
     document.addEventListener('DOMContentLoaded', function() {
-        loadUpcomingSessions();
+        loadAvailableSessions();
     });
 
-    // Load upcoming practice sessions
-    async function loadUpcomingSessions() {
+    // Load available practice sessions (recent past and today)
+    async function loadAvailableSessions() {
         try {
             const response = await fetch(`/uoc-sports/public/api/attendance/previous-sessions/${SPORT_ID}`);
             const data = await response.json();
@@ -541,8 +691,10 @@ if (empty($captainSportId) && isset($_SESSION['user_id'])) {
 
         const session = JSON.parse(selectedOption.dataset.session);
         currentSessionId = session.id;
-
-        // Show session details
+        
+        // IMPORTANT: Clear previous attendance data and visited pages when switching sessions
+        attendanceData = {};
+        visitedPages = new Set();
         document.getElementById('sessionDate').textContent = session.session_date;
         document.getElementById('startTime').textContent = session.start_time;
         document.getElementById('sessionLocation').textContent = session.location;
@@ -623,40 +775,114 @@ if (sessionDateTime > now) {
         }
     }
 
-    // Render team members
+    // Render team members (Wraps pagination)
     function renderTeamMembers() {
+        currentPage = 1;
+        visitedPages = new Set();
+        
+        // Initial setup for attendanceData if not already set by existing attendance
+        teamMembers.forEach(member => {
+            if (!attendanceData[member.user_id]) {
+                attendanceData[member.user_id] = 'PRESENT';
+            }
+        });
+
+        renderTablePage(currentPage);
+        updateAttendanceCount();
+    }
+
+    // Render a specific page of the table
+    function renderTablePage(page) {
+        currentPage = page;
+        visitedPages.add(page);
         const container = document.getElementById('teamMembersContainer');
         container.innerHTML = '';
 
         if (teamMembers.length === 0) {
             container.innerHTML = '<div class="empty-message">No team members found</div>';
+            document.getElementById('paginationControls').innerHTML = '';
             return;
         }
 
-        teamMembers.forEach(member => {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, teamMembers.length);
+        const pageMembers = teamMembers.slice(startIndex, endIndex);
+
+        pageMembers.forEach(member => {
+            const status = attendanceData[member.user_id] || 'PRESENT';
+            const statusClass = status === 'PRESENT' ? 'present' : (status === 'ABSENT' ? 'absent' : '');
+            const buttonText = status === 'PRESENT' ? 'Present' : 'Absent';
+
             const row = document.createElement('div');
             row.className = 'table-row';
             row.innerHTML = `
                 <div class="student-name">${member.fname} ${member.lname}</div>
                 <div class="student-id">${member.student_id}</div>
                 <div>
-                    <button class="attendance-toggle" 
+                    <button class="attendance-toggle ${statusClass}" 
                             data-user-id="${member.user_id}" 
                             onclick="toggleAttendance(this)">
-                        Present
+                        ${buttonText}
                     </button>
                 </div>
                 <div class="percentage">${member.attendance_percentage}%</div>
             `;
             container.appendChild(row);
-
-            // Initialize attendance data
-            if (!attendanceData[member.user_id]) {
-                attendanceData[member.user_id] = 'PRESENT';
-            }
         });
 
-        updateAttendanceCount();
+        renderPaginationControls();
+    }
+
+    // Render pagination buttons
+    function renderPaginationControls() {
+        const controls = document.getElementById('paginationControls');
+        const totalPages = Math.ceil(teamMembers.length / itemsPerPage);
+
+        if (totalPages <= 1) {
+            controls.innerHTML = '';
+            return;
+        }
+
+        let html = `
+            <button class="pagination-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        `;
+
+        for (let i = 1; i <= totalPages; i++) {
+            const isActive = i === currentPage;
+            const isVisited = visitedPages.has(i);
+            const classes = `pagination-btn ${isActive ? 'active' : ''} ${isVisited ? 'visited' : ''}`;
+            
+            // Logic to show fewer pages if many exist
+            if (totalPages > 7) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button class="${classes}" onclick="changePage(${i})">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+            } else {
+                html += `<button class="${classes}" onclick="changePage(${i})">${i}</button>`;
+            }
+        }
+
+        html += `
+            <button class="pagination-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+
+        controls.innerHTML = html;
+    }
+
+    // Change page
+    function changePage(page) {
+        const totalPages = Math.ceil(teamMembers.length / itemsPerPage);
+        if (page < 1 || page > totalPages) return;
+        renderTablePage(page);
+        
+        // Scroll to top of table section for better UX
+        document.getElementById('attendanceMarkingSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // Update attendance buttons based on data
@@ -719,6 +945,27 @@ if (sessionDateTime > now) {
             return;
         }
 
+        // Check if all pages have been visited
+        const totalPages = Math.ceil(teamMembers.length / itemsPerPage);
+        if (visitedPages.size < totalPages) {
+            document.getElementById('visitedCount').textContent = visitedPages.size;
+            document.getElementById('totalCount').textContent = totalPages;
+            document.getElementById('cautionModal').classList.add('show');
+            return;
+        }
+
+        executeFinalSubmit();
+    }
+
+    // Modal helpers
+    function closeCautionModal() {
+        document.getElementById('cautionModal').classList.remove('show');
+    }
+
+    // Final submission execution
+    async function executeFinalSubmit() {
+        closeCautionModal();
+        
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';

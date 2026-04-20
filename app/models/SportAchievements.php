@@ -88,6 +88,7 @@ class SportAchievements extends Model {
                     a.sport_id,
                     s.sport_name,
                     t.tournament_name,
+                    t.match_level,
                     t.start_date as tournament_date
                   FROM achievement a
                   LEFT JOIN sport s ON a.sport_id = s.sport_id

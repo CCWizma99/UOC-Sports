@@ -116,32 +116,73 @@ class FacilityApiController {
     }
 
     public function cancelFacilityReservation() {
-        header('Content-Type: text/plain');
+        header('Content-Type: application/json');
 
         if (!isset($_SESSION['user_id'])) {
-            echo "Please log in to cancel reservations.";
+            echo json_encode(['success' => false, 'message' => 'Please log in to cancel reservations.']);
             return;
         }
 
         try {
             $booking_id = $_POST['booking_id'] ?? '';
+            $reason = $_POST['reason'] ?? '';
             
             if (empty($booking_id)) {
-                echo "Invalid booking ID.";
+                echo json_encode(['success' => false, 'message' => 'Invalid booking ID.']);
+                return;
+            }
+
+            if (empty($reason)) {
+                echo json_encode(['success' => false, 'message' => 'Cancellation reason is required.']);
                 return;
             }
 
             $model = new Facility();
-            $success = $model->cancelBooking($booking_id, $_SESSION['user_id']);
+            $success = $model->requestCancellation($booking_id, $_SESSION['user_id'], $reason);
             
             if ($success) {
-                echo "Reservation cancelled successfully.";
+                echo json_encode(['success' => true, 'message' => 'Cancellation request submitted successfully. Admin will review your request.']);
             } else {
-                echo "Unable to cancel reservation.";
+                echo json_encode(['success' => false, 'message' => 'Unable to submit cancellation request. Reservation might not be in a cancellable state.']);
             }
     
         } catch (Exception $e) {
-            echo "Cancel failed: " . $e->getMessage();
+            echo json_encode(['success' => false, 'message' => 'Request failed: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Admin: Resolve a pending cancellation request
+     */
+    public function resolveCancellation() {
+        header('Content-Type: application/json');
+
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'ADMIN') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized. Admin access required.']);
+            return;
+        }
+
+        try {
+            $booking_id = $_POST['booking_id'] ?? '';
+            $action = $_POST['action'] ?? ''; // 'APPROVE' or 'REJECT'
+            
+            if (empty($booking_id) || !in_array($action, ['APPROVE', 'REJECT'])) {
+                echo json_encode(['success' => false, 'message' => 'Invalid input parameters.']);
+                return;
+            }
+
+            $model = new Facility();
+            $success = $model->handleCancellationResolution($booking_id, $action);
+
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => "Cancellation request " . ($action === 'APPROVE' ? 'approved' : 'rejected') . " successfully."]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to resolve cancellation request.']);
+            }
+    
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Resolution failed: ' . $e->getMessage()]);
         }
     }
 
@@ -504,6 +545,45 @@ class FacilityApiController {
                 ]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to flag the booking.']);
+            }
+
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Server error: ' . $e->getMessage()]);
+        }
+    }
+
+    public function updateFacilityRates() {
+        header('Content-Type: application/json');
+
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'ADMIN') {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Unauthorized. Admin access required.']);
+            return;
+        }
+
+        try {
+            $id = $_POST['id'] ?? '';
+            if (empty($id)) {
+                echo json_encode(['success' => false, 'message' => 'Facility ID is required.']);
+                return;
+            }
+
+            $data = [
+                'practice_working_hours' => $_POST['practice_working_hours'] !== '' ? $_POST['practice_working_hours'] : null,
+                'practice_other_hours' => $_POST['practice_other_hours'] !== '' ? $_POST['practice_other_hours'] : null,
+                'tournament_full_day_working' => $_POST['tournament_full_day_working'] !== '' ? $_POST['tournament_full_day_working'] : null,
+                'tournament_half_day_working' => $_POST['tournament_half_day_working'] !== '' ? $_POST['tournament_half_day_working'] : null,
+                'tournament_full_day_other' => $_POST['tournament_full_day_other'] !== '' ? $_POST['tournament_full_day_other'] : null,
+                'tournament_half_day_other' => $_POST['tournament_half_day_other'] !== '' ? $_POST['tournament_half_day_other'] : null
+            ];
+
+            $model = new Facility();
+            $success = $model->updateFacilityRates($id, $data);
+
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => 'Facility rates updated successfully.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to update rates.']);
             }
 
         } catch (Exception $e) {

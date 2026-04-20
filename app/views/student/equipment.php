@@ -180,13 +180,19 @@
                     <h2><i class="fas fa-clipboard-list"></i> Reserve Equipment</h2>
                     <form id="reserve-equipment-form">
                         <div class="input-row">
-                            <div class="input-div" style="grid-column: span 2;">
+                            <div class="input-div">
                                 <label for="sport"><i class="fas fa-running"></i> Sport *</label>
                                 <select id="sport" name="sport" required>
                                     <option value="">Select Sport</option>
                                     <?php foreach ($data['sports'] as $sport): ?>
                                         <option value="<?= $sport['sport_id'] ?>"><?= $sport['sport_name'] ?></option>
                                     <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="input-div">
+                                <label for="location"><i class="fas fa-map-marker-alt"></i> Reserved Location *</label>
+                                <select id="location" name="location" required>
+                                    <option value="">Loading locations...</option>
                                 </select>
                             </div>
                         </div>
@@ -303,6 +309,30 @@
         }
 
         sportSelect.addEventListener("change", tryLoadEquipment);
+
+        async function loadLocations() {
+            const locationSelect = document.getElementById('location');
+            try {
+                const res = await fetch("/uoc-sports/public/api/reservation/locations");
+                const locations = await res.json();
+                
+                locationSelect.innerHTML = '<option value="">Select Location</option>';
+                if (Array.isArray(locations)) {
+                    locations.forEach(loc => {
+                        const option = document.createElement('option');
+                        option.value = loc.facility_name;
+                        option.textContent = loc.facility_name;
+                        option.dataset.id = loc.facility_id;
+                        locationSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading locations:", error);
+                locationSelect.innerHTML = '<option value="">Error loading locations</option>';
+            }
+        }
+
+        loadLocations();
 
         async function loadEquipmentBySport(sportId) {
             equipmentContainer.innerHTML = '<p class="empty-msg">Loading equipment...</p>';
@@ -440,6 +470,10 @@
                                     <h3>${item.equipment_name}</h3>
                                     <p><i class="fas fa-calendar"></i> ${item.request_date}</p>
                                     <p><i class="fas fa-clock"></i> ${item.start_time.substring(0,5)} - ${item.end_time.substring(0,5)}</p>
+                                    <div style="display: flex; gap: 15px; font-size: 0.85rem; color: #666; margin-top: 4px;">
+                                        <span><i class="fas fa-running"></i> ${item.sport_name || 'N/A'}</span>
+                                        <span><i class="fas fa-map-marker-alt"></i> ${item.reserved_location || 'Not specified'}</span>
+                                    </div>
                                     <span class="status-badge ${statusClass}">${item.status}</span>
                                 </div>
                                 <button class="cancel-reservation" data-id="${item.request_id}">

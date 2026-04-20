@@ -27,7 +27,8 @@ try {
     
     // Get budget for the sport and year
     $sql = "SELECT 
-                allocated_amount
+                allocated_amount,
+                spent_amount
             FROM budget 
             WHERE sport_id = :sport_id AND year = :year
             ORDER BY allocation_date DESC
@@ -40,7 +41,8 @@ try {
     ]);
     
     $budget = $stmt->fetch(PDO::FETCH_ASSOC);
-    $allocatedAmount = $budget ? floatval($budget['allocated_amount']) : "0.00";
+    $allocatedAmount = $budget ? floatval($budget['allocated_amount']) : 0;
+    $initialSpentAmount = $budget ? floatval($budget['spent_amount']) : 0;
     
     // Always calculate spent amount from sport_expenses table to ensure consistency with expense chart
     $expenseSql = "SELECT 
@@ -57,17 +59,18 @@ try {
     ]);
     
     $expenseData = $expenseStmt->fetch(PDO::FETCH_ASSOC);
-    $totalSpent = floatval($expenseData['total_spent'] ?? 0);
+    $totalSpent = floatval($expenseData['total_spent'] ?? 0) + $initialSpentAmount;
     
     $spentPercentage = $allocatedAmount > 0 ? round(($totalSpent / $allocatedAmount) * 100, 1) : 0;
     $remainingAmount = $allocatedAmount - $totalSpent;
     
-    error_log("Balance calculation - Sport: $sportId, Year: $year, Allocated: $allocatedAmount, Spent: $totalSpent, Percentage: $spentPercentage");
+    error_log("Balance calculation - Sport: $sportId, Year: $year, Allocated: $allocatedAmount, Initial: $initialSpentAmount, Spent: $totalSpent, Percentage: $spentPercentage");
     
     echo json_encode([
         'success' => true,
         'data' => [
             'allocated_amount' => $allocatedAmount,
+            'initial_spent_amount' => $initialSpentAmount,
             'spent_amount' => $totalSpent,
             'remaining_amount' => $remainingAmount,
             'spent_percentage' => $spentPercentage

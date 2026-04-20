@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../services/EmailService.php';
 
 class PaymentController {
 
@@ -19,6 +20,17 @@ class PaymentController {
         if ($order_id) {
             $facilityModel = new Facility();
             $facilityModel->updatePaymentStatus($order_id, 'COMPLETE', 'RETURN-' . time());
+
+            // Send confirmation email
+            try {
+                $booking = $facilityModel->getReservationDetails($order_id);
+                if ($booking) {
+                    $emailService = new EmailService();
+                    $emailService->sendPaymentUpdateEmail($booking['user_email'], $booking['fname'], 'BOOKED', $order_id);
+                }
+            } catch (Exception $e) {
+                error_log("Failed to send payment success email: " . $e->getMessage());
+            }
         }
         
         view('general/payment-success', [
@@ -75,6 +87,17 @@ class PaymentController {
             // Payment successful - Update booking status in database
             $facilityModel = new Facility();
             $facilityModel->updatePaymentStatus($order_id, 'COMPLETE', $payment_id);
+
+            // Send confirmation email
+            try {
+                $booking = $facilityModel->getReservationDetails($order_id);
+                if ($booking) {
+                    $emailService = new EmailService();
+                    $emailService->sendPaymentUpdateEmail($booking['user_email'], $booking['fname'], 'BOOKED', $order_id);
+                }
+            } catch (Exception $e) {
+                error_log("Failed to send payment success notification: " . $e->getMessage());
+            }
             
             // Log success
             error_log("PayHere Payment Success - Order: $order_id, Payment ID: $payment_id");

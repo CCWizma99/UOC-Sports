@@ -184,9 +184,6 @@ class StudentController {
         }
     }
 
-    /**
-     * Get practice sessions for student calendar (API endpoint)
-     */
     public function getStudentPracticeSessions() {
         header('Content-Type: application/json');
 
@@ -198,8 +195,18 @@ class StudentController {
         $year  = preg_replace('/[^0-9]/', '', $year);
 
         try {
+            $userId = $_SESSION['user_id'] ?? null;
+            if (!$userId) {
+                echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+                return;
+            }
+
+            $userModel = new User();
+            $studentData = $userModel->getStudentId($userId);
+            $studentId = $studentData ? $studentData['student_id'] : null;
+
             $model = new SportPracticeSession();
-            $sessions = $model->getStudentPracticeSessions($month, $year);
+            $sessions = $model->getStudentPracticeSessions($month, $year, $userId, $studentId);
 
             // Group by date
             $grouped = [];

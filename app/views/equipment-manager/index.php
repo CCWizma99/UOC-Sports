@@ -154,17 +154,13 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                                     </span>
                                 </div>
                                 <p class="reservation-equipment">
-                                    <?= htmlspecialchars($reservation['category_name'] ?? 'Equipment') ?>
-                                    <?php if (!empty($reservation['sport_name'])): ?>
-                                        (<?= htmlspecialchars($reservation['sport_name']) ?>)
-                                    <?php endif; ?>
+                                    <i class="fas fa-box"></i> <?= htmlspecialchars($reservation['category_name'] ?? 'Equipment') ?>
                                 </p>
                                 
-                                <?php if (!empty($reservation['reserved_location'])): ?>
-                                    <p class="reservation-location" style="font-size: 0.85rem;">
-                                        <i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($reservation['reserved_location']) ?>
-                                    </p>
-                                <?php endif; ?>
+                                <div style="display: flex; gap: 12px; font-size: 0.8rem; color: #6b7280; margin-top: 0.4rem; padding-bottom: 0.5rem;">
+                                    <span><i class="fas fa-running"></i> <?= htmlspecialchars($reservation['sport_name'] ?? 'N/A') ?></span>
+                                    <span><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars($reservation['reserved_location'] ?? 'Not specified') ?></span>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>

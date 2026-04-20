@@ -68,7 +68,7 @@
             <div class="order-id">Booking ID: <?php echo htmlspecialchars($order_id); ?></div>
         <?php endif; ?>
         <br><br>
-        <a href="/uoc-sports/public/profile" class="btn-home">View My Bookings</a>
+        <a href="/uoc-sports/public/facility-reservation" class="btn-home">View My Bookings</a>
     </div>
 
     <?php require '../app/views/templates/general/footer.php'; ?>

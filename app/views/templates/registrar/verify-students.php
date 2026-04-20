@@ -43,9 +43,6 @@
             </div>
 
             <div class="card-actions">
-              <button class="btn-view-id" onclick="viewIdCard('<?php echo htmlspecialchars($v['student_id']); ?>')">
-                <i class="fas fa-id-card"></i> View ID Card
-              </button>
               <button class="btn-approve" onclick="verifyStudent('<?php echo htmlspecialchars($v['request_id']); ?>', '<?php echo htmlspecialchars($v['student_id']); ?>', 'VERIFIED')">
                 <i class="fas fa-check"></i> Approve
               </button>
@@ -60,19 +57,6 @@
   </div>
 </div>
 
-<!-- ID Card Modal -->
-<div id="idCardModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Student ID Card</h3>
-      <span class="close-modal">&times;</span>
-    </div>
-    <div class="modal-body">
-      <img id="idCardImage" src="" alt="Student ID Card" />
-      <p id="noIdCardMsg" style="display:none;">No ID card image uploaded by this student.</p>
-    </div>
-  </div>
-</div>
 
 <!-- Reject Modal -->
 <div id="rejectModal" class="modal">
@@ -106,30 +90,6 @@ document.getElementById('searchInput').addEventListener('input', function() {
     });
 });
 
-// View ID Card
-async function viewIdCard(studentId) {
-    const modal = document.getElementById('idCardModal');
-    const img = document.getElementById('idCardImage');
-    const noMsg = document.getElementById('noIdCardMsg');
-    
-    try {
-        const res = await fetch(`/uoc-sports/public/api/registrar/student-details?student_id=${studentId}`);
-        const data = await res.json();
-        
-        if (data.status === 'success' && data.id_card_image) {
-            img.src = data.id_card_image;
-            img.style.display = 'block';
-            noMsg.style.display = 'none';
-        } else {
-            img.style.display = 'none';
-            noMsg.style.display = 'block';
-        }
-        
-        modal.style.display = 'flex';
-    } catch (err) {
-        alert('Failed to load student details');
-    }
-}
 
 // Verify Student
 async function verifyStudent(requestId, studentId, status, reason = null) {

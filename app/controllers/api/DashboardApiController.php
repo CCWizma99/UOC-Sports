@@ -287,12 +287,22 @@ class DashboardApiController {
     private function getBudgetEfficiency() {
         $db = Database::getConnection();
         
-        // Get budget utilization by sport
+        // Get budget utilization by sport (combined manual spend and sport expenses)
         $sql = "SELECT 
                     s.sport_name,
                     b.allocated_amount,
-                    b.spent_amount,
-                    ROUND((b.spent_amount / b.allocated_amount) * 100, 1) as utilization
+                    (b.spent_amount + COALESCE((
+                        SELECT SUM(se.amount) 
+                        FROM sport_expenses se 
+                        WHERE se.sport COLLATE utf8mb4_unicode_ci = s.sport_name COLLATE utf8mb4_unicode_ci 
+                        AND YEAR(se.expense_date) = b.year AND se.status = 'ACTIVE'
+                    ), 0)) as spent_amount,
+                    ROUND(((b.spent_amount + COALESCE((
+                        SELECT SUM(se.amount) 
+                        FROM sport_expenses se 
+                        WHERE se.sport COLLATE utf8mb4_unicode_ci = s.sport_name COLLATE utf8mb4_unicode_ci 
+                        AND YEAR(se.expense_date) = b.year AND se.status = 'ACTIVE'
+                    ), 0)) / b.allocated_amount) * 100, 1) as utilization
                 FROM budget b
                 JOIN sport s ON b.sport_id = s.sport_id
                 WHERE b.year = YEAR(CURDATE()) AND b.allocated_amount > 0";

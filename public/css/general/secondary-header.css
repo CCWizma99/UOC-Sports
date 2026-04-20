@@ -1,10 +1,10 @@
 .secondary-header {
     width: 100%;
-    background-color: var(--primary-color);
+    background-color: #5e2d91; /* Reliable purple fallback */
+    background-color: var(--primary-color, #5e2d91);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 999;
     padding: 6px 0;
-    /* Slightly tighter padding */
 }
 
 .secondary-header .container {
@@ -21,7 +21,7 @@
     align-items: center;
     gap: 30px;
     flex: 1;
-    overflow: hidden;
+    overflow: visible;
 }
 
 /* Tabs */
@@ -72,18 +72,43 @@
 }
 
 /* Sport Selector */
+.sport-selector-container {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
 .sport-selector {
     display: flex;
     align-items: center;
-    margin-left: auto;
-    /* Push selector to the far right if present */
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+}
+
+.sport-selector:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .sport-selector-label {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 14px;
+    color: #ffffff;
+    font-size: 13px;
     font-weight: 600;
     margin-right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.sport-selector-label i {
+    color: #ffd700; /* Gold trophy icon */
 }
 
 .sport-select-wrap {
@@ -93,22 +118,25 @@
 }
 
 .sport-selector select {
-    padding: 5px 32px 5px 10px;
-    border: 1px solid #d0d7de;
+    padding: 4px 28px 4px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 6px;
-    background-color: #f6f8fa;
-    color: #1f2328;
+    background-color: #ffffff;
+    color: #2b0c4d;
     font-size: 13px;
     outline: none;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 700;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
 }
 
 .sport-selector select:hover {
-    background-color: #eff2f5;
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
 }
 
 .sport-select-wrap::after {
@@ -125,15 +153,6 @@
     pointer-events: none;
 }
 
-/* Global Reset Overrides */
-header {
-    position: relative !important;
-    box-shadow: none !important;
-}
-
-body {
-    margin-top: 0 !important;
-}
 
 /* Responsive */
 @media (max-width: 768px) {

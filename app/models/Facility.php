@@ -100,7 +100,7 @@ class Facility {
                  WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
                  AND fb.date = :date
                  AND (fb.slot = :slot OR fb.slot = 'FULL' OR :slot2 = 'FULL')
-                 AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
+                 AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED', 'PENDING_CANCEL')";
 
         $stmt1 = $this->db->prepare($sql1);
         $stmt1->execute([
@@ -236,7 +236,7 @@ class Facility {
                  INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
                  WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
                  AND fb.date = :date 
-                 AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')";
+                 AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED', 'PENDING_CANCEL')";
         $stmt2 = $this->db->prepare($sql2);
         $stmt2->execute([':rate_id' => $facility_id, ':date' => $date]);
         $bookings = $stmt2->fetchAll(PDO::FETCH_COLUMN);
@@ -381,8 +381,11 @@ class Facility {
                     fb.flag_status,
                     fb.flag_date,
                     fb.flag_reason,
+                    fb.cancellation_reason,
                     fb.created_at,
                     CONCAT(u.fname, ' ', u.lname) AS user_name,
+                    u.fname,
+                    u.lname,
                     u.email AS user_email,
                     u.contact_no,
                     u.type AS user_type,
@@ -394,6 +397,18 @@ class Facility {
                     fr.tournament_half_day_working,
                     fr.tournament_full_day_other,
                     fr.tournament_half_day_other,
+                    CASE 
+                        WHEN fb.slot = 'MORNING' THEN '08:00 AM'
+                        WHEN fb.slot = 'AFTERNOON' THEN '01:00 PM'
+                        WHEN fb.slot = 'FULL' THEN '08:00 AM'
+                        ELSE fb.slot
+                    END as start_time,
+                    CASE 
+                        WHEN fb.slot = 'MORNING' THEN '12:00 PM'
+                        WHEN fb.slot = 'AFTERNOON' THEN '05:00 PM'
+                        WHEN fb.slot = 'FULL' THEN '05:00 PM'
+                        ELSE fb.slot
+                    END as end_time,
                     CASE 
                         WHEN fb.slot = 'MORNING' THEN '08:00 AM - 12:00 PM'
                         WHEN fb.slot = 'AFTERNOON' THEN '01:00 PM - 05:00 PM'
@@ -424,7 +439,7 @@ class Facility {
                 INNER JOIN facility_rates fr ON fb.facility_id = fr.id
                 WHERE MONTH(fb.date) = :month 
                 AND YEAR(fb.date) = :year
-                AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED')
+                AND fb.status IN ('BOOKED', 'ACCEPTED', 'RESERVED', 'PENDING_CANCEL')
                 ORDER BY fb.date ASC, fb.slot ASC";
 
         $stmt = $this->db->prepare($sql);
@@ -747,7 +762,7 @@ public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = n
                 FROM `facility-booking` fb
                 INNER JOIN facility_rates fr1 ON fb.facility_id = fr1.id
                 WHERE fr1.facility_id = (SELECT facility_id FROM facility_rates WHERE id = :rate_id)
-                AND (fb.status = 'BOOKED' OR fb.status = 'RESERVED' OR fb.status = 'ACCEPTED')";
+                AND (fb.status = 'BOOKED' OR fb.status = 'RESERVED' OR fb.status = 'ACCEPTED' OR fb.status = 'PENDING_CANCEL')";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':rate_id' => $facilityId]);
@@ -1033,6 +1048,98 @@ public function updateHeartbeat($sessionId, $facilityId, $date = null, $slot = n
             'FULL' => ['start_time' => '08:00 AM', 'end_time' => '05:00 PM']
         ];
         return $slots[$slot] ?? ['start_time' => $slot, 'end_time' => $slot];
+    }
+
+    /* ---------- GET ALL FACILITY RATES ---------- */
+    public function getAllRates() {
+        $sql = "SELECT * FROM facility_rates ORDER BY facility_name ASC";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /* ---------- UPDATE FACILITY RATES ---------- */
+    public function updateFacilityRates($id, $data) {
+        try {
+            $sql = "UPDATE facility_rates 
+                    SET practice_working_hours = :pwh,
+                        practice_other_hours = :poh,
+                        tournament_full_day_working = :tfdw,
+                        tournament_half_day_working = :thdw,
+                        tournament_full_day_other = :tfdo,
+                        tournament_half_day_other = :thdo,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :id";
+            
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                ':id' => $id,
+                ':pwh' => $data['practice_working_hours'],
+                ':poh' => $data['practice_other_hours'],
+                ':tfdw' => $data['tournament_full_day_working'],
+                ':thdw' => $data['tournament_half_day_working'],
+                ':tfdo' => $data['tournament_full_day_other'],
+                ':thdo' => $data['tournament_half_day_other']
+            ]);
+        } catch (PDOException $e) {
+            error_log("Update facility rates error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /* ---------- REQUEST CANCELLATION ---------- */
+    public function requestCancellation($booking_id, $user_id, $reason) {
+        try {
+            // Verify ownership and status
+            $sql = "SELECT booking_id FROM `facility-booking`
+                    WHERE booking_id = :booking_id 
+                    AND user_id = :user_id
+                    AND status = 'BOOKED'";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                ':booking_id' => $booking_id,
+                ':user_id' => $user_id
+            ]);
+            
+            if (!$stmt->fetch()) {
+                return false;
+            }
+
+            $sql = "UPDATE `facility-booking`
+                    SET status = 'PENDING_CANCEL',
+                        cancellation_reason = :reason
+                    WHERE booking_id = :booking_id";
+
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                ':booking_id' => $booking_id,
+                ':reason' => $reason
+            ]);
+        } catch (PDOException $e) {
+            error_log("Request cancellation error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /* ---------- RESOLVE CANCELLATION REQUEST ---------- */
+    public function handleCancellationResolution($booking_id, $action) {
+        try {
+            $status = ($action === 'APPROVE') ? 'CANCELLED' : 'BOOKED';
+            
+            $sql = "UPDATE `facility-booking`
+                    SET status = :status
+                    WHERE booking_id = :booking_id
+                    AND status = 'PENDING_CANCEL'";
+
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                ':status' => $status,
+                ':booking_id' => $booking_id
+            ]);
+        } catch (PDOException $e) {
+            error_log("Resolve cancellation error: " . $e->getMessage());
+            return false;
+        }
     }
 }
 

@@ -77,7 +77,7 @@
         <br><br>
         <div class="btn-group">
             <a href="/uoc-sports/public/payment?booking_id=<?php echo htmlspecialchars($order_id); ?>" class="btn btn-primary">Try Again</a>
-            <a href="/uoc-sports/public/profile" class="btn btn-secondary">View Bookings</a>
+            <a href="/uoc-sports/public/facility-reservation" class="btn btn-secondary">View Bookings</a>
         </div>
     </div>
 

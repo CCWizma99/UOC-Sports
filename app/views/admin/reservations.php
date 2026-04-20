@@ -31,7 +31,12 @@ require '../app/views/templates/admin/sidebar.php';
     <div class="reservations-grid-container">
         <div class="reservations-grid-left">
             <section id="search-user">
-                <h2>Search Reservations</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">Search Reservations</h2>
+                    <a href="/uoc-sports/public/admin-facility-rates" class="action-link" style="background: var(--theme-color); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-tags"></i> Manage Facility Rates
+                    </a>
+                </div>
                 <div class="filter-bar">
                     <h3>Filter <i class="fa-solid fa-filter"></i></h3>
 
@@ -399,7 +404,7 @@ require '../app/views/templates/admin/sidebar.php';
                                 </td>
                                 <td><span class="location-tag">${r.physical_location || 'N/A'}</span></td>
                                 <td>
-                                    <span class="status-badge ${statusClass}">${r.flag_status === 'FLAGGED' ? 'FLAGGED' : r.status}</span>
+                                    <span class="status-badge ${statusClass}">${r.flag_status === 'FLAGGED' ? 'FLAGGED' : r.status.replace('_', ' ')}</span>
                                     ${r.status === 'BOOKED' && r.payment_status === 'INCOMPLETE' ? (function(){
                                         const created = new Date(r.created_at).getTime();
                                         const now = new Date().getTime();

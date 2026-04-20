@@ -38,7 +38,12 @@ $sports = $sportModel->getSports();
         <div class="budget-grid-left">
             <!-- Search Budget -->
             <section id="search-budget">
-                <h2>Search Sport Budget</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="margin: 0;">Search Sport Budget</h2>
+                    <a href="/uoc-sports/public/admin-budget/expenses" class="btn-theme" style="text-decoration: none; padding: 0.5rem 1rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-list"></i> View All Expenses
+                    </a>
+                </div>
                 <input type="text" id="sport-inp" placeholder="Type a sport name...">
                 <div class="output-div" id="budget-results"></div>
             </section>

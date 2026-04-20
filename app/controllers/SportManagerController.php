@@ -23,8 +23,16 @@ class SportManagerController {
         
         if ($userId) {
             $db = Database::getConnection();
-            $stmt = $db->prepare("SELECT sport_id FROM manager_sport WHERE user_id = ? LIMIT 1");
-            $stmt->execute([$userId]);
+            // Fetch any managed sport as a fallback/default
+            $stmt = $db->prepare("
+                SELECT sport_id FROM manager_sport WHERE user_id = :uid AND date_relieved IS NULL
+                UNION
+                SELECT sport_id FROM user WHERE user_id = :uid2 AND sport_id IS NOT NULL AND sport_id != ''
+                UNION
+                SELECT sport_id FROM sport WHERE manager_id = :uid3
+                LIMIT 1
+            ");
+            $stmt->execute(['uid' => $userId, 'uid2' => $userId, 'uid3' => $userId]);
             $managedSportId = $stmt->fetchColumn();
         }
         
@@ -143,12 +151,20 @@ class SportManagerController {
         if ($userId) {
             $db = Database::getConnection();
             
-            // Get all sports this user manages from manager_sport table
-            $stmt = $db->prepare("SELECT s.sport_id, s.sport_name 
-                                  FROM manager_sport ms
-                                  JOIN sport s ON ms.sport_id = s.sport_id
-                                  WHERE ms.user_id = ?");
-            $stmt->execute([$userId]);
+            // Get all sports this user manages from all possible assignment sources
+            $stmt = $db->prepare("
+                SELECT s.sport_id, s.sport_name 
+                FROM sport s
+                WHERE s.sport_id IN (
+                    SELECT sport_id FROM manager_sport WHERE user_id = :uid AND date_relieved IS NULL
+                    UNION
+                    SELECT sport_id FROM user WHERE user_id = :uid2 AND sport_id IS NOT NULL AND sport_id != ''
+                    UNION
+                    SELECT sport_id FROM sport WHERE manager_id = :uid3
+                )
+                ORDER BY s.sport_name
+            ");
+            $stmt->execute(['uid' => $userId, 'uid2' => $userId, 'uid3' => $userId]);
             $managedSports = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // If no sport selected or invalid, use first managed sport

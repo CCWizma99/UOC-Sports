@@ -469,7 +469,7 @@ class EmailService {
                         </div>
                         
                         <p style='color: #dc2626; font-weight: bold;'>Action Required:</p>
-                        <p>To confirm your booking, please upload your payment slip through the portal within 24 hours.</p>
+                        <p>To confirm your booking, please upload your payment slip through the portal within 30 minutes.</p>
                         
                         <div style='text-align: center; margin: 20px 0;'>
                             <a href='http://localhost/uoc-sports/public/student/bookings' style='background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Upload Payment Slip</a>
@@ -755,8 +755,128 @@ class EmailService {
 
         return $this->sendEmail($recipientEmail, $recipientName, $emailSubject, $htmlContent);
     }
+
+    /**
+     * Send a welcome email to a newly registered user
+     * 
+     * @param string $toEmail Recipient email
+     * @param string $toName Recipient name
+     * @return array Response with status and message
+     */
+    public function sendWelcomeEmail($toEmail, $toName) {
+        $subject = "Welcome to UOC Sports E-Portal!";
+        $signInUrl = "http://localhost/uoc-sports/public/sign-in";
+        
+        $htmlContent = "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        </head>
+        <body style='margin:0; padding:0; font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif; background-color:#f9fafb; color:#1f2937;'>
+            <table width='100%' cellpadding='0' cellspacing='0' style='background-color:#f9fafb; padding:40px 0;'>
+                <tr>
+                    <td align='center'>
+                        <table width='600' cellpadding='0' cellspacing='0' style='background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.05);'>
+                            <!-- Hero Section -->
+                            <tr>
+                                <td style='background: linear-gradient(135deg, #5e2d91 0%, #8b5cf6 100%); padding:50px 40px; text-align:center;'>
+                                    <h1 style='color:#ffffff; margin:0; font-size:28px; font-weight:800; letter-spacing:-0.5px;'>
+                                        Welcome to the Team! 🏆
+                                    </h1>
+                                    <p style='color:rgba(255,255,255,0.9); margin:10px 0 0; font-size:16px;'>
+                                        University of Colombo Sports E-Portal
+                                    </p>
+                                </td>
+                            </tr>
+                            
+                            <!-- Content -->
+                            <tr>
+                                <td style='padding:40px;'>
+                                    <h2 style='font-size:20px; color:#111827; margin:0 0 20px;'>Hello $toName,</h2>
+                                    <p style='line-height:1.7; color:#4b5563; margin-bottom:24px;'>
+                                        We're thrilled to have you join the UOC Sports community! Your account has been successfully created, and you're now part of the premier digital platform for sports management at the University of Colombo.
+                                    </p>
+                                    
+                                    <div style='background-color:#f3f4f6; border-radius:12px; padding:25px; margin-bottom:30px;'>
+                                        <h3 style='font-size:16px; color:#5e2d91; margin:0 0 15px; font-weight:700;'>What can you do now?</h3>
+                                        <ul style='margin:0; padding-left:20px; color:#4b5563; line-height:1.6;'>
+                                            <li style='margin-bottom:8px;'><b>Reserve Facilities:</b> Book courts and grounds with ease.</li>
+                                            <li style='margin-bottom:8px;'><b>Request Equipment:</b> Borrow sports gear for your practice sessions.</li>
+                                            <li style='margin-bottom:8px;'><b>Join Teams:</b> View upcoming tournaments and join your favorite sport squads.</li>
+                                            <li><b>Stay Updated:</b> Receive real-time notifications about sports events.</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div style='text-align:center;'>
+                                        <a href='$signInUrl' style='display:inline-block; background:linear-gradient(135deg, #5e2d91 0%, #8b5cf6 100%); color:#ffffff; padding:16px 35px; border-radius:10px; font-weight:700; text-decoration:none; transform:translateY(0); transition:all 0.2s; box-shadow:0 4px 6px rgba(94, 45, 145, 0.2);'>
+                                            Enter the Portal →
+                                        </a>
+                                    </div>
+                                    
+                                    <p style='margin-top:40px; border-top:1px solid #e5e7eb; padding-top:25px; font-size:14px; color:#6b7280; line-height:1.6;'>
+                                        If you have any questions, feel free to contact the Physical Education Department or reply to this email.
+                                    </p>
+                                    <p style='margin:5px 0 0; font-size:14px; color:#111827; font-weight:600;'>
+                                        Best regards,<br>
+                                        UOC Sports Administration
+                                    </p>
+                                </td>
+                            </tr>
+                            
+                            <!-- Footer -->
+                            <tr>
+                                <td style='background:#f9fafb; padding:25px 40px; text-align:center; border-top:1px solid #f3f4f6;'>
+                                    <p style='margin:0; font-size:12px; color:#9ca3af; line-height:1.5;'>
+                                        This is an automated welcome email from the UOC Sports E-Portal.<br>
+                                        University of Colombo | Physical Education Department | Colombo 03, Sri Lanka
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>";
+        
+        return $this->sendEmail($toEmail, $toName, $subject, $htmlContent);
+    }
+    /**
+     * Send OTP verification email for student registration
+     * 
+     * @param string $email Recipient email
+     * @param string $otp 6-digit OTP code
+     * @return array Response with status and message
+     */
+    public function sendVerificationOTP($email, $otp) {
+        $subject = "$otp is your UOC Sports Verification Code";
+        
+        $htmlContent = "
+            <html>
+                <body style='font-family: Arial, sans-serif; color: #333; line-height: 1.6; margin: 0; padding: 0;'>
+                    <div style='background: linear-gradient(135deg, #5e2d91, #8b5cf6); color: white; padding: 40px 20px; text-align: center;'>
+                        <h1 style='margin: 0; font-size: 24px;'>Email Verification</h1>
+                        <p style='margin: 10px 0 0; opacity: 0.9;'>University of Colombo Sports E-Portal</p>
+                    </div>
+                    <div style='padding: 40px 20px; text-align: center;'>
+                        <h2 style='color: #111; margin-bottom: 20px;'>Verify Your Student Email</h2>
+                        <p style='color: #4b5563; font-size: 16px;'>Please use the following single-use code to verify your identity. This code is valid for <strong>2 minutes</strong>.</p>
+                        
+                        <div style='background: #f3f4f6; border-radius: 12px; padding: 25px; margin: 30px auto; max-width: 250px; border: 2px dashed #5e2d91;'>
+                            <span style='font-family: monospace; font-size: 36px; font-weight: 800; letter-spacing: 5px; color: #5e2d91;'>$otp</span>
+                        </div>
+                        
+                        <p style='font-size: 14px; color: #9ca3af;'>If you did not request this code, you can safely ignore this email.</p>
+                    </div>
+                    <div style='background: #f9fafb; padding: 20px; text-align: center; color: #6b7280; font-size: 12px; border-top: 1px solid #e5e7eb;'>
+                        <p>© " . date('Y') . " University of Colombo Sports Department</p>
+                    </div>
+                </body>
+            </html>
+        ";
+
+        return $this->sendEmail($email, 'Student Candidate', $subject, $htmlContent);
+    }
 }
-
-
-
-

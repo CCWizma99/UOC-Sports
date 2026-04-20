@@ -32,7 +32,8 @@ class UserHomeController {
     }
 
     public function matchResults() {
-        view('public/results');
+        header("Location: /uoc-sports/public/news?tab=results");
+        exit();
     }
 
     public function profile() {

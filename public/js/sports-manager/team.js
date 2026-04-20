@@ -186,19 +186,23 @@ function extractEventCategory(achievement) {
     if (achievement.tournament_category) return achievement.tournament_category;
     if (achievement.category) return achievement.category;
 
+    const matchLevel = achievement.match_level || 'UNIVERSITY';
     const tournamentName = achievement.tournament_name || '';
-    if (!tournamentName) return 'Other';
-
     const lowerName = tournamentName.toLowerCase();
+
+    // 1. Handle clear National/International levels from DB
+    if (matchLevel === 'INTERNATIONAL') return 'International';
+    if (matchLevel === 'NATIONAL') return 'National';
+
+    // 2. For UNIVERSITY level, use string matching to distinguish subtypes (Inter-U vs Inter-Faculty vs Freshers)
     if (lowerName.includes('inter university') || lowerName.includes('inter-university')) return 'Inter University';
     if (lowerName.includes('inter faculty') || lowerName.includes('inter-faculty')) return 'Inter Faculty';
+    if (lowerName.includes('freshers')) return 'Freshers';
+
+    // 3. Fallback to basic keyword matching
     if (lowerName.includes('championship')) return 'Championship';
     if (lowerName.includes('tournament')) return 'Tournament';
     if (lowerName.includes('league')) return 'League';
-    if (lowerName.includes('cup')) return 'Cup';
-    if (lowerName.includes('open')) return 'Open';
-    if (lowerName.includes('national')) return 'National';
-    if (lowerName.includes('international')) return 'International';
 
     return tournamentName.split(' ')[0] || 'Other';
 }

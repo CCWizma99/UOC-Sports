@@ -3,8 +3,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Robust user detection
+$userId = $_SESSION['user_id'] ?? null;
 $userType = $_SESSION['user_type'] ?? null;
-$currentPage = $_SERVER['REQUEST_URI'];
+$currentPage = $_SERVER['REQUEST_URI'] ?? '';
 
 // Exclude Admin and Executive
 if (!$userType || in_array($userType, ['ADMIN', 'EXECUTIVE'])) {
@@ -92,15 +94,27 @@ switch ($activePortal) {
         }
         if ($userId) {
             $db = Database::getConnection();
-            $stmt = $db->prepare("SELECT s.sport_id, s.sport_name 
-                                  FROM manager_sport ms
-                                  JOIN sport s ON ms.sport_id = s.sport_id
-                                  WHERE ms.user_id = ?
-                                  ORDER BY s.sport_name");
-            $stmt->execute([$userId]);
+            // Fetch from both manager_sport and user tables to catch all assignments
+            $stmt = $db->prepare("
+                SELECT s.sport_id, s.sport_name 
+                FROM sport s
+                WHERE s.sport_id IN (
+                    SELECT sport_id FROM manager_sport WHERE user_id = :uid AND date_relieved IS NULL
+                    UNION
+                    SELECT sport_id FROM user WHERE user_id = :uid2 AND sport_id IS NOT NULL AND sport_id != ''
+                    UNION
+                    SELECT sport_id FROM sport WHERE manager_id = :uid3
+                )
+                ORDER BY s.sport_name
+            ");
+            $stmt->execute(['uid' => $userId, 'uid2' => $userId, 'uid3' => $userId]);
             $managedSports = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (!$selectedSportId && !empty($managedSports)) {
                 $selectedSportId = $managedSports[0]['sport_id'];
+            }
+            // Update session if we found a sport but none was selected
+            if ($selectedSportId && !isset($_SESSION['selected_sport_id'])) {
+                $_SESSION['selected_sport_id'] = $selectedSportId;
             }
         }
         $sportParam = $selectedSportId ? '?sport=' . urlencode($selectedSportId) : '';
@@ -143,22 +157,25 @@ switch ($activePortal) {
                         <a href="<?= htmlspecialchars($link['url']) ?>" class="<?= $isActive ? 'active' : '' ?>">
                             <?= htmlspecialchars($link['name']) ?>
                         </a>
-                    </li>
                 <?php endforeach; ?>
             </ul>
 
-            <?php if ($userType === 'SPT' && !empty($managedSports)): ?>
-            <div class="sport-selector">
-                <label for="secondary-sport-selector" class="sport-selector-label">Sport:</label>
-                <div class="sport-select-wrap">
-                    <select id="secondary-sport-selector" onchange="switchSport(this.value)">
-                        <?php foreach ($managedSports as $sport): ?>
-                            <option value="<?= htmlspecialchars($sport['sport_id']) ?>" 
-                                    <?= $sport['sport_id'] == $selectedSportId ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($sport['sport_name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+            <?php if (($userType === 'SPT' || (isset($activePortal) && $activePortal === 'SPT')) && !empty($managedSports)): ?>
+            <div class="sport-selector-container">
+                <div class="sport-selector">
+                    <label for="secondary-sport-selector" class="sport-selector-label">
+                        <i class="fa-solid fa-trophy"></i> Sport:
+                    </label>
+                    <div class="sport-select-wrap">
+                        <select id="secondary-sport-selector" onchange="switchSport(this.value)">
+                            <?php foreach ($managedSports as $sport): ?>
+                                <option value="<?= htmlspecialchars($sport['sport_id']) ?>" 
+                                        <?= $sport['sport_id'] == $selectedSportId ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($sport['sport_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
             </div>
             <script>

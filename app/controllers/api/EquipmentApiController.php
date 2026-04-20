@@ -241,6 +241,7 @@ class EquipmentApiController {
             $requestDate = $_POST['date'] ?? '';
             $startTime = $_POST['start_time'] ?? '';
             $endTime = $_POST['end_time'] ?? '';
+            $location = $_POST['location'] ?? '';
             $notes = $_POST['notes'] ?? '';
             
             // Get selected equipment and quantities
@@ -287,7 +288,7 @@ class EquipmentApiController {
                 'request_date' => $requestDate,
                 'start_time' => $startTime,
                 'end_time' => $endTime,
-                'reserved_location' => '',
+                'reserved_location' => $location,
                 'requester_name' => $requesterName,
                 'status' => 'PENDING',
                 'category_name' => $categoryNameSummary,

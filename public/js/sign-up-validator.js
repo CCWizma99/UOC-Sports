@@ -63,18 +63,97 @@ document.addEventListener('DOMContentLoaded', function () {
         break;
 
       case 'student-id-inp':
-        if (val === '' || !/^[A-Za-z0-9_-]+$/.test(val))
-          showError(input, 'Invalid Student ID!');
-        else hideError(input);
+        const selectedFacultyId = faculty ? faculty.value : 'none';
+        const patterns = {
+          '1': /^\d{4}\s*\/\s*(CS|IS)\s*\/\s*\d{3,4}$/i, // UCSC
+          '2': /^\d{4}\s*\/\s*S\s*\/\s*\d{4}$/i, // Science
+          '3': /^\d{4}\s*\/\s*A\s*\/\s*\d{4}$/i, // Arts
+          '4': /^\d{4}\s*\/\s*E\s*\/\s*\d{4}$/i, // Education
+          '5': /^\d{4}\s*\/\s*IM\s*\/\s*\d{4}$/i, // Indigenous Medicine
+          '6': /^\d{4}\s*\/\s*L\s*\/\s*\d{4}$/i, // Law
+          '7': /^\d{4}\s*\/\s*BA\s*\/\s*\d{4}$/i, // Management & Finance
+          '8': /^\d{4}\s*\/\s*M\s*\/\s*\d{4}$/i, // Medicine
+          '9': /^\d{4}\s*\/\s*N\s*\/\s*\d{4}$/i, // Nursing
+          '10': /^\d{4}\s*\/\s*T\s*\/\s*\d{4}$/i, // Technology
+        };
+
+        if (val === '') {
+          showError(input, 'Student ID cannot be empty!');
+        } else if (selectedFacultyId === 'none') {
+          showError(input, 'Please select a faculty first!');
+        } else if (
+          patterns[selectedFacultyId] &&
+          !patterns[selectedFacultyId].test(val)
+        ) {
+          let formatHint = 'Invalid format for selected faculty!';
+          if (selectedFacultyId === '1')
+            formatHint = 'Format: 202X / CS / XXX or 202X / IS / XXX';
+          else if (selectedFacultyId === '2')
+            formatHint = 'Format: 202X / S / XXXX';
+          else if (selectedFacultyId === '3')
+            formatHint = 'Format: 202X / A / XXXX';
+          else if (selectedFacultyId === '7')
+            formatHint = 'Format: 202X / BA / XXXX';
+          else
+             formatHint = 'Invalid format! (e.g., 2023 / [F] / 1234)';
+
+          showError(input, formatHint);
+        } else {
+          hideError(input);
+        }
         break;
 
       case 'faculty-inp':
-        if (val === '' || val === 'none')
+        if (val === '' || val === 'none') {
           showError(input, 'Please select your Faculty!');
-        else hideError(input);
+          if (studentId) {
+            studentId.disabled = true;
+            studentId.value = '';
+            studentId.placeholder = 'Select Faculty first';
+            hideError(studentId);
+          }
+        } else {
+          hideError(input);
+          if (studentId) {
+            studentId.disabled = false;
+            // Set placeholder hint based on faculty
+            const hints = {
+              '1': 'e.g., 2023 / CS / 123',
+              '2': 'e.g., 2023 / S / 1234',
+              '3': 'e.g., 2023 / A / 1234',
+              '7': 'e.g., 2023 / BA / 1234',
+              '6': 'e.g., 2023 / L / 1234',
+              '8': 'e.g., 2023 / M / 1234',
+              '9': 'e.g., 2023 / N / 1234',
+            };
+            studentId.placeholder =
+              hints[val] || 'e.g., 2023 / [F] / 1234';
+
+            // When faculty changes, re-validate student ID if it has value
+            if (studentId.value.trim() !== '') {
+              validateField(studentId);
+            }
+          }
+        }
         break;
     }
   };
+
+  // Initialize Student ID state
+  if (studentId) {
+    if (!faculty || faculty.value === 'none') {
+      studentId.disabled = true;
+      studentId.placeholder = 'Select Faculty first';
+    }
+
+    // Show error if user tries to click Student ID before selecting faculty
+    studentId.parentElement.addEventListener('click', function () {
+      if (!faculty || faculty.value === 'none') {
+        showError(faculty, 'Please select your faculty first!');
+        faculty.focus();
+      }
+    });
+  }
 
   // Add input listeners to all available fields
   [fname, lname, email, password, confirmPassword, studentId, faculty].forEach(
