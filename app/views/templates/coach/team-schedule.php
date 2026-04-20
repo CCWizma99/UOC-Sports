@@ -319,10 +319,10 @@
 
         // Remove member
         function confirmRemove(playerName) {
-            if (confirm(`Are you sure you want to remove ${playerName} from the team?`)) {
-                alert(`${playerName} has been removed from the team.`);
+            UI.confirm(`Are you sure you want to remove ${playerName} from the team?`, () => {
+                UI.showToast(`${playerName} has been removed from the team.`, 'success');
                 // Here you would typically make an API call to remove the player
-            }
+            });
         }
 
         // Smooth scroll when clicking the summary cards (account for fixed header)

@@ -28,15 +28,26 @@
     $contactNo   = htmlspecialchars($userDetails['contact_no'] ?? '');
     $faculty     = htmlspecialchars($userDetails['faculty_name'] ?? '');
     $sportName   = htmlspecialchars($userDetails['sport_name'] ?? '');
+    $staffRoles  = ['ADMIN', 'REG', 'SPT', 'EQP', 'EXECUTIVE', 'COACH'];
+    $canDelete   = !in_array($userType, $staffRoles);
+
     $profileImg  = htmlspecialchars($userDetails['profile_image_url'] ?? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400');
     $joinedRaw   = $userDetails['joined_date'] ?? '';
 
     // Sport icon mapping
     $sportIcons = [
-        'cricket'    => '🏏', 'football'   => '⚽', 'basketball' => '🏀',
-        'volleyball' => '🏐', 'tennis'     => '🎾', 'badminton'  => '🏸',
-        'swimming'   => '🏊', 'athletics'  => '🏃', 'rugby'      => '🏉',
-        'netball'    => '🏐', 'chess'      => '♟️', 'default'    => '🏅',
+        'cricket'    => '<i class="fas fa-baseball-bat-ball"></i>',
+        'football'   => '<i class="fas fa-futbol"></i>',
+        'basketball' => '<i class="fas fa-basketball"></i>',
+        'volleyball' => '<i class="fas fa-volleyball"></i>',
+        'tennis'     => '<i class="fas fa-table-tennis-paddle-ball"></i>',
+        'badminton'  => '<i class="fas fa-award"></i>',
+        'swimming'   => '<i class="fas fa-person-swimming"></i>',
+        'athletics'  => '<i class="fas fa-person-running"></i>',
+        'rugby'      => '<i class="fas fa-rugby-ball"></i>',
+        'netball'    => '<i class="fas fa-volleyball"></i>',
+        'chess'      => '<i class="fas fa-chess"></i>',
+        'default'    => '<i class="fas fa-medal"></i>',
     ];
     function getSportIcon($name, $map) {
         $key = strtolower(trim($name));
@@ -78,7 +89,7 @@
 
                 <h2 class="user-name" id="userName"><?= $fullName ?></h2>
                 <span class="user-role-badge" id="accountTypeBadge"><?= $userType ?></span>
-                <p class="user-location"><i class="fas fa-map-marker-alt"></i> Colombo, Sri Lanka</p>
+
 
 
 
@@ -87,7 +98,7 @@
                 <!-- Info Tags -->
                 <p class="section-label">Stats &amp; Info</p>
                 <div class="info-tags-wrap">
-                    <span class="info-tag"><i class="fas fa-id-badge"></i> <span id="userId"><?= $userId ?></span></span>
+
                     <span class="info-tag"><i class="fas fa-calendar-alt"></i> Joined: <span id="joinedDate">—</span></span>
                     <?php if ($faculty): ?>
                     <span class="info-tag"><i class="fas fa-university"></i> <?= $faculty ?></span>
@@ -104,9 +115,11 @@
                 <button class="btn btn-primary" onclick="handleLogout()" style="width:100%; justify-content:center; margin-bottom:0.8rem;">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
+                <?php if ($canDelete): ?>
                 <div style="text-align: center;">
-                    <button class="btn-danger-text" onclick="showDeleteModal()">Delete Account</button>
+                    <button class="btn-danger-text" onclick="confirmDelete()">Delete Account</button>
                 </div>
+                <?php endif; ?>
 
             </aside>
 
@@ -240,18 +253,10 @@
                 <div class="info-col">
                     <h2 class="user-name" id="userName"><?= $fullName ?></h2>
                     <span class="user-role-badge" id="accountTypeBadge"><?= $userType ?></span>
-                    <p class="user-location">
-                        <i class="fas fa-map-marker-alt"></i> Colombo, Sri Lanka
-                    </p>
+
 
                     <div class="h-info-grid">
-                        <div class="h-info-item">
-                            <i class="fas fa-id-badge"></i>
-                            <div class="h-item-content">
-                                <label>User ID</label>
-                                <span id="userId"><?= $userId ?></span>
-                            </div>
-                        </div>
+
                         <div class="h-info-item">
                             <i class="fas fa-envelope"></i>
                             <div class="h-item-content">
@@ -301,7 +306,9 @@
                     <button class="btn btn-primary" onclick="handleLogout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
-                    <button class="btn-danger-text" onclick="showDeleteModal()">Delete Account</button>
+                    <?php if ($canDelete): ?>
+                    <button class="btn-danger-text" onclick="confirmDelete()">Delete Account</button>
+                    <?php endif; ?>
                 </div>
 
             </div><!-- /.profile-card-horizontal -->
@@ -312,18 +319,6 @@
     </div><!-- /.profile-wrapper -->
 </div><!-- /.profile-layout-container -->
 
-<!-- ── Delete Account Modal ──────────────────────────────────── -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-icon"><i class="fas fa-trash"></i></div>
-        <h3>Delete Account?</h3>
-        <p>This action cannot be undone. All your data will be permanently deleted.</p>
-        <div class="modal-actions">
-            <button class="btn-cancel-modal" onclick="hideDeleteModal()">Cancel</button>
-            <button class="btn-confirm-delete" onclick="confirmDelete()">Delete</button>
-        </div>
-    </div>
-</div>
 
 <!-- ── Attendance Details Modal ──────────────────────────────────── -->
 <div id="attendanceModal" class="modal">
@@ -467,9 +462,26 @@ function hideUploadStatus() {
 
 // ── Auth / Account ────────────────────────────────────────────
 function handleLogout()      { window.location.href = '/uoc-sports/public/logout'; }
-function showDeleteModal()   { document.getElementById('deleteModal').classList.add('show'); }
-function hideDeleteModal()   { document.getElementById('deleteModal').classList.remove('show'); }
-function confirmDelete()     { alert('Account deletion requested.'); hideDeleteModal(); }
+function confirmDelete() {
+    UI.confirm('Are you sure you want to delete your account? You will be unable to log in until an administrator re-activates your account.', async () => {
+        try {
+            const response = await fetch('/uoc-sports/public/profile/deactivate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                UI.showToast(data.message, 'success');
+                setTimeout(() => window.location.href = '/uoc-sports/public/sign-in', 2000);
+            } else {
+                UI.showToast(data.message, 'error');
+            }
+        } catch (error) {
+            UI.showToast('Failed to process request. Please try again.', 'error');
+        }
+    }, null, true);
+}
 function payNow(id)          { window.location.href = '/uoc-sports/public/payment?booking_id=' + id; }
 
 // ── Attendance Modal ──────────────────────────────────────────
@@ -567,7 +579,7 @@ async function loadAchievements() {
             let html = '<p class="achievement-section-title" style="margin:0 0 6px;"><i class="fas fa-trophy" style="color:#f59e0b;"></i> Tournament Awards</p>';
             d.awards.forEach(a => {
                 html += `<div class="achievement-entry" style="margin-bottom:6px;">
-                    <span class="ach-emoji">🏆</span>
+                    <span class="ach-emoji"><i class="fas fa-award"></i></span>
                     <div class="ach-details">
                         <h4 style="margin:0;font-size:13px;">${a.award_title}</h4>
                         <p style="margin:0;font-size:11px;color:#94a3b8;">${a.tournament_name || ''} · ${a.sport_name || ''} · ${a.points} pts</p>
@@ -580,10 +592,13 @@ async function loadAchievements() {
         // All achievements list (recent 5)
         const achEl = document.getElementById('perf-achievements-list');
         if (achEl && d.achievements && d.achievements.length > 0) {
-            const icons = { 'Participant': '📋', 'Match Winner': '🏅' };
+            const icons = { 
+                'Participant': '<i class="fas fa-user-check"></i>', 
+                'Match Winner': '<i class="fas fa-trophy"></i>' 
+            };
             let html = '<p class="achievement-section-title" style="margin:0 0 6px;"><i class="fas fa-list" style="color:#6366f1;"></i> Recent Activity</p>';
             d.achievements.slice(0, 5).forEach(a => {
-                const icon = icons[a.achievement] || '⭐';
+                const icon = icons[a.achievement] || '<i class="fas fa-star"></i>';
                 html += `<div class="achievement-entry" style="margin-bottom:4px;">
                     <span class="ach-emoji" style="font-size:14px;">${icon}</span>
                     <div class="ach-details">

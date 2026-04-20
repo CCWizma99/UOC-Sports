@@ -372,7 +372,7 @@ onclick="deleteSession(${session.id})">
         }
     } catch (error) {
         console.error('Error loading session:', error);
-        alert('Failed to load session details');
+        UI.showToast('Failed to load session details', 'error');
     }
 }
         
@@ -411,62 +411,13 @@ onclick="deleteSession(${session.id})">
         }
         
         // Delete Session
-        async function deleteSession(id) {
-            currentDeleteId = id;
-            
-            try {
-                const response = await fetch(`${ATTENDANCE_API_BASE}/upcoming-sessions/${SPORT_ID}`);
-                const data = await response.json();
-                
-                if (data.status === 'success') {
-                    const session = data.sessions.find(s => s.id == id);
-                    
-                    if (session) {
-                        const detailsDiv = document.getElementById('deleteSessionDetails');
-                        detailsDiv.innerHTML = `
-                            <div class="detail-row">
-                                <span class="detail-label">Session ID:</span>
-                                <span class="detail-value">#${session.id}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Facility:</span>
-                                <span class="detail-value">${session.facility}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Date:</span>
-                                <span class="detail-value">${session.session_date}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Time:</span>
-                                <span class="detail-value">${formatTime(session.start_time)}</span>
-                            </div>
-                            ${session.description ? `
-                            <div class="detail-row">
-                                <span class="detail-label">Description:</span>
-                                <span class="detail-value">${session.description}</span>
-                            </div>
-                            ` : ''}
-                        `;
-                        
-                        document.getElementById('deleteModal').classList.add('active');
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading session:', error);
-                alert('Failed to load session details');
-            }
+        function deleteSession(id) {
+            UI.confirm('Are you sure you want to delete this practice session? This action cannot be undone.', () => {
+                window.location.href = `/uoc-sports/public/captain/schedule-practice?delete=${id}`;
+            }, null, true); // Danger theme
         }
-        
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('active');
-            currentDeleteId = null;
-        }
-        
-        function confirmDelete() {
-            if (currentDeleteId) {
-                window.location.href = `/uoc-sports/public/captain/schedule-practice?delete=${currentDeleteId}`;
-            }
-        }
+        function closeDeleteModal() { /* Deprecated */ }
+        function confirmDelete()   { /* Deprecated */ }
         
         // Close modals when clicking outside
         document.addEventListener('click', function(event) {

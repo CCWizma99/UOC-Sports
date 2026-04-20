@@ -231,36 +231,7 @@
 
     <?php require APP_ROOT . '/app/views/templates/general/footer.php'; ?>
 
-    <!-- Cancel Confirmation Modal -->
-    <div id="cancelModal" class="custom-modal" style="display: none;">
-        <div class="custom-modal-content">
-            <div class="custom-modal-header">
-                <i class="fas fa-question-circle"></i> Cancel Booking
-            </div>
-            <div class="custom-modal-body">
-                <p id="cancelModalText">Are you sure you want to cancel this booking?</p>
-            </div>
-            <div class="custom-modal-footer">
-                <button class="btn-cancel-modal" onclick="closeCancelModal()">Cancel</button>
-                <button class="btn-confirm-modal" id="confirmCancelBtn">Confirm</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Details/Alert Modal -->
-    <div id="alertModal" class="custom-modal" style="display: none;">
-        <div class="custom-modal-content">
-            <div class="custom-modal-header" id="alertModalHeader">
-                <i class="fas fa-info-circle"></i> Notification
-            </div>
-            <div class="custom-modal-body">
-                <p id="alertModalText"></p>
-            </div>
-            <div class="custom-modal-footer">
-                <button class="btn-confirm-modal" onclick="closeAlertModal()">OK</button>
-            </div>
-        </div>
-    </div>
 
     <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -410,58 +381,23 @@
         }
     }
 
-    let pendingCancelId = null;
-    let pendingCancelType = null;
-
     window.cancelFacility = (id) => {
-        pendingCancelId = id;
-        pendingCancelType = 'facility';
-        document.getElementById('cancelModalText').innerText = "Are you sure you want to cancel this facility booking?";
-        document.getElementById('cancelModal').style.display = 'flex';
-    };
-
-    window.closeCancelModal = () => {
-        document.getElementById('cancelModal').style.display = 'none';
-        pendingCancelId = null;
-        pendingCancelType = null;
-    };
-
-    window.showAlertModal = (message, isError = false) => {
-        document.getElementById('alertModalText').innerText = message;
-        
-        const header = document.getElementById('alertModalHeader');
-        if (isError) {
-            header.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
-            header.style.background = '#d32f2f'; // Red for errors
-        } else {
-            header.innerHTML = '<i class="fas fa-check-circle"></i> Success';
-            header.style.background = '#390060'; // Purple for success
-        }
-        
-        document.getElementById('alertModal').style.display = 'flex';
-    };
-
-    window.closeAlertModal = () => {
-        document.getElementById('alertModal').style.display = 'none';
-    };
-
-    document.getElementById('confirmCancelBtn').addEventListener('click', async () => {
-        if (!pendingCancelId || !pendingCancelType) return;
-        
-        const id = pendingCancelId;
-        const type = pendingCancelType;
-        closeCancelModal();
-
-        if (type === 'facility') {
+        UI.confirm("Are you sure you want to cancel this facility booking?", async () => {
             try {
-                const res = await fetch("/uoc-sports/public/reserve-facilities/cancel", { method: "POST", body: "booking_id="+id, headers: {"Content-Type": "application/x-www-form-urlencoded"} });
+                const res = await fetch("/uoc-sports/public/reserve-facilities/cancel", { 
+                    method: "POST", 
+                    body: "booking_id="+id, 
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"} 
+                });
                 if (!res.ok) throw new Error("Server returned " + res.status);
                 const text = await res.text();
-                showAlertModal(text);
+                UI.showToast(text, 'success');
                 loadFacilityBookings();
-            } catch(e) { showAlertModal("Error cancelling: " + e.message, true); }
-        }
-    });
+            } catch(e) { 
+                UI.showToast("Error cancelling: " + e.message, 'error'); 
+            }
+        }, null, true); // Danger theme
+    };
 
     window.payNow = (id) => {
         window.location.href = `/uoc-sports/public/payment?booking_id=${id}`;

@@ -243,17 +243,19 @@ class CaptainController {
             $start_min = date('i', strtotime($start));
             $end_min = date('i', strtotime($end));
             if ($start_min % 30 !== 0 || $end_min % 30 !== 0) {
-                $_SESSION['error'] = "Invalid time format! Practice sessions must start and end at 30-minute intervals (e.g., :00 or :30).";
+                $_SESSION['message'] = "Invalid time format! Practice sessions must start and end at 30-minute intervals (e.g., :00 or :30).";
+                $_SESSION['color'] = "red";
                 header("Location: /uoc-sports/public/captain/schedule-practice");
                 exit;
             }
 
         // Check conflict
         if ($scheduleModel->hasTimeConflict($sportId, $date, $start, $end)) {
-         $_SESSION['error'] = "Time conflict! Keep at least 10 minutes gap between sessions.";
-        header("Location: /uoc-sports/public/captain/schedule-practice");
-        exit;
-}
+            $_SESSION['message'] = "Time conflict! Keep at least 10 minutes gap between sessions.";
+            $_SESSION['color'] = "red";
+            header("Location: /uoc-sports/public/captain/schedule-practice");
+            exit;
+        }
 
             $scheduleModel->create(
                 $sportName,
@@ -281,17 +283,19 @@ class CaptainController {
         $start_min = date('i', strtotime($start));
         $end_min = date('i', strtotime($end));
         if ($start_min % 30 !== 0 || $end_min % 30 !== 0) {
-            $_SESSION['error'] = "Invalid time format! Practice sessions must start and end at 30-minute intervals (e.g., :00 or :30).";
+            $_SESSION['message'] = "Invalid time format! Practice sessions must start and end at 30-minute intervals (e.g., :00 or :30).";
+            $_SESSION['color'] = "red";
             header("Location: /uoc-sports/public/captain/schedule-practice");
             exit;
         }
 
         // Check conflict (exclude current session)
         if ($scheduleModel->hasTimeConflict($sportId, $date, $start, $end, $id)) {
-        $_SESSION['error'] = "Time conflict! Keep at least 10 minutes gap between sessions.";
-        header("Location: /uoc-sports/public/captain/schedule-practice");
-        exit;
-}
+            $_SESSION['message'] = "Time conflict! Keep at least 10 minutes gap between sessions.";
+            $_SESSION['color'] = "red";
+            header("Location: /uoc-sports/public/captain/schedule-practice");
+            exit;
+        }
             $scheduleModel->update(
                 $_POST['id'],
                 $sportName,

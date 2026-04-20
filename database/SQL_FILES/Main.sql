@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Apr 20, 2026 at 02:20 PM
+-- Generation Time: Apr 20, 2026 at 04:46 PM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -457,7 +457,8 @@ CREATE TABLE IF NOT EXISTS `budget` (
 -- Dumping data for table `budget`
 --
 
-
+INSERT INTO `budget` (`budget_id`, `sport_id`, `year`, `allocated_amount`, `spent_amount`, `allocation_date`, `description`) VALUES
+('BDG36FD069B7', 'VOL', 2026, 100000, 12000, '2026-04-20', '-');
 
 --
 -- Triggers `budget`
@@ -1807,9 +1808,9 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post` (
 INSERT INTO `newsfeed_post` (`post_id`, `title`, `description`, `commenting`, `date_posted`, `status`) VALUES
 ('P0001', 'Track & Field and Ground Marking Workshop', 'A workshop on Track & Field and Ground Marking was held on the 30th and 31st of March 2025 at the University of Colombo ground premises. This workshop was conducted by Mr Palitha Jayathilaka, Senior Technical Official at the Sri Lanka Athletic Association, to update our staff members on the new methods and changes in ground marking. Participants who completed this workshop successfully received a valuable certificate.', 'YES', '2025-12-09', 'ACTIVE'),
 ('P0002', '36th National Rowing Championship', 'University of Colombo rowers won 5 medals at the 36th National Rowing Championship which was held on the 12-13 March 2021 at Diyawannawa Rowing Center. In the Open Category (Women\'s), Ms Ranmalee Nanayakkara and Nadani Mendis won the Silver medal in the Open Double scull, Ms Nadani Mendis and Upuli Edirisingha won the bronze medal in the open Pair and Ms Ranmalee Nanayakkara won the bronze medal in the Open Scull category. In the Intermediate Category (Women\'s), Ms Himasha Panditharatne and Vibhanga Amarasinghe won the bronze medal in the pair event. In the Intermediate Category (Men\'s), Mr Avishka Jayaweera, Mr Shehan Shamalka, Mr Dushyantha Hettiarachchi, Mr Shehan Dinusha Liyanage, Mr Samitha Wijethilake won the Bronze medal in the coxed four events.', 'NO', '2025-12-09', 'ACTIVE'),
-('P0003', 'ggghg', 'bnvvhjbjkkbjh', 'YES', '2025-12-18', 'ACTIVE'),
-('P0004', 'Test News', 'This is a test news post for admin feature testing purposes.', 'YES', '2025-12-26', 'ACTIVE'),
-('P0005', 'Still works', 'ooooo', 'YES', '2026-04-17', 'ACTIVE');
+('P0003', 'Annual Inter-Faculty Cricket Tournament 2026', 'The most anticipated Inter-Faculty Cricket Tournament is set to begin next week. Teams from all 10 faculties will compete for the championship trophy. Join us at the University Grounds to cheer for your faculty stars!', 'YES', '2025-12-18', 'ACTIVE'),
+('P0004', 'Inter-University Championship 2025: Squash Success', 'Our University Squash team displayed an outstanding performance at the Inter-University Championship held at the Sri Lanka Air Force Squash Courts. Congratulations to the team for securing the overall Runner-up position!', 'YES', '2025-12-26', 'ACTIVE'),
+('P0005', 'Invitation for New Entrants: Martial Arts Trials', 'The Department of Physical Education invites all freshers to participate in the upcoming Martial Arts orientation and selection trials. Whether you are a beginner or experienced, this is your chance to represent UOC in Karate, Taekwondo, and Judo.', 'YES', '2026-04-17', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -2285,13 +2286,14 @@ CREATE TABLE IF NOT EXISTS `sport_expenses` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`expense_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `sport_expenses`
 --
 
-
+INSERT INTO `sport_expenses` (`expense_id`, `sport`, `expense_title`, `sport_event`, `amount`, `receipt`, `submitted_by`, `notes`, `expense_date`, `created_at`, `updated_at`, `status`) VALUES
+(7, 'Volleyball', 'Medical & First Aid', 'Inter-Faculty Tournament', '8000.00', '1776695719_Activity_Snapshot_AllTime (1).pdf', 'Dilini', NULL, '2026-04-20 20:05:00', '2026-04-20 14:35:19', '2026-04-20 14:35:19', 'ACTIVE');
 
 --
 -- Triggers `sport_expenses`
@@ -2356,6 +2358,29 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `student_email_verifications`
+--
+
+DROP TABLE IF EXISTS `student_email_verifications`;
+CREATE TABLE IF NOT EXISTS `student_email_verifications` (
+  `email` varchar(100) NOT NULL,
+  `otp_code` varchar(6) NOT NULL,
+  `expires_at` timestamp NOT NULL,
+  `is_verified` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `student_email_verifications`
+--
+
+INSERT INTO `student_email_verifications` (`email`, `otp_code`, `expires_at`, `is_verified`) VALUES
+('2023is032@stu.ucsc.cmb.ac.lk', '741937', '2026-04-20 11:08:37', 0),
+('2023is034@stu.ucsc.cmb.ac.lk', '979324', '2026-04-20 11:16:07', 0);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `student_id_cards`
 --
 
@@ -2416,7 +2441,17 @@ CREATE TABLE IF NOT EXISTS `system_audit` (
   `changed_by` varchar(50) DEFAULT NULL,
   `changed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `system_audit`
+--
+
+INSERT INTO `system_audit` (`id`, `table_name`, `record_id`, `action`, `changed_by`, `changed_at`) VALUES
+(1, 'budget', 'BDG36FD069B7', 'INSERT', 'H4J1OHSX', '2026-04-20 14:23:57'),
+(2, 'user', 'SPT004', 'UPDATE', 'SYSTEM', '2026-04-20 14:32:56'),
+(3, 'sport_expenses', '7', 'INSERT', 'SPT004', '2026-04-20 14:35:19'),
+(4, 'user', 'usr_68f89998', 'UPDATE', 'SYSTEM', '2026-04-20 16:22:20');
 
 -- --------------------------------------------------------
 
@@ -2433,7 +2468,34 @@ CREATE TABLE IF NOT EXISTS `system_audit_detail` (
   `new_value` text,
   PRIMARY KEY (`id`),
   KEY `fk_audit_id` (`audit_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `system_audit_detail`
+--
+
+INSERT INTO `system_audit_detail` (`id`, `audit_id`, `column_name`, `old_value`, `new_value`) VALUES
+(1, 1, 'budget_id', NULL, 'BDG36FD069B7'),
+(2, 1, 'sport_id', NULL, 'VOL'),
+(3, 1, 'year', NULL, '2026'),
+(4, 1, 'allocated_amount', NULL, '100000'),
+(5, 1, 'spent_amount', NULL, '12000'),
+(6, 1, 'allocation_date', NULL, '2026-04-20'),
+(7, 1, 'description', NULL, '-'),
+(8, 2, 'last_login_at', '2026-04-20 19:35:14', '2026-04-20 20:02:56'),
+(9, 3, 'expense_id', NULL, '7'),
+(10, 3, 'sport', NULL, 'Volleyball'),
+(11, 3, 'expense_title', NULL, 'Medical & First Aid'),
+(12, 3, 'sport_event', NULL, 'Inter-Faculty Tournament'),
+(13, 3, 'amount', NULL, '8000.00'),
+(14, 3, 'receipt', NULL, '1776695719_Activity_Snapshot_AllTime (1).pdf'),
+(15, 3, 'submitted_by', NULL, 'Dilini'),
+(16, 3, 'notes', NULL, NULL),
+(17, 3, 'expense_date', NULL, '2026-04-20 20:05:00'),
+(18, 3, 'created_at', NULL, '2026-04-20 20:05:19'),
+(19, 3, 'updated_at', NULL, '2026-04-20 20:05:19'),
+(20, 3, 'status', NULL, 'ACTIVE'),
+(21, 4, 'last_login_at', '2026-04-20 15:10:06', '2026-04-20 21:52:20');
 
 -- --------------------------------------------------------
 
@@ -2460,13 +2522,11 @@ CREATE TABLE IF NOT EXISTS `tournament` (
 
 INSERT INTO `tournament` (`tournament_id`, `tournament_name`, `sport_id`, `start_date`, `end_date`, `status`, `match_level`) VALUES
 ('T_VOL_1776533153', 'Inter-University Volleyball Championship 2026', 'VOL', '2026-04-10', '2026-04-12', 'COMPLETE', 'UNIVERSITY'),
-('T_VOL_1776534555', 'Inter-University Volleyball Championship 2026', 'VOL', '2026-04-10', '2026-04-12', 'COMPLETE', 'UNIVERSITY'),
 ('TOUR_693ea72aa6387', 'Vice Chancellors Invitational Badminton Championship', 'BAD', '2026-01-01', '2026-02-26', 'INCOMPLETE', 'UNIVERSITY'),
-('TOUR_694cd4c59abad', 'This is an sport event', 'KRT', '2026-02-01', '2026-12-01', 'INCOMPLETE', 'UNIVERSITY'),
-('TOUR_69ccde3bc3ae2', 'Inter University Volleyball Championship', 'VOL', '2026-03-30', '2026-04-04', 'COMPLETE', 'UNIVERSITY'),
-('TOUR_69d739fdd3a3b', 'Example Event', 'VOL', '2026-04-13', '2026-04-14', 'INCOMPLETE', 'UNIVERSITY'),
-('TOUR_69e5f20679cba', 'Invitational Volleyball Match', 'VOL', '2026-05-05', '2026-05-08', 'INCOMPLETE', 'NATIONAL'),
-('TOUR_VOL_2026_1776533076', 'Inter-University Volleyball Championship 2026', 'VOL', '2026-04-10', '2026-04-12', 'COMPLETE', 'UNIVERSITY'),
+('TOUR_694cd4c59abad', 'Grand Inter-University Karate Open 2026', 'KRT', '2026-02-01', '2026-03-01', 'COMPLETE', 'UNIVERSITY'),
+('TOUR_69ccde3bc3ae2', 'UOC Annual Athletics & Field Series', 'VOL', '2026-03-30', '2026-04-04', 'COMPLETE', 'UNIVERSITY'),
+('TOUR_69d739fdd3a3b', 'Western Province Invitational Volleyball League', 'VOL', '2026-04-13', '2026-04-14', 'COMPLETE', 'NATIONAL'),
+('TOUR_69e5f20679cba', 'National University Volleyball Finals', 'VOL', '2026-05-05', '2026-05-08', 'INCOMPLETE', 'NATIONAL'),
 ('TRN_KRT_2026', 'Inter-Faculty Karate Championship 2026', 'KRT', '2026-05-15', '2026-05-17', 'ACTIVE', 'UNIVERSITY');
 
 --
@@ -2576,14 +2636,11 @@ CREATE TABLE IF NOT EXISTS `tournament_match` (
 
 INSERT INTO `tournament_match` (`match_id`, `tournament_id`, `sport_id`, `sport_category`, `match_name`, `match_date`, `winner_id`, `winner_name`, `winner_type`, `winner_invitational_id`, `result_status`, `is_published`, `submitted_by`, `created_at`) VALUES
 ('MAT_KRT_001_662140bb888', 'TRN_KRT_2026', 'KRT', 'COMBAT', 'Men\'s Kumite -60kg Final', '2026-05-17', 'STU_KRT_01', 'Kusal Mendis', 'INTERNAL', NULL, 'COMPLETED', 1, NULL, '2026-04-18 18:11:08'),
-('match_695d2d74e031d4.90256849', 'TOUR_694cd4c59abad', 'KRT', 'COMBAT', 'Quarter Final', '2026-01-01', 'L3NCL2J4', NULL, NULL, NULL, 'COMPLETED', 1, 'ADMIN', '2026-01-06 15:42:44'),
-('match_69cce68043d035.97638693', 'TOUR_69ccde3bc3ae2', 'VOL', 'BALL_COURT', 'Quarter Final Match', '2026-03-30', NULL, NULL, NULL, NULL, 'COMPLETED', 1, NULL, '2026-04-01 09:33:52'),
-('match_69e43fd06239e9.14842488', 'TOUR_69d739fdd3a3b', 'VOL', 'BALL_COURT', 'Finals', '2026-04-14', NULL, 'University of Sri Jayawardhanapura', 'TEAM', NULL, 'COMPLETED', 0, 'CAPTAIN', '2026-04-19 02:37:04'),
-('match_69e44489860104.22699606', 'TOUR_69d739fdd3a3b', 'VOL', 'BALL_COURT', 'Finals', '2026-04-14', NULL, 'University of Sri Jayawardhanapura', 'TEAM', NULL, 'COMPLETED', 1, 'CAPTAIN', '2026-04-19 02:57:13'),
-('match_69e5bd612c3917.15854926', 'TOUR_69d739fdd3a3b', 'VOL', 'BALL_COURT', 'Semi FinAL', '2026-04-22', NULL, 'University of Colombo', 'TEAM', NULL, 'COMPLETED', 0, 'CAPTAIN', '2026-04-20 05:45:05'),
-('match_69e5f30468e1a6.49793767', 'TOUR_69d739fdd3a3b', 'VOL', 'BALL_COURT', 'Semi FinAL', '2026-04-29', NULL, 'University of Colombo', 'TEAM', NULL, 'COMPLETED', 1, 'CAPTAIN', '2026-04-20 09:33:56'),
-('MATCH_VOL_1776533155', 'T_VOL_1776533153', 'VOL', 'BALL_COURT', 'UOC vs USJP Final', '2026-04-12', NULL, 'University of Colombo', 'TEAM', NULL, 'COMPLETED', 1, NULL, '2026-04-18 17:25:55'),
-('MATCH_VOL_1776534555', 'T_VOL_1776534555', 'VOL', 'BALL_COURT', 'UOC vs USJP Final', '2026-04-12', NULL, 'University of Colombo', 'TEAM', NULL, 'COMPLETED', 1, NULL, '2026-04-18 17:49:15');
+('match_695d2d74e031d4.90256849', 'TOUR_694cd4c59abad', 'KRT', 'COMBAT', 'National Open Quarter Final', '2026-01-01', 'L3NCL2J4', 'Naveen Rathnayake', 'INTERNAL', NULL, 'COMPLETED', 1, 'ADMIN', '2026-01-06 15:42:44'),
+('match_69cce68043d035.97638693', 'TOUR_69ccde3bc3ae2', 'VOL', 'BALL_COURT', 'Inter-University Quarter Final', '2026-03-30', NULL, 'University of Kelaniya', 'TEAM', NULL, 'COMPLETED', 1, NULL, '2026-04-01 09:33:52'),
+('match_69e44489860104.22699606', 'TOUR_69d739fdd3a3b', 'VOL', 'BALL_COURT', 'Invitational Final', '2026-04-14', NULL, 'University of Colombo', 'TEAM', NULL, 'COMPLETED', 1, 'CAPTAIN', '2026-04-19 02:57:13'),
+('match_69e5f30468e1a6.49793767', 'TOUR_69d739fdd3a3b', 'VOL', 'BALL_COURT', 'Semi-Final Match', '2026-04-29', NULL, 'University of Moratuwa', 'TEAM', NULL, 'COMPLETED', 1, 'CAPTAIN', '2026-04-20 09:33:56'),
+('MATCH_VOL_1776533155', 'T_VOL_1776533153', 'VOL', 'BALL_COURT', 'UOC vs USJP Final', '2026-04-12', NULL, 'University of Colombo', 'TEAM', NULL, 'COMPLETED', 1, NULL, '2026-04-18 17:25:55');
 
 -- --------------------------------------------------------
 
@@ -2627,21 +2684,6 @@ INSERT INTO `tournament_participants` (`id`, `tournament_id`, `user_id`, `added_
 (17, 'T_VOL_1776533153', 'STU_VW_013', 'ADMIN', '2026-04-18 17:25:55', 'ACTIVE'),
 (18, 'T_VOL_1776533153', 'STU_VW_014', 'ADMIN', '2026-04-18 17:25:55', 'ACTIVE'),
 (19, 'T_VOL_1776533153', 'STU_VW_015', 'ADMIN', '2026-04-18 17:25:55', 'ACTIVE'),
-(20, 'T_VOL_1776534555', 'STU_VW_001', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(21, 'T_VOL_1776534555', 'STU_VW_002', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(22, 'T_VOL_1776534555', 'STU_VW_003', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(23, 'T_VOL_1776534555', 'STU_VW_004', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(24, 'T_VOL_1776534555', 'STU_VW_005', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(25, 'T_VOL_1776534555', 'STU_VW_006', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(26, 'T_VOL_1776534555', 'STU_VW_007', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(27, 'T_VOL_1776534555', 'STU_VW_008', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(28, 'T_VOL_1776534555', 'STU_VW_009', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(29, 'T_VOL_1776534555', 'STU_VW_010', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(30, 'T_VOL_1776534555', 'STU_VW_011', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(31, 'T_VOL_1776534555', 'STU_VW_012', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(32, 'T_VOL_1776534555', 'STU_VW_013', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(33, 'T_VOL_1776534555', 'STU_VW_014', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
-(34, 'T_VOL_1776534555', 'STU_VW_015', 'ADMIN', '2026-04-18 17:49:15', 'ACTIVE'),
 (35, 'TRN_KRT_2026', 'STU_KRT_01', 'H4J1OHSX', '2026-04-18 18:11:08', 'ACTIVE'),
 (36, 'TRN_KRT_2026', 'STU_KRT_02', 'H4J1OHSX', '2026-04-18 18:11:08', 'ACTIVE'),
 (37, 'TRN_KRT_2026', 'STU_KRT_03', 'H4J1OHSX', '2026-04-18 18:11:08', 'ACTIVE'),
@@ -2666,7 +2708,7 @@ INSERT INTO `tournament_participants` (`id`, `tournament_id`, `user_id`, `added_
 DROP TABLE IF EXISTS `tournament_result`;
 CREATE TABLE IF NOT EXISTS `tournament_result` (
   `result_id` varchar(12) NOT NULL,
-  `match_id` varchar(12) NOT NULL,
+  `match_id` varchar(50) NOT NULL,
   `player_id` varchar(12) DEFAULT NULL,
   `team_id` varchar(12) DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -2692,12 +2734,6 @@ CREATE TABLE IF NOT EXISTS `transaction` (
   `change_reason` varchar(256) NOT NULL,
   PRIMARY KEY (`transaction_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `transaction`
---
-
-
 
 -- --------------------------------------------------------
 
@@ -2732,81 +2768,81 @@ CREATE TABLE IF NOT EXISTS `user` (
 --
 
 INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `must_change_pass`, `joined_date`, `last_login_at`, `contact_no`, `profile_img`, `sport_id`, `student_id`, `faculty_id`, `status`) VALUES
-('1', 'Chamal', 'Chamuditha', 'PUBLIC', 'chamal@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('101', 'John', 'Smith', 'PUBLIC', 'john.smith@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0771234567', '', '', NULL, '', 'ACTIVE'),
-('102', 'David', 'Perera', 'PUBLIC', 'david.perera@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0779876543', '', '', NULL, '', 'ACTIVE'),
-('103', 'Alex', 'Fernando', 'PUBLIC', 'alex.fernando@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0713456789', '', '', NULL, '', 'ACTIVE'),
-('104', 'Mark', 'Silva', 'PUBLIC', 'mark.silva@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0752345678', '', '', NULL, '', 'ACTIVE'),
-('105', 'Kamal', 'Jayasinghe', 'PUBLIC', 'kamal.jayasinghe@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0761112233', '', '', NULL, '', 'ACTIVE'),
-('201', 'Sameera', 'Dissanayake', 'PUBLIC', 'sameera.dissanayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0775566778', '', '', NULL, '', 'ACTIVE'),
-('202', 'Nuwan', 'Karunaratne', 'EXECUTIVE', 'nuwan.karunaratne@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '2026-04-18 14:36:07', '0711122334', '', '', NULL, '', 'ACTIVE'),
-('203', 'Ruwan', 'Senanayake', 'PUBLIC', 'ruwan.senanayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0729988776', '', '', NULL, '', 'ACTIVE'),
-('204', 'Suresh', 'Kumara', 'PUBLIC', 'suresh.kumara@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0765544332', '', '', NULL, '', 'ACTIVE'),
-('205', 'Ashan', 'Wijesinghe', 'PUBLIC', 'ashan.wijesinghe@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0776677889', '', '', NULL, '', 'ACTIVE'),
-('2240Q7DT', 'Test', 'Student', 'STUDENT', 'teststudent@gmail.com', '$2y$10$tkD9qLNDVKwugT4xKjFW.euc0vBseNEkPZfeeqNnFWqLp20R92cJm', 0, '2026-04-18 17:08:59', '2026-04-18 17:09:25', NULL, '', '', '2022s12345', '1', 'ACTIVE'),
-('301', 'Pradeep', 'Gunawardena', 'PUBLIC', 'pradeep.gunawardena@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0718899001', '', '', NULL, '', 'ACTIVE'),
-('302', 'Chathura', 'Ekanayake', 'PUBLIC', 'chathura.ekanayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0752233445', '', '', NULL, '', 'ACTIVE'),
-('303', 'Isuru', 'Lakshan', 'PUBLIC', 'isuru.lakshan@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0723344556', '', '', NULL, '', 'ACTIVE'),
-('304', 'Gayan', 'Rathnayake', 'PUBLIC', 'gayan.rathnayake@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0779988775', '', '', NULL, '', 'ACTIVE'),
-('305', 'Roshan', 'Abeysinghe', 'PUBLIC', 'roshan.abeysinghe@example.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0764455667', '', '', NULL, '', 'ACTIVE'),
-('43N1VK76', 'vvdsdwef', 'qeq', 'PUBLIC', 'esrdrfff@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:57:10', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('5Q1XZO2Y', 'Jansika', 'Balakrishnan', 'CAPTAIN', 'jansibalakrish@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-23 07:23:06', '2026-04-20 13:54:41', NULL, '5Q1XZO2Y.jpg', '', '23020342', '', 'ACTIVE'),
+('1', 'Chamal', 'Chamuditha', 'PUBLIC', 'chamal.c@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('101', 'Aruna', 'Perera', 'PUBLIC', 'aruna.p@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0771234567', '', '', NULL, '', 'ACTIVE'),
+('102', 'David', 'Fernando', 'PUBLIC', 'david.f@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0779876543', '', '', NULL, '', 'ACTIVE'),
+('103', 'Alex', 'Wijesinghe', 'PUBLIC', 'alex.w@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0713456789', '', '', NULL, '', 'ACTIVE'),
+('104', 'Mark', 'Silva', 'PUBLIC', 'mark.s@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0752345678', '', '', NULL, '', 'ACTIVE'),
+('105', 'Kamal', 'Jayasinghe', 'PUBLIC', 'kamal.j@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0761112233', '', '', NULL, '', 'ACTIVE'),
+('201', 'Sameera', 'Dissanayake', 'PUBLIC', 'sameera.d@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0775566778', '', '', NULL, '', 'ACTIVE'),
+('202', 'Nuwan', 'Karunaratne', 'EXECUTIVE', 'nuwan.k@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', '2026-04-18 14:36:07', '0711122334', '', '', NULL, '', 'ACTIVE'),
+('203', 'Ruwan', 'Senanayake', 'PUBLIC', 'ruwan.s@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0729988776', '', '', NULL, '', 'ACTIVE'),
+('204', 'Suresh', 'Kumara', 'PUBLIC', 'suresh.k@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0765544332', '', '', NULL, '', 'ACTIVE'),
+('205', 'Ashan', 'Wijesinghe', 'PUBLIC', 'ashan.w@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0776677889', '', '', NULL, '', 'ACTIVE'),
+('2240Q7DT', 'Pasan', 'Kumara', 'STUDENT', 'pasan.k@gmail.com', '$2y$10$tkD9qLNDVKwugT4xKjFW.euc0vBseNEkPZfeeqNnFWqLp20R92cJm', 0, '2026-04-18 17:08:59', '2026-04-18 17:09:25', NULL, '', '', '2022s12345', '1', 'ACTIVE'),
+('301', 'Pradeep', 'Gunawardena', 'PUBLIC', 'pradeep.g@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0718899001', '', '', NULL, '', 'ACTIVE'),
+('302', 'Chathura', 'Ekanayake', 'PUBLIC', 'chathura.e@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0752233445', '', '', NULL, '', 'ACTIVE'),
+('303', 'Isuru', 'Lakshan', 'PUBLIC', 'isuru.l@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0723344556', '', '', NULL, '', 'ACTIVE'),
+('304', 'Gayan', 'Rathnayake', 'PUBLIC', 'gayan.r@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0779988775', '', '', NULL, '', 'ACTIVE'),
+('305', 'Roshan', 'Abeysinghe', 'PUBLIC', 'roshan.a@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-24 06:07:00', NULL, '0764455667', '', '', NULL, '', 'ACTIVE'),
+('43N1VK76', 'Naveen', 'Rathnayake', 'PUBLIC', 'naveen.r@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:57:10', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('5Q1XZO2Y', 'Jansika', 'Balakrishnan', 'CAPTAIN', 'jansi.b@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-23 07:23:06', '2026-04-20 13:54:41', NULL, '5Q1XZO2Y.jpg', '', '23020342', '5', 'ACTIVE'),
 ('CE02XIPB', 'Admin', 'UOC', 'PUBLIC', 'admin@uocs.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 00:01:26', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('FK9C62HG', 'Pasindu', 'Anjana', 'PUBLIC', 'pasindu@anura.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('FMX6Z8DF', 'Shashini', 'Malsha', 'STUDENT', 'shashini@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-23 07:10:43', NULL, NULL, '', '', '23020997', '', 'ACTIVE'),
-('H4J1OHSX', 'Chamal', 'Chamuditha', 'ADMIN', 'chamalchamuditha1231@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 02:04:39', '2026-04-20 11:18:01', NULL, 'H4J1OHSX.png', '', NULL, '', 'ACTIVE'),
-('JIIJ51LA', 'kfkhef', 'ekjnv', 'PUBLIC', 'kdsjvn@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:39:19', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('JORD04QN', 'vvds', 'qeq', 'PUBLIC', 'esfef@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:52:30', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('KCLIH538', 'vvds', 'qeq', 'PUBLIC', 'esff@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:53:34', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('KI5RL42D', 'ddkjn', 'fsrvn', 'PUBLIC', 'hj@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:29:53', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('L3NCL2J4', 'Chamal', 'Hettiarachchi', 'STUDENT', 'chamal2@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-14 04:48:58', '2026-04-20 09:52:26', NULL, 'L3NCL2J4.jpg', '', '23000000', '', 'ACTIVE'),
-('NPM8O9RE', 'Chamal', 'Chamuditha', 'COACH', 'chamal1@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 22:53:08', '2026-04-20 09:44:33', NULL, '', '', NULL, '', 'ACTIVE'),
-('P1N116IE', 'chamal', 'perera', 'STUDENT', 'chama@gmail.com', '$2y$10$MzKlqU/He4KLLamLkROvZe.4KCdmflN/yu5maZ1OjvrOHdJs7M/BC', 0, '2026-04-20 05:24:58', '2026-04-20 05:25:14', NULL, '', '', '2023/s/1234', '2', 'ACTIVE'),
-('PA0XK3QZ', 'ddkjn', 'fsrvn', 'PUBLIC', 'hjggd@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:32:55', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('R13QQJC2', 'kfkhef', 'ekjnv', 'PUBLIC', 'kdsgvn@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:50:07', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('FK9C62HG', 'Pasindu', 'Anjana', 'PUBLIC', 'pasindu.a@anura.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('FMX6Z8DF', 'Shashini', 'Malsha', 'STUDENT', 'shashini.m@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-23 07:10:43', NULL, NULL, '', '', '23020997', '3', 'ACTIVE'),
+('H4J1OHSX', 'Chamal', 'Chamuditha', 'ADMIN', 'chamal.admin@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-02 02:04:39', '2026-04-20 11:18:01', NULL, 'H4J1OHSX.png', '', NULL, '', 'ACTIVE'),
+('JIIJ51LA', 'Kavindi', 'Gunawardena', 'PUBLIC', 'kavindi.g@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:39:19', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('JORD04QN', 'Sajith', 'Weerasinghe', 'PUBLIC', 'sajith.w@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:52:30', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('KCLIH538', 'Tharindu', 'Wickramasinghe', 'PUBLIC', 'tharindu.w@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:53:34', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('KI5RL42D', 'Menaka', 'Perera', 'PUBLIC', 'menaka.p@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:29:53', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('L3NCL2J4', 'Chamal', 'Hettiarachchi', 'STUDENT', 'chamal.h@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-14 04:48:58', '2026-04-20 09:52:26', NULL, 'L3NCL2J4.jpg', '', '23000000', '4', 'ACTIVE'),
+('NPM8O9RE', 'Chamal', 'Chamuditha', 'COACH', 'chamal.coach@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 22:53:08', '2026-04-20 09:44:33', NULL, '', '', NULL, '', 'ACTIVE'),
+('P1N116IE', 'Chamal', 'Perera', 'STUDENT', 'chamal.p@gmail.com', '$2y$10$MzKlqU/He4KLLamLkROvZe.4KCdmflN/yu5maZ1OjvrOHdJs7M/BC', 0, '2026-04-20 05:24:58', '2026-04-20 05:25:14', NULL, '', '', '2023/s/1234', '2', 'ACTIVE'),
+('PA0XK3QZ', 'Hansani', 'Jayawardena', 'PUBLIC', 'hansani.j@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:32:55', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('R13QQJC2', 'Dimuthu', 'Karunaratne', 'PUBLIC', 'dimuthu.k@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:50:07', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
 ('REG003', 'Kasun', 'Silva', 'REG', 'kasun.silva@ucsc.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '2026-04-18 14:36:07', '0773456789', '', '', '23001003', '1', 'ACTIVE'),
-('SPT004', 'Dilini', 'Jayasinghe', 'SPT', 'dilini.jayasinghe@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '2026-04-20 14:05:14', '0774567890', '', '', '23001004', '1', 'ACTIVE'),
-('STU_KRT_01', 'Kusal', 'Mendis', 'STUDENT', 'kusal.mendis@uoc.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 0, '2026-04-18 18:08:38', NULL, NULL, '', 'KRT', NULL, NULL, 'ACTIVE'),
-('STU_KRT_02', 'Wanindu', 'Hasaranga', 'STUDENT', 'wanindu.h@uoc.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 0, '2026-04-18 18:08:38', NULL, NULL, '', 'KRT', NULL, NULL, 'ACTIVE'),
-('STU_KRT_03', 'Chamika', 'Karunaratne', 'STUDENT', 'chamika.k@uoc.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 0, '2026-04-18 18:08:38', NULL, NULL, '', 'KRT', NULL, NULL, 'ACTIVE'),
-('STU_KRT_04', 'Charith', 'Asalanka', 'STUDENT', 'charith.a@uoc.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 0, '2026-04-18 18:08:38', NULL, NULL, '', 'KRT', NULL, NULL, 'ACTIVE'),
+('SPT004', 'Dilini', 'Jayasinghe', 'SPT', 'dilini.jayasinghe@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '2026-04-20 14:32:56', '0774567890', '', '', '23001004', '1', 'ACTIVE'),
+('STU_KRT_01', 'Kusal', 'Mendis', 'STUDENT', 'kusal.mendis@uoc.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 0, '2026-04-18 18:08:38', NULL, NULL, '', 'KRT', NULL, '2', 'ACTIVE'),
+('STU_KRT_02', 'Wanindu', 'Hasaranga', 'STUDENT', 'wanindu.h@uoc.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 0, '2026-04-18 18:08:38', NULL, NULL, '', 'KRT', NULL, '10', 'ACTIVE'),
+('STU_KRT_03', 'Chamika', 'Karunaratne', 'STUDENT', 'chamika.k@uoc.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 0, '2026-04-18 18:08:38', NULL, NULL, '', 'KRT', NULL, '9', 'ACTIVE'),
+('STU_KRT_04', 'Charith', 'Asalanka', 'STUDENT', 'charith.a@uoc.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 0, '2026-04-18 18:08:38', NULL, NULL, '', 'KRT', NULL, '8', 'ACTIVE'),
 ('STU_KRT_05', 'Dananjaya', 'de Silva', 'CAPTAIN', 'dds@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 18:08:38', '2026-04-20 04:27:30', NULL, '', 'KRT', '2023/S/2381', '2', 'ACTIVE'),
-('STU_VW_001', 'Aruna', 'Perera', 'STUDENT', 'aruna.perera@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:34', NULL, NULL, '', '', '23000200', '1', 'ACTIVE'),
-('STU_VW_002', 'Bandara', 'Fernando', 'STUDENT', 'bandara.fernando@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000201', '2', 'ACTIVE'),
-('STU_VW_003', 'Chathura', 'Silva', 'STUDENT', 'chathura.silva@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000202', '3', 'ACTIVE'),
-('STU_VW_004', 'Dinesh', 'Jayasinghe', 'STUDENT', 'dinesh.jayasinghe@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000203', '6', 'ACTIVE'),
-('STU_VW_005', 'Eshan', 'Dissanayake', 'STUDENT', 'eshan.dissanayake@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000204', '7', 'ACTIVE'),
-('STU_VW_006', 'Farook', 'Senanayake', 'STUDENT', 'farook.senanayake@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000205', '1', 'ACTIVE'),
-('STU_VW_007', 'Gayan', 'Gunawardena', 'STUDENT', 'gayan.gunawardena@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000206', '2', 'ACTIVE'),
-('STU_VW_008', 'Harsha', 'Wickramasinghe', 'STUDENT', 'harsha.wickramasinghe@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000207', '3', 'ACTIVE'),
-('STU_VW_009', 'Isuru', 'Ekanayake', 'STUDENT', 'isuru.ekanayake@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000208', '6', 'ACTIVE'),
-('STU_VW_010', 'Janaka', 'Rathnayake', 'STUDENT', 'janaka.rathnayake@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000209', '7', 'ACTIVE'),
-('STU_VW_011', 'Kamal', 'Amarasinghe', 'STUDENT', 'kamal.amarasinghe@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000210', '1', 'ACTIVE'),
-('STU_VW_012', 'Lakshan', 'Gamage', 'STUDENT', 'lakshan.gamage@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000211', '2', 'ACTIVE'),
-('STU_VW_013', 'Mahesh', 'Hettiarachchi', 'STUDENT', 'mahesh.hettiarachchi@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000212', '3', 'ACTIVE'),
-('STU_VW_014', 'Nuwan', 'Karunaratne', 'STUDENT', 'nuwan.karunaratne@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000213', '6', 'ACTIVE'),
-('STU_VW_015', 'Oshada', 'Liyanage', 'STUDENT', 'oshada.liyanage@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000214', '7', 'ACTIVE'),
-('STU_VW_016', 'Prabath', 'Wijesinghe', 'STUDENT', 'prabath.wijesinghe@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000215', '1', 'ACTIVE'),
-('STU_VW_017', 'Quinton', 'De Silva', 'STUDENT', 'quinton.de silva@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000216', '2', 'ACTIVE'),
-('STU_VW_018', 'Ruwan', 'Abeyrathne', 'STUDENT', 'ruwan.abeyrathne@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000217', '3', 'ACTIVE'),
-('STU_VW_019', 'Sanjeewa', 'Jayawardena', 'STUDENT', 'sanjeewa.jayawardena@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000218', '6', 'ACTIVE'),
-('STU_VW_020', 'Tharindu', 'Kumara', 'STUDENT', 'tharindu.kumara@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000219', '7', 'ACTIVE'),
-('STU001', 'Ashan', 'Fernando', 'STUDENT', 'ashan.fernando@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0771234567', '', '', '23001001', '1', 'ACTIVE'),
-('STU002', 'Nimali', 'Perera', 'STUDENT', 'nimali.perera@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0772345678', '', '', '23001002', '1', 'ACTIVE'),
-('STU005', 'Tharindu', 'Wickramasinghe', 'STUDENT', 'tharindu.wickramasinghe@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0775678901', '', '', '23001005', '1', 'ACTIVE'),
-('STU006', 'Sanduni', 'Rathnayake', 'STUDENT', 'sanduni.rathnayake@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0776789012', '', '', '23001006', '1', 'ACTIVE'),
-('STU007', 'Ravindu', 'Dissanayake', 'STUDENT', 'ravindu.dissanayake@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0777890123', '', '', '23001007', '1', 'ACTIVE'),
-('STU008', 'Ishara', 'Gunasekara', 'STUDENT', 'ishara.gunasekara@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0778901234', '', '', '23001008', '1', 'ACTIVE'),
-('STU009', 'Dineth', 'Amarasinghe', 'STUDENT', 'dineth.amarasinghe@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0779012345', '', '', '23001009', '1', 'ACTIVE'),
-('STU010', 'Sachini', 'Wijewardena', 'STUDENT', 'sachini.wijewardena@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '2026-04-18 19:30:26', '0770123456', '', '', '23001010', '1', 'ACTIVE'),
-('UBVXZ90U', 'ddkjn', 'fsrvn', 'PUBLIC', 'maximal@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:24:32', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('usr_68f82fe0', 'Shashini', 'Malsha', 'EQP', 'ccwrecker99@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-22 01:14:08', '2026-04-18 20:00:57', '076543213', '', '', NULL, '', 'ACTIVE'),
-('usr_68f89998', 'Jaye', 'Jayaweera', 'EQP', 'jayashinisjayaweera@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-10-22 08:45:12', '2026-04-20 09:40:06', '0763452143', '', '', NULL, '', 'ACTIVE'),
-('usr_68f89be0', 'J', 'Jaye', 'SPT', '2023is043@stu.ucsc.cmb.ac.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-10-22 08:54:56', '2026-04-20 11:59:41', '0763452145', '', 'CRI', NULL, '', 'ACTIVE'),
-('usr_694d89fa', 'Amal', 'Shantha', 'SPT', 'chamlaanil99@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-12-25 19:01:15', '2026-04-18 14:36:06', '0716379044', '', 'KBD', NULL, NULL, 'ACTIVE'),
-('VSSMS4ZL', 'Ravindu', 'Rasa', 'PUBLIC', 'ravi@kgla.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('VTLMC3YK', 'kfkhef', 'ekjnv', 'PUBLIC', 'kdsvn@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:47:59', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
-('YSZLE02E', 'Anuruth', 'Kaushalya', 'STUDENT', 'cchettiarachchi01@gmail.com', '$2y$10$zydwsgkDrqpLnEIgw0x7hO8ZV1DQeuHQv1BV7pfF8/fI7yGpJIT.W', 0, '2026-04-20 04:19:01', '2026-04-20 07:01:01', NULL, '', '', '2023/cs/087', '1', 'ACTIVE');
+('STU_VW_001', 'Aruna', 'Perera', 'STUDENT', 'aruna.p@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:34', NULL, NULL, '', '', '23000200', '1', 'ACTIVE'),
+('STU_VW_002', 'Bandara', 'Fernando', 'STUDENT', 'bandara.f@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000201', '2', 'ACTIVE'),
+('STU_VW_003', 'Chathura', 'Silva', 'STUDENT', 'chathura.s@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000202', '3', 'ACTIVE'),
+('STU_VW_004', 'Dinesh', 'Jayasinghe', 'STUDENT', 'dinesh.j@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000203', '4', 'ACTIVE'),
+('STU_VW_005', 'Eshan', 'Dissanayake', 'STUDENT', 'eshan.d@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000204', '5', 'ACTIVE'),
+('STU_VW_006', 'Farook', 'Senanayake', 'STUDENT', 'farook.s@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000205', '6', 'ACTIVE'),
+('STU_VW_007', 'Gayan', 'Gunawardena', 'STUDENT', 'gayan.g@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000206', '7', 'ACTIVE'),
+('STU_VW_008', 'Harsha', 'Wickramasinghe', 'STUDENT', 'harsha.w@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000207', '8', 'ACTIVE'),
+('STU_VW_009', 'Isuru', 'Ekanayake', 'STUDENT', 'isuru.e@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000208', '9', 'ACTIVE'),
+('STU_VW_010', 'Janaka', 'Rathnayake', 'STUDENT', 'janaka.r@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000209', '10', 'ACTIVE'),
+('STU_VW_011', 'Kamal', 'Amarasinghe', 'STUDENT', 'kamal.a@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000210', '1', 'ACTIVE'),
+('STU_VW_012', 'Lakshan', 'Gamage', 'STUDENT', 'lakshan.g@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000211', '2', 'ACTIVE'),
+('STU_VW_013', 'Mahesh', 'Hettiarachchi', 'STUDENT', 'mahesh.h@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:35', NULL, NULL, '', '', '23000212', '3', 'ACTIVE'),
+('STU_VW_014', 'Nuwan', 'Karunaratne', 'STUDENT', 'nuwan.k@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000213', '4', 'ACTIVE'),
+('STU_VW_015', 'Oshada', 'Liyanage', 'STUDENT', 'oshada.l@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000214', '5', 'ACTIVE'),
+('STU_VW_016', 'Prabath', 'Wijesinghe', 'STUDENT', 'prabath.w@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000215', '6', 'ACTIVE'),
+('STU_VW_017', 'Quinton', 'De Silva', 'STUDENT', 'quinton.d@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000216', '7', 'ACTIVE'),
+('STU_VW_018', 'Ruwan', 'Abeyrathne', 'STUDENT', 'ruwan.a@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000217', '8', 'ACTIVE'),
+('STU_VW_019', 'Sanjeewa', 'Jayawardena', 'STUDENT', 'sanjeewa.j@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000218', '9', 'ACTIVE'),
+('STU_VW_020', 'Tharindu', 'Kumara', 'STUDENT', 'tharindu.k@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2026-04-18 17:24:36', NULL, NULL, '', '', '23000219', '10', 'ACTIVE'),
+('STU001', 'Ashan', 'Fernando', 'STUDENT', 'ashan.f@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0771234567', '', '', '23001001', '4', 'ACTIVE'),
+('STU002', 'Nimali', 'Perera', 'STUDENT', 'nimali.p@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0772345678', '', '', '23001002', '5', 'ACTIVE'),
+('STU005', 'Tharindu', 'Wickramasinghe', 'STUDENT', 'tharindu.w2@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0775678901', '', '', '23001005', '6', 'ACTIVE'),
+('STU006', 'Sanduni', 'Rathnayake', 'STUDENT', 'sanduni.r@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0776789012', '', '', '23001006', '7', 'ACTIVE'),
+('STU007', 'Ravindu', 'Dissanayake', 'STUDENT', 'ravindu.d@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0777890123', '', '', '23001007', '8', 'ACTIVE'),
+('STU008', 'Ishara', 'Gunasekara', 'STUDENT', 'ishara.g@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0778901234', '', '', '23001008', '9', 'ACTIVE'),
+('STU009', 'Dineth', 'Amarasinghe', 'STUDENT', 'dineth.a@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', NULL, '0779012345', '', '', '23001009', '10', 'ACTIVE'),
+('STU010', 'Sachini', 'Wijewardena', 'STUDENT', 'sachini.w@student.uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-12-10 17:47:24', '2026-04-18 19:30:26', '0770123456', '', '', '23001010', '1', 'ACTIVE'),
+('UBVXZ90U', 'Dinuka', 'Perera', 'PUBLIC', 'dinuka.p@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:24:32', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('usr_68f82fe0', 'Shashini', 'Malsha', 'EQP', 'shashini.eqp@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-22 01:14:08', '2026-04-18 20:00:57', '076543213', '', '', NULL, '', 'ACTIVE'),
+('usr_68f89998', 'Jaye', 'Jayaweera', 'EQP', 'jaye.jayaweera@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-10-22 08:45:12', '2026-04-20 16:22:20', '0763452143', '', '', NULL, '', 'ACTIVE'),
+('usr_68f89be0', 'Janith', 'Jaye', 'SPT', 'janith.j@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-10-22 08:54:56', '2026-04-20 11:59:41', '0763452145', '', 'CRI', NULL, '', 'ACTIVE'),
+('usr_694d89fa', 'Amal', 'Shantha', 'SPT', 'amal.shantha@uoc.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 1, '2025-12-25 19:01:15', '2026-04-18 14:36:06', '0716379044', '', 'KBD', NULL, NULL, 'ACTIVE'),
+('VSSMS4ZL', 'Ravindu', 'Rasa', 'PUBLIC', 'ravindu.r@kgla.lk', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-08-09 15:55:14', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('VTLMC3YK', 'Mahela', 'Jayawardene', 'PUBLIC', 'mahela.j@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:47:59', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
+('YSZLE02E', 'Anuruth', 'Kaushalya', 'STUDENT', 'anuruth.k@gmail.com', '$2y$10$zydwsgkDrqpLnEIgw0x7hO8ZV1DQeuHQv1BV7pfF8/fI7yGpJIT.W', 0, '2026-04-20 04:19:01', '2026-04-20 07:01:01', NULL, '', '', '2023/cs/087', '1', 'ACTIVE');
 
 --
 -- Triggers `user`

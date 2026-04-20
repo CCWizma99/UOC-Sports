@@ -77,4 +77,35 @@ class UserApiController extends BaseController {
             echo json_encode(['status' => 'error', 'message' => 'Failed to update user status']);
         }
     }
+
+    /**
+     * Check if email or student ID already exists (for real-time validation)
+     */
+    public function checkDuplicate() {
+        header('Content-Type: application/json');
+        
+        $type = $_GET['type'] ?? '';
+        $value = $_GET['value'] ?? '';
+        
+        if (empty($type) || empty($value)) {
+            echo json_encode(['status' => 'error', 'message' => 'Type and value are required']);
+            return;
+        }
+        
+        $exists = false;
+        if ($type === 'email') {
+            $exists = (bool)$this->userModel->findByEmail($value);
+        } elseif ($type === 'student_id') {
+            $exists = (bool)$this->userModel->findByStudentId($value);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid type']);
+            return;
+        }
+        
+        echo json_encode([
+            'status' => 'success', 
+            'exists' => $exists,
+            'message' => $exists ? 'This ' . str_replace('_', ' ', $type) . ' is already registered.' : 'Available'
+        ]);
+    }
 }

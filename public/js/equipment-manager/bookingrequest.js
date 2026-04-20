@@ -21,44 +21,43 @@ function updateStatus(requestId, newStatus, dropdownElement) {
         return;
     }
     
-    if (!confirm('Are you sure you want to update the status to ' + newStatus + '?')) {
-        console.log('User cancelled status update');
-        // Reset dropdown to original value
-        dropdownElement.value = originalStatus;
-        return;
-    }
-    
-    console.log('Sending request to:', '/uoc-sports/public/equipment-manager/update-booking-status');
-    
-    fetch('/uoc-sports/public/equipment-manager/update-booking-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            request_id: requestId, 
-            status: newStatus 
+    UI.confirm('Are you sure you want to update the status to ' + newStatus + '?', () => {
+        console.log('Sending request to:', '/uoc-sports/public/equipment-manager/update-booking-status');
+        
+        fetch('/uoc-sports/public/equipment-manager/update-booking-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                request_id: requestId, 
+                status: newStatus 
+            })
         })
-    })
-    .then(response => {
-        console.log('Response status:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Response data:', data);
-        if (data.success) {
-            alert('Status updated successfully!');
-            // Update the original status data attribute
-            dropdownElement.setAttribute('data-original-status', newStatus);
-            // Update dropdown color class
-            dropdownElement.className = 'status-dropdown status-' + newStatus.toLowerCase();
-        } else {
-            alert('Error: ' + data.message);
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            if (data.success) {
+                UI.showToast('Status updated successfully!', 'success');
+                // Update the original status data attribute
+                dropdownElement.setAttribute('data-original-status', newStatus);
+                // Update dropdown color class
+                dropdownElement.className = 'status-dropdown status-' + newStatus.toLowerCase();
+            } else {
+                UI.showToast('Error: ' + data.message, 'error');
+                // Reset dropdown to original value
+                dropdownElement.value = originalStatus;
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            UI.showToast('Error updating status: ' + error.message, 'error');
             // Reset dropdown to original value
             dropdownElement.value = originalStatus;
-        }
-    })
-    .catch(error => {
-        console.error('Fetch error:', error);
-        alert('Error updating status: ' + error.message);
+        });
+    }, () => {
+        console.log('User cancelled status update');
         // Reset dropdown to original value
         dropdownElement.value = originalStatus;
     });
@@ -159,34 +158,32 @@ function deleteNotificationHistoryItem(notificationId) {
         return;
     }
 
-    if (!confirm('Delete this notification?')) {
-        return;
-    }
+    UI.confirm('Delete this notification?', () => {
+        const requestId = document.getElementById('notificationRequestId').value.trim();
+        const studentId = document.getElementById('notificationStudentId').value.trim();
+        const requesterName = document.getElementById('notificationRequesterName').value.trim();
 
-    const requestId = document.getElementById('notificationRequestId').value.trim();
-    const studentId = document.getElementById('notificationStudentId').value.trim();
-    const requesterName = document.getElementById('notificationRequesterName').value.trim();
-
-    fetch('/uoc-sports/public/equipment-manager/delete-request-notification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            notification_id: notificationId,
-            request_id: requestId,
-            student_id: studentId,
-            requester_name: requesterName
+        fetch('/uoc-sports/public/equipment-manager/delete-request-notification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                notification_id: notificationId,
+                request_id: requestId,
+                student_id: studentId,
+                requester_name: requesterName
+            })
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            loadNotificationHistory();
-        } else {
-            alert('Error: ' + (data.message || 'Failed to delete notification'));
-        }
-    })
-    .catch(error => {
-        alert('Error deleting notification: ' + error.message);
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                loadNotificationHistory();
+            } else {
+                UI.showToast('Error: ' + (data.message || 'Failed to delete notification'), 'error');
+            }
+        })
+        .catch(error => {
+            UI.showToast('Error deleting notification: ' + error.message, 'error');
+        });
     });
 }
 
@@ -198,12 +195,12 @@ function sendSpecialNotification() {
     const message = document.getElementById('notificationMessage').value.trim();
 
     if (!requestId || !studentId || !requesterName) {
-        alert('Missing request details. Please try again.');
+        UI.showToast('Missing request details. Please try again.', 'error');
         return;
     }
 
     if (!message) {
-        alert(mode === 'rejection' ? 'Please type a rejected reason.' : 'Please type a notification message.');
+        UI.showToast(mode === 'rejection' ? 'Please type a rejected reason.' : 'Please type a notification message.', 'warning');
         return;
     }
 
@@ -222,7 +219,7 @@ function sendSpecialNotification() {
     .then(response => response.json())
     .then(data => {
         if (!data.success) {
-            alert('Error: ' + (data.message || 'Failed to send notification'));
+            UI.showToast('Error: ' + (data.message || 'Failed to send notification'), 'error');
             return;
         }
 
@@ -243,51 +240,49 @@ function sendSpecialNotification() {
                     dropdown.setAttribute('data-original-status', 'REJECTED');
                     dropdown.className = 'status-dropdown status-rejected';
                     rejectionContext = null;
-                    alert('Status updated to REJECTED and reason sent successfully.');
+                    UI.showToast('Status updated to REJECTED and reason sent successfully.', 'success');
                     document.getElementById('notificationMessage').value = '';
                     loadNotificationHistory();
                     document.getElementById('notificationModal').style.display = 'none';
                 } else {
-                    alert('Reason sent, but failed to update status: ' + (statusData.message || 'Unknown error'));
+                    UI.showToast('Reason sent, but failed to update status: ' + (statusData.message || 'Unknown error'), 'error');
                 }
             })
             .catch(error => {
-                alert('Reason sent, but error updating status: ' + error.message);
+                UI.showToast('Reason sent, but error updating status: ' + error.message, 'error');
             });
             return;
         }
 
-        alert('Notification sent successfully.');
+        UI.showToast('Notification sent successfully.', 'success');
         document.getElementById('notificationMessage').value = '';
         loadNotificationHistory();
     })
     .catch(error => {
-        alert('Error sending notification: ' + error.message);
+        UI.showToast('Error sending notification: ' + error.message, 'error');
     });
 }
 
 function deleteRequest(requestId) {
-    if (!confirm('Are you sure you want to delete this request? This action cannot be undone.')) {
-        return;
-    }
-    
-    fetch('/uoc-sports/public/equipment-manager/delete-booking-request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ request_id: requestId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Request deleted successfully');
-            location.reload();
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(error => {
-        alert('Error deleting request');
-        console.error('Error:', error);
+    UI.confirm('Are you sure you want to delete this request? This action cannot be undone.', () => {
+        fetch('/uoc-sports/public/equipment-manager/delete-booking-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ request_id: requestId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                UI.showToast('Request deleted successfully', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                UI.showToast('Error: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            UI.showToast('Error deleting request', 'error');
+            console.error('Error:', error);
+        });
     });
 }
 

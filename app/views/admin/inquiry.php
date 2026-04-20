@@ -207,10 +207,10 @@ async function viewInquiry(inquiryId) {
 
             document.getElementById('inquiryModal').style.display = 'flex';
         } else {
-            showNotification('Failed to load inquiry details', 'error');
+            UI.showToast('Failed to load inquiry details', 'error');
         }
     } catch (error) {
-        showNotification('An error occurred while loading inquiry details', 'error');
+        UI.showToast('An error occurred while loading inquiry details', 'error');
     }
 }
 
@@ -218,67 +218,63 @@ async function viewInquiry(inquiryId) {
 async function toggleStatus(inquiryId, currentStatus) {
     const newStatus = currentStatus === 'RESOLVED' ? 'NOT-RESOLVED' : 'RESOLVED';
     
-    if (!confirm(`Change status to ${newStatus}?`)) {
-        return;
-    }
+    UI.confirm(`Change status to ${newStatus}?`, async () => {
+        try {
+            const formData = new FormData();
+            formData.append('inquiry_id', inquiryId);
+            formData.append('status', newStatus);
 
-    try {
-        const formData = new FormData();
-        formData.append('inquiry_id', inquiryId);
-        formData.append('status', newStatus);
+            const res = await fetch('/uoc-sports/public/admin-inquiry/update-status', {
+                method: 'POST',
+                body: formData
+            });
 
-        const res = await fetch('/uoc-sports/public/admin-inquiry/update-status', {
-            method: 'POST',
-            body: formData
-        });
+            const result = await res.json();
 
-        const result = await res.json();
-
-        if (result.status === 'success') {
-            showNotification('Status updated successfully', 'success');
-            if (searchInput.value.trim()) {
-                searchInput.dispatchEvent(new Event('keyup'));
+            if (result.status === 'success') {
+                UI.showToast('Status updated successfully', 'success');
+                if (searchInput.value.trim()) {
+                    searchInput.dispatchEvent(new Event('keyup'));
+                } else {
+                    loadAllInquiries();
+                }
             } else {
-                loadAllInquiries();
+                UI.showToast('Failed to update status: ' + result.message, 'error');
             }
-        } else {
-            showNotification('Failed to update status: ' + result.message, 'error');
+        } catch (error) {
+            UI.showToast('An error occurred while updating status', 'error');
         }
-    } catch (error) {
-        showNotification('An error occurred while updating status', 'error');
-    }
+    });
 }
 
 // Delete inquiry
 async function deleteInquiry(inquiryId) {
-    if (!confirm('Are you sure you want to delete this inquiry? This action cannot be undone.')) {
-        return;
-    }
+    UI.confirm('Are you sure you want to delete this inquiry? This action cannot be undone.', async () => {
+        try {
+            const formData = new FormData();
+            formData.append('inquiry_id', inquiryId);
 
-    try {
-        const formData = new FormData();
-        formData.append('inquiry_id', inquiryId);
+            const res = await fetch('/uoc-sports/public/admin-inquiry/delete', {
+                method: 'POST',
+                body: formData
+            });
 
-        const res = await fetch('/uoc-sports/public/admin-inquiry/delete', {
-            method: 'POST',
-            body: formData
-        });
+            const result = await res.json();
 
-        const result = await res.json();
-
-        if (result.status === 'success') {
-            showNotification('Inquiry deleted successfully', 'success');
-            if (searchInput.value.trim()) {
-                searchInput.dispatchEvent(new Event('keyup'));
+            if (result.status === 'success') {
+                UI.showToast('Inquiry deleted successfully', 'success');
+                if (searchInput.value.trim()) {
+                    searchInput.dispatchEvent(new Event('keyup'));
+                } else {
+                    loadAllInquiries();
+                }
             } else {
-                loadAllInquiries();
+                UI.showToast('Failed to delete inquiry: ' + result.message, 'error');
             }
-        } else {
-            showNotification('Failed to delete inquiry: ' + result.message, 'error');
+        } catch (error) {
+            UI.showToast('An error occurred while deleting inquiry', 'error');
         }
-    } catch (error) {
-        showNotification('An error occurred while deleting inquiry', 'error');
-    }
+    }, null, true); // Danger theme
 }
 
 // Close modal

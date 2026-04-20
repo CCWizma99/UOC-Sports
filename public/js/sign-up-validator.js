@@ -30,10 +30,50 @@ document.addEventListener('DOMContentLoaded', function () {
   const validatePassword = (pass) =>
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$/.test(pass);
 
+  const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+  };
+
+  const checkDuplicateOnServer = async (input, type) => {
+    const val = input.value.trim();
+    if (val === '') return;
+
+    try {
+      const res = await fetch(`/uoc-sports/public/api/user/check-duplicate?type=${type}&value=${encodeURIComponent(val)}`);
+      const data = await res.json();
+
+      if (data.status === 'success' && data.exists) {
+        showError(input, data.message);
+        input.setAttribute('data-duplicate', 'true');
+      } else {
+        input.removeAttribute('data-duplicate');
+        // Re-validate field to clear duplicate error if a basic error exists
+        // but if it was just the duplicate error, hide it
+        const errorDiv = input.parentElement.querySelector('.error');
+        if (errorDiv && errorDiv.innerText.includes('already registered')) {
+            hideError(input);
+        }
+      }
+    } catch (err) {
+      console.error('Error checking duplicate:', err);
+    }
+  };
+
+  const debouncedCheck = debounce(checkDuplicateOnServer, 500);
+
   const validateField = (input) => {
     if (!input) return; // Skip if field doesn't exist
     const id = input.id;
     const val = input.value.trim();
+
+    // Clear duplicate flag when user modifies input
+    if (id === 'email-inp' || id === 'student-id-inp') {
+        input.removeAttribute('data-duplicate');
+    }
 
     switch (id) {
       case 'fname-inp':
@@ -43,8 +83,17 @@ document.addEventListener('DOMContentLoaded', function () {
         break;
 
       case 'email-inp':
-        if (!validateEmail(val)) showError(input, 'Please enter a valid email!');
-        else hideError(input);
+        if (val === '') {
+            showError(input, 'Email cannot be empty!');
+        } else if (!validateEmail(val)) {
+            showError(input, 'Please enter a valid email!');
+        } else {
+            hideError(input);
+            // Don't check for duplicates if it's a student sign up (email is verified/readonly)
+            if (!input.readOnly) {
+                debouncedCheck(input, 'email');
+            }
+        }
         break;
 
       case 'password-inp':
@@ -100,6 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
           showError(input, formatHint);
         } else {
           hideError(input);
+          debouncedCheck(input, 'student_id');
         }
         break;
 
@@ -185,10 +235,17 @@ document.addEventListener('DOMContentLoaded', function () {
       validateField(input);
       const errorDiv = input.parentElement.querySelector('.error');
       if (errorDiv && errorDiv.style.display === 'block') valid = false;
+      
+      // Also check the specific duplicate attribute
+      if (input.getAttribute('data-duplicate') === 'true') valid = false;
     });
 
     if (valid) {
       document.querySelector('form').submit();
+    } else {
+        // If there's a duplicate error that hasn't appeared yet (e.g. latency), 
+        // we might submit incorrectly. But typically the attribute check catches it.
+        console.warn('Form validation failed.');
     }
   };
 

@@ -305,25 +305,19 @@
   }
 
   async function deleteMessage(id) {
-    if (!confirm('Are you sure you want to delete this message?')) return;
-    try {
-      const fd = new FormData();
-      fd.append('message_id', id);
-      const res = await fetch('/uoc-sports/public/api/message/delete', { method: 'POST', body: fd });
-      const result = await res.json();
-      if (result.status === 'success') {
-        messagesData = messagesData.filter(m => m.id !== id);
-        renderMessages();
-        showStatus('Message deleted', 'success');
-      }
-    } catch (e) { showStatus('Error deleting', 'error'); }
-  }
-
-  function showStatus(message, type) {
-    const statusEl = document.getElementById('statusMsg');
-    statusEl.textContent = message;
-    statusEl.className = `status ${type}`;
-    setTimeout(() => { statusEl.className = 'status'; }, 3000);
+    UI.confirm('Are you sure you want to delete this message?', async () => {
+        try {
+          const fd = new FormData();
+          fd.append('message_id', id);
+          const res = await fetch('/uoc-sports/public/api/message/delete', { method: 'POST', body: fd });
+          const result = await res.json();
+          if (result.status === 'success') {
+            messagesData = messagesData.filter(m => m.id !== id);
+            renderMessages();
+            UI.showToast('Message deleted', 'success');
+          }
+        } catch (e) { UI.showToast('Error deleting', 'error'); }
+    });
   }
 
   document.getElementById('messageForm').addEventListener('submit', async (e) => {
@@ -340,13 +334,13 @@
       const result = await res.json();
       
       if (result.status === 'success') {
-        showStatus('Message sent!', 'success');
+        UI.showToast('Message sent!', 'success');
         e.target.reset();
         await loadMessages();
       } else {
-        showStatus(result.message || 'Failed to send', 'error');
+        UI.showToast(result.message || 'Failed to send', 'error');
       }
-    } catch (error) { showStatus('Error sending', 'error'); }
+    } catch (error) { UI.showToast('Error sending', 'error'); }
   });
 
   document.addEventListener('DOMContentLoaded', () => {

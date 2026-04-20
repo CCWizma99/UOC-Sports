@@ -40,11 +40,9 @@
         <input type="text" id="searchInput" placeholder="Search Student...">
         <div class="pie-color-spec" aria-label="Category color mapping">
             <span class="pie-color-spec-title">Tournament Category :</span>
-            <span class="pie-color-item"><i class="pie-dot pie-green"></i>Inter Faculty</span>
-            <span class="pie-color-item"><i class="pie-dot pie-blue"></i>Inter University</span>
-            <span class="pie-color-item"><i class="pie-dot pie-orange"></i>Freshers</span>
-            <span class="pie-color-item"><i class="pie-dot pie-pink"></i>International</span>
-            <span class="pie-color-item"><i class="pie-dot pie-purple"></i>National</span>
+            <span class="pie-color-item"><i class="pie-dot" style="background: #2563eb;"></i>University</span>
+            <span class="pie-color-item"><i class="pie-dot" style="background: #8b5cf6;"></i>National</span>
+            <span class="pie-color-item"><i class="pie-dot" style="background: #ec4899;"></i>International</span>
         </div>
     </div>
 

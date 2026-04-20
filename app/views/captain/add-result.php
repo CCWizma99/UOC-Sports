@@ -834,7 +834,7 @@ document.getElementById('add-result-form').addEventListener('submit', async func
     const allPlayers = [...teamA, ...teamB];
     const missingId = allPlayers.find(p => !p.is_uoc_student && !p.external_id);
     if (missingId) {
-        alert(`Mandatory field missing: Please provide NIC or Registration No for player "${missingId.player_name}".`);
+        UI.showToast(`Mandatory field missing: Please provide NIC or Registration No for player "${missingId.player_name}".`, 'warning');
         return;
     }
 
@@ -857,9 +857,7 @@ document.getElementById('add-result-form').addEventListener('submit', async func
         const data = await res.json();
 
         if (data.status === 'success') {
-            msg.className = 'success';
-            msg.textContent = '✓ ' + data.message;
-            msg.style.display = 'block';
+            UI.showToast(data.message, 'success');
             this.reset();
             document.getElementById('captain-performance-fields').innerHTML =
                 '<p class="hint-text"><i class="fas fa-check-circle" style="color:#16a34a;"></i> Result submitted! Select tournament again to add another match.</p>';
@@ -871,14 +869,10 @@ document.getElementById('add-result-form').addEventListener('submit', async func
             document.getElementById('captain-sport-id').value = '';
             document.querySelectorAll('.tournament-item').forEach(i => i.classList.remove('selected'));
         } else {
-            msg.className = 'error';
-            msg.textContent = '✗ ' + (data.message || 'Failed to submit result.');
-            msg.style.display = 'block';
+            UI.showToast(data.message || 'Failed to submit result.', 'error');
         }
     } catch (err) {
-        msg.className = 'error';
-        msg.textContent = '✗ Network error. Please try again.';
-        msg.style.display = 'block';
+        UI.showToast('Network error. Please try again.', 'error');
         console.error(err);
     } finally {
         btn.disabled = false;
@@ -1036,28 +1030,33 @@ async function autoloadTeamRoster(side, teamName) {
         
         // Don't overwrite if there's already data unless confirmed
         if (container.querySelectorAll('.player-row').length > 0) {
-            if (!confirm(`Autoload roster for ${teamName}? This will clear current players on this side.`)) return;
+            UI.confirm(`Autoload roster for ${teamName}? This will clear current players on this side.`, () => {
+                performAutoload();
+            });
+            return;
         }
 
-        container.innerHTML = '<div style="padding:10px; font-size:12px; color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Checking for team card...</div>';
+        async function performAutoload() {
+            container.innerHTML = '<div style="padding:10px; font-size:12px; color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Checking for team card...</div>';
 
-        const res = await fetch(`/uoc-sports/public/captain/get-team-roster?tournament_id=${tournamentId}&team_name=${encodeURIComponent(teamName)}`);
-        const data = await res.json();
+            const res = await fetch(`/uoc-sports/public/captain/get-team-roster?tournament_id=${tournamentId}&team_name=${encodeURIComponent(teamName)}`);
+            const data = await res.json();
 
-        if (data.status === 'success' && data.data.length > 0) {
-            container.innerHTML = '';
-            teamPlayerCounters[side] = 0;
-            data.data.forEach(p => addTeamPlayerRow(side, p));
-            
-            // Show toast/message
-            showFormMessage(document.getElementById('form-message-captain'), 
-                `✓ Autoloaded ${data.data.length} players for ${teamName} (${data.source})`, 'success');
-        } else if (data.status === 'empty') {
-            container.innerHTML = originalContent; // Restore
-            showFormMessage(document.getElementById('form-message-captain'), data.message, 'error');
-        } else {
-            container.innerHTML = originalContent;
+            if (data.status === 'success' && data.data.length > 0) {
+                container.innerHTML = '';
+                teamPlayerCounters[side] = 0;
+                data.data.forEach(p => addTeamPlayerRow(side, p));
+                
+                UI.showToast(`Autoloaded ${data.data.length} players for ${teamName} (${data.source})`, 'success');
+            } else if (data.status === 'empty') {
+                container.innerHTML = originalContent; // Restore
+                UI.showToast(data.message, 'error');
+            } else {
+                container.innerHTML = originalContent;
+            }
         }
+        
+        await performAutoload();
     } catch (e) {
         console.error('Autoload error:', e);
     }
@@ -1352,7 +1351,7 @@ async function submitOverallAwards() {
     const sportId = document.getElementById('awards-sport-id').value;
     
     if (!tournamentId || !sportId) {
-        showFormMessage(msgDiv, 'Please select a tournament first.', 'error');
+        UI.showToast('Please select a tournament first.', 'warning');
         return;
     }
     
@@ -1367,7 +1366,7 @@ async function submitOverallAwards() {
     });
     
     if (awards.length === 0) {
-        showFormMessage(msgDiv, 'Please select at least one student for an award.', 'error');
+        UI.showToast('Please select at least one student for an award.', 'warning');
         return;
     }
     
@@ -1387,9 +1386,9 @@ async function submitOverallAwards() {
         const data = await res.json();
         
         if (data.status === 'success') {
-            showFormMessage(msgDiv, data.message, 'success');
+            UI.showToast(data.message, 'success');
         } else {
-            showFormMessage(msgDiv, data.message, 'error');
+            UI.showToast(data.message, 'error');
         }
     } catch (e) {
         showFormMessage(msgDiv, 'Error submitting awards: ' + e.message, 'error');
@@ -1400,14 +1399,7 @@ async function submitOverallAwards() {
 }
 
 function showFormMessage(el, msg, type) {
-    if (!el) return;
-    el.innerHTML = `<div style="padding:10px 14px;border-radius:8px;margin-top:10px;font-size:13px;
-        background:${type === 'success' ? '#f0fdf4' : '#fef2f2'};
-        color:${type === 'success' ? '#15803d' : '#dc2626'};
-        border:1px solid ${type === 'success' ? '#bbf7d0' : '#fecaca'};">
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${msg}
-    </div>`;
-    setTimeout(() => { el.innerHTML = ''; }, 6000);
+    UI.showToast(msg, type);
 }
 
 // ======================================================

@@ -125,32 +125,30 @@
 
 <script>
 function updateStatus(itemId, newStatus) {
-    if (!confirm('Are you sure you want to update the status?')) {
-        return;
-    }
-    
-    fetch('/uoc-sports/public/equipment-manager/update-lostitem-status', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            itemId: itemId,
-            status: newStatus
+    UI.confirm('Are you sure you want to update the status?', () => {
+        fetch('/uoc-sports/public/equipment-manager/update-lostitem-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                itemId: itemId,
+                status: newStatus
+            })
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Status updated successfully!');
-            location.reload();
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while updating the status.');
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                UI.showToast('Status updated successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                UI.showToast('Error: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            UI.showToast('An error occurred while updating the status.', 'error');
+        });
     });
 }
 
@@ -159,31 +157,29 @@ function editItem(itemId) {
 }
 
 function deleteItem(itemId, itemName) {
-    if (!confirm('Are you sure you want to delete "' + itemName + '"? This action cannot be undone.')) {
-        return;
-    }
-    
-    fetch('/uoc-sports/public/equipment-manager/delete-lostitem', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            itemId: itemId
+    UI.confirm('Are you sure you want to delete "' + itemName + '"? This action cannot be undone.', () => {
+        fetch('/uoc-sports/public/equipment-manager/delete-lostitem', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                itemId: itemId
+            })
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Item deleted successfully!');
-            location.reload();
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while deleting the item.');
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                UI.showToast('Item deleted successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                UI.showToast('Error: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            UI.showToast('An error occurred while deleting the item.', 'error');
+        });
     });
 }
 </script>

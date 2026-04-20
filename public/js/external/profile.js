@@ -98,7 +98,7 @@ function likePost(postId) {
 }
 
 function editProfile() {
-    alert('Edit Profile functionality - This will open an edit form');
+    UI.showToast('Edit Profile functionality - This will open an edit form', 'info');
 }
 
 renderPosts();

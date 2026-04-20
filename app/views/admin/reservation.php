@@ -163,22 +163,7 @@ require '../app/views/templates/admin/sidebar.php';
     </div>
 </div>
 
-<!-- Confirmation Modal -->
-<div id="confirm-modal" class="modal">
-    <div class="modal-content confirmation-content">
-        <div class="modal-header">
-            <h3><i class="fa-solid fa-circle-question"></i> Verify Payment?</h3>
-            <span class="close-confirm">&times;</span>
-        </div>
-        <div class="modal-body">
-            <p style="margin: 20px 0; color: #4b5563;">Are you sure you want to mark this reservation as <strong>PAID</strong>? This action should only be taken after verifying the payment proof.</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-cancel" id="cancel-verify">Cancel</button>
-            <button class="btn-verify" id="confirm-verify">Yes, Mark as Paid</button>
-        </div>
-    </div>
-</div>
+
 
 <!-- Flag Modal -->
 <div id="flag-modal" class="modal">
@@ -556,25 +541,43 @@ document.getElementById('send-message').addEventListener('click', () => {
     document.getElementById('message-body').value = '';
 });
 
-// Verify Payment button click handler
-const verifyPaymentBtn = document.getElementById('verify-payment-btn');
-const confirmModal = document.getElementById('confirm-modal');
-const confirmBtn = document.getElementById('confirm-verify');
-const cancelVerifyBtn = document.getElementById('cancel-verify');
-const closeConfirmBtn = document.querySelector('.close-confirm');
-
 if (verifyPaymentBtn) {
     verifyPaymentBtn.addEventListener('click', () => {
-        confirmModal.style.display = 'flex';
+        UI.confirm(
+            'Are you sure you want to mark this reservation as PAID? This action should only be taken after verifying the payment proof.', 
+            () => {
+                const originalBtnText = verifyPaymentBtn.innerHTML;
+                verifyPaymentBtn.disabled = true;
+                verifyPaymentBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+
+                const formData = new FormData();
+                formData.append('booking_id', bookingId);
+
+                fetch('/uoc-sports/public/api/facility/verify-payment', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        UI.showToast(data.message, 'success');
+                        loadReservationDetails();
+                    } else {
+                        UI.showToast(data.message, 'error');
+                        verifyPaymentBtn.disabled = false;
+                        verifyPaymentBtn.innerHTML = originalBtnText;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error verifying payment:', err);
+                    UI.showToast('An error occurred. Please try again.', 'error');
+                    verifyPaymentBtn.disabled = false;
+                    verifyPaymentBtn.innerHTML = originalBtnText;
+                });
+            }
+        );
     });
 }
-
-// Close confirmation modal
-[closeConfirmBtn, cancelVerifyBtn].forEach(btn => {
-    btn.addEventListener('click', () => {
-        confirmModal.style.display = 'none';
-    });
-});
 
 // Flag button logic
 const flagBtn = document.getElementById('flag-payment-btn');
@@ -640,15 +643,17 @@ const rejectCancelBtn = document.getElementById('reject-cancel-btn');
 
 if (approveCancelBtn) {
     approveCancelBtn.addEventListener('click', () => {
-        if (!confirm('Are you sure you want to APPROVE this cancellation request? The reservation will be marked as CANCELLED.')) return;
-        resolveCancellationRequest('APPROVE');
+        UI.confirm('Are you sure you want to APPROVE this cancellation request? The reservation will be marked as CANCELLED.', () => {
+            resolveCancellationRequest('APPROVE');
+        }, null, true); // Danger theme
     });
 }
 
 if (rejectCancelBtn) {
     rejectCancelBtn.addEventListener('click', () => {
-        if (!confirm('Are you sure you want to REJECT this cancellation request? The reservation will remain BOOKED.')) return;
-        resolveCancellationRequest('REJECT');
+        UI.confirm('Are you sure you want to REJECT this cancellation request? The reservation will remain BOOKED.', () => {
+            resolveCancellationRequest('REJECT');
+        });
     });
 }
 
@@ -690,41 +695,7 @@ function resolveCancellationRequest(action) {
     });
 }
 
-// Final confirmation action
-if (confirmBtn) {
-    confirmBtn.addEventListener('click', () => {
-        confirmModal.style.display = 'none';
-        
-        const originalBtnText = verifyPaymentBtn.innerHTML;
-        verifyPaymentBtn.disabled = true;
-        verifyPaymentBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
 
-        const formData = new FormData();
-        formData.append('booking_id', bookingId);
-
-        fetch('/uoc-sports/public/api/facility/verify-payment', {
-            method: 'POST',
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                UI.showToast(data.message, 'success');
-                loadReservationDetails(); // Reload to update status and button visibility
-            } else {
-                UI.showToast(data.message, 'error');
-                verifyPaymentBtn.disabled = false;
-                verifyPaymentBtn.innerHTML = originalBtnText;
-            }
-        })
-        .catch(err => {
-            console.error('Error verifying payment:', err);
-            UI.showToast('An error occurred. Please try again.', 'error');
-            verifyPaymentBtn.disabled = false;
-            verifyPaymentBtn.innerHTML = originalBtnText;
-        });
-    });
-}
 
 // Set active sidebar item
 var currentPage = document.getElementById("sidebar-reservations");

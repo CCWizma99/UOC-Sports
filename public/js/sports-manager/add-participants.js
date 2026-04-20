@@ -197,14 +197,14 @@ function handleFileSelect(file) {
         // Validate file type
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
         if (!validTypes.includes(file.type)) {
-            alert('Please upload a valid file (JPG, PNG, or PDF)');
+            UI.showToast('Please upload a valid file (JPG, PNG, or PDF)', 'error');
             fileInput.value = '';
             return;
         }
 
         // Validate file size (5MB max)
         if (file.size > 5 * 1024 * 1024) {
-            alert('File size must be less than 5MB');
+            UI.showToast('File size must be less than 5MB', 'error');
             fileInput.value = '';
             return;
         }
@@ -235,7 +235,7 @@ document.getElementById('addParticipantsForm').addEventListener('submit', (e) =>
     
     if (!hasFile && !hasParticipants) {
         e.preventDefault();
-        alert('Please either upload a file or select at least one participant');
+        UI.showToast('Please either upload a file or select at least one participant', 'error');
         return;
     }
     

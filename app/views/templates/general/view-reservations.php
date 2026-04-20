@@ -59,20 +59,18 @@ function fetchReservedItems() {
 }
 
 function cancelReservation(reservationId) {
-    if (!confirm('Are you sure you want to cancel this reservation?')) {
-        return;
-    }
-    
-    fetch("/uoc-sports/public/reserve-equipments/cancel", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "reservation_id=" + encodeURIComponent(reservationId)
-    })
-    .then(res => res.text())
-    .then(msg => {
-        showFloatingMessage(msg, "success");
-        fetchReservedItems();
-    })
-    .catch(() => showFloatingMessage("Error cancelling reservation.", "error"));
+    UI.confirm('Are you sure you want to cancel this reservation?', () => {
+        fetch("/uoc-sports/public/reserve-equipments/cancel", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "reservation_id=" + encodeURIComponent(reservationId)
+        })
+        .then(res => res.text())
+        .then(msg => {
+            UI.showToast(msg, 'success');
+            fetchReservedItems();
+        })
+        .catch(() => UI.showToast("Error cancelling reservation.", 'error'));
+    }, null, true);
 }
 </script>

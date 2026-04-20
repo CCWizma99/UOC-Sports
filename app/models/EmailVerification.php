@@ -21,22 +21,19 @@ class EmailVerification {
 
     public function generateOTP($email) {
         $otp = sprintf("%06d", mt_rand(100000, 999999));
-        $expiresAt = date('Y-m-d H:i:s', strtotime('+2 minutes'));
 
         $sql = "INSERT INTO student_email_verifications (email, otp_code, expires_at, is_verified) 
-                VALUES (:email, :otp, :expires, 0)
+                VALUES (:email, :otp, DATE_ADD(NOW(), INTERVAL 2 MINUTE), 0)
                 ON DUPLICATE KEY UPDATE 
-                otp_code = :otp2, 
-                expires_at = :expires2, 
+                otp_code = :otp_update, 
+                expires_at = DATE_ADD(NOW(), INTERVAL 2 MINUTE), 
                 is_verified = 0";
         
         $stmt = $this->db->prepare($sql);
         $result = $stmt->execute([
             ':email' => $email,
             ':otp' => $otp,
-            ':expires' => $expiresAt,
-            ':otp2' => $otp,
-            ':expires2' => $expiresAt
+            ':otp_update' => $otp
         ]);
 
         return $result ? $otp : false;

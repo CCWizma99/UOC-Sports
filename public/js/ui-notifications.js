@@ -1,6 +1,6 @@
 const UI = {
+    // Show a toast notification
     showToast: function(message, type = 'info', title = '') {
-        // Ensure container exists
         let container = document.querySelector('.toast-container');
         if (!container) {
             container = document.createElement('div');
@@ -8,17 +8,16 @@ const UI = {
             document.body.appendChild(container);
         }
 
-        // Title defaults based on type
         if (!title) {
             switch(type) {
                 case 'success': title = 'Success'; break;
                 case 'error': title = 'Error'; break;
                 case 'info': title = 'Information'; break;
                 case 'warning': title = 'Warning'; break;
+                default: title = 'Note';
             }
         }
 
-        // Icon based on type
         let icon = 'info-circle';
         switch(type) {
             case 'success': icon = 'check-circle'; break;
@@ -42,14 +41,9 @@ const UI = {
         `;
 
         container.appendChild(toast);
-
-        // Animate in
         setTimeout(() => toast.classList.add('show'), 10);
 
-        // Auto remove after 5s
         const timer = setTimeout(() => this.removeToast(toast), 5000);
-
-        // Manual close
         toast.querySelector('.toast-close').addEventListener('click', () => {
             clearTimeout(timer);
             this.removeToast(toast);
@@ -59,5 +53,81 @@ const UI = {
     removeToast: function(toast) {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 400);
+    },
+
+    // Show a custom confirmation modal
+    // Returns a Promise for easier async/await usage
+    confirm: function(message, onConfirm = null, onCancel = null, isDanger = false) {
+        return new Promise((resolve) => {
+            // Ensure namespaced modal base structure exists
+            let overlay = document.querySelector('.ui-confirm-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'ui-confirm-overlay';
+                overlay.id = 'globalConfirmModal';
+                overlay.innerHTML = `
+                    <div class="ui-confirm-content">
+                        <div class="ui-confirm-icon"><i class="fa-solid fa-circle-question"></i></div>
+                        <h3 class="ui-confirm-title">Confirm Action</h3>
+                        <p class="ui-confirm-message" id="confirmModalMessage"></p>
+                        <div class="ui-confirm-actions">
+                            <button class="ui-confirm-btn ui-confirm-btn-cancel" id="confirmBtnCancel">Cancel</button>
+                            <button class="ui-confirm-btn ui-confirm-btn-confirm" id="confirmBtnConfirm">Confirm</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+            }
+
+            const messageEl = overlay.querySelector('#confirmModalMessage');
+            const confirmBtn = overlay.querySelector('#confirmBtnConfirm');
+            const cancelBtn = overlay.querySelector('#confirmBtnCancel');
+
+            messageEl.textContent = message;
+
+            // Reset classes
+            confirmBtn.className = 'ui-confirm-btn ui-confirm-btn-confirm';
+            
+            // Apply danger theme if requested or inferred from message
+            if (isDanger || message.toLowerCase().includes('delete') || message.toLowerCase().includes('remove')) {
+                confirmBtn.classList.add('danger');
+            }
+
+            const cleanup = () => {
+                overlay.classList.remove('show');
+                // Remove listeners to prevent memory leaks by using cloneNode
+                const newConfirmBtn = confirmBtn.cloneNode(true);
+                const newCancelBtn = cancelBtn.cloneNode(true);
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+                cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+            };
+
+            const handleConfirm = () => {
+                cleanup();
+                if (onConfirm) onConfirm();
+                resolve(true);
+            };
+
+            const handleCancel = () => {
+                cleanup();
+                if (onCancel) onCancel();
+                resolve(false);
+            };
+
+            overlay.querySelector('#confirmBtnConfirm').addEventListener('click', handleConfirm);
+            overlay.querySelector('#confirmBtnCancel').addEventListener('click', handleCancel);
+            
+            // Show the modal
+            overlay.classList.add('show');
+        });
+    },
+
+    // Helper for inline HTML confirmation
+    handleConfirm: function(event, message, actionUrl, isDanger = false) {
+        if (event) event.preventDefault();
+        this.confirm(message, () => {
+            window.location.href = actionUrl;
+        }, null, isDanger);
+        return false;
     }
 };

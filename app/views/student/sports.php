@@ -292,23 +292,6 @@
 
     <?php require APP_ROOT . '/app/views/templates/general/footer.php'; ?>
 
-    <!-- Confirmation Modal -->
-    <div id="confirmModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <i class="fas fa-question-circle"></i>
-                <h3 id="confirmModalTitle">Confirm Action</h3>
-            </div>
-            <div class="modal-body">
-                <p id="confirmModalMessage"></p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-cancel" onclick="closeConfirmModal()">Cancel</button>
-                <button class="btn btn-primary" id="confirmModalBtn">Confirm</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Encouragement Modal -->
     <div id="encouragementModal" class="modal">
         <div class="modal-content encouragement">
@@ -361,26 +344,14 @@
             return sportImages['default'];
         }
 
-        window.closeConfirmModal = () => { confirmModal.style.display = 'none'; };
-        window.closeEncouragementModal = () => { encouragementModal.style.display = 'none'; };
+    window.closeEncouragementModal = () => { encouragementModal.style.display = 'none'; };
 
-        function showConfirmModal(title, message, onConfirm) {
-            document.getElementById('confirmModalTitle').textContent = title;
-            document.getElementById('confirmModalMessage').textContent = message;
-            confirmModal.style.display = 'flex';
-            document.getElementById('confirmModalBtn').onclick = () => {
-                closeConfirmModal();
-                onConfirm();
-            };
-        }
-
-        function showEncouragementModal(sportName) {
-            document.getElementById('enrolledSportName').textContent = sportName;
-            encouragementModal.style.display = 'flex';
-        }
+    function showEncouragementModal(sportName) {
+        document.getElementById('enrolledSportName').textContent = sportName;
+        encouragementModal.style.display = 'flex';
+    }
 
         window.onclick = (event) => {
-            if (event.target === confirmModal) closeConfirmModal();
             if (event.target === encouragementModal) closeEncouragementModal();
         };
 
@@ -503,7 +474,7 @@
         });
 
         window.enrollInSport = async (sportId, sportName) => {
-            showConfirmModal('Enroll', `Join ${sportName}?`, async () => {
+            UI.confirm(`Join ${sportName}?`, async () => {
                 const fd = new FormData();
                 fd.append('sport_id', sportId);
                 const res = await fetch('/uoc-sports/public/student/enroll-sport', { method: 'POST', body: fd });
@@ -513,22 +484,23 @@
                     loadEnrolledSports();
                     loadAvailableSports();
                 } else {
-                    alert(result.message);
+                    UI.showToast(result.message, 'error');
                 }
             });
         };
 
         window.unenrollSport = async (sportId, sportName) => {
-            showConfirmModal('Unenroll', `Leave ${sportName}?`, async () => {
+            UI.confirm(`Leave ${sportName}?`, async () => {
                 const fd = new FormData();
                 fd.append('sport_id', sportId);
                 const res = await fetch('/uoc-sports/public/student/unenroll-sport', { method: 'POST', body: fd });
                 const result = await res.json();
                 if (result.status === 'success') {
+                    UI.showToast('Successfully left ' + sportName, 'success');
                     loadEnrolledSports();
                     loadAvailableSports();
                 } else {
-                    alert(result.message);
+                    UI.showToast(result.message, 'error');
                 }
             });
         };

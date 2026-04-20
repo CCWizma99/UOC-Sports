@@ -141,7 +141,8 @@
             ?>
 
         </div>
-    </nav>
+    <link rel="stylesheet" href="/uoc-sports/public/css/ui-notifications.css">
+    <script src="/uoc-sports/public/js/ui-notifications.js"></script>
 </header>
 
 <?php require_once APP_ROOT . '/app/views/templates/general/secondary-header.php'; ?>

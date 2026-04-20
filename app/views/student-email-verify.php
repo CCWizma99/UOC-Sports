@@ -217,8 +217,9 @@
                     stepOtp.classList.add('active');
                     startTimer(120); // 2 minutes
                     startResendCooldown();
+                    UI.showToast('Verification code sent to ' + email, 'success');
                 } else {
-                    alert(result.message || 'Failed to send OTP. Please try again.');
+                    UI.showToast(result.message || 'Failed to send OTP. Please try again.', 'error');
                     btnSendOtp.disabled = false;
                     btnSendOtp.textContent = 'Send Verification Code';
                 }

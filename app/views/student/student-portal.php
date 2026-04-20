@@ -112,27 +112,6 @@
 
     <?php require '../app/views/templates/general/footer.php'; ?>
 
-    <!-- Confirmation Modal -->
-    <div id="confirmModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <i class="fas fa-question-circle"></i>
-                <h3 id="confirmModalTitle">Confirm Action</h3>
-            </div>
-            <div class="modal-body">
-                <p id="confirmModalMessage"></p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-cancel" onclick="closeConfirmModal()">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-                <button class="btn btn-primary" id="confirmModalBtn">
-                    <i class="fas fa-check"></i> Confirm
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Encouragement Modal -->
     <div id="encouragementModal" class="modal">
         <div class="modal-content encouragement">
@@ -168,33 +147,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const enrolledList = document.getElementById("enrolled-sports-list");
     const availableList = document.getElementById("available-sports-list");
     const searchInput = document.getElementById("sport-search");
-    const msg = document.getElementById("enroll-message");
-    const confirmModal = document.getElementById("confirmModal");
     const encouragementModal = document.getElementById("encouragementModal");
     
     let availableSports = [];
     let enrolledSports = [];
     let sportsLoaded = false;
 
-    window.closeConfirmModal = () => {
-        confirmModal.style.display = 'none';
-    };
-
     window.closeEncouragementModal = () => {
         encouragementModal.style.display = 'none';
     };
-
-    function showConfirmModal(title, message, onConfirm) {
-        document.getElementById('confirmModalTitle').textContent = title;
-        document.getElementById('confirmModalMessage').textContent = message;
-        confirmModal.style.display = 'flex';
-        
-        const confirmBtn = document.getElementById('confirmModalBtn');
-        confirmBtn.onclick = () => {
-            closeConfirmModal();
-            onConfirm();
-        };
-    }
 
     function showEncouragementModal(sportName) {
         document.getElementById('enrolledSportName').textContent = sportName;
@@ -202,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     window.onclick = (event) => {
-        if (event.target === confirmModal) closeConfirmModal();
         if (event.target === encouragementModal) closeEncouragementModal();
     };
 
@@ -306,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     window.enrollInSport = async (sportId, sportName) => {
-        showConfirmModal('Enroll in Sport', `Enroll in ${sportName}?`, async () => {
+        UI.confirm(`Enroll in ${sportName}?`, async () => {
             const formData = new FormData();
             formData.append('sport_id', sportId);
 
@@ -325,16 +285,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     searchInput.value = '';
                     availableList.innerHTML = '<p class="no-sports">Start typing to search...</p>';
                 } else {
-                    showMessage(result.message, 'error');
+                    UI.showToast(result.message, 'error');
                 }
             } catch (error) {
-                showMessage('An error occurred', 'error');
+                UI.showToast('An error occurred', 'error');
             }
         });
     };
 
     window.unenrollSport = async (sportId, sportName) => {
-        showConfirmModal('Unenroll from Sport', `Unenroll from ${sportName}?`, async () => {
+        UI.confirm(`Unenroll from ${sportName}?`, async () => {
             const formData = new FormData();
             formData.append('sport_id', sportId);
 
@@ -345,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 const result = await res.json();
-                showMessage(result.message, result.status);
+                UI.showToast(result.message, result.status);
 
                 if (result.status === 'success') {
                     await loadEnrolledSports();
@@ -353,17 +313,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     availableList.innerHTML = '<p class="no-sports">Start typing to search...</p>';
                 }
             } catch (error) {
-                showMessage('An error occurred', 'error');
+                UI.showToast('An error occurred', 'error');
             }
         });
     };
 
-    function showMessage(message, status) {
-        msg.textContent = message;
-        msg.className = status === 'success' ? 'success' : 'error';
-        msg.style.display = 'block';
-        setTimeout(() => { msg.style.display = 'none'; }, 5000);
-    }
+
 
     function formatDate(dateString) {
         const date = new Date(dateString);
@@ -422,19 +377,19 @@ function fetchReservedItems() {
 }
 
 function cancelReservation(reservationId) {
-    if (!confirm('Cancel this reservation?')) return;
-    
-    fetch("/uoc-sports/public/reserve-equipments/cancel", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "reservation_id=" + encodeURIComponent(reservationId)
-    })
-    .then(res => res.text())
-    .then(msg => {
-        alert(msg);
-        fetchReservedItems();
-    })
-    .catch(() => alert("Error cancelling reservation."));
+    UI.confirm('Cancel this reservation?', () => {
+        fetch("/uoc-sports/public/reserve-equipments/cancel", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "reservation_id=" + encodeURIComponent(reservationId)
+        })
+        .then(res => res.text())
+        .then(msg => {
+            UI.showToast(msg, 'success');
+            fetchReservedItems();
+        })
+        .catch(() => UI.showToast("Error cancelling reservation.", "error"));
+    });
 }
 </script>
 
@@ -554,8 +509,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const result = await res.json();
-        msg.textContent = result.message;
-        msg.classList.add(result.status === "success" ? "success" : "error");
+        UI.showToast(result.message, result.status === "success" ? "success" : "error");
 
         if (result.status === "success") {
             e.target.reset();

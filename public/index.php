@@ -40,6 +40,7 @@ $router->post('/submit-feedback', 'UserHomeController@handleFeedback');
 
 // User Registration Stats API
 $router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
+$router->get('/api/user/check-duplicate', 'UserApiController@checkDuplicate');
 
 // Reservation Stats API
 $router->get('/api/reservation/search', 'ReservationApiController@search');
@@ -221,6 +222,7 @@ $router->post('/api/injury/delete', 'InjuryApiController@deleteReport');
 $router->post('/api/injury/update', 'InjuryApiController@updateReport');
 
 $router->post('/profile/upload-image', 'ProfileController@uploadProfileImage');
+$router->post('/profile/deactivate', 'ProfileController@deactivateAccount');
 $router->get('/api/chart/activity-analysis', 'ChartController@getActivityAnalysis');
 
 $router->get('/sign-up', 'AuthController@showSignupForm');

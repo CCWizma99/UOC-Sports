@@ -131,21 +131,21 @@ function editEquipment(equipmentId, equipmentName, usableCount, maxAllow) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Equipment updated successfully!');
-                location.reload();
+                UI.showToast('Equipment updated successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.message);
+                UI.showToast('Error: ' + data.message, 'error');
             }
         })
         .catch(error => {
-            alert('Error updating equipment');
+            UI.showToast('Error updating equipment', 'error');
             console.error('Error:', error);
         });
     }
 }
 
 function deleteEquipment(equipmentId, equipmentName) {
-    if (confirm('Are you sure you want to delete "' + equipmentName + '"?\n\nNote: Cannot delete if there are active reservations.')) {
+    UI.confirm('Are you sure you want to delete "' + equipmentName + '"?\n\nNote: Cannot delete if there are active reservations.', () => {
         fetch('/uoc-sports/public/equipment-manager/delete-equipment', {
             method: 'POST',
             headers: {
@@ -158,17 +158,17 @@ function deleteEquipment(equipmentId, equipmentName) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Equipment deleted successfully!');
-                location.reload();
+                UI.showToast('Equipment deleted successfully!', 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                alert('Error: ' + data.message);
+                UI.showToast('Error: ' + data.message, 'error');
             }
         })
         .catch(error => {
-            alert('Error deleting equipment');
+            UI.showToast('Error deleting equipment', 'error');
             console.error('Error:', error);
         });
-    }
+    });
 }
 
 function viewDetails(equipmentId) {
@@ -220,11 +220,11 @@ function viewDetails(equipmentId) {
                 document.body.appendChild(overlay);
                 document.body.appendChild(modal);
             } else {
-                alert('Error: ' + data.message);
+                UI.showToast('Error: ' + data.message, 'error');
             }
         })
         .catch(error => {
-            alert('Error fetching equipment details');
+            UI.showToast('Error fetching equipment details', 'error');
             console.error('Error:', error);
         });
 }

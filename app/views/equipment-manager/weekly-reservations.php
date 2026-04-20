@@ -342,7 +342,7 @@
       // Week navigation event listeners
       document.querySelectorAll('.week-nav-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          alert('Week navigation would load different reservations in a real application');
+          UI.showToast('Week navigation would load different reservations in a real application', 'info');
         });
       });
 

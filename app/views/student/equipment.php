@@ -244,27 +244,6 @@
 
     <?php require APP_ROOT . '/app/views/templates/general/footer.php'; ?>
 
-    <!-- Confirmation Modal -->
-    <div id="confirmModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <i class="fas fa-question-circle"></i>
-                <h3 id="confirmModalTitle">Confirm Action</h3>
-            </div>
-            <div class="modal-body">
-                <p id="confirmModalMessage"></p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-cancel" onclick="closeConfirmModal()">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-                <button class="btn btn-primary" id="confirmModalBtn">
-                    <i class="fas fa-check"></i> Confirm
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
     document.addEventListener("DOMContentLoaded", () => {
         const sportSelect = document.getElementById("sport");
@@ -273,25 +252,9 @@
         const msg = document.getElementById("reserve-message");
         const confirmModal = document.getElementById("confirmModal");
 
-        window.closeConfirmModal = () => {
-            confirmModal.style.display = 'none';
-        };
 
-        function showConfirmModal(title, message, onConfirm) {
-            document.getElementById('confirmModalTitle').textContent = title;
-            document.getElementById('confirmModalMessage').textContent = message;
-            confirmModal.style.display = 'flex';
-            
-            const confirmBtn = document.getElementById('confirmModalBtn');
-            confirmBtn.onclick = () => {
-                closeConfirmModal();
-                onConfirm();
-            };
-        }
 
-        window.onclick = (event) => {
-            if (event.target === confirmModal) closeConfirmModal();
-        };
+
 
         // Load equipment only when BOTH sport and date are selected
         function tryLoadEquipment() {
@@ -488,8 +451,7 @@
                         btn.addEventListener("click", () => {
                             const requestId = btn.getAttribute("data-id");
                             
-                            showConfirmModal(
-                                "Cancel Reservation", 
+                            UI.confirm(
                                 "Are you sure you want to cancel this reservation?", 
                                 async () => {
                                     const formData = new FormData();
@@ -502,14 +464,17 @@
                                         });
                                         const result = await res.json();
                                         if (result.status === "success") {
+                                            UI.showToast('Reservation cancelled', 'success');
                                             loadMyReservedItems();
                                         } else {
-                                            alert(result.message);
+                                            UI.showToast(result.message, 'error');
                                         }
                                     } catch (e) {
-                                        alert("Failed to cancel reservation.");
+                                        UI.showToast("Failed to cancel reservation.", 'error');
                                     }
-                                }
+                                },
+                                null,
+                                true // Danger theme
                             );
                         });
                     });
@@ -543,8 +508,7 @@
                 });
                 const result = await res.json();
                 
-                msg.textContent = result.message;
-                msg.classList.add(result.status === "success" ? "success" : "error");
+                UI.showToast(result.message, result.status === "success" ? "success" : "error");
 
                 if (result.status === "success") {
                     reserveForm.reset();
@@ -576,8 +540,7 @@
                     }, 5000);
                 }
             } catch (error) {
-                msg.textContent = "An error occurred. Please try again.";
-                msg.classList.add("error");
+                UI.showToast("An error occurred. Please try again.", 'error');
             }
         });
     });

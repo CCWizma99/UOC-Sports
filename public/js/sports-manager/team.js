@@ -187,24 +187,14 @@ function extractEventCategory(achievement) {
     if (achievement.category) return achievement.category;
 
     const matchLevel = achievement.match_level || 'UNIVERSITY';
-    const tournamentName = achievement.tournament_name || '';
-    const lowerName = tournamentName.toLowerCase();
-
-    // 1. Handle clear National/International levels from DB
-    if (matchLevel === 'INTERNATIONAL') return 'International';
-    if (matchLevel === 'NATIONAL') return 'National';
-
-    // 2. For UNIVERSITY level, use string matching to distinguish subtypes (Inter-U vs Inter-Faculty vs Freshers)
-    if (lowerName.includes('inter university') || lowerName.includes('inter-university')) return 'Inter University';
-    if (lowerName.includes('inter faculty') || lowerName.includes('inter-faculty')) return 'Inter Faculty';
-    if (lowerName.includes('freshers')) return 'Freshers';
-
-    // 3. Fallback to basic keyword matching
-    if (lowerName.includes('championship')) return 'Championship';
-    if (lowerName.includes('tournament')) return 'Tournament';
-    if (lowerName.includes('league')) return 'League';
-
-    return tournamentName.split(' ')[0] || 'Other';
+    
+    // Map database enum to Title Case labels
+    switch (matchLevel.toUpperCase()) {
+        case 'UNIVERSITY':    return 'University';
+        case 'NATIONAL':      return 'National';
+        case 'INTERNATIONAL': return 'International';
+        default:             return 'University';
+    }
 }
 
 function getStudentChartCanvasId(userId) {
@@ -212,17 +202,15 @@ function getStudentChartCanvasId(userId) {
     return `student-event-chart-${safeUserId}`;
 }
 
-// Map specific categories to their designated colors
+// Map database levels to their designated colors (matched to legend)
 function getCategoryColor(category) {
     const colorMap = {
-        'Inter Faculty': '#16a34a',        // green
-        'Inter University': '#2563eb',     // blue
-        'Freshers': '#f97316',         // orange
-        'National': '#8b5cf6',             // violet
-        'International': '#ec4899',        // pink
-        'Other': '#6b7280'                 // gray
+        'University': '#2563eb',     // blue
+        'National': '#8b5cf6',       // violet
+        'International': '#ec4899',  // pink
+        'Other': '#6b7280'           // gray
     };
-    return colorMap[category] || '#6b7280'; // default to gray if not found
+    return colorMap[category] || '#2563eb'; // default to University blue
 }
 
 function getCategoryPalette(labels) {

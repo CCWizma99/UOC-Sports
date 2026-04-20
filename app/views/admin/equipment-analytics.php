@@ -396,7 +396,7 @@ function toggleInsight(key, checkbox) {
 
 function savePreferences() {
     if (selectedPriorities.length !== 2) {
-        alert('Please select exactly 2 insights');
+        UI.showToast('Please select exactly 2 insights', 'warning');
         return;
     }
     
@@ -404,19 +404,13 @@ function savePreferences() {
     closeCustomizeModal();
     renderDashboard();
     
-    // Show success toast
-    showToast('Preferences saved!');
+    UI.showToast('Preferences saved!', 'success');
 }
 
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification';
-    toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2500);
-}
+function showToast(message) { /* Deprecated */ }
 
 function showError(message) {
+    UI.showToast(message, 'error');
     document.getElementById('priority-insights').innerHTML = `
         <div class="error-card">
             <i class="fas fa-exclamation-circle"></i>

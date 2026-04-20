@@ -298,9 +298,9 @@
           `;
           commentsDiv.appendChild(newComment);
           commentForm.reset();
-        } else alert(data.message);
+        } else UI.showToast(data.message, 'error');
       } catch (err) {
-        alert('Error posting comment.');
+        UI.showToast('Error posting comment.', 'error');
       }
     });
   }
@@ -309,25 +309,24 @@
   document.addEventListener('click', async e => {
     if (e.target.classList.contains('delete-btn')) {
       const commentId = e.target.dataset.id;
-      if (!confirm('Are you sure you want to delete this comment?')) return;
-
-      try {
-  const res = await fetch('/uoc-sports/public/post/delete-comment', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ comment_id: commentId })
-  });
-  const data = await res.json();
-  if (data.status === 'success') {
-    e.target.closest('.comment-card').remove();
-  } else {
-    alert(data.message || 'Failed to delete comment.');
-  }
-} catch (err) {
-  alert('Error deleting comment.');
-}
-
-    }
+      UI.confirm('Are you sure you want to delete this comment?', async () => {
+        try {
+          const res = await fetch('/uoc-sports/public/post/delete-comment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comment_id: commentId })
+          });
+          const data = await res.json();
+          if (data.status === 'success') {
+            e.target.closest('.comment-card').remove();
+            UI.showToast('Comment deleted', 'success');
+          } else {
+            UI.showToast(data.message || 'Failed to delete comment.', 'error');
+          }
+        } catch (err) {
+          UI.showToast('Error deleting comment.', 'error');
+        }
+      }, null, true);
   });
 })();
 </script>

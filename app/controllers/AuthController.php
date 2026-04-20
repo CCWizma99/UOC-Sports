@@ -185,6 +185,15 @@ class AuthController extends BaseController {
             $foundUser = $user->findByEmail($email); // Make sure you have this method
     
             if ($foundUser && password_verify($password, $foundUser['password'])) {
+                // Check if account is active
+                if ($foundUser['status'] !== 'ACTIVE') {
+                    $_SESSION['message'] = "Your account has been deactivated. Please contact an administrator.";
+                    $_SESSION['redirectURL'] = "/uoc-sports/public/sign-in";
+                    $_SESSION['color'] = "red";
+                    header("Location: " . $_SESSION['redirectURL']);
+                    exit;
+                }
+
                 // Update last login time
                 $user->updateLastLogin($foundUser['user_id']);
                 

@@ -86,15 +86,16 @@ document.addEventListener('DOMContentLoaded', function() {
           allStudents[studentIndex].selected = !isSelected;
           render();
         }
+        UI.showToast(result.message || (isSelected ? 'Member removed' : 'Member added'), 'success');
       } else {
-        alert('Error: ' + (result.message || 'Something went wrong'));
+        UI.showToast(result.message || 'Something went wrong', 'error');
         btn.textContent = originalText;
         btn.disabled = false;
         btn.style.opacity = '1';
       }
     } catch (error) {
       console.error('Fetch error:', error);
-      alert('Network error. Please try again.');
+      UI.showToast('Network error. Please try again.', 'error');
       btn.textContent = originalText;
       btn.disabled = false;
       btn.style.opacity = '1';

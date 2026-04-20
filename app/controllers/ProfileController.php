@@ -120,5 +120,43 @@ class ProfileController {
                 'message' => 'Upload failed: ' . $e->getMessage()
             ]);
         }
+    public function deactivateAccount() {
+        header('Content-Type: application/json');
+        
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized.']);
+            return;
+        }
+
+        $user_id = $_SESSION['user_id'];
+        $user_type = strtoupper($_SESSION['user_type'] ?? 'PUBLIC');
+        $staffRoles = ['ADMIN', 'REG', 'SPT', 'EQP', 'EXECUTIVE', 'COACH'];
+
+        if (in_array($user_type, $staffRoles)) {
+            echo json_encode(['status' => 'error', 'message' => 'Internal staff accounts cannot be deactivated from this profile.']);
+            return;
+        }
+
+        try {
+            $userModel = new User();
+            if ($userModel->updateUserStatus($user_id, 'INACTIVE')) {
+                // Clear session but don't redirect yet (let frontend handle it after showing toast)
+                $_SESSION = [];
+                if (ini_get("session.use_cookies")) {
+                    $params = session_get_cookie_params();
+                    setcookie(session_name(), '', time() - 42000,
+                        $params["path"], $params["domain"],
+                        $params["secure"], $params["httponly"]
+                    );
+                }
+                session_destroy();
+
+                echo json_encode(['status' => 'success', 'message' => 'Your account has been deactivated successfully.']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Failed to deactivate account.']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['status' => 'error', 'message' => 'Server error: ' . $e->getMessage()]);
+        }
     }
 }

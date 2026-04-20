@@ -155,7 +155,7 @@ if (isset($_GET['sport_id'])) {
 
 <script>
 function removeMember(sportId, userId, userName) {
-    if (confirm(`Are you sure you want to remove ${userName} from this team?`)) {
+    UI.confirm(`Are you sure you want to remove ${userName} from this team?`, () => {
         fetch('/uoc-sports/admin-teams/remove-member', {
             method: 'POST',
             headers: {
@@ -169,20 +169,20 @@ function removeMember(sportId, userId, userName) {
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                showNotification('Member removed successfully', 'success');
-                location.reload();
+                UI.showToast('Member removed successfully', 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                showNotification('Error: ' + (data.message || 'Failed to remove member'), 'error');
+                UI.showToast('Error: ' + (data.message || 'Failed to remove member'), 'error');
             }
         })
         .catch(err => {
-            showNotification('Error removing member', 'error');
+            UI.showToast('Error removing member', 'error');
             console.error(err);
         });
-    }
+    }, null, true); // Danger theme
 }
 function promoteToCaptain(sportId, userId, userName) {
-    if (confirm(`Are you sure you want to promote ${userName} to Captain? This will demote the current captain if one exists.`)) {
+    UI.confirm(`Are you sure you want to promote ${userName} to Captain? This will demote the current captain if one exists.`, () => {
         fetch('/uoc-sports/admin-teams/promote-to-captain', {
             method: 'POST',
             headers: {
@@ -196,17 +196,17 @@ function promoteToCaptain(sportId, userId, userName) {
         .then(res => res.json())
         .then(data => {
             if (data.status === 'success') {
-                showNotification('User promoted to captain successfully', 'success');
-                location.reload();
+                UI.showToast('User promoted to captain successfully', 'success');
+                setTimeout(() => location.reload(), 1000);
             } else {
-                showNotification('Error: ' + (data.message || 'Failed to promote user'), 'error');
+                UI.showToast('Error: ' + (data.message || 'Failed to promote user'), 'error');
             }
         })
         .catch(err => {
-            showNotification('Error promoting user', 'error');
+            UI.showToast('Error promoting user', 'error');
             console.error(err);
         });
-    }
+    });
 }
 </script>
 

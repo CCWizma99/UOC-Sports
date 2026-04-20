@@ -101,8 +101,8 @@ if (empty($coachSportId) && isset($_SESSION['user_id'])) {
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
+</div><!-- .table-section -->
+</div><!-- .container -->
 
 <!-- Edit Modal -->
 <div class="modal-overlay" id="editModal">
@@ -165,36 +165,6 @@ if (empty($coachSportId) && isset($_SESSION['user_id'])) {
             </button>
             <button type="submit" form="editForm" class="btn-modal btn-confirm">
                 <i class="fas fa-save"></i> Save Changes
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Modal -->
-<div class="modal-overlay delete-modal" id="deleteModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h3>
-            <button class="modal-close" onclick="closeDeleteModal()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class="delete-confirmation">
-                <div class="delete-icon">
-                    <i class="fas fa-trash-alt"></i>
-                </div>
-                <h4>Delete Injury Report?</h4>
-                <p>Are you sure you want to delete this injury report?</p>
-                <p>This action cannot be undone.</p>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn-modal btn-cancel" onclick="closeDeleteModal()">
-                <i class="fas fa-times"></i> Cancel
-            </button>
-            <button class="btn-modal btn-confirm-delete" onclick="confirmDelete()">
-                <i class="fas fa-trash"></i> Delete Report
             </button>
         </div>
     </div>
@@ -398,13 +368,14 @@ document.getElementById("injuryForm").addEventListener("submit", function (e) {
             if (result.status === 'success') {
                 document.getElementById('injuryForm').reset();
                 document.getElementById('substitutionSection').style.display = 'none';
+                UI.showToast('Injury reported successfully', 'success');
                 loadInjuryReports();
             } else {
-                alert('Failed to save injury: ' + (result.message || 'Unknown error'));
+                UI.showToast('Failed to save injury: ' + (result.message || 'Unknown error'), 'error');
             }
         } catch (err) {
             console.error('Error saving injury', err);
-            alert('Server error saving injury');
+            UI.showToast('Server error saving injury', 'error');
         }
     })();
 });
@@ -495,36 +466,37 @@ document.getElementById('editForm').addEventListener('submit', async function(e)
         const result = await resp.json();
         if(result.status === 'success') {
             closeEditModal();
+            UI.showToast('Injury report updated', 'success');
             loadInjuryReports();
         } else {
-            alert('Failed to update: ' + result.message);
+            UI.showToast('Failed to update: ' + result.message, 'error');
         }
     } catch(err) {
         console.error(err);
-        alert('Error updating report');
+        UI.showToast('Error updating report', 'error');
     }
 });
 
 // Handle Delete
-async function confirmDelete() {
-    if(!currentDeleteId) return;
-    
-    try {
-        const resp = await fetch('/uoc-sports/public/api/injury/delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ report_id: currentDeleteId })
-        });
-        const result = await resp.json();
-        if(result.status === 'success') {
-            closeDeleteModal();
-            loadInjuryReports();
-        } else {
-            alert('Failed to delete: ' + result.message);
+function deleteReport(id) {
+    UI.confirm('Are you sure you want to delete this injury report? This action cannot be undone.', async () => {
+        try {
+            const resp = await fetch('/uoc-sports/public/api/injury/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ report_id: id })
+            });
+            const result = await resp.json();
+            if(result.status === 'success') {
+                UI.showToast('Report deleted', 'success');
+                loadInjuryReports();
+            } else {
+                UI.showToast('Failed to delete: ' + result.message, 'error');
+            }
+        } catch(err) {
+            console.error(err);
+            UI.showToast('Error deleting report', 'error');
         }
-    } catch(err) {
-        console.error(err);
-        alert('Error deleting report');
-    }
+    });
 }
 </script>

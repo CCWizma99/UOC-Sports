@@ -128,7 +128,7 @@
         const value = dateInput.value;
 
         if (value < min || value > max) {
-            alert("Date out of allowed range! Date should be between " + min + " to " + max + ".");
+            UI.showToast("Date out of allowed range! Date should be between " + min + " to " + max + ".", 'warning');
             dateInput.value = ""; // force reset
         }
     });
@@ -669,33 +669,20 @@
             const result = await response.json();
 
             if (result.success) {
-                msg.innerHTML = `<div class="success">✔ ${result.message}</div>`;
-                msg.style.display = "block";
-                showFloatingMessage("Reservation successful!", "success");
-
-                // Reset form
+                UI.showToast(result.message, "success");
                 form.reset();
                 document.getElementById("priceDisplay").textContent = "Rs. 0.00";
                 document.getElementById("facility_id").disabled = true;
                 document.getElementById("reservationChartContainer").classList.add("hidden");
-
-                // Reload reservations
-
-                // Scroll to reservation form if needed
             } else {
-                // Check if user needs to login
                 if (result.redirect) {
                     window.location.href = result.redirect;
                 } else {
-                    msg.innerHTML = `<div class="error">✘ ${result.message}</div>`;
-                    msg.style.display = "block";
-                    showFloatingMessage(result.message, "error");
+                    UI.showToast(result.message, "error");
                 }
             }
         } catch (err) {
-            msg.innerHTML = `<div class="error">✘ Error: ${err.message}</div>`;
-            msg.style.display = "block";
-            showFloatingMessage("Booking error. Please try again.", "error");
+            UI.showToast("Booking error. Please try again.", "error");
         }
     }
 

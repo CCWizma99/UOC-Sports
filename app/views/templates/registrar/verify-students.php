@@ -119,12 +119,13 @@ async function verifyStudent(requestId, studentId, status, reason = null) {
                 const currentCount = parseInt(countEl.textContent);
                 countEl.textContent = Math.max(0, currentCount - 1);
             }
+            UI.showToast(data.message || (status === 'VERIFIED' ? 'Student verified' : 'Student rejected'), 'success');
             closeModals();
         } else {
-            alert(data.message || 'Failed to update verification');
+            UI.showToast(data.message || 'Failed to update verification', 'error');
         }
     } catch (err) {
-        alert('Error: ' + err.message);
+        UI.showToast('Error: ' + err.message, 'error');
     }
 }
 
@@ -143,7 +144,7 @@ function confirmReject() {
     const reason = document.getElementById('rejectionReason').value.trim();
     
     if (!reason) {
-        alert('Please provide a reason for rejection');
+        UI.showToast('Please provide a reason for rejection', 'warning');
         return;
     }
     

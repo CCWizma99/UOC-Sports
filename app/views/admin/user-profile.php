@@ -684,7 +684,7 @@ async function saveUser() {
         const result = await response.json();
         
         if (result.status === 'success') {
-            showToast('User updated successfully!', 'success');
+            UI.showToast('User updated successfully!', 'success');
             closeEditModal();
             // Update displayed values
             document.getElementById('display-email').textContent = data.email;
@@ -695,54 +695,39 @@ async function saveUser() {
             // Reload to show updated name
             setTimeout(() => location.reload(), 1500);
         } else {
-            showToast(result.message || 'Failed to update user', 'error');
+            UI.showToast(result.message || 'Failed to update user', 'error');
         }
     } catch (error) {
-        showToast('An error occurred while updating', 'error');
+        UI.showToast('An error occurred while updating', 'error');
     }
 }
 
 async function toggleUserStatus(newStatus) {
     const action = newStatus === 'INACTIVE' ? 'deactivate' : 'activate';
     
-    if (!confirm(`Are you sure you want to ${action} this user?`)) {
-        return;
-    }
-
-    try {
-        const response = await fetch('/uoc-sports/public/api/user/toggle-status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: userId, status: newStatus })
-        });
-        
-        const result = await response.json();
-        
-        if (result.status === 'success') {
-            showToast(result.message, 'success');
-            setTimeout(() => location.reload(), 1500);
-        } else {
-            showToast(result.message || 'Failed to update status', 'error');
+    UI.confirm(`Are you sure you want to ${action} this user?`, async () => {
+        try {
+            const response = await fetch('/uoc-sports/public/api/user/toggle-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, status: newStatus })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                UI.showToast(result.message, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                UI.showToast(result.message || 'Failed to update status', 'error');
+            }
+        } catch (error) {
+            UI.showToast('An error occurred while updating status', 'error');
         }
-    } catch (error) {
-        showToast('An error occurred while updating status', 'error');
-    }
+    }, null, newStatus === 'INACTIVE'); // Danger theme for deactivation
 }
 
-function showToast(message, type) {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <span>${type === 'success' ? '✓' : '✕'}</span>
-        <span>${message}</span>
-    `;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.animation = 'slideIn 0.3s ease reverse';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
+
 
 // Dynamic fields for edit modal
 document.getElementById('edit-type').addEventListener('change', function() {

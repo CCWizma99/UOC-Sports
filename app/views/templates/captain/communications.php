@@ -432,9 +432,7 @@
 
   // Delete message via API
   async function deleteMessage(id) {
-    if (!confirm('Are you sure you want to delete this message?')) {
-      return;
-    }
+    UI.confirm('Are you sure you want to delete this message?', async () => {
 
     try {
       const formData = new FormData();
@@ -462,17 +460,12 @@
       console.error('Error deleting message:', error);
       showStatus('Error deleting message', 'error');
     }
-  }
+  }, null, true); // Danger theme
+}
 
-  // Show status message
+  // Show status message -- DEPRECATED (use UI.showToast)
   function showStatus(message, type) {
-    const statusEl = document.getElementById('statusMsg');
-    statusEl.textContent = message;
-    statusEl.className = `status ${type}`;
-    
-    setTimeout(() => {
-      statusEl.className = 'status';
-    }, 3000);
+    UI.showToast(message, type === 'error' ? 'error' : (type === 'success' ? 'success' : 'info'));
   }
 
   // Handle form submission
@@ -484,7 +477,7 @@
     const messageInput = document.getElementById('message');
 
     if (!recipientSelect.value || !titleInput.value || !messageInput.value) {
-      showStatus('Please fill all fields', 'error');
+      UI.showToast('Please fill all fields', 'warning');
       return;
     }
 
@@ -505,16 +498,16 @@
       const result = await response.json();
       
       if (result.status === 'success') {
-        showStatus('Message sent successfully!', 'success');
+        UI.showToast('Message sent successfully!', 'success');
         e.target.reset();
         // Reload messages to show the new one
         await loadMessages();
       } else {
-        showStatus(result.message || 'Failed to send message', 'error');
+        UI.showToast(result.message || 'Failed to send message', 'error');
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      showStatus('Error sending message', 'error');
+      UI.showToast('Error sending message', 'error');
     }
   });
 

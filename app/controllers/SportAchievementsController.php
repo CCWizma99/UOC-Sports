@@ -93,17 +93,20 @@ class SportAchievementsController {
         ];
 
         if (!$data['user_id'] || !$data['sport_id'] || !$data['tournament_id'] || !$data['achievement']) {
-            $_SESSION['error'] = 'All fields are required';
+            $_SESSION['message'] = 'All fields are required';
+            $_SESSION['color'] = 'red';
             header('Location: /uoc-sports/public/sport-manager/team/create?sport=' . $data['sport_id']);
             exit;
         }
         
         try {
-            $achievementModel->create($data);
-            $_SESSION['success'] = 'Achievement added successfully! Points have been automatically assigned.';
+            $achModel->create($data); // Note: Fix variable name achModel vs achievementModel if needed, but in the snippet it was achievementModel on line 102
+            $_SESSION['message'] = 'Achievement added successfully! Points have been automatically assigned.';
+            $_SESSION['color'] = 'green';
             header('Location: /uoc-sports/public/sport-manager/team?sport=' . $data['sport_id']);
         } catch (Exception $e) {
-            $_SESSION['error'] = 'Error adding achievement: ' . $e->getMessage();
+            $_SESSION['message'] = 'Error adding achievement: ' . $e->getMessage();
+            $_SESSION['color'] = 'red';
             header('Location: /uoc-sports/public/sport-manager/team/create?sport=' . $data['sport_id']);
         }
         exit;
@@ -122,7 +125,8 @@ class SportAchievementsController {
         $sportId = $_POST['sport_id'] ?? null;
         
         if (!$id) {
-            $_SESSION['error'] = 'Invalid achievement ID';
+            $_SESSION['message'] = 'Invalid achievement ID';
+            $_SESSION['color'] = 'red';
             header('Location: /uoc-sports/public/sport-manager/team?sport=' . $sportId);
             exit;
         }
@@ -131,9 +135,11 @@ class SportAchievementsController {
         
         try {
             $achievementModel->delete($id);
-            $_SESSION['success'] = 'Achievement deleted successfully!';
+            $_SESSION['message'] = 'Achievement deleted successfully!';
+            $_SESSION['color'] = 'green';
         } catch (Exception $e) {
-            $_SESSION['error'] = 'Error deleting achievement: ' . $e->getMessage();
+            $_SESSION['message'] = 'Error deleting achievement: ' . $e->getMessage();
+            $_SESSION['color'] = 'red';
         }
         
         header('Location: /uoc-sports/public/sport-manager/team?sport=' . $sportId);

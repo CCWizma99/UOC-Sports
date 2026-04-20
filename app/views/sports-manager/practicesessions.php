@@ -397,7 +397,9 @@
                                 <a href="/uoc-sports/public/sport-manager/edit-practice?id=<?= $session['id'] ?>" class="action-btn edit-btn">Edit</a>
                                 <form method="POST" action="/uoc-sports/public/sport-manager/delete-practice" style="display: inline; margin: 0;">
                                     <input type="hidden" name="id" value="<?= $session['id'] ?>">
-                                    <button type="submit" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this practice session?')">Delete</button>
+                                <form method="POST" action="/uoc-sports/public/sport-manager/delete-practice" style="display: inline; margin: 0;">
+                                    <input type="hidden" name="id" value="<?= $session['id'] ?>">
+                                    <button type="submit" class="action-btn delete-btn" onclick="return UI.confirm('Are you sure you want to delete this practice session?', () => this.form.submit())">Delete</button>
                                 </form>
                             </div>
                         </td>
@@ -413,37 +415,34 @@ function updateStatus(selectElement) {
     const sessionId = selectElement.getAttribute('data-session-id');
     const newStatus = selectElement.value;
     
-    if (!confirm('Are you sure you want to update the practice session status to ' + newStatus + '?')) {
-        location.reload();
-        return;
-    }
-
-    // Update the class for styling
-    selectElement.className = 'status-select status-' + newStatus.toLowerCase();
-    
-    // Send AJAX request to update status
-    fetch('/uoc-sports/public/sport-manager/update-practice-status', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'id=' + sessionId + '&status=' + newStatus
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Show success message (you can customize this)
-            console.log('Status updated successfully');
-        } else {
-            alert('Failed to update status: ' + (data.message || 'Unknown error'));
-            // Reload page to reset the dropdown
-            location.reload();
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while updating status');
-        // Reload page to reset the dropdown
+    UI.confirm('Are you sure you want to update the practice session status to ' + newStatus + '?', () => {
+        // Update the class for styling
+        selectElement.className = 'status-select status-' + newStatus.toLowerCase();
+        
+        // Send AJAX request to update status
+        fetch('/uoc-sports/public/sport-manager/update-practice-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'id=' + sessionId + '&status=' + newStatus
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                UI.showToast('Status updated successfully', 'success');
+            } else {
+                UI.showToast('Failed to update status: ' + (data.message || 'Unknown error'), 'error');
+                setTimeout(() => location.reload(), 1500);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            UI.showToast('An error occurred while updating status', 'error');
+            setTimeout(() => location.reload(), 1500);
+        });
+    }, () => {
+        // On Cancel: reload or reset the dropdown
         location.reload();
     });
 }

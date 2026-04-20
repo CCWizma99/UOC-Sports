@@ -394,7 +394,7 @@ dateInput.addEventListener("change", () => {
   const value = dateInput.value;
 
   if (value < min || value > max) {
-    alert("Date out of allowed range! Date should be between " + min + " to " + max + ".");
+    UI.showToast("Date out of allowed range! Date should be between " + min + " to " + max + ".", 'warning');
     dateInput.value = ""; // force reset
   }
 });
