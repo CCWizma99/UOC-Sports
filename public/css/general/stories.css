@@ -44,7 +44,6 @@
     line-height: 1.6;
 }
 
-/* Story Sections */
 .story-section {
     padding: 6rem 5%;
     display: flex;
@@ -53,6 +52,7 @@
     max-width: 1400px;
     margin: 0 auto;
     border-bottom: 1px solid #eee;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
 }
 
 .story-section:nth-child(even) {

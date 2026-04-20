@@ -158,13 +158,13 @@ class Student {
 
         return [
             'sports_count'    => count($sportsList),
-            'sports_list'     => array_slice($sportsList, 0, 3),
+            'sports_list'     => $sportsList,
             'sessions_count'  => count($sessionsList),
-            'sessions_list'   => array_slice($sessionsList, 0, 3),
+            'sessions_list'   => $sessionsList,
             'equipment_count' => count($equipmentList),
-            'equipment_list'  => array_slice($equipmentList, 0, 3),
+            'equipment_list'  => $equipmentList,
             'facilities_count'=> count($facilityList),
-            'facilities_list' => array_slice($facilityList, 0, 3)
+            'facilities_list' => $facilityList
         ];
     }
 
