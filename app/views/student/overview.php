@@ -79,12 +79,19 @@
         .summary-grid {
             display: grid;
             grid-template-columns: 1fr 1.35fr;
-            grid-template-rows: repeat(3, 1fr);
             gap: 24px;
             /* Doubled gap for more breathing room */
             flex: 1;
             min-height: 0;
             margin-top: 10px;
+        }
+
+        .summary-left-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            /* Reduced from 24px to save vertical space */
+            align-self: start;
         }
 
         /* Summary Cards - Unified System Theme (Purple) */
@@ -100,7 +107,8 @@
         /* Standard Cards on the Left */
         .summary-card {
             background: var(--bg);
-            padding: 12px 18px;
+            padding: 8px 16px;
+            /* Reduced vertical padding */
             border-radius: 16px;
             border: 1px solid var(--border);
             text-decoration: none;
@@ -111,18 +119,17 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
             box-sizing: border-box;
             overflow: hidden;
-            height: 100%;
             position: relative;
             border-left: 4px solid var(--accent);
         }
 
-        /* Large Sessions Card - Span 3 Rows on Right */
+        /* Large Sessions Card - Right */
         .summary-card.sessions {
-            grid-column: 2;
-            grid-row: 1 / span 3;
             padding: 16px 22px;
             background: linear-gradient(to bottom, var(--bg), #ffffff);
             overflow-y: auto;
+            align-self: stretch;
+            height: 100%;
         }
 
         .summary-card:hover {
@@ -136,7 +143,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+            /* Reduced margin */
             width: 100%;
         }
 
@@ -185,15 +193,45 @@
         .card-summary {
             font-size: 0.8rem;
             color: #666;
-            margin-top: 5px;
+            margin-top: 2px;
+            /* Reduced margin */
             width: 100%;
             text-align: left;
             border-top: 1px solid #f8f7fa;
-            padding-top: 8px;
+            padding-top: 4px;
+            /* Reduced padding */
             flex: 1;
-            overflow: hidden;
+            max-height: 70px;
+            /* Slightly reduced max-height to keep it compact */
+            overflow-y: auto;
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 0;
+            /* Gap is handled by li padding for better control */
+            scrollbar-width: thin;
+            scrollbar-color: #5e2d91 transparent;
+            /* Match system color */
+            padding-right: 8px;
+            scroll-behavior: smooth;
+        }
+
+        .card-summary::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .card-summary::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .card-summary::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            /* More visible default */
+            border-radius: 10px;
+        }
+
+        .card-summary:hover::-webkit-scrollbar-thumb {
+            background: #5e2d91;
+            /* Highlight with theme color on hover */
         }
 
         .sessions .card-summary {
@@ -201,6 +239,7 @@
             padding-top: 0;
             gap: 25px;
             align-items: flex-start;
+            max-height: none;
         }
 
         /* --- Practice Sessions Calendar Styles (Sport Manager Exact Matches) --- */
@@ -407,13 +446,19 @@
         }
 
         .card-summary li {
-            padding: 3px 0;
+            padding: 2px 0;
+            /* Further reduced padding for ultra-compact look */
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             display: flex;
             align-items: center;
             gap: 8px;
+            border-bottom: 1px solid #fcfcfd;
+        }
+
+        .card-summary li:last-child {
+            border-bottom: none;
         }
 
         .card-summary li i {
@@ -427,10 +472,12 @@
                 grid-template-columns: 1fr;
                 grid-template-rows: auto;
             }
+
             .summary-card.sessions {
                 grid-column: 1;
                 grid-row: auto;
             }
+
             .student-portal-wrapper {
                 padding: 15px;
             }
@@ -440,12 +487,15 @@
             .portal-card.welcome-card {
                 padding: 15px 20px;
             }
+
             .portal-card h2 {
                 font-size: 1.1rem;
             }
+
             .calendar-grid {
                 gap: 1px;
             }
+
             .calendar-day {
                 min-height: 40px;
                 font-size: 0.7rem;
@@ -472,38 +522,40 @@
             <!-- Summary Cards Inside Welcome Container -->
             <div class="summary-grid">
                 <!-- Stacked Left Column -->
-                <a href="/uoc-sports/public/student/sports" class="summary-card sports">
-                    <div class="card-header">
-                        <div class="card-header-left">
-                            <i class="fas fa-running main-icon"></i>
-                            <h3>Enrolled Sports</h3>
+                <div class="summary-left-column">
+                    <a href="/uoc-sports/public/student/sports" class="summary-card sports">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <i class="fas fa-running main-icon"></i>
+                                <h3>Enrolled Sports</h3>
+                            </div>
+                            <div class="count" id="countSports">-</div>
                         </div>
-                        <div class="count" id="countSports">-</div>
-                    </div>
-                    <div class="card-summary" id="listSports"></div>
-                </a>
+                        <div class="card-summary" id="listSports"></div>
+                    </a>
 
-                <a href="/uoc-sports/public/student/equipment" class="summary-card equipment">
-                    <div class="card-header">
-                        <div class="card-header-left">
-                            <i class="fas fa-table-tennis main-icon"></i>
-                            <h3>Reserved Equipment</h3>
+                    <a href="/uoc-sports/public/student/equipment" class="summary-card equipment">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <i class="fas fa-table-tennis main-icon"></i>
+                                <h3>Reserved Equipment</h3>
+                            </div>
+                            <div class="count" id="countEquipment">-</div>
                         </div>
-                        <div class="count" id="countEquipment">-</div>
-                    </div>
-                    <div class="card-summary" id="listEquipment"></div>
-                </a>
+                        <div class="card-summary" id="listEquipment"></div>
+                    </a>
 
-                <a href="/uoc-sports/public/facility-reservation" class="summary-card facilities">
-                    <div class="card-header">
-                        <div class="card-header-left">
-                            <i class="fas fa-building main-icon"></i>
-                            <h3>Active Reservations</h3>
+                    <a href="/uoc-sports/public/facility-reservation" class="summary-card facilities">
+                        <div class="card-header">
+                            <div class="card-header-left">
+                                <i class="fas fa-building main-icon"></i>
+                                <h3>Active Reservations</h3>
+                            </div>
+                            <div class="count" id="countFacilities">-</div>
                         </div>
-                        <div class="count" id="countFacilities">-</div>
-                    </div>
-                    <div class="card-summary" id="listFacilities"></div>
-                </a>
+                        <div class="card-summary" id="listFacilities"></div>
+                    </a>
+                </div>
 
                 <!-- Large Right Column Card: Practice Sessions Calendar -->
                 <div class="summary-card sessions" style="min-height: auto; height: auto; max-height: none;">

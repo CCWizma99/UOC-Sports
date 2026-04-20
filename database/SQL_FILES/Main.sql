@@ -10,6 +10,7 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+SET FOREIGN_KEY_CHECKS = 0;
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -175,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `active_booking_attempts` (
   `last_active_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`,`facility_id`,`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -191,7 +192,7 @@ CREATE TABLE IF NOT EXISTS `attendance` (
   `status` varchar(12) NOT NULL,
   `record_status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`attendance_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `attendance`
@@ -451,7 +452,7 @@ CREATE TABLE IF NOT EXISTS `budget` (
   `allocation_date` date NOT NULL,
   `description` text,
   PRIMARY KEY (`budget_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `budget`
@@ -524,7 +525,7 @@ CREATE TABLE IF NOT EXISTS `captain_sport` (
   `date_relieved` date DEFAULT NULL,
   PRIMARY KEY (`user_id`,`sport_id`,`date_started`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `captain_sport`
@@ -549,7 +550,7 @@ CREATE TABLE IF NOT EXISTS `coach_sport` (
   `date_relieved` date DEFAULT NULL,
   PRIMARY KEY (`user_id`,`sport_id`,`date_started`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `coach_sport`
@@ -572,14 +573,32 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `reply_to` varchar(12) NOT NULL,
   `content` varchar(300) NOT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'ACTIVE'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `comment`
 --
 
-INSERT INTO `comment` (`comment_id`, `post_id`, `comment_from`, `reply_to`, `content`, `status`) VALUES
-('cmt_69e2', 'P0005', 'H4J1OHSX', '', 'Hello', 'ACTIVE');
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tournament_participants`
+--
+
+DROP TABLE IF EXISTS `tournament_participants`;
+CREATE TABLE IF NOT EXISTS `tournament_participants` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `tournament_id` varchar(24) NOT NULL,
+  `user_id` varchar(12) NOT NULL,
+  `added_by` varchar(12) NOT NULL,
+  `added_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_tournament_user` (`tournament_id`, `user_id`),
+  CONSTRAINT `fk_tp_tournament` FOREIGN KEY (`tournament_id`) REFERENCES `tournament` (`tournament_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_tp_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- --------------------------------------------------------
 
@@ -597,7 +616,7 @@ CREATE TABLE IF NOT EXISTS `equipment` (
   `image_name` varchar(48) NOT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`equipment_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `equipment`
@@ -695,7 +714,7 @@ CREATE TABLE IF NOT EXISTS `equipment-requests` (
   PRIMARY KEY (`request_id`),
   KEY `equipment_id` (`equipment_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `equipment-requests`
@@ -725,7 +744,7 @@ CREATE TABLE IF NOT EXISTS `equipment_categories` (
   `category_name` varchar(64) NOT NULL,
   `description` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`category_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `equipment_categories`
@@ -758,7 +777,7 @@ CREATE TABLE IF NOT EXISTS `equipment_inventory` (
   `remarks` varchar(256) NOT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`stock_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `equipment_inventory`
@@ -941,7 +960,7 @@ CREATE TABLE IF NOT EXISTS `facility-booking` (
   `flag_date` timestamp NULL DEFAULT NULL,
   `flag_reason` varchar(300) DEFAULT NULL,
   PRIMARY KEY (`booking_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `facility-booking`
@@ -1030,7 +1049,7 @@ CREATE TABLE IF NOT EXISTS `facility_rates` (
   KEY `idx_facility_type` (`facility_type`),
   KEY `idx_facility_name` (`facility_name`),
   KEY `idx_facility_id` (`facility_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `facility_rates`
@@ -1083,7 +1102,7 @@ CREATE TABLE IF NOT EXISTS `faculty` (
   `registrar_id` varchar(12) DEFAULT NULL COMMENT 'User ID of the faculty registrar',
   `registrar_email` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`faculty_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `faculty`
@@ -1119,7 +1138,7 @@ CREATE TABLE IF NOT EXISTS `good_condemn_notes` (
   KEY `sport_id` (`sport_id`),
   KEY `equipment_id` (`equipment_id`),
   KEY `stock_id` (`stock_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `good_condemn_notes`
@@ -1172,7 +1191,7 @@ CREATE TABLE IF NOT EXISTS `good_issue_notes` (
   KEY `sport_id` (`sport_id`),
   KEY `equipment_id` (`equipment_id`),
   KEY `stock_id` (`stock_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `good_issue_notes`
@@ -1275,7 +1294,7 @@ CREATE TABLE IF NOT EXISTS `injury_report` (
   `substitude_id` varchar(12) NOT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`report_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `injury_report`
@@ -1300,7 +1319,7 @@ CREATE TABLE IF NOT EXISTS `inquiry` (
   `date` date NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'NOT-RESOLVED',
   PRIMARY KEY (`inquiry_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `inquiry`
@@ -1325,7 +1344,7 @@ CREATE TABLE IF NOT EXISTS `invitational_players` (
   `student_id` varchar(30) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`inv_player_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1343,7 +1362,7 @@ CREATE TABLE IF NOT EXISTS `lost_found` (
   `reporter_contact` varchar(15) NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'NOT-RESOLVED',
   PRIMARY KEY (`case_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1355,7 +1374,7 @@ DROP TABLE IF EXISTS `lost_found_images`;
 CREATE TABLE IF NOT EXISTS `lost_found_images` (
   `case_id` varchar(12) NOT NULL,
   `image_name` varchar(32) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1375,7 +1394,7 @@ CREATE TABLE IF NOT EXISTS `lost_item` (
   `itemStatus` varchar(20) NOT NULL DEFAULT 'unclaimed',
   `image` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`lostItem_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `lost_item`
@@ -1398,7 +1417,7 @@ CREATE TABLE IF NOT EXISTS `manager_sport` (
   `date_relieved` date DEFAULT NULL,
   PRIMARY KEY (`user_id`,`sport_id`,`date_started`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `manager_sport`
@@ -1471,7 +1490,7 @@ CREATE TABLE IF NOT EXISTS `match_board_game` (
   `notes` text,
   PRIMARY KEY (`id`),
   KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1505,7 +1524,7 @@ CREATE TABLE IF NOT EXISTS `match_combat` (
   `notes` text,
   PRIMARY KEY (`id`),
   KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `match_combat`
@@ -1550,7 +1569,7 @@ CREATE TABLE IF NOT EXISTS `match_cricket` (
   `notes` text,
   PRIMARY KEY (`id`),
   KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1570,7 +1589,7 @@ CREATE TABLE IF NOT EXISTS `match_participant` (
   PRIMARY KEY (`id`),
   KEY `match_id` (`match_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1654,7 +1673,7 @@ CREATE TABLE IF NOT EXISTS `match_racket` (
   `notes` text,
   PRIMARY KEY (`id`),
   KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1687,7 +1706,7 @@ CREATE TABLE IF NOT EXISTS `match_team_goal` (
   `notes` text,
   PRIMARY KEY (`id`),
   KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1712,7 +1731,7 @@ CREATE TABLE IF NOT EXISTS `match_timed` (
   `notes` text,
   PRIMARY KEY (`id`),
   KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1746,7 +1765,7 @@ CREATE TABLE IF NOT EXISTS `match_weight_lifting` (
   `notes` text,
   PRIMARY KEY (`id`),
   KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1770,7 +1789,7 @@ CREATE TABLE IF NOT EXISTS `message` (
   KEY `sender_id` (`sender_id`),
   KEY `recipient_id` (`recipient_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `message`
@@ -1799,7 +1818,7 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post` (
   `date_posted` date NOT NULL,
   `status` varchar(12) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`post_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `newsfeed_post`
@@ -1825,7 +1844,7 @@ CREATE TABLE IF NOT EXISTS `newsfeed_post_image` (
   `image_path` varchar(255) NOT NULL,
   PRIMARY KEY (`image_id`),
   KEY `post_id` (`post_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `newsfeed_post_image`
@@ -1876,7 +1895,7 @@ CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`,`token`),
   KEY `fk_pwd_reset_user` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `password_reset_tokens`
@@ -1901,7 +1920,7 @@ CREATE TABLE IF NOT EXISTS `payment` (
   `payment_method` varchar(24) NOT NULL,
   `payment_status` varchar(12) NOT NULL DEFAULT 'DONE',
   PRIMARY KEY (`payment_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -1915,7 +1934,7 @@ CREATE TABLE IF NOT EXISTS `physical_facility` (
   `facility_name` varchar(255) NOT NULL,
   `location` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`facility_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `physical_facility`
@@ -2020,7 +2039,7 @@ CREATE TABLE IF NOT EXISTS `remember_tokens` (
   `expires_at` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `remember_tokens`
@@ -2040,7 +2059,7 @@ CREATE TABLE IF NOT EXISTS `saved_emails` (
   `email` varchar(64) NOT NULL,
   `recepient_name` varchar(64) NOT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'ACTIVE'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `saved_emails`
@@ -2066,7 +2085,7 @@ CREATE TABLE IF NOT EXISTS `sport` (
   `faculty_id` varchar(4) DEFAULT NULL COMMENT 'Faculty that manages this sport',
   PRIMARY KEY (`sport_id`),
   KEY `faculty_id` (`faculty_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `sport`
@@ -2180,7 +2199,7 @@ CREATE TABLE IF NOT EXISTS `sports-team` (
   `in_team` varchar(7) NOT NULL DEFAULT 'NO',
   `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`sport_id`,`student_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `sports-team`
@@ -2274,13 +2293,13 @@ INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`, `in_team`, `
 DROP TABLE IF EXISTS `sport_expenses`;
 CREATE TABLE IF NOT EXISTS `sport_expenses` (
   `expense_id` int NOT NULL AUTO_INCREMENT,
-  `sport` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `expense_title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sport` varchar(100) NOT NULL,
+  `expense_title` varchar(255) NOT NULL,
   `sport_event` varchar(255) DEFAULT NULL,
   `amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `receipt` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `submitted_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `receipt` varchar(255) DEFAULT NULL,
+  `submitted_by` varchar(100) NOT NULL,
+  `notes` text,
   `expense_date` datetime NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -2392,7 +2411,7 @@ CREATE TABLE IF NOT EXISTS `student_id_cards` (
   `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `student_id` (`student_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -2410,7 +2429,7 @@ CREATE TABLE IF NOT EXISTS `suppliers` (
   `email` varchar(128) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`supplier_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `suppliers`
@@ -2514,7 +2533,7 @@ CREATE TABLE IF NOT EXISTS `tournament` (
   `match_level` enum('UNIVERSITY','NATIONAL','INTERNATIONAL') NOT NULL DEFAULT 'UNIVERSITY',
   PRIMARY KEY (`tournament_id`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tournament`
@@ -2598,7 +2617,7 @@ CREATE TABLE IF NOT EXISTS `tournament_awards` (
   KEY `idx_tournament` (`tournament_id`),
   KEY `idx_user` (`user_id`),
   KEY `idx_sport` (`sport_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -2628,7 +2647,7 @@ CREATE TABLE IF NOT EXISTS `tournament_match` (
   KEY `sport_category` (`sport_category`),
   KEY `winner_id` (`winner_id`),
   KEY `winner_invitational_id` (`winner_invitational_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tournament_match`
@@ -2714,7 +2733,7 @@ CREATE TABLE IF NOT EXISTS `tournament_result` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`result_id`),
   KEY `match_id` (`match_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -2733,7 +2752,7 @@ CREATE TABLE IF NOT EXISTS `transaction` (
   `remarks` varchar(256) NOT NULL,
   `change_reason` varchar(256) NOT NULL,
   PRIMARY KEY (`transaction_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -2759,9 +2778,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   `faculty_id` varchar(4) DEFAULT NULL,
   `status` varchar(6) NOT NULL DEFAULT 'ACTIVE',
   PRIMARY KEY (`user_id`),
-  UNIQUE KEY `Email` (`email`),
-  UNIQUE KEY `student_id` (`student_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `Email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `user`
@@ -2902,7 +2920,7 @@ CREATE TABLE IF NOT EXISTS `user_points` (
   `user_id` varchar(12) NOT NULL,
   `user_points` int DEFAULT '0',
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `user_points`
@@ -2939,7 +2957,7 @@ CREATE TABLE IF NOT EXISTS `verification_requests` (
   PRIMARY KEY (`request_id`),
   KEY `requested_by` (`requested_by`),
   KEY `sport_id` (`sport_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -2959,7 +2977,7 @@ CREATE TABLE IF NOT EXISTS `verification_request_students` (
   PRIMARY KEY (`request_id`,`student_id`),
   KEY `faculty_id` (`faculty_id`),
   KEY `verification_status` (`verification_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Constraints for dumped tables
@@ -2988,3 +3006,375 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-- --------------------------------------------------------
+-- SYSTEM AUDIT TABLES AND TRIGGERS
+-- --------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `system_audit` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `table_name` VARCHAR(100) NOT NULL,
+  `record_id` VARCHAR(100) NOT NULL,
+  `action` ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
+  `changed_by` VARCHAR(50) DEFAULT NULL,
+  `changed_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `system_audit_detail` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `audit_id` INT NOT NULL,
+  `column_name` VARCHAR(100) NOT NULL,
+  `old_value` TEXT NULL,
+  `new_value` TEXT NULL,
+  CONSTRAINT `fk_audit_id` FOREIGN KEY (`audit_id`) REFERENCES `system_audit` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Drop existing triggers
+DROP TRIGGER IF EXISTS trg_facility_booking_insert;
+DROP TRIGGER IF EXISTS trg_facility_booking_update;
+DROP TRIGGER IF EXISTS trg_facility_booking_delete;
+DROP TRIGGER IF EXISTS trg_user_insert;
+DROP TRIGGER IF EXISTS trg_user_update;
+DROP TRIGGER IF EXISTS trg_user_delete;
+
+DELIMITER $$
+
+
+-- Trigger for AFTER INSERT (facility_booking)
+CREATE TRIGGER trg_facility_booking_insert
+AFTER INSERT ON `facility-booking`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('facility-booking', NEW.booking_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'user_id', NULL, NEW.user_id),
+    (v_audit_id, 'facility_id', NULL, NEW.facility_id),
+    (v_audit_id, 'date', NULL, NEW.date),
+    (v_audit_id, 'slot', NULL, NEW.slot),
+    (v_audit_id, 'purpose', NULL, NEW.purpose),
+    (v_audit_id, 'status', NULL, NEW.status),
+    (v_audit_id, 'payment_status', NULL, NEW.payment_status);
+END $$
+
+-- Trigger for AFTER UPDATE (facility_booking)
+CREATE TRIGGER trg_facility_booking_update
+AFTER UPDATE ON `facility-booking`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.user_id <=> OLD.user_id AND NEW.facility_id <=> OLD.facility_id AND NEW.date <=> OLD.date AND NEW.slot <=> OLD.slot AND NEW.purpose <=> OLD.purpose AND NEW.status <=> OLD.status AND NEW.payment_status <=> OLD.payment_status AND NEW.rejection_reason <=> OLD.rejection_reason AND NEW.flag_status <=> OLD.flag_status) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('facility-booking', NEW.booking_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        IF NOT (NEW.status <=> OLD.status) THEN
+            INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status);
+        END IF;
+    END IF;
+END $$
+
+-- Trigger for AFTER DELETE (facility_booking)
+CREATE TRIGGER trg_facility_booking_delete
+AFTER DELETE ON `facility-booking`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('facility-booking', OLD.booking_id, 'DELETE', @current_user_id);
+END $$
+
+-- -------------------------------------------------------------------------
+-- USER TABLE TRIGGERS
+-- -------------------------------------------------------------------------
+
+CREATE TRIGGER trg_user_insert
+AFTER INSERT ON `user`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('user', NEW.user_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'fname', NULL, NEW.fname),
+    (v_audit_id, 'lname', NULL, NEW.lname),
+    (v_audit_id, 'type', NULL, NEW.type),
+    (v_audit_id, 'email', NULL, NEW.email);
+END $$
+
+CREATE TRIGGER trg_user_update
+AFTER UPDATE ON `user`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.fname <=> OLD.fname AND NEW.lname <=> OLD.lname AND NEW.type <=> OLD.type AND NEW.email <=> OLD.email AND NEW.last_login_at <=> OLD.last_login_at AND NEW.status <=> OLD.status) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('user', NEW.user_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        
+        IF NOT (NEW.fname <=> OLD.fname) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'fname', OLD.fname, NEW.fname); END IF;
+        IF NOT (NEW.lname <=> OLD.lname) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'lname', OLD.lname, NEW.lname); END IF;
+        IF NOT (NEW.type <=> OLD.type) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'type', OLD.type, NEW.type); END IF;
+        IF NOT (NEW.email <=> OLD.email) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'email', OLD.email, NEW.email); END IF;
+        IF NOT (NEW.last_login_at <=> OLD.last_login_at) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'last_login_at', OLD.last_login_at, NEW.last_login_at); END IF;
+        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
+    END IF;
+END $$
+
+CREATE TRIGGER trg_user_delete
+AFTER DELETE ON `user`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('user', OLD.user_id, 'DELETE', @current_user_id);
+END $$
+
+-- -------------------------------------------------------------------------
+-- BUDGET TABLE TRIGGERS
+-- -------------------------------------------------------------------------
+
+DROP TRIGGER IF EXISTS trg_budget_insert;
+DROP TRIGGER IF EXISTS trg_budget_update;
+DROP TRIGGER IF EXISTS trg_budget_delete;
+
+DELIMITER $$
+CREATE TRIGGER trg_budget_insert
+AFTER INSERT ON `budget`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('budget', NEW.budget_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'budget_id', NULL, NEW.budget_id),
+    (v_audit_id, 'sport_id', NULL, NEW.sport_id),
+    (v_audit_id, 'year', NULL, NEW.year),
+    (v_audit_id, 'allocated_amount', NULL, NEW.allocated_amount),
+    (v_audit_id, 'spent_amount', NULL, NEW.spent_amount),
+    (v_audit_id, 'allocation_date', NULL, NEW.allocation_date),
+    (v_audit_id, 'description', NULL, NEW.description);
+END $$
+
+CREATE TRIGGER trg_budget_update
+AFTER UPDATE ON `budget`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.budget_id <=> OLD.budget_id AND NEW.sport_id <=> OLD.sport_id AND NEW.year <=> OLD.year AND NEW.allocated_amount <=> OLD.allocated_amount AND NEW.spent_amount <=> OLD.spent_amount AND NEW.allocation_date <=> OLD.allocation_date AND NEW.description <=> OLD.description) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('budget', NEW.budget_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        IF NOT (NEW.budget_id <=> OLD.budget_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'budget_id', OLD.budget_id, NEW.budget_id); END IF;
+        IF NOT (NEW.sport_id <=> OLD.sport_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_id', OLD.sport_id, NEW.sport_id); END IF;
+        IF NOT (NEW.year <=> OLD.year) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'year', OLD.year, NEW.year); END IF;
+        IF NOT (NEW.allocated_amount <=> OLD.allocated_amount) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'allocated_amount', OLD.allocated_amount, NEW.allocated_amount); END IF;
+        IF NOT (NEW.spent_amount <=> OLD.spent_amount) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'spent_amount', OLD.spent_amount, NEW.spent_amount); END IF;
+        IF NOT (NEW.allocation_date <=> OLD.allocation_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'allocation_date', OLD.allocation_date, NEW.allocation_date); END IF;
+        IF NOT (NEW.description <=> OLD.description) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'description', OLD.description, NEW.description); END IF;
+    END IF;
+END $$
+
+CREATE TRIGGER trg_budget_delete
+AFTER DELETE ON `budget`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('budget', OLD.budget_id, 'DELETE', @current_user_id);
+END $$
+
+-- -------------------------------------------------------------------------
+-- SPORT_EXPENSES TABLE TRIGGERS
+-- -------------------------------------------------------------------------
+
+DROP TRIGGER IF EXISTS trg_sport_expenses_insert;
+DROP TRIGGER IF EXISTS trg_sport_expenses_update;
+DROP TRIGGER IF EXISTS trg_sport_expenses_delete;
+
+DELIMITER $$
+CREATE TRIGGER trg_sport_expenses_insert
+AFTER INSERT ON `sport_expenses`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('sport_expenses', NEW.expense_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'expense_id', NULL, NEW.expense_id),
+    (v_audit_id, 'sport', NULL, NEW.sport),
+    (v_audit_id, 'expense_title', NULL, NEW.expense_title),
+    (v_audit_id, 'sport_event', NULL, NEW.sport_event),
+    (v_audit_id, 'amount', NULL, NEW.amount),
+    (v_audit_id, 'receipt', NULL, NEW.receipt),
+    (v_audit_id, 'submitted_by', NULL, NEW.submitted_by),
+    (v_audit_id, 'notes', NULL, NEW.notes),
+    (v_audit_id, 'expense_date', NULL, NEW.expense_date),
+    (v_audit_id, 'created_at', NULL, NEW.created_at),
+    (v_audit_id, 'updated_at', NULL, NEW.updated_at),
+    (v_audit_id, 'status', NULL, NEW.status);
+END $$
+
+CREATE TRIGGER trg_sport_expenses_update
+AFTER UPDATE ON `sport_expenses`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.expense_id <=> OLD.expense_id AND NEW.sport <=> OLD.sport AND NEW.expense_title <=> OLD.expense_title AND NEW.sport_event <=> OLD.sport_event AND NEW.amount <=> OLD.amount AND NEW.receipt <=> OLD.receipt AND NEW.submitted_by <=> OLD.submitted_by AND NEW.notes <=> OLD.notes AND NEW.expense_date <=> OLD.expense_date AND NEW.created_at <=> OLD.created_at AND NEW.updated_at <=> OLD.updated_at AND NEW.status <=> OLD.status) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('sport_expenses', NEW.expense_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        IF NOT (NEW.expense_id <=> OLD.expense_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'expense_id', OLD.expense_id, NEW.expense_id); END IF;
+        IF NOT (NEW.sport <=> OLD.sport) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport', OLD.sport, NEW.sport); END IF;
+        IF NOT (NEW.expense_title <=> OLD.expense_title) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'expense_title', OLD.expense_title, NEW.expense_title); END IF;
+        IF NOT (NEW.sport_event <=> OLD.sport_event) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_event', OLD.sport_event, NEW.sport_event); END IF;
+        IF NOT (NEW.amount <=> OLD.amount) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'amount', OLD.amount, NEW.amount); END IF;
+        IF NOT (NEW.receipt <=> OLD.receipt) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'receipt', OLD.receipt, NEW.receipt); END IF;
+        IF NOT (NEW.submitted_by <=> OLD.submitted_by) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'submitted_by', OLD.submitted_by, NEW.submitted_by); END IF;
+        IF NOT (NEW.notes <=> OLD.notes) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'notes', OLD.notes, NEW.notes); END IF;
+        IF NOT (NEW.expense_date <=> OLD.expense_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'expense_date', OLD.expense_date, NEW.expense_date); END IF;
+        IF NOT (NEW.created_at <=> OLD.created_at) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'created_at', OLD.created_at, NEW.created_at); END IF;
+        IF NOT (NEW.updated_at <=> OLD.updated_at) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'updated_at', OLD.updated_at, NEW.updated_at); END IF;
+        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
+    END IF;
+END $$
+
+CREATE TRIGGER trg_sport_expenses_delete
+AFTER DELETE ON `sport_expenses`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('sport_expenses', OLD.expense_id, 'DELETE', @current_user_id);
+END $$
+
+-- -------------------------------------------------------------------------
+-- EQUIPMENT_INVENTORY TABLE TRIGGERS
+-- -------------------------------------------------------------------------
+
+DROP TRIGGER IF EXISTS trg_equipment_inventory_insert;
+DROP TRIGGER IF EXISTS trg_equipment_inventory_update;
+DROP TRIGGER IF EXISTS trg_equipment_inventory_delete;
+
+DELIMITER $$
+CREATE TRIGGER trg_equipment_inventory_insert
+AFTER INSERT ON `equipment_inventory`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('equipment_inventory', NEW.stock_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'stock_id', NULL, NEW.stock_id),
+    (v_audit_id, 'equipment_id', NULL, NEW.equipment_id),
+    (v_audit_id, 'sport_id', NULL, NEW.sport_id),
+    (v_audit_id, 'quantity', NULL, NEW.quantity),
+    (v_audit_id, 'usable', NULL, NEW.usable),
+    (v_audit_id, 'added_date', NULL, NEW.added_date),
+    (v_audit_id, 'remarks', NULL, NEW.remarks),
+    (v_audit_id, 'status', NULL, NEW.status);
+END $$
+
+CREATE TRIGGER trg_equipment_inventory_update
+AFTER UPDATE ON `equipment_inventory`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.stock_id <=> OLD.stock_id AND NEW.equipment_id <=> OLD.equipment_id AND NEW.sport_id <=> OLD.sport_id AND NEW.quantity <=> OLD.quantity AND NEW.usable <=> OLD.usable AND NEW.added_date <=> OLD.added_date AND NEW.remarks <=> OLD.remarks AND NEW.status <=> OLD.status) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('equipment_inventory', NEW.stock_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        IF NOT (NEW.stock_id <=> OLD.stock_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'stock_id', OLD.stock_id, NEW.stock_id); END IF;
+        IF NOT (NEW.equipment_id <=> OLD.equipment_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'equipment_id', OLD.equipment_id, NEW.equipment_id); END IF;
+        IF NOT (NEW.sport_id <=> OLD.sport_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_id', OLD.sport_id, NEW.sport_id); END IF;
+        IF NOT (NEW.quantity <=> OLD.quantity) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'quantity', OLD.quantity, NEW.quantity); END IF;
+        IF NOT (NEW.usable <=> OLD.usable) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'usable', OLD.usable, NEW.usable); END IF;
+        IF NOT (NEW.added_date <=> OLD.added_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'added_date', OLD.added_date, NEW.added_date); END IF;
+        IF NOT (NEW.remarks <=> OLD.remarks) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'remarks', OLD.remarks, NEW.remarks); END IF;
+        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
+    END IF;
+END $$
+
+CREATE TRIGGER trg_equipment_inventory_delete
+AFTER DELETE ON `equipment_inventory`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('equipment_inventory', OLD.stock_id, 'DELETE', @current_user_id);
+END $$
+
+-- -------------------------------------------------------------------------
+-- TOURNAMENT TABLE TRIGGERS
+-- -------------------------------------------------------------------------
+
+DROP TRIGGER IF EXISTS trg_tournament_insert;
+DROP TRIGGER IF EXISTS trg_tournament_update;
+DROP TRIGGER IF EXISTS trg_tournament_delete;
+
+DELIMITER $$
+CREATE TRIGGER trg_tournament_insert
+AFTER INSERT ON `tournament`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('tournament', NEW.tournament_id, 'INSERT', @current_user_id);
+    SET v_audit_id = LAST_INSERT_ID();
+    INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES 
+    (v_audit_id, 'tournament_id', NULL, NEW.tournament_id),
+    (v_audit_id, 'tournament_name', NULL, NEW.tournament_name),
+    (v_audit_id, 'sport_id', NULL, NEW.sport_id),
+    (v_audit_id, 'start_date', NULL, NEW.start_date),
+    (v_audit_id, 'end_date', NULL, NEW.end_date),
+    (v_audit_id, 'status', NULL, NEW.status);
+END $$
+
+CREATE TRIGGER trg_tournament_update
+AFTER UPDATE ON `tournament`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    IF NOT (NEW.tournament_id <=> OLD.tournament_id AND NEW.tournament_name <=> OLD.tournament_name AND NEW.sport_id <=> OLD.sport_id AND NEW.start_date <=> OLD.start_date AND NEW.end_date <=> OLD.end_date AND NEW.status <=> OLD.status) THEN
+        INSERT INTO system_audit (table_name, record_id, action, changed_by)
+        VALUES ('tournament', NEW.tournament_id, 'UPDATE', @current_user_id);
+        SET v_audit_id = LAST_INSERT_ID();
+        IF NOT (NEW.tournament_id <=> OLD.tournament_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'tournament_id', OLD.tournament_id, NEW.tournament_id); END IF;
+        IF NOT (NEW.tournament_name <=> OLD.tournament_name) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'tournament_name', OLD.tournament_name, NEW.tournament_name); END IF;
+        IF NOT (NEW.sport_id <=> OLD.sport_id) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'sport_id', OLD.sport_id, NEW.sport_id); END IF;
+        IF NOT (NEW.start_date <=> OLD.start_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'start_date', OLD.start_date, NEW.start_date); END IF;
+        IF NOT (NEW.end_date <=> OLD.end_date) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'end_date', OLD.end_date, NEW.end_date); END IF;
+        IF NOT (NEW.status <=> OLD.status) THEN INSERT INTO system_audit_detail (audit_id, column_name, old_value, new_value) VALUES (v_audit_id, 'status', OLD.status, NEW.status); END IF;
+    END IF;
+END $$
+
+CREATE TRIGGER trg_tournament_delete
+AFTER DELETE ON `tournament`
+FOR EACH ROW
+BEGIN
+    DECLARE v_audit_id INT;
+    INSERT INTO system_audit (table_name, record_id, action, changed_by)
+    VALUES ('tournament', OLD.tournament_id, 'DELETE', @current_user_id);
+END $$
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_reset_tokens`
+--
+
+DROP TABLE IF EXISTS `password_reset_tokens`;
+CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
+  `user_id` varchar(12) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`, `token`),
+  KEY `fk_pwd_reset_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

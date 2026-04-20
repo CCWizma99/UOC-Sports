@@ -18,15 +18,15 @@
                 <a href="/uoc-sports/public/">Home</a>
                 <a href="/uoc-sports/public/news">News &amp; Events</a>
                 <a href="/uoc-sports/public/facility-reservation">Facility Booking</a>
-                <a href="/uoc-sports/public/">Training Programs</a>
+
             </div>
 
             <div class="footer-section">
                 <h4>Resources</h4>
                 <a href="/uoc-sports/public/student">Student Portal</a>
-                <a href="/uoc-sports/public/">Coaching Staff</a>
+
                 <a href="/uoc-sports/public/facility-reservation">Facilities</a>
-                <a href="/uoc-sports/public/results">Championships</a>
+
             </div>
 
             <div class="footer-section">
