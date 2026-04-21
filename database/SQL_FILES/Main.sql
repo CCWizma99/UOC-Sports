@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Apr 20, 2026 at 11:47 PM
+-- Generation Time: Apr 21, 2026 at 02:57 AM
 -- Server version: 8.0.31
 -- PHP Version: 8.0.26
 
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `achievement` (
   KEY `fk_achievement_user` (`user_id`),
   KEY `fk_achievement_tournament` (`tournament_id`),
   KEY `fk_achievement_match` (`match_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `achievement`
@@ -64,13 +64,23 @@ INSERT INTO `achievement` (`achievement_id`, `user_id`, `sport_id`, `tournament_
 (14, 'STU_VW_017', 'VOL', 'TOUR_69d739fdd3a3b', 'MAT_NAT_002', 'Match Winner', 2, 'ACTIVE'),
 (15, 'STU_VW_018', 'VOL', 'TOUR_69d739fdd3a3b', 'MAT_NAT_002', 'Match Winner', 2, 'ACTIVE'),
 (16, 'STU_VW_007', 'VOL', 'TOUR_69d739fdd3a3b', 'MAT_NAT_002', 'Match Winner', 2, 'ACTIVE'),
-(17, 'STU_VW_002', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f30468e1a6.49793767', 'Match Winner', 2, 'ACTIVE'),
-(18, 'L3NCL2J4', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f30468e1a6.49793767', 'Match Winner', 2, 'ACTIVE'),
-(19, 'STU_VW_005', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f30468e1a6.49793767', 'Match Winner', 2, 'ACTIVE'),
-(20, 'STU_VW_007', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f30468e1a6.49793767', 'Match Winner', 2, 'ACTIVE'),
-(21, 'STU_VW_009', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f30468e1a6.49793767', 'Match Winner', 2, 'ACTIVE'),
-(22, '5Q1XZO2Y', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f30468e1a6.49793767', 'Match Winner', 2, 'ACTIVE'),
-(23, 'STU_VW_011', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f30468e1a6.49793767', 'Match Winner', 2, 'ACTIVE');
+(17, 'STU_VW_002', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f3', 'Match Winner', 2, 'ACTIVE'),
+(18, 'L3NCL2J4', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f3', 'Match Winner', 2, 'ACTIVE'),
+(19, 'STU_VW_005', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f3', 'Match Winner', 2, 'ACTIVE'),
+(20, 'STU_VW_007', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f3', 'Match Winner', 2, 'ACTIVE'),
+(21, 'STU_VW_009', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f3', 'Match Winner', 2, 'ACTIVE'),
+(22, '5Q1XZO2Y', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f3', 'Match Winner', 2, 'ACTIVE'),
+(23, 'STU_VW_011', 'VOL', 'TOUR_69d739fdd3a3b', 'match_69e5f3', 'Match Winner', 2, 'ACTIVE'),
+(51, 'STU_VW_002', 'VOL', 'TOUR_69ccde3bc3ae2', 'match_69e6e6', 'Match Winner', 2, 'ACTIVE'),
+(52, 'STU_VW_005', 'VOL', 'TOUR_69ccde3bc3ae2', 'match_69e6e6', 'Match Winner', 2, 'ACTIVE'),
+(53, 'STU_VW_007', 'VOL', 'TOUR_69ccde3bc3ae2', 'match_69e6e6', 'Match Winner', 2, 'ACTIVE'),
+(54, 'STU_VW_009', 'VOL', 'TOUR_69ccde3bc3ae2', 'match_69e6e6', 'Match Winner', 2, 'ACTIVE'),
+(55, '5Q1XZO2Y', 'VOL', 'TOUR_69ccde3bc3ae2', 'match_69e6e6', 'Match Winner', 2, 'ACTIVE'),
+(56, 'STU_VW_011', 'VOL', 'TOUR_69ccde3bc3ae2', 'match_69e6e6', 'Match Winner', 2, 'ACTIVE'),
+(57, 'STU_VW_012', 'VOL', 'TOUR_69ccde3bc3ae2', 'match_69e6e6', 'Match Winner', 2, 'ACTIVE'),
+(58, 'STU_VW_013', 'VOL', 'TOUR_69ccde3bc3ae2', 'match_69e6e6', 'Match Winner', 2, 'ACTIVE'),
+(59, 'STU_VW_017', 'VOL', 'TOUR_69ccde3bc3ae2', 'match_69e6e6', 'Match Winner', 2, 'ACTIVE'),
+(60, 'STU005', 'VOL', 'TOUR_69ccde3bc3ae2', 'match_69e6e6', 'Match Winner', 2, 'ACTIVE');
 
 --
 -- Triggers `achievement`
@@ -1417,7 +1427,7 @@ CREATE TABLE IF NOT EXISTS `match_ball_court` (
   `notes` text,
   PRIMARY KEY (`id`),
   KEY `idx_match` (`match_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `match_ball_court`
@@ -1429,7 +1439,8 @@ INSERT INTO `match_ball_court` (`id`, `match_id`, `team_a_name`, `team_b_name`, 
 (3, 'match_69e43fd06239e9.14842488', 'University of Colombo', 'University of Sri Jayawardhanapura', 'VOLLEYBALL', '[{\"a\": 25, \"b\": 22}, {\"a\": 21, \"b\": 25}, {\"a\": 23, \"b\": 24}]', 1, 1, 0, 1, 2, NULL, 'USJP won the '),
 (4, 'match_69e44489860104.22699606', 'University of Colombo', 'University of Sri Jayawardhanapura', 'VOLLEYBALL', '[{\"a\": 22, \"b\": 25}, {\"a\": 25, \"b\": 21}, {\"a\": 21, \"b\": 25}]', 1, 2, 0, 1, 2, NULL, 'USJP won the finale!'),
 (5, 'match_69e5bd612c3917.15854926', 'University of Colombo', 'University of Kelaniya', 'VOLLEYBALL', '[{\"a\": 25, \"b\": 23}, {\"a\": 25, \"b\": 20}]', 2, 0, 0, 2, 0, NULL, ''),
-(6, 'match_69e5f30468e1a6.49793767', 'University of Colombo', 'UOK', 'VOLLEYBALL', '[{\"a\": 25, \"b\": 23}, {\"a\": 25, \"b\": 24}]', 2, 0, 0, 2, 0, NULL, '');
+(6, 'match_69e5f30468e1a6.49793767', 'University of Colombo', 'UOK', 'VOLLEYBALL', '[{\"a\": 25, \"b\": 23}, {\"a\": 25, \"b\": 24}]', 2, 0, 0, 2, 0, NULL, ''),
+(7, 'match_69e6e668bbb770.09744703', 'University of Colombo', 'UOK', 'VOLLEYBALL', '[{\"a\": 25, \"b\": 23}, {\"a\": 25, \"b\": 22}]', 2, 0, 0, 2, 0, NULL, '-');
 
 -- --------------------------------------------------------
 
@@ -1578,7 +1589,7 @@ CREATE TABLE IF NOT EXISTS `match_players` (
   PRIMARY KEY (`id`),
   KEY `idx_match` (`match_id`),
   KEY `idx_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `match_players`
@@ -1617,7 +1628,17 @@ INSERT INTO `match_players` (`id`, `match_id`, `user_id`, `player_name`, `extern
 (30, 'match_69e5f30468e1a6.49793767', 'STU_VW_011', 'Kamal Amarasinghe', NULL, 'A', 1, '2026-04-20 09:33:56'),
 (31, 'match_69e5f30468e1a6.49793767', 'STU_VW_012', 'Lakshan Gamage', NULL, 'A', 1, '2026-04-20 09:33:56'),
 (32, 'match_69e5f30468e1a6.49793767', 'STU_VW_017', 'Quinton De Silva', NULL, 'A', 1, '2026-04-20 09:33:56'),
-(33, 'match_69e5f30468e1a6.49793767', 'STU_VW_018', 'Ruwan Abeyrathne', NULL, 'A', 1, '2026-04-20 09:33:56');
+(33, 'match_69e5f30468e1a6.49793767', 'STU_VW_018', 'Ruwan Abeyrathne', NULL, 'A', 1, '2026-04-20 09:33:56'),
+(34, 'match_69e6e668bbb770.09744703', 'STU_VW_002', 'Bandara Fernando', NULL, 'A', 1, '2026-04-21 02:52:24'),
+(35, 'match_69e6e668bbb770.09744703', 'STU_VW_005', 'Eshan Dissanayake', NULL, 'A', 1, '2026-04-21 02:52:24'),
+(36, 'match_69e6e668bbb770.09744703', 'STU_VW_007', 'Gayan Gunawardena', NULL, 'A', 1, '2026-04-21 02:52:24'),
+(37, 'match_69e6e668bbb770.09744703', 'STU_VW_009', 'Isuru Ekanayake', NULL, 'A', 1, '2026-04-21 02:52:24'),
+(38, 'match_69e6e668bbb770.09744703', '5Q1XZO2Y', 'Jansika Balakrishnan', NULL, 'A', 1, '2026-04-21 02:52:24'),
+(39, 'match_69e6e668bbb770.09744703', 'STU_VW_011', 'Kamal Amarasinghe', NULL, 'A', 1, '2026-04-21 02:52:24'),
+(40, 'match_69e6e668bbb770.09744703', 'STU_VW_012', 'Lakshan Gamage', NULL, 'A', 1, '2026-04-21 02:52:24'),
+(41, 'match_69e6e668bbb770.09744703', 'STU_VW_013', 'Mahesh Hettiarachchi', NULL, 'A', 1, '2026-04-21 02:52:24'),
+(42, 'match_69e6e668bbb770.09744703', 'STU_VW_017', 'Quinton De Silva', NULL, 'A', 1, '2026-04-21 02:52:24'),
+(43, 'match_69e6e668bbb770.09744703', 'STU005', 'Tharindu Wickramasinghe', NULL, 'A', 1, '2026-04-21 02:52:24');
 
 -- --------------------------------------------------------
 
@@ -1842,14 +1863,14 @@ CREATE TABLE IF NOT EXISTS `parallel_checker` (
   `selected_slot` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `session_id` (`session_id`,`facility_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=959 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1291 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `parallel_checker`
 --
 
 INSERT INTO `parallel_checker` (`id`, `session_id`, `facility_id`, `last_heartbeat`, `selected_date`, `selected_slot`) VALUES
-(806, 'f62qj1vb13h5hjvjkh725nsqs4', 8, '2026-04-20 10:03:22', '2026-04-23', NULL);
+(1077, 'gu1ogq20dr6so233rptqibomrt', 8, '2026-04-21 02:57:56', '2026-04-28', NULL);
 
 -- --------------------------------------------------------
 
@@ -2212,22 +2233,22 @@ INSERT INTO `sports-team` (`sport_id`, `student_id`, `joined_date`, `in_team`, `
 ('VOL', '5Q1XZO2Y', '2025-10-25', 'NO', 'ACTIVE'),
 ('VOL', 'L3NCL2J4', '2025-12-09', 'NO', 'ACTIVE'),
 ('VOL', 'STU_VW_001', '2026-04-18', 'NO', 'ACTIVE'),
-('VOL', 'STU_VW_002', '2026-04-18', 'NO', 'ACTIVE'),
+('VOL', 'STU_VW_002', '2026-04-21', 'YES', 'ACTIVE'),
 ('VOL', 'STU_VW_003', '2026-04-18', 'NO', 'ACTIVE'),
 ('VOL', 'STU_VW_004', '2026-04-18', 'NO', 'ACTIVE'),
-('VOL', 'STU_VW_005', '2026-04-18', 'NO', 'ACTIVE'),
+('VOL', 'STU_VW_005', '2026-04-21', 'YES', 'ACTIVE'),
 ('VOL', 'STU_VW_006', '2026-04-18', 'NO', 'ACTIVE'),
-('VOL', 'STU_VW_007', '2026-04-18', 'NO', 'ACTIVE'),
+('VOL', 'STU_VW_007', '2026-04-21', 'YES', 'ACTIVE'),
 ('VOL', 'STU_VW_008', '2026-04-18', 'NO', 'ACTIVE'),
-('VOL', 'STU_VW_009', '2026-04-18', 'NO', 'ACTIVE'),
+('VOL', 'STU_VW_009', '2026-04-21', 'YES', 'ACTIVE'),
 ('VOL', 'STU_VW_010', '2026-04-18', 'NO', 'ACTIVE'),
-('VOL', 'STU_VW_011', '2026-04-18', 'NO', 'ACTIVE'),
-('VOL', 'STU_VW_012', '2026-04-18', 'NO', 'ACTIVE'),
-('VOL', 'STU_VW_013', '2026-04-18', 'NO', 'ACTIVE'),
+('VOL', 'STU_VW_011', '2026-04-21', 'YES', 'ACTIVE'),
+('VOL', 'STU_VW_012', '2026-04-21', 'YES', 'ACTIVE'),
+('VOL', 'STU_VW_013', '2026-04-21', 'YES', 'ACTIVE'),
 ('VOL', 'STU_VW_014', '2026-04-18', 'NO', 'ACTIVE'),
 ('VOL', 'STU_VW_015', '2026-04-18', 'NO', 'ACTIVE'),
 ('VOL', 'STU_VW_016', '2026-04-18', 'NO', 'ACTIVE'),
-('VOL', 'STU_VW_017', '2026-04-18', 'NO', 'ACTIVE'),
+('VOL', 'STU_VW_017', '2026-04-21', 'YES', 'ACTIVE'),
 ('VOL', 'STU_VW_018', '2026-04-18', 'NO', 'ACTIVE'),
 ('VOL', 'STU_VW_019', '2026-04-18', 'NO', 'ACTIVE'),
 ('VOL', 'STU_VW_020', '2026-04-18', 'NO', 'ACTIVE'),
@@ -2384,7 +2405,7 @@ CREATE TABLE IF NOT EXISTS `student_email_verifications` (
 
 INSERT INTO `student_email_verifications` (`email`, `otp_code`, `expires_at`, `is_verified`) VALUES
 ('2023is032@stu.ucsc.cmb.ac.lk', '741937', '2026-04-20 11:08:37', 0),
-('2023is034@stu.ucsc.cmb.ac.lk', '979324', '2026-04-20 11:16:07', 0);
+('2023is034@stu.ucsc.cmb.ac.lk', '462615', '2026-04-21 02:44:08', 1);
 
 -- --------------------------------------------------------
 
@@ -2449,7 +2470,7 @@ CREATE TABLE IF NOT EXISTS `system_audit` (
   `changed_by` varchar(50) DEFAULT NULL,
   `changed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `system_audit`
@@ -2471,7 +2492,9 @@ INSERT INTO `system_audit` (`id`, `table_name`, `record_id`, `action`, `changed_
 (13, 'user', 'H4J1OHSX', 'UPDATE', 'usr_69e6761d', '2026-04-20 23:11:36'),
 (14, 'user', 'SPT004', 'UPDATE', 'SYSTEM', '2026-04-20 23:18:08'),
 (15, 'user', '5Q1XZO2Y', 'UPDATE', 'SYSTEM', '2026-04-20 23:18:37'),
-(16, 'user', 'NPM8O9RE', 'UPDATE', 'SYSTEM', '2026-04-20 23:23:56');
+(16, 'user', 'NPM8O9RE', 'UPDATE', 'SYSTEM', '2026-04-20 23:23:56'),
+(17, 'user', 'MNVGYIMX', 'INSERT', 'SYSTEM', '2026-04-21 02:27:26'),
+(18, 'user', 'MNVGYIMX', 'UPDATE', 'SYSTEM', '2026-04-21 02:27:40');
 
 -- --------------------------------------------------------
 
@@ -2488,7 +2511,7 @@ CREATE TABLE IF NOT EXISTS `system_audit_detail` (
   `new_value` text,
   PRIMARY KEY (`id`),
   KEY `fk_audit_id` (`audit_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `system_audit_detail`
@@ -2530,7 +2553,12 @@ INSERT INTO `system_audit_detail` (`id`, `audit_id`, `column_name`, `old_value`,
 (33, 13, 'last_login_at', '2026-04-20 23:27:15', '2026-04-21 04:41:36'),
 (34, 14, 'last_login_at', '2026-04-20 23:25:13', '2026-04-21 04:48:08'),
 (35, 15, 'last_login_at', '2026-04-20 23:21:32', '2026-04-21 04:48:37'),
-(36, 16, 'last_login_at', '2026-04-20 15:14:33', '2026-04-21 04:53:56');
+(36, 16, 'last_login_at', '2026-04-20 15:14:33', '2026-04-21 04:53:56'),
+(37, 17, 'fname', NULL, 'Gayan'),
+(38, 17, 'lname', NULL, 'Sanjaya'),
+(39, 17, 'type', NULL, 'PUBLIC'),
+(40, 17, 'email', NULL, 'gayan@gmail.com'),
+(41, 18, 'last_login_at', NULL, '2026-04-21 07:57:40');
 
 -- --------------------------------------------------------
 
@@ -2671,10 +2699,11 @@ CREATE TABLE IF NOT EXISTS `tournament_match` (
 
 INSERT INTO `tournament_match` (`match_id`, `tournament_id`, `sport_id`, `sport_category`, `match_name`, `match_date`, `winner_id`, `winner_name`, `winner_type`, `winner_invitational_id`, `result_status`, `is_published`, `submitted_by`, `created_at`) VALUES
 ('MAT_KRT_001_662140bb888', 'TRN_KRT_2026', 'KRT', 'COMBAT', 'Men\'s Kumite -60kg Final', '2026-05-17', 'STU_KRT_01', 'Kusal Mendis', 'INTERNAL', NULL, 'COMPLETED', 1, NULL, '2026-04-18 18:11:08'),
-('match_695d2d74e031d4.90256849', 'TOUR_694cd4c59abad', 'KRT', 'COMBAT', 'National Open Quarter Final', '2026-01-01', 'L3NCL2J4', 'Naveen Rathnayake', 'INTERNAL', NULL, 'COMPLETED', 1, 'ADMIN', '2026-01-06 15:42:44'),
+('match_695d2d74e031d4.90256849', 'TOUR_694cd4c59abad', 'KRT', 'COMBAT', 'National Open Quarter Final', '2026-01-01', 'L3NCL2J4', 'Naveen Rathnayake', 'INTERNAL', NULL, 'COMPLETED', 0, 'ADMIN', '2026-01-06 15:42:44'),
 ('match_69cce68043d035.97638693', 'TOUR_69ccde3bc3ae2', 'VOL', 'BALL_COURT', 'Inter-University Quarter Final', '2026-03-30', NULL, 'University of Colombo', 'TEAM', NULL, 'COMPLETED', 1, NULL, '2026-04-01 09:33:52'),
 ('match_69e44489860104.22699606', 'TOUR_69d739fdd3a3b', 'VOL', 'BALL_COURT', 'Invitational Final', '2026-04-14', NULL, 'University of Sri Jayawardhanapura', 'TEAM', NULL, 'COMPLETED', 1, 'CAPTAIN', '2026-04-19 02:57:13'),
 ('match_69e5f30468e1a6.49793767', 'TOUR_69d739fdd3a3b', 'VOL', 'BALL_COURT', 'Semi-Final Match', '2026-04-29', NULL, 'University of Colombo', 'TEAM', NULL, 'COMPLETED', 1, 'CAPTAIN', '2026-04-20 09:33:56'),
+('match_69e6e668bbb770.09744703', 'TOUR_69ccde3bc3ae2', 'VOL', 'BALL_COURT', 'Quarter Final Match', '2026-04-23', NULL, 'University of Colombo', 'TEAM', NULL, 'COMPLETED', 0, 'CAPTAIN', '2026-04-21 02:52:24'),
 ('MATCH_VOL_1776533155', 'T_VOL_1776533153', 'VOL', 'BALL_COURT', 'UOC vs USJP Final', '2026-04-12', NULL, 'University of Colombo', 'TEAM', NULL, 'COMPLETED', 1, NULL, '2026-04-18 17:25:55');
 
 -- --------------------------------------------------------
@@ -2694,7 +2723,7 @@ CREATE TABLE IF NOT EXISTS `tournament_participants` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_tournament_user` (`tournament_id`,`user_id`),
   KEY `fk_tp_user` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `tournament_participants`
@@ -2732,7 +2761,15 @@ INSERT INTO `tournament_participants` (`id`, `tournament_id`, `user_id`, `added_
 (57, 'TOUR_69d739fdd3a3b', 'STU_VW_005', '5Q1XZO2Y', '2026-04-20 05:32:12', 'INACTIVE'),
 (58, 'TOUR_69d739fdd3a3b', 'L3NCL2J4', '5Q1XZO2Y', '2026-04-20 05:32:16', 'ACTIVE'),
 (59, 'TOUR_69d739fdd3a3b', 'STU_VW_002', '5Q1XZO2Y', '2026-04-20 05:33:42', 'ACTIVE'),
-(60, 'TOUR_69d739fdd3a3b', 'STU_VW_007', '5Q1XZO2Y', '2026-04-20 09:31:28', 'ACTIVE');
+(60, 'TOUR_69d739fdd3a3b', 'STU_VW_007', '5Q1XZO2Y', '2026-04-20 09:31:28', 'ACTIVE'),
+(62, 'TOUR_69ccde3bc3ae2', 'STU_VW_017', '5Q1XZO2Y', '2026-04-21 02:50:59', 'ACTIVE'),
+(63, 'TOUR_69ccde3bc3ae2', 'STU_VW_009', '5Q1XZO2Y', '2026-04-21 02:51:00', 'ACTIVE'),
+(64, 'TOUR_69ccde3bc3ae2', 'STU_VW_012', '5Q1XZO2Y', '2026-04-21 02:51:01', 'ACTIVE'),
+(65, 'TOUR_69ccde3bc3ae2', 'STU_VW_005', '5Q1XZO2Y', '2026-04-21 02:51:02', 'ACTIVE'),
+(66, 'TOUR_69ccde3bc3ae2', 'STU_VW_007', '5Q1XZO2Y', '2026-04-21 02:51:03', 'ACTIVE'),
+(67, 'TOUR_69ccde3bc3ae2', 'STU_VW_002', '5Q1XZO2Y', '2026-04-21 02:51:04', 'ACTIVE'),
+(68, 'TOUR_69ccde3bc3ae2', 'STU_VW_011', '5Q1XZO2Y', '2026-04-21 02:51:09', 'ACTIVE'),
+(69, 'TOUR_69ccde3bc3ae2', 'STU_VW_013', '5Q1XZO2Y', '2026-04-21 02:51:10', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -2831,6 +2868,7 @@ INSERT INTO `user` (`user_id`, `fname`, `lname`, `type`, `email`, `password`, `m
 ('KCLIH538', 'Tharindu', 'Wickramasinghe', 'PUBLIC', 'tharindu.w@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:53:34', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
 ('KI5RL42D', 'Menaka', 'Perera', 'PUBLIC', 'menaka.p@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:29:53', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
 ('L3NCL2J4', 'Chamal', 'Hettiarachchi', 'STUDENT', 'chamal.h@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-10-14 04:48:58', '2026-04-20 09:52:26', NULL, 'L3NCL2J4.jpg', '', '23000000', '4', 'ACTIVE'),
+('MNVGYIMX', 'Gayan', 'Sanjaya', 'PUBLIC', 'gayan@gmail.com', '$2y$10$JERm78lWqRghVrMKrwUaV.DKIvzW.dNaEjg7Fdls9xhZJsD705aKC', 0, '2026-04-21 02:27:26', '2026-04-21 02:27:40', NULL, '', '', NULL, NULL, 'ACTIVE'),
 ('NPM8O9RE', 'Chamal', 'Chamuditha', 'COACH', 'chamal.coach@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 22:53:08', '2026-04-20 23:23:56', NULL, '', '', NULL, '', 'ACTIVE'),
 ('P1N116IE', 'Chamal', 'Perera', 'STUDENT', 'chamal.p@gmail.com', '$2y$10$MzKlqU/He4KLLamLkROvZe.4KCdmflN/yu5maZ1OjvrOHdJs7M/BC', 0, '2026-04-20 05:24:58', '2026-04-20 05:25:14', NULL, '', '', '2023/s/1234', '2', 'ACTIVE'),
 ('PA0XK3QZ', 'Hansani', 'Jayawardena', 'PUBLIC', 'hansani.j@gmail.com', '$2y$10$6.jQeoNZuFwvekX/wmkBZeu/z2fTNOfsj2IHpop8ntxl7SJIO714q', 0, '2025-09-01 23:32:55', NULL, NULL, '', '', NULL, '', 'ACTIVE'),
@@ -2945,16 +2983,18 @@ CREATE TABLE IF NOT EXISTS `user_points` (
 --
 
 INSERT INTO `user_points` (`user_id`, `user_points`) VALUES
-('5Q1XZO2Y', 8),
+('5Q1XZO2Y', 7),
 ('L3NCL2J4', 6),
 ('STU_VW_002', 6),
 ('STU_VW_005', 6),
-('STU_VW_007', 3),
-('STU_VW_009', 8),
-('STU_VW_011', 8),
-('STU_VW_012', 8),
-('STU_VW_017', 8),
+('STU_VW_007', 6),
+('STU_VW_009', 7),
+('STU_VW_011', 7),
+('STU_VW_012', 5),
+('STU_VW_013', 2),
+('STU_VW_017', 5),
 ('STU_VW_018', 8),
+('STU005', 2),
 ('STU009', 0),
 ('STU010', 17);
 

@@ -37,6 +37,7 @@ $router->get('/payment/cancel', 'PaymentController@cancel');
 $router->get('/payment/notify', 'PaymentController@notify');
 $router->get('/support', 'UserHomeController@support');
 $router->post('/submit-feedback', 'UserHomeController@handleFeedback');
+$router->post('/contact/submit', 'InquiryController@submit');
 
 // User Registration Stats API
 $router->get('/api/user/registration-stats', 'UserApiController@getRegistrationStats');
