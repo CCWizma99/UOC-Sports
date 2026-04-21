@@ -69,24 +69,63 @@ class EquipmentBookigRequest {
                 $params[] = $filters['date_to'];
             }
             
-            $query .= "ORDER BY er.request_date DESC";
-            
-            error_log("EquipmentBookigRequest Query: " . $query);
-            error_log("EquipmentBookigRequest Params: " . print_r($params, true));
+            $query .= " ORDER BY er.request_date DESC, er.start_time DESC";
             
             $stmt = $this->db->prepare($query);
-            $stmt->execute($params);
+            
+            // Bind parameters
+            $paramIndex = 1;
+            if (!empty($filters['status'])) {
+                $stmt->bindValue($paramIndex++, $filters['status'], PDO::PARAM_STR);
+            }
+            if (!empty($filters['student_id'])) {
+                $userId = $filters['user_id'] ?? $filters['student_id'];
+                $stmt->bindValue($paramIndex++, $filters['student_id'], PDO::PARAM_STR);
+                $stmt->bindValue($paramIndex++, $userId, PDO::PARAM_STR);
+            }
+            if (!empty($filters['category_name'])) {
+                $stmt->bindValue($paramIndex++, $filters['category_name'], PDO::PARAM_STR);
+            }
+            if (!empty($filters['sport_id'])) {
+                $stmt->bindValue($paramIndex++, $filters['sport_id'], PDO::PARAM_STR);
+            }
+            if (!empty($filters['date_from'])) {
+                $stmt->bindValue($paramIndex++, $filters['date_from'], PDO::PARAM_STR);
+            }
+            if (!empty($filters['date_to'])) {
+                $stmt->bindValue($paramIndex++, $filters['date_to'], PDO::PARAM_STR);
+            }
+
+            if (isset($filters['limit']) && isset($filters['offset'])) {
+                $queryWithLimit = $query . " LIMIT ? OFFSET ?";
+                $stmt = $this->db->prepare($queryWithLimit);
+                
+                // RE-BIND ALL because we re-prepared
+                $paramIndex = 1;
+                if (!empty($filters['status'])) $stmt->bindValue($paramIndex++, $filters['status'], PDO::PARAM_STR);
+                if (!empty($filters['student_id'])) {
+                    $stmt->bindValue($paramIndex++, $filters['student_id'], PDO::PARAM_STR);
+                    $stmt->bindValue($paramIndex++, $userId, PDO::PARAM_STR);
+                }
+                if (!empty($filters['category_name'])) $stmt->bindValue($paramIndex++, $filters['category_name'], PDO::PARAM_STR);
+                if (!empty($filters['sport_id'])) $stmt->bindValue($paramIndex++, $filters['sport_id'], PDO::PARAM_STR);
+                if (!empty($filters['date_from'])) $stmt->bindValue($paramIndex++, $filters['date_from'], PDO::PARAM_STR);
+                if (!empty($filters['date_to'])) $stmt->bindValue($paramIndex++, $filters['date_to'], PDO::PARAM_STR);
+                
+                $stmt->bindValue($paramIndex++, (int)$filters['limit'], PDO::PARAM_INT);
+                $stmt->bindValue($paramIndex++, (int)$filters['offset'], PDO::PARAM_INT);
+            }
+            
+            error_log("EquipmentBookigRequest Final Query: " . $stmt->queryString);
+            
+            $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             error_log("EquipmentBookigRequest Results count: " . count($results));
-            if (!empty($results)) {
-                error_log("EquipmentBookigRequest First result: " . print_r($results[0], true));
-            }
             
             return $results;
         } catch (PDOException $e) {
             error_log("DATABASE ERROR in getAllRequests: " . $e->getMessage());
-            error_log("Query: " . $query);
             throw $e;
         }
     }
@@ -427,6 +466,44 @@ class EquipmentBookigRequest {
         
         $stmt = $this->db->query($query);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Get total count of requests with filters
+     */
+    public function getTotalCount($filters = []) {
+        try {
+            $query = "SELECT COUNT(*) as total FROM `equipment-requests` er WHERE 1=1 ";
+            $params = [];
+            
+            if (!empty($filters['status'])) {
+                $query .= " AND er.status = ?";
+                $params[] = $filters['status'];
+            }
+            
+            if (!empty($filters['sport_id'])) {
+                $query .= " AND er.sport_id = ?";
+                $params[] = $filters['sport_id'];
+            }
+            
+            if (!empty($filters['date_from'])) {
+                $query .= " AND er.request_date >= ?";
+                $params[] = $filters['date_from'];
+            }
+            
+            if (!empty($filters['date_to'])) {
+                $query .= " AND er.request_date <= ?";
+                $params[] = $filters['date_to'];
+            }
+            
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($params);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return (int)($result['total'] ?? 0);
+        } catch (PDOException $e) {
+            error_log("DATABASE ERROR in getTotalCount: " . $e->getMessage());
+            return 0;
+        }
     }
 
     /**

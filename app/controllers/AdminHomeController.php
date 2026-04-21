@@ -105,6 +105,9 @@ class AdminHomeController {
     public function events() {
         view('admin/events', ['title' => 'Sports Events']);
     }
+    public function pastEvents() {
+        view('admin/past-events', ['title' => 'Past Events History']);
+    }
     public function teams() {
         view('admin/teams', ['title' => 'UOC Teams']);
     }

@@ -63,6 +63,7 @@ $router->get('/admin-results', 'AdminHomeController@results');
 $router->get('/admin-teams', 'AdminHomeController@teams');
 $router->get('/admin-team-details', 'AdminHomeController@teamDetails');
 $router->get('/admin-event-permissions', 'AdminHomeController@eventPermissions');
+$router->get('/admin-past-events', 'AdminHomeController@pastEvents');
 
 // Admin Match Results API
 $router->get('/admin-results/get-all', 'MatchResultApiController@getAllAdminResults');
@@ -146,6 +147,7 @@ $router->post('/admin-tournament/send-invitation', 'TournamentController@sendInv
 $router->get('/admin-tournament/saved-recipients', 'TournamentController@getSavedRecipients');
 $router->post('/admin-tournament/save-recipient', 'TournamentController@saveRecipient');
 $router->get('/admin-tournament/list', 'TournamentController@getTournaments');
+$router->get('/admin-tournament/past-list', 'TournamentController@getPastTournaments');
 $router->post('/admin-tournament/add-result', 'TournamentController@addResult');
 $router->post('/admin-tournament/add-match-result', 'TournamentController@addMatchResult');
 $router->post('/admin-tournament/complete', 'TournamentController@completeTournament');

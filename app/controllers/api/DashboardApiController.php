@@ -783,23 +783,69 @@ class DashboardApiController {
             $byStatus = [];
         }
         
-        // Monthly trend (last 6 months)
-        $trendSQL = "SELECT DATE_FORMAT(date, '%Y-%m') as month, COUNT(*) as bookings
-                     FROM `facility-booking`
-                     WHERE date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
-                     GROUP BY DATE_FORMAT(date, '%Y-%m')
-                     ORDER BY month ASC";
+        // Annual trend - Fetch bookings and earnings separately for robustness
+        $currentYear = date('Y');
+        
+        // 1. Get Monthly Bookings - Only count non-cancelled and fully paid bookings
+        $bookingsSQL = "SELECT DATE_FORMAT(date, '%Y-%m') as month, COUNT(*) as count 
+                        FROM `facility-booking` 
+                        WHERE YEAR(date) = :year 
+                        AND status != 'CANCELLED' 
+                        AND payment_status = 'COMPLETE'
+                        GROUP BY DATE_FORMAT(date, '%Y-%m')";
+        
+        // 2. Get Monthly Earnings
+        $earningsSQL = "SELECT DATE_FORMAT(payment_date, '%Y-%m') as month, SUM(amount) as total 
+                        FROM payment 
+                        WHERE YEAR(payment_date) = :year AND payment_status = 'DONE'
+                        GROUP BY DATE_FORMAT(payment_date, '%Y-%m')";
+        
         try {
-            $stmt = $db->query($trendSQL);
-            $monthlyTrend = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = $db->prepare($bookingsSQL);
+            $stmt->execute([':year' => $currentYear]);
+            $bookingsData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $stmt = $db->prepare($earningsSQL);
+            $stmt->execute([':year' => $currentYear]);
+            $earningsData = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
-            $monthlyTrend = [];
+            $bookingsData = [];
+            $earningsData = [];
+        }
+
+        // Merge into 12-month annual view
+        $annualTrend = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthKey = $currentYear . '-' . str_pad($i, 2, '0', STR_PAD_LEFT);
+            $monthName = date('M', mktime(0, 0, 0, $i, 1));
+            
+            $bookingCount = 0;
+            foreach ($bookingsData as $b) {
+                if ($b['month'] === $monthKey) {
+                    $bookingCount = (int)$b['count'];
+                    break;
+                }
+            }
+            
+            $earningsTotal = 0.0;
+            foreach ($earningsData as $e) {
+                if ($e['month'] === $monthKey) {
+                    $earningsTotal = (float)$e['total'];
+                    break;
+                }
+            }
+            
+            $annualTrend[] = [
+                'month' => $monthName,
+                'bookings' => $bookingCount,
+                'earnings' => $earningsTotal
+            ];
         }
         
         return [
             'utilization' => $utilization,
             'by_status' => $byStatus,
-            'monthly_trend' => $monthlyTrend
+            'annual_trend' => $annualTrend
         ];
     }
 

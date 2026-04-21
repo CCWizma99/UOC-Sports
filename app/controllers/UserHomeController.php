@@ -6,10 +6,10 @@ class UserHomeController {
     }
     public function news() {
         $postModel = new Post();
-        $lostFoundModel = new Post();
+        $lostFoundModel = new Lostitem(Database::getConnection());
     
         $recentNews = $postModel->getRecentPosts(6);
-        $recentLostFound = $lostFoundModel->getRecentCases(6);
+        $recentLostFound = $lostFoundModel->getRecentForNewsFeed(6);
     
         view('general/news', [
             'recentNews' => $recentNews,

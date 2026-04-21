@@ -41,7 +41,6 @@ class SportTeam {
             INNER JOIN user u ON st.student_id = u.user_id
             LEFT JOIN faculty f ON u.faculty_id = f.faculty_id
             WHERE st.sport_id = :sport_id 
-            AND st.in_team = 'YES'
             AND u.status = 'ACTIVE'
             AND st.status = 'ACTIVE'
             ORDER BY u.lname, u.fname
@@ -92,7 +91,6 @@ class SportTeam {
             FROM `sports-team` st
             INNER JOIN user u ON st.student_id = u.user_id
             WHERE st.sport_id = :sport_id
-            AND st.in_team = 'YES'
             AND u.status = 'ACTIVE'
             AND st.status = 'ACTIVE'
         ");

@@ -83,11 +83,7 @@ require '../app/views/templates/admin/sidebar.php';
 // Available insights configuration
 const INSIGHTS = {
     utilization: { name: 'Facility Utilization', icon: 'fa-chart-pie' },
-    high_demand: { name: 'High Demand Facilities', icon: 'fa-fire' },
-    underutilized: { name: 'Underutilized Facilities', icon: 'fa-box-open' },
     peak_days: { name: 'Peak Booking Days', icon: 'fa-calendar-week' },
-    user_type: { name: 'Booking by User Type', icon: 'fa-users' },
-    facility_type: { name: 'Facility Type Distribution', icon: 'fa-building' },
     active_users: { name: 'Most Active Users', icon: 'fa-user-check' }
 };
 
@@ -154,20 +150,8 @@ function renderInsightCard(key, isPriority) {
         case 'utilization':
             contentHtml = renderUtilizationContent(data);
             break;
-        case 'high_demand':
-            contentHtml = renderHighDemandContent(data);
-            break;
-        case 'underutilized':
-            contentHtml = renderUnderutilizedContent(data);
-            break;
         case 'peak_days':
             contentHtml = renderPeakDaysContent(data);
-            break;
-        case 'user_type':
-            contentHtml = renderUserTypeContent(data);
-            break;
-        case 'facility_type':
-            contentHtml = renderFacilityTypeContent(data);
             break;
         case 'active_users':
             contentHtml = renderActiveUsersContent(data);

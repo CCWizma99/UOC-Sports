@@ -9,17 +9,17 @@
 
     <div class="form-row">
       <label for="date">Date</label>
-      <input type="date" id="date" name="date" required>
+      <input type="date" id="date" name="date" min="<?= date('Y-m-d') ?>" required>
     </div>
 
     <div class="form-row">
       <label for="start_time">Start Time</label>
-      <input type="time" id="start_time" name="start_time" required>
+      <input type="time" id="start_time" name="start_time" min="06:00" max="20:00" required>
     </div>
 
     <div class="form-row">
       <label for="end_time">End Time</label>
-      <input type="time" id="end_time" name="end_time" required>
+      <input type="time" id="end_time" name="end_time" min="06:00" max="20:00" required>
     </div>
 
     <div class="form-row">

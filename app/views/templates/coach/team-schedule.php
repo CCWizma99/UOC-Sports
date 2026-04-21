@@ -127,7 +127,6 @@
                             <tr>
                                 <th>Player ID</th>
                                 <th>Name</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="memberTableBody">
@@ -136,7 +135,6 @@
                                 <tr>
                                     <td><?= htmlspecialchars($member['student_id'] ?? $member['user_id']) ?></td>
                                     <td><?= htmlspecialchars($member['fname'] . ' ' . $member['lname']) ?></td>
-                                    <td><button class="remove-btn" onclick="confirmRemove('<?= htmlspecialchars(addslashes($member['fname'] . ' ' . $member['lname'])) ?>')">Remove</button></td>
                                 </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -149,8 +147,11 @@
 
             <!-- Upcoming Matches Table (sidebar-like, parallel to members) -->
             <div class="table-section" id="upcoming-matches" style="flex:1;">
-                <div class="table-header">
-                    <h2>Upcoming Tournaments</h2>
+                <div class="table-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0;">Upcoming Tournaments</h2>
+                    <a href="/uoc-sports/public/coach/past-tournaments" class="btn-secondary" style="font-size: 11px; padding: 4px 8px; text-decoration: none; border: 1px solid #2b0c4d; border-radius: 4px; color: #2b0c4d;">
+                        <i class="fas fa-history"></i> Past Events
+                    </a>
                 </div>
                 <div class="table-wrapper">
                     <table class="events-table">

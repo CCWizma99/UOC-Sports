@@ -11,7 +11,6 @@
     @import url("/uoc-sports/public/css/global.css");
     @import url("/uoc-sports/public/css/general/header.css");
     @import url("/uoc-sports/public/css/general/footer.css");
-
     @import url("/uoc-sports/public/css/equipment-manager/report.css");
       
   </style>

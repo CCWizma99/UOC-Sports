@@ -121,6 +121,8 @@ class CaptainController {
             try {
                 if (isset($_POST['add_member_id'])) {
                     $tpModel->addParticipants($tid, [$_POST['add_member_id']], $userId);
+                    // Also mark as confirmed member of the general team so they show up in dashboard stats
+                    $sportTeamModel->addMember($sportId, $_POST['add_member_id']);
                 }
 
                 if (isset($_POST['remove_member_id'])) {

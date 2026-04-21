@@ -245,6 +245,41 @@ class TournamentController extends BaseController {
     }
 
     /**
+     * Get past tournaments (for history page)
+     */
+    public function getPastTournaments() {
+        header('Content-Type: application/json');
+        
+        try {
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+            $limit = 10;
+            $offset = ($page - 1) * $limit;
+            
+            $tournamentModel = new Tournament();
+            $tournaments = $tournamentModel->getPastTournaments($limit, $offset, $search);
+            $totalCount = $tournamentModel->getPastTournamentsCount($search);
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $tournaments,
+                'pagination' => [
+                    'current_page' => $page,
+                    'total_pages' => ceil($totalCount / $limit),
+                    'total_count' => $totalCount,
+                    'limit' => $limit
+                ]
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
      * Add match result (Hybrid JSON approach)
      */
     public function addResult() {

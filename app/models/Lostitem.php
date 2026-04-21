@@ -321,6 +321,23 @@ class Lostitem {
     }
 
     /**
+     * Get recent items for the news feed with mapped names
+     * @param int $limit
+     * @return array
+     */
+    public function getRecentForNewsFeed($limit = 6) {
+        $sql = "SELECT lostItem_id AS case_id, itemName AS case_title, `description`, `image` AS image_name, foundDate AS reported_time
+                FROM lost_item
+                WHERE itemStatus IN ('unclaimed', 'Not Found')
+                ORDER BY foundDate DESC, lostItem_id DESC
+                LIMIT :limit";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Count items by status
      * @param string $status
      * @return int

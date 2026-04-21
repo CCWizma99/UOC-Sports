@@ -107,6 +107,22 @@ class CaptainApiController {
                 if ($winnerType === 'TEAM' && empty($winnerName)) {
                     $winnerName = $_POST['winner_team_selection'] ?? null;
                 }
+
+                // Validation: Ensure winner name matches one of the teams for TEAM matches
+                if ($winnerType === 'TEAM' && !empty($winnerName)) {
+                    $teamAName = trim($details['team_a_name'] ?? $details['fighter_a_name'] ?? '');
+                    $teamBName = trim($details['team_b_name'] ?? $details['fighter_b_name'] ?? '');
+                    
+                    if (!empty($teamAName) && !empty($teamBName)) {
+                        if (strcasecmp(trim($winnerName), $teamAName) !== 0 && strcasecmp(trim($winnerName), $teamBName) !== 0) {
+                            echo json_encode([
+                                'status' => 'error', 
+                                'message' => "The winner ($winnerName) must be one of the competing teams ($teamAName or $teamBName)."
+                            ]);
+                            return;
+                        }
+                    }
+                }
             }
 
             // Handle invitational player auto-save
@@ -309,18 +325,19 @@ class CaptainApiController {
                 $userId = $player['user_id'];
                 $side   = $player['team_side'];
                 
-                // 1. Award participation point (1 pt)
-                $stmt = $db->prepare("INSERT INTO achievement (user_id, sport_id, tournament_id, achievement, points, status)
-                                      VALUES (?, ?, ?, 'Participant', 1, 'ACTIVE')");
-                $stmt->execute([$userId, $sportId, $tournamentId]);
-                
-                // 2. Award win points (2 pts) if their team won or they are the individual winner
+                // Determine if they are a winner
                 $isWinner = ($winningSide !== null && $side === $winningSide) || ($winningStudentId !== null && $userId === $winningStudentId);
                 
                 if ($isWinner) {
-                    $stmt = $db->prepare("INSERT INTO achievement (user_id, sport_id, tournament_id, achievement, points, status)
-                                          VALUES (?, ?, ?, 'Match Winner', 2, 'ACTIVE')");
-                    $stmt->execute([$userId, $sportId, $tournamentId]);
+                    // 1. Award win points (2 pts)
+                    $stmt = $db->prepare("INSERT INTO achievement (user_id, sport_id, tournament_id, match_id, achievement, points, status)
+                                          VALUES (?, ?, ?, ?, 'Match Winner', 2, 'ACTIVE')");
+                    $stmt->execute([$userId, $sportId, $tournamentId, $matchId]);
+                } else {
+                    // 2. Award participation point (1 pt)
+                    $stmt = $db->prepare("INSERT INTO achievement (user_id, sport_id, tournament_id, match_id, achievement, points, status)
+                                          VALUES (?, ?, ?, ?, 'Participant', 1, 'ACTIVE')");
+                    $stmt->execute([$userId, $sportId, $tournamentId, $matchId]);
                 }
             }
         } catch (Exception $e) {

@@ -31,17 +31,17 @@
       <div class="input-row">
         <div class="input-div half">
           <label for="date"><i class="fas fa-calendar"></i> Date</label>
-          <input type="date" id="date" name="date" required>
+          <input type="date" id="date" name="date" min="<?= date('Y-m-d') ?>" required>
         </div>
 
         <div class="input-div half">
           <label for="start-time"><i class="fas fa-clock"></i> Start Time</label>
-          <input type="time" id="start-time" name="start_time" step="1800" required>
+          <input type="time" id="start-time" name="start_time" min="06:00" max="20:00" step="1800" required>
         </div>
 
         <div class="input-div half">
           <label for="end-time"><i class="fas fa-clock"></i> End Time</label>
-          <input type="time" id="end-time" name="end_time" step="1800" required>
+          <input type="time" id="end-time" name="end_time" min="06:00" max="20:00" step="1800" required>
         </div>
       </div>
 

@@ -50,7 +50,7 @@
                 <article class="card">
                     <div class="img-box">
                         <?php if (!empty($case['image_name'])): ?>
-                            <img src="/uoc-sports/public/uploads/lost-found/<?= htmlspecialchars($case['image_name']) ?>" alt="Lost item">
+                            <img src="/uoc-sports/app/internal/lostitem/<?= htmlspecialchars($case['image_name']) ?>" alt="Lost item">
                         <?php else: ?>
                             <div class="placeholder-img">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
@@ -64,8 +64,8 @@
                     <div class="content">
                         <h3><?= htmlspecialchars($case['case_title']) ?></h3>
                         <p><?= htmlspecialchars(substr($case['description'], 0, 100)) ?>...</p>
-                        <a href="/uoc-sports/public/lost-found/<?= htmlspecialchars($case['case_id']) ?>" class="btn">
-                            <span>View Details</span>
+                        <a href="/uoc-sports/public/#contact" class="btn">
+                            <span>Contact for Details</span>
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                 <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>

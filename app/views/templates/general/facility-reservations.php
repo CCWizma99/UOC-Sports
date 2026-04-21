@@ -69,7 +69,7 @@
 
                 <div class="form-group">
                     <label for="date"><i class="fas fa-calendar"></i> Date</label>
-                    <input type="date" id="date" name="date" required>
+                    <input type="date" id="date" name="date" min="<?= date('Y-m-d') ?>" required>
                 </div>
             </div>
 

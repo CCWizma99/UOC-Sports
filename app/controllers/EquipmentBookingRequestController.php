@@ -35,6 +35,12 @@ class EquipmentBookingRequestController {
         
         try {
             $model = new EquipmentBookigRequest();
+            
+            // By default, hide past bookings in the main index view
+            if (!isset($_GET['date_from'])) {
+                $filters['date_from'] = date('Y-m-d');
+            }
+
             $requests = $model->getAllRequests($filters);
             $categories = $model->getAllCategories();
             $sports = $model->getAllSports();
@@ -605,5 +611,49 @@ class EquipmentBookingRequestController {
             'requests' => $requests,
             'categories' => $categories
         ]);
+    }
+
+    /**
+     * Display all equipment booking requests with pagination
+     */
+    public function bookingHistory() {
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 15;
+        $offset = ($page - 1) * $limit;
+
+        $filters = [
+            'status' => $_GET['status'] ?? null,
+            'sport_id' => $_GET['sport_id'] ?? null,
+            'date_from' => $_GET['date_from'] ?? null,
+            'date_to' => $_GET['date_to'] ?? null,
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        try {
+            $model = new EquipmentBookigRequest();
+            $requests = $model->getAllRequests($filters);
+            $totalCount = $model->getTotalCount($filters);
+            $sports = $model->getAllSports();
+            $statistics = $model->getStatistics();
+            
+            $totalPages = ceil($totalCount / $limit);
+            
+            view('equipment-manager/booking-history', [
+                'requests' => $requests,
+                'sports' => $sports,
+                'filters' => $filters,
+                'currentPage' => $page,
+                'totalPages' => $totalPages,
+                'totalCount' => $totalCount,
+                'statistics' => $statistics,
+                'limit' => $limit
+            ]);
+        } catch (Exception $e) {
+            error_log("Error in bookingHistory: " . $e->getMessage());
+            $_SESSION['error_message'] = 'Failed to load booking history';
+            header('Location: /uoc-sports/public/equipment-manager/bookingrequests');
+            exit();
+        }
     }
 }

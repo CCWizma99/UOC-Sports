@@ -57,20 +57,20 @@
 
                     <div class="form-group">
                         <label for="practiceSessionDate">Practice Session Date *</label>
-                        <input type="date" id="practiceSessionDate" name="date" 
+                        <input type="date" id="practiceSessionDate" name="date" min="<?= date('Y-m-d') ?>"
                                value="<?= htmlspecialchars($session['session_date']) ?>" required>
                     </div>
 
                     <div class="form-group">
                         <label for="startTime">Start Time *</label>
-                        <input type="time" id="startTime" name="stime" step="1800"
+                        <input type="time" id="startTime" name="stime" min="06:00" max="20:00" step="1800"
                                value="<?= htmlspecialchars($session['start_time']) ?>" required>
                         <small>Use 30-minute intervals (e.g. 08:00, 08:30)</small>
                     </div>
 
                     <div class="form-group">
                         <label for="endTime">End Time *</label>
-                        <input type="time" id="endTime" name="etime" step="1800"
+                        <input type="time" id="endTime" name="etime" min="06:00" max="20:00" step="1800"
                                value="<?= htmlspecialchars($session['end_time']) ?>" required>
                         <small>Use 30-minute intervals</small>
                     </div>

@@ -16,6 +16,39 @@
         
         @import url(/uoc-sports/public/css/admin/events-page.css);
         @import url(/uoc-sports/public/css/admin/ui-improvements.css);
+
+        .past-events-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #4b0082, #6a1b9a);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(75, 0, 130, 0.2);
+        }
+
+        .past-events-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(75, 0, 130, 0.3);
+            background: linear-gradient(135deg, #5e00a3, #7b1fa2);
+        }
+
+        .past-events-btn i {
+            font-size: 16px;
+        }
+
+        .past-events-header-flex {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -53,12 +86,14 @@ require '../app/views/templates/admin/sidebar.php';
                         <div class="input-div">
                             <label for="eventStartDate">Start Date <span class="required">*</span></label>
                             <input type="date" id="eventStartDate" name="start_date" 
+                                   min="<?= date('Y-m-d') ?>"
                                    aria-required="true" required>
                         </div>
                         
                         <div class="input-div">
                             <label for="eventEndDate">End Date</label>
-                            <input type="date" id="eventEndDate" name="end_date">
+                            <input type="date" id="eventEndDate" name="end_date"
+                                   min="<?= date('Y-m-d') ?>">
                         </div>
                         
                         <div class="input-div">
@@ -119,7 +154,12 @@ require '../app/views/templates/admin/sidebar.php';
 
         <div class="events-grid-right">
             <div id="event-table-container">
-                <h2>Tournament Events</h2>
+                <div class="past-events-header-flex">
+                    <h2 style="margin: 0; width: auto; text-align: left;">Tournament Events</h2>
+                    <a href="./admin-past-events" class="past-events-btn">
+                        <i class="fas fa-history"></i> Past Events History
+                    </a>
+                </div>
                 <div id="loadingMessage" class="loading-message">Loading tournaments...</div>
                 <div id="errorMessage" class="error-message" style="display: none;"></div>
                 

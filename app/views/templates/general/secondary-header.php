@@ -82,6 +82,7 @@ switch ($activePortal) {
             ['name' => 'Equipments', 'url' => '/uoc-sports/public/equipment-manager/equipments'],
             ['name' => 'Lost Items', 'url' => '/uoc-sports/public/equipment-manager/lostitem'],
             ['name' => 'Booking Requests', 'url' => '/uoc-sports/public/equipment-manager/bookingrequests'],
+            ['name' => 'Booking History', 'url' => '/uoc-sports/public/equipment-manager/booking-history'],
         ];
         break;
     case 'SPT':

@@ -170,7 +170,10 @@ $userName = $_SESSION['user_name'] ?? 'J Jayaweera';
                     <?php endif; ?>
 
                      <a href="/uoc-sports/public/equipment-manager/bookingrequests" class="view-all-link">
-                        View All Booking Requests
+                        View Active Requests
+                    </a>
+                    <a href="/uoc-sports/public/equipment-manager/booking-history" class="view-all-link" style="margin-top: 5px; color: #5e2d91; font-weight: 600;">
+                        View Booking History
                     </a>
 
                 </div>

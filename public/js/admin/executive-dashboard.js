@@ -225,7 +225,7 @@ function renderFacilitiesTab() {
     const { reservations, facility_analytics, insights } = dashboardData;
     const { facility_demand } = insights;
 
-    container.innerHTML = `
+    let html = `
         <div class="insight-card wide horizontal-overview">
             <div class="overview-title">
                 <h3><i class="fas fa-list-check"></i> Booking Status</h3>
@@ -278,49 +278,47 @@ function renderFacilitiesTab() {
             : '<p class="no-data">No demand data</p>'}
             </div>
         </div>
-        
-        <div class="insight-card">
-            ${cardHeader('fa-chart-line', 'Monthly Booking Trend', 'Reservation volume over recent months')}
-            <div class="card-content">
-                ${facility_analytics.monthly_trend.length > 0 ?
-            '<div class="chart-wrapper line-chart"><canvas id="chart-booking-trend"></canvas></div>'
-            : '<p class="no-data">No trend data available</p>'}
-            </div>
-        </div>
     `;
 
-    // Append deep facility analytics if available
-    if (facilityDeepData) {
-        let deepCards = '';
-        const d = facilityDeepData;
-        if (d.high_demand && d.high_demand.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-fire', 'High Demand Facilities', 'Facilities with highest daily demand rate')}<div class="card-content"><div class="data-list">${d.high_demand.slice(0, 6).map(item => `
-                <div class="data-row"><div class="data-info"><span class="name">${truncName(item.facility_name)}</span><span class="sub">${item.facility_type} &bull; ${item.bookings_last_30_days} bookings/mo</span></div><span class="data-value" style="color:#ef4444">${item.daily_demand_rate}% daily</span></div>
-            `).join('')}</div></div></div>`;
-        }
-        if (d.peak_days && d.peak_days.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-calendar-week', 'Peak Booking Days', 'Days with highest facility reservation volume')}<div class="card-content">${renderBarChart(d.peak_days.slice(0, 5), 'day_name', 'booking_count')}</div></div>`;
-        }
-        if (d.user_type && d.user_type.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-users', 'Booking by User Type', 'Reservation distribution across user roles')}<div class="card-content">${renderBarChart(d.user_type, 'user_type', 'booking_count')}</div></div>`;
-        }
-        if (d.facility_type && d.facility_type.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-building', 'Facility Type Distribution', 'Booking volume across different facility types')}<div class="card-content">${renderBarChart(d.facility_type, 'facility_type', 'booking_count')}</div></div>`;
-        }
-        if (d.underutilized && d.underutilized.length) {
-            deepCards += `<div class="insight-card">${cardHeader('fa-box-open', 'Underutilized Facilities', 'Facilities with low or no recent bookings')}<div class="card-content"><div class="data-list">${d.underutilized.slice(0, 6).map(item => `
-                <div class="data-row"><div class="data-info"><span class="name">${truncName(item.facility_name)}</span><span class="sub">${item.facility_type} &bull; ${item.total_bookings} bookings</span></div><span class="data-value" style="color:#d97706">${item.days_since_last_booking ? item.days_since_last_booking + 'd idle' : 'Never'}</span></div>
-            `).join('')}</div></div></div>`;
-        }
-        container.innerHTML += deepCards;
+    // Peak Booking Days - Moved up
+    if (facilityDeepData && facilityDeepData.peak_days && facilityDeepData.peak_days.length) {
+        html += `
+            <div class="insight-card">
+                ${cardHeader('fa-calendar-week', 'Peak Booking Days', 'Days with highest facility reservation volume')}
+                <div class="card-content">
+                    ${renderBarChart(facilityDeepData.peak_days.slice(0, 5), 'day_name', 'booking_count')}
+                </div>
+            </div>`;
     }
 
-    // Render line chart for booking trend
-    if (facility_analytics.monthly_trend.length > 0) {
-        createLineChart('chart-booking-trend',
-            facility_analytics.monthly_trend.map(t => t.month),
-            facility_analytics.monthly_trend.map(t => t.bookings),
-            'Bookings');
+    // Annual Trend Charts - Now Full Width
+    if (facility_analytics.annual_trend && facility_analytics.annual_trend.length > 0) {
+        html += `
+            <div class="insight-card wide">
+                ${cardHeader('fa-chart-line', 'Annual Booking Trend', 'Monthly reservation count for the current year')}
+                <div class="card-content">
+                    <div class="chart-wrapper line-chart"><canvas id="chart-annual-bookings"></canvas></div>
+                </div>
+            </div>
+            <div class="insight-card wide">
+                ${cardHeader('fa-coins', 'Annual Earnings Trend', 'Total revenue generated from facility bookings this year')}
+                <div class="card-content">
+                    <div class="chart-wrapper line-chart"><canvas id="chart-annual-earnings"></canvas></div>
+                </div>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+
+    // Render line charts for annual trends
+    if (facility_analytics.annual_trend && facility_analytics.annual_trend.length > 0) {
+        const labels = facility_analytics.annual_trend.map(t => t.month);
+        const bookings = facility_analytics.annual_trend.map(t => t.bookings);
+        const earnings = facility_analytics.annual_trend.map(t => t.earnings);
+
+        createLineChart('chart-annual-bookings', labels, bookings, 'Bookings');
+        createLineChart('chart-annual-earnings', labels, earnings, 'Earnings (Rs.)');
     }
 }
 

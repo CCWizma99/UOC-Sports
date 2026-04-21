@@ -128,19 +128,94 @@ class Tournament {
     }
 
     /**
-     * Get all tournaments
+     * Get all active tournaments (not completed)
      */
     public function getAllTournaments() {
         try {
             $sql = "SELECT t.*, s.sport_name 
                     FROM tournament t 
                     LEFT JOIN sport s ON t.sport_id = s.sport_id 
+                    WHERE t.status != 'COMPLETE'
                     ORDER BY t.start_date DESC";
             $stmt = $this->db->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Get all tournaments error: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Get past tournaments with pagination and search
+     */
+    public function getPastTournaments($limit, $offset, $search = '') {
+        try {
+            $sql = "SELECT t.*, s.sport_name 
+                    FROM tournament t 
+                    LEFT JOIN sport s ON t.sport_id = s.sport_id 
+                    WHERE t.status = 'COMPLETE'";
+            
+            if ($search) {
+                $sql .= " AND (t.tournament_name LIKE :search OR s.sport_name LIKE :search)";
+            }
+            
+            $sql .= " ORDER BY t.end_date DESC LIMIT :limit OFFSET :offset";
+            
+            $stmt = $this->db->prepare($sql);
+            if ($search) {
+                $stmt->bindValue(':search', '%' . $search . '%');
+            }
+            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+            
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Get past tournaments error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get total count of past tournaments for pagination
+     */
+    public function getPastTournamentsCount($search = '') {
+        try {
+            $sql = "SELECT COUNT(*) FROM tournament t 
+                    LEFT JOIN sport s ON t.sport_id = s.sport_id 
+                    WHERE t.status = 'COMPLETE'";
+            
+            if ($search) {
+                $sql .= " AND (t.tournament_name LIKE :search OR s.sport_name LIKE :search)";
+            }
+            
+            $stmt = $this->db->prepare($sql);
+            if ($search) {
+                $stmt->bindValue(':search', '%' . $search . '%');
+            }
+            
+            $stmt->execute();
+            return (int)$stmt->fetchColumn();
+        } catch (PDOException $e) {
+            error_log("Get past tournaments count error: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Update tournament status
+     */
+    public function updateStatus($tournamentId, $status) {
+        try {
+            $sql = "UPDATE tournament SET status = :status WHERE tournament_id = :tournament_id";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                'status' => $status,
+                'tournament_id' => $tournamentId
+            ]);
+        } catch (PDOException $e) {
+            error_log("Update tournament status error: " . $e->getMessage());
+            return false;
         }
     }
 

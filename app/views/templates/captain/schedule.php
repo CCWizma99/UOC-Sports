@@ -24,12 +24,12 @@
 
                     <div class="form-group">
                         <label for="start_time">Start Time *</label>
-                        <input type="time" id="start_time" name="start_time" step="1800" required>
+                        <input type="time" id="start_time" name="start_time" min="06:00" max="20:00" step="1800" required>
                     </div>
 
                     <div class="form-group">
                         <label for="end_time">End Time *</label>
-                        <input type="time" id="end_time" name="end_time" step="1800" required>
+                        <input type="time" id="end_time" name="end_time" min="06:00" max="20:00" step="1800" required>
                     </div>
 
                     <div class="form-group">
@@ -134,12 +134,12 @@
                 <div class="datetime">
                     <div class="form-group">
                         <label>Start Time *</label>
-                        <input type="time" id="edit-start-time" name="start_time" step="1800" required>
+                        <input type="time" id="edit-start-time" name="start_time" min="06:00" max="20:00" step="1800" required>
                     </div>
 
                     <div class="form-group">
                         <label>End Time *</label>
-                        <input type="time" id="edit-end-time" name="end_time" step="1800" required>
+                        <input type="time" id="edit-end-time" name="end_time" min="06:00" max="20:00" step="1800" required>
                     </div>
                 </div>
 

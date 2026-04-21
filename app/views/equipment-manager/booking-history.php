@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Booking Requests</title>
+  <title>Booking History | UOC Sports E-Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
@@ -12,42 +12,93 @@
     @import url("/uoc-sports/public/css/general/header.css");
     @import url("/uoc-sports/public/css/general/footer.css");
     @import url("/uoc-sports/public/css/equipment-manager/report.css");
+
+    /* Pagination Styling (Page Specific) */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0 35px 35px 35px;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .pagination-info {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+    
+    .pagination-controls {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .page-link {
+        padding: 0.5rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: white;
+        color: #374151;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    
+    .page-link:hover {
+        background: #f9fafb;
+        border-color: #9ca3af;
+    }
+    
+    .page-link.active {
+        background: #2b0c4d;
+        color: white;
+        border-color: #2b0c4d;
+    }
+    
+    .page-link.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    #statusFilter, #sportFilter, .status-dropdown {
+        padding: 0.5rem 1rem;
+        border: 3px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        background: white;
+        pointer-events: auto;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .status-dropdown:hover {
+        border-color: #5e2d91;
+    }
+
+    .status-dropdown:focus {
+        outline: none;
+        border-color: #5e2d91;
+        box-shadow: 0 0 0 3px rgba(94, 45, 145, 0.1);
+    }
+
+    /* Status color classes */
+    .status-dropdown.status-pending { color: #92400e; border: 2px solid #f59e0b; }
+    .status-dropdown.status-accepted { color: #065f46; border: 2px solid #10b981; }
+    .status-dropdown.status-active { color: #1e40af; border: 2px solid #3b82f6; }
+    .status-dropdown.status-completed { color: #374151; border: 2px solid #6b7280; }
+    .status-dropdown.status-rejected { color: #991b1b; border: 2px solid #ef4444; }
   </style>
 </head>
 <body>
-<?php
-    require "../app/views/templates/general/header.php";
+<?php 
+    require "../app/views/templates/general/header.php"; 
 ?>
+
 <div class="report-container">
-
     <div class="container-header">
-        <h2>Equipment Booking Requests</h2>
-        <p>Manage equipment booking requests</p>
-        
-        <?php if (isset($_SESSION['success_message'])): ?>
-            <div style="padding: 0.75rem; background: #d1fae5; color: #065f46; border-radius: 8px; margin: 1rem 0; font-weight: 500; border-left: 4px solid #10b981;">
-                <i class="fas fa-check-circle"></i> <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if (isset($_SESSION['error_message'])): ?>
-            <div style="padding: 0.75rem; background: #fee2e2; color: #991b1b; border-radius: 8px; margin: 1rem 0; font-weight: 500; border-left: 4px solid #ef4444;">
-                <i class="fas fa-exclamation-circle"></i> <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
-            </div>
-        <?php endif; ?>
-        
-        <!-- Debug Info (Remove in production) -->
-        <?php if (isset($_GET['debug'])): ?>
-        <div style="background: #f3f4f6; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-size: 0.8rem;">
-            <strong>Debug Info:</strong><br>
-            Total Requests: <?= count($requests ?? []) ?><br>
-            Total Categories: <?= count($categories ?? []) ?><br>
-            Total Sports: <?= count($sports ?? []) ?><br>
-            <?php if (!empty($requests)): ?>
-                Sample Request: <pre><?= print_r($requests[0], true) ?></pre>
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
+        <h2>Equipment Booking History</h2>
+        <p>View and manage all past and future booking requests</p>
         
         <?php if (isset($statistics)): ?>
         <div style="display: flex; gap: 2rem; margin-top: 1rem; font-size: 0.9rem;">
@@ -61,9 +112,8 @@
         <?php endif; ?>
     </div>
 
-     
-       <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Search Booking Requests...">
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search History...">
         
         <!-- Filters -->
         <select id="statusFilter" onchange="filterRequests()">
@@ -84,75 +134,46 @@
             <?php endforeach; endif; ?>
         </select>
 
-        <a href="/uoc-sports/public/equipment-manager/add-booking">
+        <a href="/uoc-sports/public/equipment-manager/bookingrequests">
             <button class="btn-add">
-                <i class="fas fa-plus"></i> Add Booking
+                <i class="fas fa-arrow-left"></i> Current Requests
             </button>
         </a>
     </div>
-
 
     <div class="data-table">
         <table>
             <thead>
                 <tr>
-                    
-                    <th onclick="sortTable(1)">Requester ID<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(2)">Requester Name<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(3)">Sport<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(4)">Equipment Category<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(5)">Requested Date<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(6)">Start Time<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(7)">End Time<span class="sort-indicator"></span></th>
-                    <th onclick="sortTable(8)">Location<span class="sort-indicator"></span></th>
-                  
-                    <th onclick="sortTable(10)">Status<span class="sort-indicator"></span></th>
-                      <th onclick="sortTable(9)">Special Requests<span class="sort-indicator"></span></th>
+                    <th onclick="sortTable(0)">Requester ID</th>
+                    <th onclick="sortTable(1)">Requester Name</th>
+                    <th onclick="sortTable(2)">Sport</th>
+                    <th onclick="sortTable(3)">Equipment Category</th>
+                    <th onclick="sortTable(4)">Requested Date</th>
+                    <th onclick="sortTable(5)">Start Time</th>
+                    <th onclick="sortTable(6)">End Time</th>
+                    <th onclick="sortTable(7)">Location</th>
+                    <th onclick="sortTable(8)">Status</th>
+                    <th>Special Requests</th>
                     <th>Action</th>
                 </tr>
             </thead>
 
             <tbody id="tableBody">
-            <?php 
-            // Debug output
-            if (isset($_GET['debug'])) {
-                echo "<tr><td colspan='12' style='background: yellow; padding: 1rem;'>";
-                echo "Requests variable exists: " . (isset($requests) ? 'YES' : 'NO') . "<br>";
-                echo "Requests is array: " . (is_array($requests) ? 'YES' : 'NO') . "<br>";
-                echo "Requests count: " . (isset($requests) ? count($requests) : '0') . "<br>";
-                if (isset($requests) && !empty($requests)) {
-                    echo "<pre>" . print_r($requests[0], true) . "</pre>";
-                }
-                echo "</td></tr>";
-            }
-            
-            if(!empty($requests)): ?>
-                <?php foreach($requests as $request): 
-                    $statusClass = match($request['status']) {
-                        'PENDING' => 'status-pending',
-                        'ACCEPTED' => 'status-accepted',
-                        'ACTIVE' => 'status-active',
-                        'COMPLETED' => 'status-completed',
-                        'REJECTED' => 'status-rejected',
-                        default => ''
-                    };
-                ?>
+            <?php if(!empty($requests)): ?>
+                <?php foreach($requests as $request): ?>
                     <tr>
-                 
                         <td><?= htmlspecialchars($request['student_id'] ?? 'N/A') ?></td>
                         <td><?= htmlspecialchars($request['student_name'] ?? 'N/A') ?></td>
                         <td><?= htmlspecialchars($request['sport_name'] ?? 'N/A') ?></td>
                         <td>
                             <?php 
-                            // Display equipment items from JSON or fallback to category_name
                             if (!empty($request['equipment_items'])) {
                                 $items = json_decode($request['equipment_items'], true);
                                 if (is_array($items) && count($items) > 0) {
                                     echo '<div style="display: flex; flex-direction: column; gap: 2px;">';
                                     foreach ($items as $item) {
-                                        $equipName = htmlspecialchars($item['equipment_name'] ?? '');
-                                        $qty = htmlspecialchars($item['quantity'] ?? 1);
-                                        echo '<span style="font-size: 0.9em;">• ' . $equipName . ' <strong>(×' . $qty . ')</strong></span>';
+                                        echo '<span style="font-size: 0.9em;">• ' . htmlspecialchars($item['equipment_name']) . ' <strong>(×' . htmlspecialchars($item['quantity'] ?? 1) . ')</strong></span>';
                                     }
                                     echo '</div>';
                                 } else {
@@ -167,7 +188,6 @@
                         <td><?= date('h:i A', strtotime($request['start_time'])) ?></td>
                         <td><?= date('h:i A', strtotime($request['end_time'])) ?></td>
                         <td><?= htmlspecialchars($request['reserved_location'] ?? 'N/A') ?></td>
-                       
                         <td>
                             <select class="status-dropdown status-<?= strtolower($request['status']) ?>" 
                                     data-request-id="<?= $request['request_id'] ?>" 
@@ -182,7 +202,7 @@
                                 <option value="REJECTED" <?= $request['status'] === 'REJECTED' ? 'selected' : '' ?>>REJECTED</option>
                             </select>
                         </td>
-                         <td><?= htmlspecialchars($request['notes'] ?? 'N/A') ?></td>
+                        <td><?= htmlspecialchars($request['notes'] ?? 'N/A') ?></td>
                         <td>
                             <div style="display: flex; gap: 0.5rem; justify-content: center; align-items: center;">
                                 <button class="btn-edit" 
@@ -191,26 +211,53 @@
                                     <i class="fas fa-bell"></i>
                                 </button>
                                 <button class="btn-edit" onclick="window.location.href='/uoc-sports/public/equipment-manager/add-booking?id=<?= $request['request_id'] ?>'">
-                                 Edit
+                                    Edit
                                 </button>
-                                <button class="btn-delete" onclick="deleteRequest('<?= $request['request_id'] ?>')">Delete</button>
+                                <button class="btn-delete" onclick="deleteRequest('<?= $request['request_id'] ?>')">
+                                    Delete
+                                </button>
                             </div>
                         </td>
-                     </tr>
-                  <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="12" style="text-align: center; padding: 2rem; color: #6b7280;">
-                            No booking requests found.
-                        </td>
                     </tr>
-                <?php endif; ?>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="11" style="text-align: center; padding: 2rem; color: #6b7280;">
+                        No history records found.
+                    </td>
+                </tr>
+            <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 
-                    </tbody>
-                </table>
-            </div>
+    <!-- Pagination -->
+    <?php if ($totalPages > 1): ?>
+    <div class="pagination-container">
+        <div class="pagination-info">
+            Showing <?= count($requests) ?> of <?= $totalCount ?> results
+        </div>
+        <div class="pagination-controls">
+            <a href="?page=<?= max(1, $currentPage - 1) . ($filters['status'] ? '&status='.$filters['status'] : '') . ($filters['sport_id'] ? '&sport_id='.$filters['sport_id'] : '') ?>" 
+               class="page-link <?= $currentPage <= 1 ? 'disabled' : '' ?>">
+                Previous
+            </a>
+            
+            <?php for($i = 1; $i <= $totalPages; $i++): ?>
+                <a href="?page=<?= $i . ($filters['status'] ? '&status='.$filters['status'] : '') . ($filters['sport_id'] ? '&sport_id='.$filters['sport_id'] : '') ?>" 
+                   class="page-link <?= $currentPage == $i ? 'active' : '' ?>">
+                    <?= $i ?>
+                </a>
+            <?php endfor; ?>
 
-            </div>
+            <a href="?page=<?= min($totalPages, $currentPage + 1) . ($filters['status'] ? '&status='.$filters['status'] : '') . ($filters['sport_id'] ? '&sport_id='.$filters['sport_id'] : '') ?>" 
+               class="page-link <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
+                Next
+            </a>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
 
 <!-- Special Notification Modal -->
 <div id="notificationModal" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1200; align-items: center; justify-content: center;">
@@ -239,10 +286,7 @@
                 <textarea id="notificationMessage" rows="4" placeholder="Type rejected reason for this requester..." style="width:100%; padding:0.55rem; border:1px solid #d1d5db; border-radius:6px; resize:vertical;"></textarea>
             </div>
 
-            <div>
-                <label style="display:block; font-weight:600; margin-bottom:0.25rem;">Sent Notifications</label>
-                <div id="notificationHistory" style="max-height:160px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:6px; background:#fafafa; padding:0.5rem;"></div>
-            </div>
+            <div id="notificationHistory" style="display:none;"></div>
         </div>
 
         <div style="display:flex; justify-content:flex-end; gap:0.6rem; padding: 0.9rem 1.2rem 1.1rem; border-top:1px solid #e5e7eb;">
@@ -254,145 +298,8 @@
     </div>
 </div>
 
-  <script src="/uoc-sports/public/js/equipment-manager/bookingrequest.js"></script>
+<script src="/uoc-sports/public/js/equipment-manager/bookingrequest.js"></script>
 
-<style>
-.status-badge {
-    padding: 0.4rem 0.85rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    display: inline-block;
-    text-transform: uppercase;
-}
-
-.status-pending {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    color: #92400e;
-}
-
-.status-active {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    color: #065f46;
-}
-
-.status-completed {
-    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-    color: #374151;
-}
-
-.status-rejected {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    color: #991b1b;
-}
-
-.btn-approve {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-approve:hover {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    transform: translateY(-2px);
-}
-
-.btn-reject {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-reject:hover {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    transform: translateY(-2px);
-}
-
-.btn-complete {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-complete:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    transform: translateY(-2px);
-}
-
-#statusFilter, #sportFilter, .status-dropdown {
-    padding: 0.5rem 1rem;
-    border: 3px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    background: white;
-    pointer-events: auto;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.status-dropdown:hover {
-    border-color: #5e2d91;
-}
-
-.status-dropdown:focus {
-    outline: none;
-    border-color: #5e2d91;
-    box-shadow: 0 0 0 3px rgba(94, 45, 145, 0.1);
-}
-
-/* Status color classes */
-.status-dropdown.status-pending {
-
-    color: #92400e;
-    border: 2px solid #f59e0b;
-}
-
-.status-dropdown.status-accepted {
-
-    color: #065f46;
-    border: 2px solid #10b981;
-}
-
-.status-dropdown.status-active {
- 
-    color: #1e40af;
-    border: 2px solid #3b82f6;
-}
-
-.status-dropdown.status-completed {
-
-    color: #374151;
-    border: 2px solid #6b7280;
-}
-
-.status-dropdown.status-rejected {
-   
-    color: #991b1b;
-    border: 2px solid #ef4444;
-}
-</style>
-
-<?php
-    require "../app/views/templates/general/footer.php";
-?>
+<?php require "../app/views/templates/general/footer.php"; ?>
 </body>
 </html>

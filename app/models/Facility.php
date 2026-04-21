@@ -645,18 +645,65 @@ class Facility {
     /* ---------- UPDATE PAYMENT STATUS (for PayHere IPN) ---------- */
     public function updatePaymentStatus($booking_id, $status, $payment_id = null) {
         try {
+            if (!$this->db->inTransaction()) {
+                $this->db->beginTransaction();
+            }
+
             $sql = "UPDATE `facility-booking`
                     SET payment_status = :status,
                         payment_id = :payment_id
                     WHERE booking_id = :booking_id";
 
             $stmt = $this->db->prepare($sql);
-            return $stmt->execute([
+            $stmt->execute([
                 ':status' => $status,
                 ':payment_id' => $payment_id,
                 ':booking_id' => $booking_id
             ]);
-        } catch (PDOException $e) {
+
+            // If payment is completed, record it in the payment table for financial analytics
+            if ($status === 'COMPLETE') {
+                $booking = $this->getReservationDetails($booking_id);
+                if ($booking) {
+                    $amount = $this->calculateBookingRate($booking);
+                    
+                    // Determine payment method
+                    $method = 'ONLINE';
+                    $clean_pay_id = $payment_id;
+                    
+                    if ($payment_id && strpos($payment_id, 'RETURN-') === 0) {
+                        $method = 'PAYHERE_ONLINE';
+                    } else if ($payment_id && strpos($payment_id, 'VERIFIED_BY_ADMIN_') === 0) {
+                        $method = 'BANK_SLIP';
+                    }
+
+                    if (!$clean_pay_id) {
+                        $clean_pay_id = "P" . strtoupper(uniqid());
+                    }
+
+                    $paySql = "INSERT INTO payment (payment_id, user_id, booking_id, amount, payment_date, payment_method, payment_status)
+                               VALUES (:pay_id, :user_id, :booking_id, :amount, CURDATE(), :method, 'DONE')
+                               ON DUPLICATE KEY UPDATE amount = :amount2, payment_method = :method2";
+                    
+                    $payStmt = $this->db->prepare($paySql);
+                    $payStmt->execute([
+                        ':pay_id' => $clean_pay_id,
+                        ':user_id' => $booking['user_id'],
+                        ':booking_id' => $booking_id,
+                        ':amount' => (int)$amount,
+                        ':amount2' => (int)$amount,
+                        ':method' => $method,
+                        ':method2' => $method
+                    ]);
+                }
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             error_log("Update payment status error: " . $e->getMessage());
             return false;
         }
